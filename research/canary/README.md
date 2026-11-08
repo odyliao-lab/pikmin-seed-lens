@@ -68,5 +68,7 @@ Virgo Android15/API35 has baseline ARM64 JNI and real-classloader canary evidenc
 (see `docs/COMPATIBILITY_RESEARCH.md`). Its ROM was already SELinux Permissive;
 we did not change it. This does not qualify Enforcing x86 ROMs, Android28–34,
 game rendering, JNI_OnLoad/lifecycle for the real renderer, or cancellation of
-arbitrary dlopen side effects. The production x86_64 refusal remains enabled.
+arbitrary dlopen side effects. The refusal described here is the historical
+research-stage state; 0.3.1 has a separately qualified API35 product candidate.
+Android12/API31 NativeBridge is not qualified by this canary evidence.
 The test APK is development tooling, not another package required by end users.
