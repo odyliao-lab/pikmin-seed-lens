@@ -19,6 +19,13 @@ using CanaryPlatform=seed_bridge::Platform;
 #error host probe requires x86_64
 #endif
 namespace {
+#ifdef SEED_API31_CANARY
+constexpr const char* probeVersion=SEED_API31_PROBE_VERSION;
+constexpr jlong probeCode=SEED_API31_PROBE_CODE;
+#else
+constexpr const char* probeVersion="0.0.5";
+constexpr jlong probeCode=5;
+#endif
 bool self() {
     char value[128]{}; int fd=open("/proc/self/cmdline",O_RDONLY|O_CLOEXEC);
     if(fd<0)return false;
@@ -45,11 +52,11 @@ void* worker(void*) {
     r.add("WRONG_PACKAGE_REJECTED");
     CanaryPlatform bridge;
     if(!bridge.open("dev.ody.seedlensprobe")){r.add(bridge.error());return nullptr;}
-    if(bridge.version("0.0.wrong",5)||strcmp(bridge.error(),"VERSION_NAME_MISMATCH")){
+    if(bridge.version("0.0.wrong",probeCode)||strcmp(bridge.error(),"VERSION_NAME_MISMATCH")){
         r.add("WRONG_VERSION_NAME_ACCEPTED");return nullptr;}
-    if(bridge.version("0.0.5",4)||strcmp(bridge.error(),"VERSION_CODE_MISMATCH")){
+    if(bridge.version(probeVersion,probeCode-1)||strcmp(bridge.error(),"VERSION_CODE_MISMATCH")){
         r.add("WRONG_VERSION_CODE_ACCEPTED");return nullptr;}
-    if(!bridge.version("0.0.5",5)){r.add(bridge.error());return nullptr;}
+    if(!bridge.version(probeVersion,probeCode)){r.add(bridge.error());return nullptr;}
     r.add("EXACT_VERSION_AND_NEGATIVE_CONTROLS_PASS");
     auto vm=bridge.vm();auto env=bridge.env();auto app=bridge.application();
 #ifdef SEED_FOREIGN_APK

@@ -101,3 +101,40 @@ a candidate; the actual load must report `needs_native_bridge=true` before the
 four-argument trampoline is usable. See [actual API31 results and source
 contracts](../../docs/API31_AVD_RESEARCH.md). Do not deploy this experimental
 host to a game or treat fixture results as product qualification.
+
+## API31 PM carrier and durable runner preparation
+
+`build-api31-lab.ps1` prepares an ARM-only probe (0.0.6/code6), a separate x64
+host carrier (0.0.1/code1), and the `api31-canary-root` executable. The carrier
+exists only to obtain a trusted PM library path under Enforcing; it has no Java,
+Activity, network, game hooks or scanner role. These two packages are laboratory
+tools, never an end-user requirement. The product still uses one APK.
+
+Pass explicit SDK/JDK/NDK/CMake/Ninja paths and `-Unsigned` for preparation. These
+APKs are NOT_FOR_INSTALL_OR_DELIVERY. Signing additionally requires an explicit
+external `-SigningKey`, `-ExpectedCertificateSha256` and password environment
+variable names. No key discovery/generation or device operation occurs. Signed
+versions are reserved outside the temporary build outputs; another build cannot
+replace them without increasing the manifest versions/codes. A key/permission
+failure is not a successful signed build.
+
+The API31 host's exact name/code come from `AndroidManifest.api31.xml`. The ARM
+canary SHA is pinned in that host; its immutable PM-carrier copy is then pinned
+into a separately configured runner. Packaging checks enforce ARM-only probe,
+stored canary asset, stored x64 carrier library and 16KB alignment.
+
+Runner arguments: `api31-canary-root PID START 31 PM_HOST [--timeout-test]`.
+Only the exact self-probe command/UID/start is accepted. The library must be the
+canonical system/root-owned PM path of `dev.ody.seedlenshostcarrier`, with the
+exact build SHA, safe ancestors and stable file identity. The durable lease and
+LoadAttempt use `/data/local/tmp/seed-lens-probe-pm-v1`. Never delete it to retry.
+The supervised backend is a research derivative of the 0.3.1 x64 implementation,
+restricted to the self-probe thread/API31. CALLING is acknowledged durably before
+EXITKILL or a remote call; uncertain calls preserve UNKNOWN and use exact pidfd
+containment. The timeout option deliberately stalls only a disposable fresh
+probe after CALLING. It is not a game recovery strategy.
+
+As of this stage, unsigned pair/layout checks and seven **pre-attach refusal**
+cases have run on API31; positive PM-host load, actual JNI and timeout execution
+for this new runner remain untested. Existing supervisor fixtures do not prove
+these App-level cases. See the latest [API31 evidence](../../docs/API31_AVD_RESEARCH.md).
