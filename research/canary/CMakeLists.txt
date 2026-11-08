@@ -38,6 +38,14 @@ target_include_directories(seedprobe_host PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/.
 set_source_files_properties(host.cpp PROPERTIES COMPILE_OPTIONS "-Wall;-Wextra;-Werror")
 target_compile_options(seedprobe_host PRIVATE -fvisibility=hidden)
 target_link_libraries(seedprobe_host dl)
+# Separate research library: API31 symbols/ABI never enter a product target or
+# replace the API35 baseline library. Same pinned canary, package and negatives.
+add_library(seedprobe_api31_host SHARED host.cpp ${XDL})
+target_compile_definitions(seedprobe_api31_host PRIVATE SEED_API31_CANARY SEED_CANARY_SHA="${CANARY_SHA}")
+target_include_directories(seedprobe_api31_host PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../third_party/xdl/include"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../../app" "${CMAKE_CURRENT_SOURCE_DIR}/../../native/renderer")
+target_compile_options(seedprobe_api31_host PRIVATE -fvisibility=hidden)
+target_link_libraries(seedprobe_api31_host dl)
 add_executable(canary_identity_test identity_test.cpp)
 add_executable(probe_platform_test ../probe_platform_test.cpp)
 target_compile_options(probe_platform_test PRIVATE -Wall -Wextra -Werror)

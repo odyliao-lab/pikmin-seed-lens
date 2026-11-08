@@ -8,7 +8,13 @@
 #include <string>
 #include "xdl.h"
 #include "apk_payload.h"
+#ifdef SEED_API31_CANARY
+#include "api31_platform.h"
+using CanaryPlatform=seed_bridge_api31::Platform;
+#else
 #include "bridge_platform.h"
+using CanaryPlatform=seed_bridge::Platform;
+#endif
 #if !defined(__x86_64__)
 #error host probe requires x86_64
 #endif
@@ -33,11 +39,11 @@ void* worker(void*) {
     Receipt r;if(!r.add("HOST_ENTER"))return nullptr;
     // Use exactly the same adapter as the production candidate, including its
     // package/version refusals; canary success is not game renderer acceptance.
-    {seed_bridge::Platform wrong;
+    {CanaryPlatform wrong;
      if(wrong.open("dev.ody.seedlensprobe.wrong")){r.add("WRONG_PACKAGE_ACCEPTED");return nullptr;}
      if(strcmp(wrong.error(),"WRONG_PACKAGE")){r.add(wrong.error());return nullptr;}}
     r.add("WRONG_PACKAGE_REJECTED");
-    seed_bridge::Platform bridge;
+    CanaryPlatform bridge;
     if(!bridge.open("dev.ody.seedlensprobe")){r.add(bridge.error());return nullptr;}
     if(bridge.version("0.0.wrong",5)||strcmp(bridge.error(),"VERSION_NAME_MISMATCH")){
         r.add("WRONG_VERSION_NAME_ACCEPTED");return nullptr;}
@@ -97,7 +103,11 @@ void* worker(void*) {
     r.add("APK_PAYLOAD_SHA_VERIFIED");
     path=apk+"!/assets/bridge/libcanary.so";
     r.add("APK_ZIP_CANARY");
+#ifdef SEED_API31_CANARY
+    r.add("API31_NAMESPACE_PAIR_NOT_YET_LOADED");
+#else
     r.add("REAL_BRIDGED_NAMESPACE");
+#endif
     // A real namespace must report a missing self-owned library as a failure;
     // do not substitute a fallback namespace after this negative control.
     std::string absent=path+".does-not-exist";
@@ -108,6 +118,9 @@ void* worker(void*) {
        ||pinned.st_dev!=currentApk.st_dev||pinned.st_size!=currentApk.st_size){r.add("APK_REPLACED");return nullptr;}
     void* handle=bridge.load(path.c_str());
     if(!handle){r.add(bridge.error());return nullptr;}
+#ifdef SEED_API31_CANARY
+    r.add("API31_BRIDGED_NAMESPACE_CONFIRMED_BY_LOAD");
+#endif
     r.add("ARM64_HANDLE");
     if(bridge.entry(handle,"SeedLensMissingSymbol","JJ",2)){r.add("MISSING_SYMBOL_NOT_REJECTED");return nullptr;}
     r.add("MISSING_SYMBOL_REJECTED");

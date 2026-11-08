@@ -91,3 +91,13 @@ namespace, baseline ARM JNI, four canary values, wrong package/version/key,
 missing library/symbol, worker attach/detach, normal FINISH, timeout containment
 and a new-process repetition all still need private device receipts. Do not use
 this research admission to widen `Compatibility.java` or the production loader.
+
+The official API31 AVD uses `libndk_translation.so` and lacks both
+`IsNamespaceNativeBridged` and `NativeBridgeGetTrampoline2`. The separate
+`seedprobe_api31_host` target uses the API31-only `api31_platform.h` experiment;
+the existing `seedprobe_host` and product adapter keep the API35 interface.
+This target is built, not yet loaded into an App. Namespace pair lookup is only
+a candidate; the actual load must report `needs_native_bridge=true` before the
+four-argument trampoline is usable. See [actual API31 results and source
+contracts](../../docs/API31_AVD_RESEARCH.md). Do not deploy this experimental
+host to a game or treat fixture results as product qualification.

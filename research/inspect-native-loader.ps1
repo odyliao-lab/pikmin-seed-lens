@@ -1,13 +1,16 @@
 param(
  [Parameter(Mandatory=$true)][string]$ReadElf,
- [Parameter(Mandatory=$true)][string]$LibraryDirectory
+ [Parameter(Mandatory=$true)][string]$LibraryDirectory,
+ [ValidateSet('libnb.so','libndk_translation.so')][string]$BridgeLibrary='libnb.so',
+ [switch]$IncludeArt
 )
 $ErrorActionPreference='Stop'
 $wanted=@{
- 'libnativeloader.so'=@('FindNativeLoaderNamespaceByClassLoader','OpenNativeLibraryInNamespace','IsNamespaceNativeBridged')
- 'libnativebridge.so'=@('NativeBridgeInitialized','NativeBridgeGetVersion','NativeBridgeGetExportedNamespace','NativeBridgeCreateNamespace','NativeBridgeLoadLibraryExt','NativeBridgeGetTrampoline2')
- 'libnb.so'=@('NativeBridgeItf')
+ 'libnativeloader.so'=@('FindNativeLoaderNamespaceByClassLoader','FindNamespaceByClassLoader','OpenNativeLibraryInNamespace','IsNamespaceNativeBridged','NativeLoaderFreeErrorMessage')
+ 'libnativebridge.so'=@('NativeBridgeInitialized','NativeBridgeGetVersion','NativeBridgeGetExportedNamespace','NativeBridgeCreateNamespace','NativeBridgeLoadLibraryExt','NativeBridgeGetTrampoline','NativeBridgeGetTrampoline2')
 }
+$wanted[$BridgeLibrary]=@('NativeBridgeItf')
+if($IncludeArt){$wanted['libart.so']=@('JNI_GetCreatedJavaVMs')}
 foreach($name in ($wanted.Keys|Sort-Object)){
  $path=Join-Path $LibraryDirectory $name
  $symbols=& $ReadElf --dyn-syms $path
