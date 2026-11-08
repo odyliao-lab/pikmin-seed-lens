@@ -1,0 +1,3 @@
+[submodule "third_party/AndKittyInjector"]
+	path = third_party/AndKittyInjector
+	url = https://github.com/MJx0/AndKittyInjector.git
