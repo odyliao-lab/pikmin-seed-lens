@@ -1,0 +1,72 @@
+# Isolated NativeBridge canary (not a product backend)
+
+Package `dev.ody.seedlensprobe` targets only itself with Android instrumentation.
+It has no Activity, Internet, boot receiver, root request or game functions. It
+loads its APK-installed ARM64 fixture through Java, checks four return values,
+writes PID-bound receipts, remains alive for 90 seconds, and finishes. The game
+can remain foreground; no scanner pause is required for this background probe.
+
+`build.ps1` takes explicit SDK/JDK/NDK and an external signing key/password-env
+source. It builds ARM64-only libraries and rejects an unpackaged C++ dependency.
+Code4 stores the canary only at `assets/bridge/libcanary.so` inside the APK;
+only the fixture is in `lib/arm64-v8a`. Both are stored/page-aligned for 16KB.
+The signed APK is checked again for alignment and absence of an extracted canary.
+Use the same test signing identity for upgrades. Research versions are separate
+from the Lens product; keep previous APKs, hashes and receipts.
+
+The x86_64 CMake targets are built with NDK r27d/API28, `c++_static`, and the pinned
+clean AndKittyInjector/KittyMemoryEx dependencies. The build creates one isolated
+copy of `KittyTrace.cpp` using `research/bounded-trace.cmake`: monotonic waits,
+bounded SEIZE interruption, a shared syscall deadline, checked stopped-state
+restoration and rejection of internal Linux restart results. Pinned anchors must
+match exactly; updates fail closed. `kitty_syscall_test` traces only its own forked
+children and tests normal/timeout/signal/exit behavior, not arbitrary dlopen.
+No submodule or production trace implementation is changed. xDL resolves **already mapped**
+platform-library exports; it is never called with force-load flags.
+Configure CMake with `-DSEED_CANARY_LIBRARY=<build>/payload/assets/bridge/libcanary.so`
+to pin the canary's SHA in the host. The library must be the exact APK entry.
+
+## Boundaries
+
+- `canary-root` accepts only the exact self-test process command (including normal
+  zero padding), matching app UID and current process-start ticks. Its payload
+  path is fixed, root-owned and not writable by apps. No arbitrary package/library
+  interface is exposed. `canary_identity_test` covers exact/padded/negative names.
+- A parent watchdog uses a PID fd and `PTRACE_O_EXITKILL`. On uncertain execution it
+  terminates **the disposable test process**, not the game. This is containment,
+  NOT graceful recovery and MUST NOT be copied into a game loader as a solution.
+  The explicit `--timeout-test` option deliberately stalls only after attaching
+  to the verified self-test process. Its three-second watchdog requires both
+  tracer reaping and PID-fd exit readiness before reporting containment passed.
+- The root runner stages verified build bytes in a root-owned directory. The host
+  constructor repeats the self-package guard and starts a JNI worker. Receipts
+  are exclusive-create, per PID, in that test package's private files directory.
+- The worker gets the real current Application/ClassLoader and its opaque native
+  namespace. It requires a bridged namespace and loads only the PM APK's embedded
+  ARM64 canary via `base.apk!/assets/bridge/libcanary.so`. It validates the stored
+  ZIP entry, 16KB alignment, local/central agreement, absence of duplicate entries
+  and its build-pinned SHA; an open FD pins the checked file through load.
+  The shared `app/apk_payload.h` reader does not replace PM/signature/owner checks.
+  It checks a missing library, missing symbol and four actual JNI trampoline
+  results. No exported-name guessing, pointer `1`, ART-object layout
+  guessing or SELinux changes.
+- Wait for `FIXTURE_PASS` in the current PID's receipt before calling the host
+  runner. A fixed three-second startup delay was insufficient in one run.
+- Validate both the namespace receipt and subsequent Java `ALIVE`/`FINISH`;
+  `dlopen` or exit 0 alone is insufficient. Verify no attached tracer remains.
+  Keep all prior failures. Never rerun into the same process after an UNKNOWN.
+- The translated `JNI_OnLoad` test rejects a wrong entry key before mutation,
+  accepts the expected key twice but creates only one ARM64 worker, and checks
+  that worker's JVM attach/GetVersion/detach. This is not the real renderer.
+- `apk_payload_test` has synthetic positive/negative ZIP policy and SHA vectors;
+  optional APK path + expected entry SHA checks actual bytes and a wrong digest.
+  This executable only reads files; it does not attach or load code into apps.
+
+## Evidence limits
+
+Virgo Android15/API35 has baseline ARM64 JNI and real-classloader canary evidence
+(see `docs/COMPATIBILITY_RESEARCH.md`). Its ROM was already SELinux Permissive;
+we did not change it. This does not qualify Enforcing x86 ROMs, Android28–34,
+game rendering, JNI_OnLoad/lifecycle for the real renderer, or cancellation of
+arbitrary dlopen side effects. The production x86_64 refusal remains enabled.
+The test APK is development tooling, not another package required by end users.

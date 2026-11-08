@@ -10,6 +10,8 @@
 #include <cstring>
 #include <cstdio>
 #include <thread>
+#include <fstream>
+#include <sstream>
 #include <elf.h>
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -292,22 +294,27 @@ bool control_on() {
     close(fd);return n>0&&enabled_control({b,static_cast<size_t>(n)});
 }
 void worker(std::string directory) {
+    std::ifstream process("/proc/self/stat");std::string statLine,start;
+    std::getline(process,statLine);auto close=statLine.rfind(')');
+    if(close==statLine.npos)return;
+    std::istringstream fields(statLine.substr(close+2));
+    for(int i=3;i<=22;++i)if(!(fields>>start))return;
+    if(start.empty()||start.find_first_not_of("0123456789")!=start.npos)return;
     void *lib=nullptr;for(int i=0;i<180&&!lib;++i){lib=xdl_open("libil2cpp.so",XDL_DEFAULT);if(!lib)sleep(1);}
-    xdl_info_t info{};struct stat st{};
+    xdl_info_t info{};
     bool valid=lib&&xdl_info(lib,XDL_DI_DLINFO,&info)==0&&info.dli_fbase&&info.dli_fname
-        &&!stat(info.dli_fname,&st)&&st.st_size==256384336
-        &&static_cast<Elf64_Ehdr*>(info.dli_fbase)->e_machine==EM_AARCH64&&verified_game_digest(info.dli_fname);
+        &&static_cast<Elf64_Ehdr*>(info.dli_fbase)->e_machine==EM_AARCH64;
+    const auto* profile=valid?verified_game_profile(info.dli_fname):nullptr;
+    valid=valid&&profile&&profile->layout==1;
     auto base=static_cast<unsigned char*>(info.dli_fbase);
-    constexpr uint32_t inventory_prefix[]{0xa9ba7bfd,0xa9016ffc,0xa90267fa,0xa9035ff8,0xa90457f6,0xa9054ff4};
-    constexpr uint32_t expedition_prefix[]{0xd10103ff,0xa9015ffe,0xa90257f6,0xa9034ff4,0x9004a0b6,0xaa0203f5};
-    // Both public NullableUpdate and private UpdateData call this common
-    // DoUpdate(IExpeditionData). The public path inlines the private wrapper.
-    constexpr uint32_t detail_prefix[]{0xd102c3ff,0x6d0423e9,0xf9002bfe,0xa9066ffc,0xa90767fa,0xa9085ff8};
-    constexpr uint32_t text_prefix[]{0xf81a0ffd,0xa9016ffe,0xa90267fa,0xa9035ff8,0xa90457f6,0xa9054ff4};
-    constexpr uint32_t canvas_prefix[]{0xa9ba7bfd,0xa9016ffc,0xa90267fa,0xa9035ff8,0xa90457f6,0xa9054ff4};
-    valid=valid&&!memcmp(base+0x66ab9cc,inventory_prefix,sizeof inventory_prefix)&&!memcmp(base+0x6eaee6c,text_prefix,sizeof text_prefix)
-        &&!memcmp(base+0xe11dd28,canvas_prefix,sizeof canvas_prefix)
-        &&!memcmp(base+0x6082dc8,expedition_prefix,sizeof expedition_prefix)&&!memcmp(base+0x6090110,detail_prefix,sizeof detail_prefix);
+    if(valid){
+        for(const auto* entry:{&profile->inventory,&profile->text,&profile->canvas,&profile->expedition,&profile->detail})
+            valid=valid&&!memcmp(base+entry->rva,entry->prefix.data(),sizeof(entry->prefix));
+        // Both reviewed text entry points are a B +4 veneer. Hook the body,
+        // including callers which skip that veneer; verify both bytes/paths.
+        uint32_t veneer=0;memcpy(&veneer,base+profile->text.rva-4,sizeof veneer);
+        valid=valid&&veneer==0x14000001;
+    }
 #define RESOLVE(var,name) var=reinterpret_cast<decltype(var)>(xdl_sym(lib,name,nullptr));valid=valid&&var
     if(valid){
         RESOLVE(domain_get,"il2cpp_domain_get");RESOLVE(assemblies,"il2cpp_domain_get_assemblies");
@@ -319,18 +326,18 @@ void worker(std::string directory) {
         RESOLVE(method_named,"il2cpp_class_get_method_from_name");RESOLVE(invoke,"il2cpp_runtime_invoke");RESOLVE(unbox,"il2cpp_object_unbox");
     }
 #undef RESOLVE
-    if(valid){valid=hook(base,0x6eaee6c,reinterpret_cast<void*>(text_hook),original_text)
-        &&hook(base,0xe11dd28,reinterpret_cast<void*>(canvas_hook),original_canvas)
-        &&hook(base,0x66ab9cc,reinterpret_cast<void*>(inventory_hook),original_inventory)
-        &&hook(base,0x6082dc8,reinterpret_cast<void*>(expedition_hook),original_expedition)
-        &&hook(base,0x6090110,reinterpret_cast<void*>(detail_hook),original_detail);}
+    if(valid){valid=hook(base,profile->text.rva,reinterpret_cast<void*>(text_hook),original_text)
+        &&hook(base,profile->canvas.rva,reinterpret_cast<void*>(canvas_hook),original_canvas)
+        &&hook(base,profile->inventory.rva,reinterpret_cast<void*>(inventory_hook),original_inventory)
+        &&hook(base,profile->expedition.rva,reinterpret_cast<void*>(expedition_hook),original_expedition)
+        &&hook(base,profile->detail.rva,reinterpret_cast<void*>(detail_hook),original_detail);}
     phase.store(valid?"waiting-cards":"incompatible");hooks_ready.store(valid);
     const auto path=directory+"/files/seed_preview_status.tsv",tmp=path+".tmp";
     for(;;){
         wanted.store(valid&&control_on());
         auto now=std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-        FILE *f=fopen(tmp.c_str(),"w");if(f){bool ok=fprintf(f,"v1\t%lld\t%d\t156.1\t%s\t%d\t%u\t%u\t%u\t%u\n",
-            static_cast<long long>(now),getpid(),phase.load(),(!strcmp(phase.load(),"ready")?rendered_enabled.load():wanted.load())?1:0,bound_count.load(),decorated_mask.load(),applied.load(),restored.load())>0;
+        FILE *f=fopen(tmp.c_str(),"w");if(f){bool ok=fprintf(f,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t%u\t%u\t%u\t%s\n",
+            static_cast<long long>(now),getpid(),profile?profile->version:"unsupported",phase.load(),(!strcmp(phase.load(),"ready")?rendered_enabled.load():wanted.load())?1:0,bound_count.load(),decorated_mask.load(),applied.load(),restored.load(),start.c_str())>0;
             if(fclose(f))ok=false;if(ok){chmod(tmp.c_str(),0644);rename(tmp.c_str(),path.c_str());}}
         FILE *diag=fopen((directory+"/files/seed_preview_diagnostic.tsv").c_str(),"w");
         if(diag){fprintf(diag,"%u\t%u\t%u\t%u\t%u\t%d\t%d\t%d\n",seed_calls.load(),text_calls.load(),canvas_calls.load(),tracked.load(),text_matches.load(),ui_tid.load(),text_tid.load(),canvas_tid.load());fclose(diag);}

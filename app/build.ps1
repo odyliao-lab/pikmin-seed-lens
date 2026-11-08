@@ -6,11 +6,13 @@ param(
  [Parameter(Mandatory)][string]$CmakePath,
  [Parameter(Mandatory)][string]$NinjaPath,
  [switch]$Unsigned,
+ [switch]$Candidate,
  [string]$SigningKey='',
  [string]$StorePassEnv='SEED_LENS_STORE_PASS',
  [string]$KeyPassEnv='SEED_LENS_KEY_PASS'
 )
 $ErrorActionPreference='Stop'
+if($Candidate -and !$Unsigned){throw 'Candidate builds are unsigned and must not be installed or delivered'}
 $root=Split-Path $PSScriptRoot -Parent
 $dep="$root/third_party/AndKittyInjector"
 if(!$Unsigned){
@@ -32,29 +34,53 @@ $manifest=[xml](Get-Content "$PSScriptRoot/AndroidManifest.xml" -Raw)
 $version=[string]$manifest.manifest.versionName
 if($version -notmatch '^0\.[0-9]+\.[0-9]+$'){throw 'Invalid standalone version'}
 $kind=if($Unsigned){'unsigned'}else{'signed'}
-$out="$root/.tools/build/$version/$kind"
+$out=if($Candidate){"$root/.tools/candidates/$([Guid]::NewGuid().ToString('N'))"}else{"$root/.tools/build/$version/$kind"}
 $apk="$out/pikmin-seed-lens-$version-$kind.apk"
 if(Test-Path $apk){throw 'Delivered artifact immutable; bump manifest and output version for changes'}
 New-Item -ItemType Directory -Force "$out/assets","$out/classes","$out/dex"|Out-Null
 New-Item -ItemType Directory -Force "$out/tests"|Out-Null
-& "$JavaHome/bin/javac.exe" -encoding UTF-8 -d "$out/tests" "$PSScriptRoot/src/dev/ody/seedpreview/Compatibility.java" "$PSScriptRoot/tests/CompatibilityTest.java"
+& "$JavaHome/bin/javac.exe" -encoding UTF-8 -d "$out/tests" "$PSScriptRoot/src/dev/ody/seedpreview/Compatibility.java" "$PSScriptRoot/tests/CompatibilityTest.java" "$PSScriptRoot/src/dev/ody/seedpreview/InstalledNative.java" "$PSScriptRoot/tests/InstalledNativeTest.java"
 if($LASTEXITCODE){throw 'Compatibility test compile failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.CompatibilityTest
 if($LASTEXITCODE){throw 'Compatibility tests failed'}
+& "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.InstalledNativeTest
+if($LASTEXITCODE){throw 'Installed native path/digest tests failed'}
+& "$JavaHome/bin/javac.exe" -encoding UTF-8 -d "$out/tests" "$PSScriptRoot/src/dev/ody/seedpreview/GameSession.java" "$PSScriptRoot/tests/GameSessionTest.java"
+if($LASTEXITCODE){throw 'Game session test compile failed'}
+& "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.GameSessionTest
+if($LASTEXITCODE){throw 'Game session tests failed'}
+& "$JavaHome/bin/javac.exe" -encoding UTF-8 -d "$out/tests" "$PSScriptRoot/tests/ApkNativeLayout.java" "$PSScriptRoot/tests/ApkNativeLayoutTest.java"
+if($LASTEXITCODE){throw 'APK layout checker compile failed'}
+& "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.ApkNativeLayoutTest
+if($LASTEXITCODE){throw 'APK layout checker tests failed'}
 foreach($abi in @('arm64-v8a','x86_64')){
  $nativeBuild="$root/.tools/native-build/$abi"
- & $CmakePath -G Ninja "-DCMAKE_MAKE_PROGRAM=$NinjaPath" "-DCMAKE_TOOLCHAIN_FILE=$NdkPath/build/cmake/android.toolchain.cmake" "-DANDROID_ABI=$abi" -DANDROID_PLATFORM=android-28 -DANDROID_STL=c++_static -DCMAKE_BUILD_TYPE=Release -S $PSScriptRoot -B $nativeBuild
+ # Build and copy ARM first. The bridge hashes THIS immutable build output,
+ # never an earlier installed renderer or a stale CMake cache entry.
+ $rendererPin=if($abi -eq 'x86_64'){"$out/assets/libseed_display.so"}else{''}
+ & $CmakePath -G Ninja "-DCMAKE_MAKE_PROGRAM=$NinjaPath" "-DCMAKE_TOOLCHAIN_FILE=$NdkPath/build/cmake/android.toolchain.cmake" "-DANDROID_ABI=$abi" "-DSEED_BRIDGE_RENDERER=$rendererPin" -DANDROID_PLATFORM=android-28 -DANDROID_STL=c++_static -DCMAKE_BUILD_TYPE=Release -S $PSScriptRoot -B $nativeBuild
  if($LASTEXITCODE){throw 'Native configure failed'}
  & $CmakePath --build $nativeBuild --parallel 4
  if($LASTEXITCODE){throw 'Native build failed'}
- Copy-Item -LiteralPath "$nativeBuild/seed-root" -Destination "$out/assets/seed-root-$abi"
+ New-Item -ItemType Directory -Force "$out/native/lib/$abi"|Out-Null
+ Copy-Item -LiteralPath "$nativeBuild/seed-root" -Destination "$out/native/lib/$abi/libseed_loader.so"
+ $digest=(Get-FileHash -Algorithm SHA256 "$nativeBuild/seed-root").Hash.ToLowerInvariant()
+ [IO.File]::WriteAllText("$out/assets/seed-loader-$abi.sha256",$digest+"`n",[Text.Encoding]::ASCII)
+ if($abi -eq 'arm64-v8a'){
+  Copy-Item -LiteralPath "$nativeBuild/libseed_display.so" -Destination "$out/assets/libseed_display.so"
+  Copy-Item -LiteralPath "$nativeBuild/libseed_display.so" -Destination "$out/native/lib/$abi/libseed_display.so"
+ }else{
+  Copy-Item -LiteralPath "$nativeBuild/libseed_bridge.so" -Destination "$out/native/lib/$abi/libseed_bridge.so"
+  Copy-Item -LiteralPath "$nativeBuild/seed-bridge-renderer.sha256" -Destination "$out/assets/seed-bridge-renderer.sha256"
+  $bridgeDigest=(Get-FileHash -Algorithm SHA256 "$nativeBuild/libseed_bridge.so").Hash.ToLowerInvariant()
+  [IO.File]::WriteAllText("$out/assets/seed-bridge-x86_64.sha256",$bridgeDigest+"`n",[Text.Encoding]::ASCII)
+ }
 }
-Copy-Item -LiteralPath "$root/.tools/native-build/arm64-v8a/libseed_display.so" -Destination "$out/assets/libseed_display.so"
 Copy-Item -LiteralPath "$dep/LICENSE" -Destination "$out/assets/AndKittyInjector-LICENSE.txt"
 Copy-Item -LiteralPath "$dep/KittyMemoryEx/LICENSE" -Destination "$out/assets/KittyMemoryEx-LICENSE.txt"
 Copy-Item -LiteralPath "$root/third_party/RENDERER_NOTICES.md" -Destination "$out/assets/Renderer-THIRD-PARTY-NOTICES.txt"
 $bt="$SdkPath/build-tools/35.0.0";$jar="$SdkPath/platforms/android-35/android.jar";$env:JAVA_HOME=$JavaHome
-& "$bt/aapt2.exe" link -I $jar --manifest "$PSScriptRoot/AndroidManifest.xml" -A "$out/assets" -o "$out/unsigned.apk"
+& "$bt/aapt2.exe" link -I $jar --manifest "$PSScriptRoot/AndroidManifest.xml" -A "$out/assets" -0 so -o "$out/unsigned.apk"
 if($LASTEXITCODE){throw 'Resource link failed'}
 $sources=@(Get-ChildItem "$PSScriptRoot/src" -Recurse -Filter *.java|ForEach-Object FullName)
 & "$JavaHome/bin/javac.exe" -encoding UTF-8 -source 8 -target 8 -classpath $jar -d "$out/classes" $sources
@@ -65,8 +91,12 @@ if($LASTEXITCODE){throw 'Jar failed'}
 if($LASTEXITCODE){throw 'Dex failed'}
 & "$JavaHome/bin/jar.exe" uf "$out/unsigned.apk" -C "$out/dex" classes.dex
 if($LASTEXITCODE){throw 'APK dex addition failed'}
-& "$bt/zipalign.exe" -f 4 "$out/unsigned.apk" "$out/aligned.apk"
+& "$JavaHome/bin/jar.exe" u0f "$out/unsigned.apk" -C "$out/native" lib
+if($LASTEXITCODE){throw 'APK installed native library addition failed'}
+& "$bt/zipalign.exe" -P 16 -f 4 "$out/unsigned.apk" "$out/aligned.apk"
 if($LASTEXITCODE){throw 'Alignment failed'}
+& "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.ApkNativeLayout "$out/aligned.apk"
+if($LASTEXITCODE){throw 'Native APK layout/digest failed before signing'}
 if($Unsigned){
  Copy-Item -LiteralPath "$out/aligned.apk" -Destination $apk
 }else{
@@ -75,5 +105,10 @@ if($Unsigned){
  $cert=& "$bt/apksigner.bat" verify --print-certs $apk
  if($LASTEXITCODE -ne 0 -or !($cert -match '9080c5d8c9a138a3a8eb42ec65755cf2abd64b881a7bf398feabe3547b934a7e')){throw 'Certificate mismatch'}
 }
+& "$bt/zipalign.exe" -c -P 16 4 $apk
+if($LASTEXITCODE){throw 'Final APK alignment failed'}
+& "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.ApkNativeLayout $apk
+if($LASTEXITCODE){throw 'Native APK layout/digest validation failed; artifact must not be delivered'}
 Get-FileHash $apk
+if($Candidate){Write-Output 'NOT_FOR_INSTALL_OR_DELIVERY: candidate retains development manifest only'}
 Write-Output "Build completed ($kind). Not evidence of root load, UI restoration or multi-version compatibility."
