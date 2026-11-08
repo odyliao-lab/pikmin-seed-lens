@@ -1,5 +1,16 @@
 # 驗證分層
 
+## 2026-11-09：真正API31官方AVD／Enforcing原生隔離驗證
+
+- 使用者明確同意後安裝官方image package.xml rev14與emulator37.2.13，建立`SeedLens_API31_x64`（2vCPU/4096MiB，獨立D槽資料，顯式serial emulator-5580）；WHPX檢查成功。實際native API與property均31，x86_64、libndk_translation.so、kernel5.10.185、SELinux Enforcing。未新增driver或重啟host。
+- 原廠adb root可用，但su實際拒絕`-M`。沒有把adb root當成產品Root契約已驗；沒有安裝任何Root／顯示模組、關閉SELinux或改property。
+- 以下是在該API31 guest**真正執行**、exit0：監督收容7類，journal85項含6個crash點，控制／狀態68項，真overlay syscall15例，GPR/XSTATE/red-zone call15例；另有命名／identity、canary identity7、ZIP正2負28/SHA2。全部使用自有fixture／fork child，無遊戲操作。
+- native runtime API31及API32/35不相符、031格式拒絕在attach前實測；非法PID正確拒絕，不稱載入成功。沒有拿compile-time assertions當成裝置能力案例。
+- 真mapped ART／native loader／native bridge／libndk_translation經pull前後SHA比對再查export，確認缺少IsNamespaceNativeBridged與NativeBridgeGetTrampoline2。依Android12固定AOSP介面新增**隔離**API31 adapter，使用opaque/raw namespace成對查詢、實際load的bridged旗標及四參數trampoline；不猜private pointer/layout、不force-load、不放寬產品守門。
+- API31及原API35研究host都編譯通過；**新API31 adapter尚未載入真App**，沒有ClassLoader／JNI canary通過結論。未簽署／安裝研究APK、Lens或遊戲，沒有登入。
+- 結束確認沒有研究／遊戲套件或fixture程序殘留，Enforcing不變；adbd恢復non-root後正常關閉這台AVD，資料／fixture／receipt保留。這是平台測試交還，不是遊戲重啟、OS重啟或長時間產品驗收。
+- 原始receipt與平台二進位僅在ignored `.tools/lab/`；來源、SHA、逐層結果與下一步見[API31研究紀錄](API31_AVD_RESEARCH.md)。原四台與台中裝置沒有guest操作。
+
 ## 2026-11-09：竹北接手、研究工具修正與隔離環境
 
 交接來源`60ba00d1ffc0e92b3b56b3eecaa4b7759364a29b`；private remote與recursive pins核對完成，乾淨clone後建立`codex/zhubei-android12-compat`。完整盤點及具體操作範圍見[本輪接手](handoffs/2026-11-09-zhubei-intake.md)。
@@ -21,7 +32,7 @@
 | ARM64/API34/156.1 code1793076318（歷史Libra） | 既有Magisk，provider版號本輪未量測／Enforcing | 歷史context、supervisor、真JNI已驗 | 同0.3.1兩頁已驗 | 0.3.1獨立捲動紀錄待補／遊戲重啟已驗／未驗／未驗 |
 | x64/API35/libnb.so/156.1 code1793076318（歷史Virgo） | provider版號本輪未量測／Permissive | 歷史namespace、JNI、故障fixtures已驗 | 同0.3.1兩頁已驗 | 本版獨立捲動紀錄待補／新程序重新同意已驗／未驗／未驗 |
 | 原生ARM64/API31/156.1 code1793076318 | 尚無確認目標 | 研究工具已編譯，裝置未驗 | 未驗 | 全部未驗 |
-| x64/API31/NativeBridge/156.1 code1793076318 | 尚無確認目標 | 研究工具已編譯，裝置未驗 | 未驗；產品仍拒絕API31 | 全部未驗 |
+| 官方AVD x64/API31/libndk_translation.so／尚無遊戲 | 原廠adb root可用，su -M拒絕／Enforcing | 原生fault fixtures已驗；API31 adapter僅編譯，真JNI待驗 | 未驗；產品仍拒絕API31；156.1 code1793076318待合法來源及登入 | 全部未驗 |
 | API31/各ABI/156.0 code1792142832 | 各組合尚無確認目標 | 只有遊戲profile離線證據 | 未驗 | 全部未驗 |
 | 新MuMu12.0/API32/x64/libnb.so/無遊戲 | Root關閉／原Permissive | 只量測OS；不符合API31 | 未驗，未安裝Lens | 全部未驗，已關閉 |
 

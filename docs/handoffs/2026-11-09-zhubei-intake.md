@@ -48,9 +48,11 @@ ARM64研究僅31/34，x64研究僅31/35；拒絕32、其他API、格式錯誤及
 
 使用者確認後實際建立、啟動index4。host CLI現查端點`127.0.0.1:16512`，核對名稱/index後才連線該serial。OS回報API32、release12、x86_64、libnb.so；kernel`5.4.32-perf-gda349bfae95e`、原SELinux Permissive、Root設定false且shell無su路徑。沒有安裝probe或遊戲、沒有開Root或改SELinux。因API不符停止並正常關閉新instance，CLI確認程序已停止；不刪除它。原四台與台中裝置沒有Android操作。
 
-下一方案已在聊天提出待確認：Google SDK官方`emulator`及`system-images;android-31;google_apis;x86_64` rev14，空白AVD `SeedLens_API31_x64`，資料`D:\SeedLensLab\avd`，2vCPU/4GB；預定console5580/ADB5581、serial`emulator-5580`，執行前重查未占用及AVD身份。SDK manager目前列出的emulator版本37.2.13，尚未下載或建立。僅用既有虛擬化能力，不安裝driver／重啟host；若加速不可用先停止。
+下一方案已在聊天取得明確確認並執行：Google SDK官方`emulator`及`system-images;android-31;google_apis;x86_64` rev14，空白AVD `SeedLens_API31_x64`，資料`D:\SeedLensLab\avd`，2vCPU/4GB；console5580/ADB5581、serial`emulator-5580`，執行前重查未占用及AVD身份。emulator版本37.2.13，WHPX實測可用；沒有安裝driver或重啟host。
 
 這是x64/API31平台研究方案，不保證提供NativeBridge或產品的`su -M`。Google官方有[ARM轉譯的emulator研究說明](https://android-developers.googleblog.com/2020/03/run-arm-apps-on-android-emulator.html)，但不能把Android11的說明當新API31映像實測；[AVD官方說明](https://developer.android.com/studio/run/managing-avds)的adb root亦不等於產品Root契約。先新鮮核對實際API、原廠Root、mapped ART／native loader／bridge與失敗收容，再決定能驗哪些層；原生ARM64/API31仍需另外指定實際環境。
+
+本輪實際API31／Enforcing與原生安全fixtures已完成；同時確認su -M拒絕、兩個新adapter所需export缺失。已開發獨立API31研究host，但真App JNI仍待研究簽章材料或明確研究key授權；未安裝APK、未登入。結束已恢復non-root adbd並正常關閉新AVD，保留全部fixture與資料。完整範圍及收據SHA見[API31研究](../API31_AVD_RESEARCH.md)。
 
 ## 下一階段驗收順序
 

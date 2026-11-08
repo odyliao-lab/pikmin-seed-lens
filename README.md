@@ -10,7 +10,9 @@
 
 2026-11-09竹北已取得完整交接分支與recursive pins，乾淨candidate建置通過。
 新建隔離MuMu「12.0」實際回報API32，已停止並關閉，不能算必要API31驗收。
-研究loader已改為核對裝置實際API，產品x64仍限API35；詳見
+另已在官方API31 x64 AVD／Enforcing完成原生隔離安全測試，定位到平台export及
+`su -M`差異；API31專用adapter僅研究編譯，真JNI／遊戲仍未驗。產品x64仍限API35。
+見[API31實際研究結果](docs/API31_AVD_RESEARCH.md)及
 [本輪接手、環境及下一步](docs/handoffs/2026-11-09-zhubei-intake.md)。
 
 Virgo API35／x86_64／libnb.so／遊戲156.1已從正常App入口實際套用花苗頁及探險頁，
