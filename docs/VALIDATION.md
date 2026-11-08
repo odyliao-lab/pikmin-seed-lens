@@ -1,5 +1,13 @@
 # 驗證分層
 
+## 2026-11-09：持續目標與API31 PM研究準備
+
+- 使用者要求持續至Android12/API31與Android15/API35、遊戲156.0/code1792142832與156.1/code1793076318四組成功可用；[驗收條件](ANDROID12_15_GAME156_GOAL.md)逐組要求真實兩頁、縮字、捲動重用、OFF及遊戲重啟後重新同意。**目前沒有新增任何遊戲通過組合**。
+- 新PM研究runner及probe0.0.6／carrier0.0.1未簽署建置、stored/16KB與canary→host→runner配對通過；新host精確版本由manifest生成。無明確key／憑證則簽署入口拒絕，不搜尋其他repo的key；沒有簽署或安裝APK。
+- 同一已授權API31 AVD的新boot，最終runner SHA `531e9c0f9492171f00d841660e66ca6822ae233e783fb623a938bac729102642`實際通過7項pre-attach拒絕；無attempt建立，錯套件zygote PID/start／TracerPid0保持。這不是正常載入或JNI／timeout新backend正例。
+- 自有shell子程序降至UID10000後無法再執行stock su；不把這個替身子程序當真正App domain已驗，也不直接移除-M。產品正常App Root資格仍缺。
+- PM載入／真ClassLoader／JNI／新runner未知呼叫收容尚待研究簽章與實測；Android15新空白MuMu index5方案待確認。原四台及台中裝置未操作。詳見[更新的API31研究](API31_AVD_RESEARCH.md)。
+
 ## 2026-11-09：真正API31官方AVD／Enforcing原生隔離驗證
 
 - 使用者明確同意後安裝官方image package.xml rev14與emulator37.2.13，建立`SeedLens_API31_x64`（2vCPU/4096MiB，獨立D槽資料，顯式serial emulator-5580）；WHPX檢查成功。實際native API與property均31，x86_64、libndk_translation.so、kernel5.10.185、SELinux Enforcing。未新增driver或重啟host。

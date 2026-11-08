@@ -15,6 +15,10 @@
 見[API31實際研究結果](docs/API31_AVD_RESEARCH.md)及
 [本輪接手、環境及下一步](docs/handoffs/2026-11-09-zhubei-intake.md)。
 
+目前持續目標為Android12/API31、Android15/API35與遊戲156.0／156.1四組真實可用；
+每組都要驗兩頁、縮字、捲動、OFF及遊戲重啟，不以研究建置代替完成。
+見[四組驗收條件與進度](docs/ANDROID12_15_GAME156_GOAL.md)。
+
 Virgo API35／x86_64／libnb.so／遊戲156.1已從正常App入口實際套用花苗頁及探險頁，
 兩頁關閉後還原原名及字型。Libra API34／ARM64也已用同一0.3.1 APK完成兩頁
 顯示與OFF還原回歸。156.0另已加入精確設定檔並完成離線比對，但只有156.1有實機效果

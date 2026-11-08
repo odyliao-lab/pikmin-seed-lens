@@ -1,5 +1,38 @@
 # API31 官方 AVD 隔離研究（2026-11-09）
 
+## 持續目標後續：PM研究載入器與封裝準備
+
+使用者另要求持續到Android12／15與遊戲156.0／156.1四組成功可用，已建立持續目標；具體完成條件見[四組驗收計畫](ANDROID12_15_GAME156_GOAL.md)。下方原生測試證據不自動升格成四組通過。
+
+新增獨立研究PM載入器：共用既有LoadLease／LoadAttempt／supervisor，只有自有probe／專用thread／API31可呼叫；精確host SHA及canonical PM carrier路徑在ptrace前核對，持久CALLING ACK後才允許遠端寫入／EXITKILL。UNKNOWN保留且同boot/PID/start不能重送。這段來源已編譯，**新載入器的正常載入、實際JNI與timeout正例還沒執行**。
+
+`build-api31-lab.ps1 -Unsigned`完整建置通過：probe0.0.6/code6、carrier0.0.1/code1與runner。新版本與原API35研究probe0.0.5分開；產品版本未變。兩個研究包只是Enforcing／ClassLoader開發工具，不是產品安裝條件。
+
+| 未簽署研究artifact（禁止安裝） | SHA256 |
+|---|---|
+| probe0.0.6 | bbd6befa8f97ece183aba7562f39cc8bb7316ba5eb1c898a0df42043d3b03703 |
+| carrier0.0.1 | 8b29757619e34e907fc6f75df33a640fe027df74a223d1ddd4025e44b987a9b0 |
+| carrier內x64 host | 7b8b73f9a2012c1ac9b2d8d294c285997af77de83a7525e67fe32c0086a74179 |
+| API31 PM runner ELF | 531e9c0f9492171f00d841660e66ca6822ae233e783fb623a938bac729102642 |
+
+實際ZIP正好一個stored／16KB entry、ARM canary→host→runner三層digest配對均驗證。新的host精確version/code由research manifest生成，不靠放寬版本判斷；署名入口缺明確外部key／憑證時，在建立交付保留目錄前拒絕。簽署正例尚未驗，沒有建立key。
+
+共用host來源改為選擇精確研究profile後，原API35 `seedprobe_host`亦編譯回歸exit0，未部署。產品來源與遊戲profile沒有隨研究版本改動。
+
+重新啟動**同一已授權API31 AVD**，以新bootID及精確AVD名稱核對後，只push新runner ELF。最終SHA的七個pre-attach拒絕案例通過：API32、031、非法PID、非法start、真zygote錯套件、未知option、缺host。拒絕前後沒有建立持久attempt目錄，zygote PID/start持續且TracerPid0；沒有以錯套件負例冒稱真App載入成功。早期不同host-pin的runner負例收據亦保留，不把兩批重複案例加總擴大測試數。
+
+另以**自己的shell子程序**降UID10000，確認stock su再次執行遭Permission denied。這不是已安裝App的SELinux測試，但補充了stock Root並不等於正常App可用的限制；沒有修改su、SELinux、mount或安裝Root provider。
+
+本輪結束再次確認沒有研究／遊戲套件或新runner程序殘留、沒有建立attempt目錄，SELinux仍Enforcing；恢復non-root adbd並正常關閉同一AVD，資料與全部負例保留。沒有重啟host或操作其他instance。
+
+私人收據（`.tools/lab/d4397362aaa945bbb6576d0407a6480a/`）SHA：
+
+- pm-final-guards.txt：`b8daed9203c22f0aee5f51fe43f5f089297079b79aa25b35aa0aa3f04fc2d105`
+- stock-su-appuid-test.txt：`aa1b23aafb4976da944bbfb57399972b654f33d4e35d4cac483734386b80f898`
+- unsigned-pair-check.json：`98e269714d957a44dab54d6f039b9eee282629b097dfa4309c0c4b5d0b22e447`
+
+研究簽章／新lab key及新Android15 instance的明確確認仍待回覆；未以持續目標替代這些未定範圍或原產品簽章。下一步是取得研究簽章後，在新鮮自有App實測PM載入、ClassLoader、JNI、正負例與收容，再處理正常App Root環境；需要遊戲登入時另提示。
+
 ## 本輪結論
 
 已取得並實際啟動Android12/API31，完成x64 kernel／CPU context與失敗收容fixture；尚未通過真實App的JNI／ClassLoader canary、產品Root契約或遊戲畫面。不能把本頁當成API31產品支援公告。
