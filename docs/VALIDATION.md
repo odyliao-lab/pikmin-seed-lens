@@ -1,5 +1,32 @@
 # 驗證分層
 
+## 2026-11-09：竹北接手、研究工具修正與隔離環境
+
+交接來源`60ba00d1ffc0e92b3b56b3eecaa4b7759364a29b`；private remote與recursive pins核對完成，乾淨clone後建立`codex/zhubei-android12-compat`。完整盤點及具體操作範圍見[本輪接手](handoffs/2026-11-09-zhubei-intake.md)。
+
+- 在本機重跑Python profile9；candidate的Compatibility26、InstalledNative29、GameSession27、APKLayout8、paired digest4通過。雙ABI native、Java/dex及16KB封裝exit0。
+- 本輪交接來源unsigned candidate SHA256：`5cde60aec6330b8cce99ddf64373d2dc6093956ba997b3883be55934db622c49`，不供安裝／交付。Native測試只有編譯。
+- 研究工具修正`420596b`：ARM JNI及x64 canary以native runtime API核對明確expected API，移除固定34/35參數；API31僅研究准入，API32／不相符／格式錯誤拒絕。22項compile-time selection assertions在ARM64及x64各通過；兩研究loader、x64 host與故障fixture編譯exit0，**尚未裝置執行**。產品x64/API35及libnb守門不變。
+- 研究binary SHA256：ARM JNI `dd5ceff5a0a16f62736f9b5189d9c9096ccfe7557e39430d47551da8c2763e78`；x64 loader `319b3449d9b1888543673f968fdf36a0383efc441052123fe97f40e8e994c536`；x64 host `e74942bd0edafb6e94fc7a81f432260f0d5715efdc152e0062cb84357e37e30b`。這些是本機來源產物，沒有簽署或安裝研究APK。
+- 使用者明確同意後，只在新確認空缺的MuMu index4建立`SeedLens-Isolated-A12`，2vCPU/4GB，空白12.0原廠base；由CLI現查到loopback端點後才唯讀查該instance。
+- 實際`ro.build.version.sdk=32`、release12、x86_64、libnb.so、kernel`5.4.32-perf-gda349bfae95e`、SELinux原為Permissive、Root設定未開。**不符合必要API31**，立即停止該路線並關閉新instance，保留資料；未安裝probe／遊戲、未開Root或改SELinux。
+- 未連線台中Libra/Virgo或本機既有四台的Android系統，未讀取／複製scanner、token、帳號session，未重啟host。四台既有instance未改動。
+
+### 目前組合矩陣（不得跨列推論）
+
+歷史產品兩列均為0.3.1/code12，同SHA`e6262ccdbe50314ebe80063c67943e59a3cae4b5cc9dbae9059197849d2eb284`；本輪沒有重新操作它們。
+
+| 平台／精確遊戲 | Root／SELinux | 平台／canary | 花苗及未領回探險名稱、縮字、OFF | 捲動重用／遊戲重啟／OS重啟／長時間 |
+|---|---|---|---|---|
+| ARM64/API34/156.1 code1793076318（歷史Libra） | 既有Magisk，provider版號本輪未量測／Enforcing | 歷史context、supervisor、真JNI已驗 | 同0.3.1兩頁已驗 | 0.3.1獨立捲動紀錄待補／遊戲重啟已驗／未驗／未驗 |
+| x64/API35/libnb.so/156.1 code1793076318（歷史Virgo） | provider版號本輪未量測／Permissive | 歷史namespace、JNI、故障fixtures已驗 | 同0.3.1兩頁已驗 | 本版獨立捲動紀錄待補／新程序重新同意已驗／未驗／未驗 |
+| 原生ARM64/API31/156.1 code1793076318 | 尚無確認目標 | 研究工具已編譯，裝置未驗 | 未驗 | 全部未驗 |
+| x64/API31/NativeBridge/156.1 code1793076318 | 尚無確認目標 | 研究工具已編譯，裝置未驗 | 未驗；產品仍拒絕API31 | 全部未驗 |
+| API31/各ABI/156.0 code1792142832 | 各組合尚無確認目標 | 只有遊戲profile離線證據 | 未驗 | 全部未驗 |
+| 新MuMu12.0/API32/x64/libnb.so/無遊戲 | Root關閉／原Permissive | 只量測OS；不符合API31 | 未驗，未安裝Lens | 全部未驗，已關閉 |
+
+至少兩Android及兩遊戲版、包含真API31的完成條件仍未達成；編譯、API範圍、安裝及waiting-cards不替代兩頁實際驗收。
+
 ## 2026-11-09：竹北交接乾淨建置（非裝置驗收）
 
 - 從來源 checkpoint `f368cea` 建立無 ignored cache／私人檔案的乾淨 clone，重新取得 pinned submodules。

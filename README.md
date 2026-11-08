@@ -8,6 +8,11 @@
 `dev.ody.seedpreview`，沿用原簽章。單一APK內含ARM64後端、x64 host及同批ARM renderer，
 不需要控制中心或額外顯示模組。PM路徑／SHA／stored ZIP／16KB對齊均在建置與執行時核對。
 
+2026-11-09竹北已取得完整交接分支與recursive pins，乾淨candidate建置通過。
+新建隔離MuMu「12.0」實際回報API32，已停止並關閉，不能算必要API31驗收。
+研究loader已改為核對裝置實際API，產品x64仍限API35；詳見
+[本輪接手、環境及下一步](docs/handoffs/2026-11-09-zhubei-intake.md)。
+
 Virgo API35／x86_64／libnb.so／遊戲156.1已從正常App入口實際套用花苗頁及探險頁，
 兩頁關閉後還原原名及字型。Libra API34／ARM64也已用同一0.3.1 APK完成兩頁
 顯示與OFF還原回歸。156.0另已加入精確設定檔並完成離線比對，但只有156.1有實機效果
