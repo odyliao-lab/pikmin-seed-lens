@@ -72,6 +72,8 @@ target_compile_options(control_transaction_test PRIVATE -Wall -Wextra -Werror)
 target_compile_options(load_journal_test PRIVATE -Wall -Wextra -Werror)
 add_executable(supervised_load_test supervised_load_test.cpp)
 target_compile_options(supervised_load_test PRIVATE -Wall -Wextra -Werror)
+add_executable(probe_platform_test "${ROOT}/research/probe_platform_test.cpp")
+target_compile_options(probe_platform_test PRIVATE -Wall -Wextra -Werror)
 if(ANDROID_ABI STREQUAL "arm64-v8a")
   # Isolated tests of the exact ARM64 candidate call implementation.
   set(TRACE "${K}/KittyMemoryEx/KittyMemoryEx/KittyTrace.cpp")

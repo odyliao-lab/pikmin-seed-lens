@@ -39,6 +39,8 @@ set_source_files_properties(host.cpp PROPERTIES COMPILE_OPTIONS "-Wall;-Wextra;-
 target_compile_options(seedprobe_host PRIVATE -fvisibility=hidden)
 target_link_libraries(seedprobe_host dl)
 add_executable(canary_identity_test identity_test.cpp)
+add_executable(probe_platform_test ../probe_platform_test.cpp)
+target_compile_options(probe_platform_test PRIVATE -Wall -Wextra -Werror)
 add_executable(apk_payload_test apk_payload_test.cpp)
 target_include_directories(apk_payload_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../app"
   "${CMAKE_CURRENT_SOURCE_DIR}/../../native/renderer")

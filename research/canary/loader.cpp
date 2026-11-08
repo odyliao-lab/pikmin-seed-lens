@@ -10,6 +10,8 @@
 #include <poll.h>
 #include <dirent.h>
 #include "identity.h"
+#include <android/api-level.h>
+#include "../probe_platform.h"
 
 static std::string readFile(const std::string& path){std::ifstream f(path);return {std::istreambuf_iterator<char>(f),{}};}
 static std::string ticks(int p){
@@ -36,7 +38,7 @@ static bool threadIdentity(int p,int tid,const std::string& start){
     auto status=readFile("/proc/"+std::to_string(tid)+"/status");
     return status.find("\nTgid:\t"+std::to_string(p)+"\n")!=status.npos;
 }
-static int run(int p,const std::string& start,bool timeoutTest){
+static int run(int p,const std::string& start,bool timeoutTest,int api){
     if(!identity(p,start))return 10;
     int tid=timeoutTest?p:selfThread(p);auto threadStart=ticks(tid);
     if(!timeoutTest&&!threadIdentity(p,tid,threadStart))return 16;
@@ -48,7 +50,7 @@ static int run(int p,const std::string& start,bool timeoutTest){
     // Do not detach on failure: EXITKILL contains a possibly modified probe.
     if(!identity(p,start)||!threadIdentity(p,tid,threadStart))_exit(12);
     printf("SELF_THREAD_SELECTED tid=%d tgid=%d\n",tid,p);
-    inject_elf_config_t cfg{};cfg.sdk=35;cfg.timeout=2000;cfg.seize=true;cfg.package="dev.ody.seedlensprobe";
+    inject_elf_config_t cfg{};cfg.sdk=api;cfg.timeout=2000;cfg.seize=true;cfg.package="dev.ody.seedlensprobe";
     cfg.selinux_state=Utils::selinux_state();
     KittyInjector inj;
     if(!inj.init(&mgr,cfg))_exit(13);
@@ -59,8 +61,13 @@ static int run(int p,const std::string& start,bool timeoutTest){
 }
 int main(int argc,char** argv){
     setbuf(stdout,nullptr);
-    bool timeoutTest=argc==4&&!strcmp(argv[3],"--timeout-test");
-    if(getuid()!=0||(argc!=3&&!timeoutTest))return 2;
+    bool timeoutTest=argc==5&&!strcmp(argv[4],"--timeout-test");
+    if(getuid()!=0||(argc!=4&&!timeoutTest))return 2;
+    const int api=android_get_device_api_level();
+    if(!seed_probe::admit(argv[3],api,seed_probe::Abi::X64)){
+        puts("PROBE_API_MISMATCH_OR_UNREVIEWED_NO_ATTACH");return 8;
+    }
+    printf("RESEARCH_ONLY_ACTUAL_API=%d ABI=x86_64 NOT_PRODUCT_QUALIFICATION\n",api);
     char* end=nullptr;long value=strtol(argv[1],&end,10);
     if(!end||*end||value<=1||value>INT_MAX)return 3;
     int p=int(value);std::string start=argv[2];
@@ -70,7 +77,7 @@ int main(int argc,char** argv){
     // Pin the exact probe process for containment even if numeric PID is reused.
     int pidfd=int(syscall(SYS_pidfd_open,p,0));if(pidfd<0||!identity(p,start))return 6;
     pid_t worker=fork();if(worker<0)return 7;
-    if(!worker){close(pidfd);_exit(run(p,start,timeoutTest));}
+    if(!worker){close(pidfd);_exit(run(p,start,timeoutTest,api));}
     auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(timeoutTest?3:15);int status=0;
     while(std::chrono::steady_clock::now()<deadline){
         pid_t found=waitpid(worker,&status,WNOHANG);

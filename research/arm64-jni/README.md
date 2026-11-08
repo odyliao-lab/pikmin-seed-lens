@@ -17,12 +17,25 @@ the same `arm64_backend.cpp` with `SEED_ARM64_RESEARCH_PROBE`: only the package
 and disposable thread selector differ. It cannot choose the game at runtime.
 The normal seed-root target never defines this macro.
 
-The root verifier takes PID/start/path, but accepts only the exact probe command,
+The root verifier takes `PID START PM_CANARY_PATH EXPECTED_API`, but accepts only the exact probe command,
 matching app UID and start time, canonical PM library path, trusted root/system
 owners and groups, no symlinks/foreign writers, and the compiled payload SHA.
 It creates a private append-only LoadAttempt and uses the product supervisor,
 ARM64 context, full before/after snapshot, and pinned Kitty overlay. This phase
-is restricted to the freshly verified Libra API34 environment (API is fixed34).
+now reads `android_get_device_api_level()` and requires an exact expected API.
+Research admission is limited to API31 (experimental) and API34 (prior baseline).
+API32, mismatches, omitted API, and malformed values fail before process lookup,
+attempt creation or attach. The actual API is passed to the shared backend;
+there is no API override or product admission change. The earlier fixed34 tool
+must not be used to claim API31 evidence. See `../probe_platform_test.cpp` for
+22 compile-time selection checks, built for both ABIs; these are not device tests.
+
+On an explicitly authorized, freshly identified **native ARM64** API31 target,
+use the new verifier as `arm64_jni_probe PID START PM_CANARY_PATH 31`.
+Before any successful-target run, check wrong API32 and stale-start refusals
+without attach or an attempt; keep the private receipts. Continue with actual
+CPU-context/supervisor fault fixtures and JNI lifecycle evidence. A translated
+ARM64 App on an x86_64 kernel does not qualify the native ARM64 backend.
 
 Acceptance requires all of:
 

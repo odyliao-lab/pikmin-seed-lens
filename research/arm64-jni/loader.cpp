@@ -5,6 +5,8 @@
 #include <sstream>
 #include <climits>
 #include <sys/stat.h>
+#include <android/api-level.h>
+#include "../probe_platform.h"
 static std::string readFile(const std::string& path){std::ifstream f(path);return {std::istreambuf_iterator<char>(f),{}};}
 static std::string ticks(int pid){
     auto text=readFile("/proc/"+std::to_string(pid)+"/stat");auto end=text.rfind(')');if(end==text.npos)return {};
@@ -12,7 +14,12 @@ static std::string ticks(int pid){
 }
 int main(int argc,char** argv){
     setbuf(stdout,nullptr);alarm(25);
-    if(argc!=4||getuid()!=0)return 2;
+    if(argc!=5||getuid()!=0)return 2;
+    const int api=android_get_device_api_level();
+    if(!seed_probe::admit(argv[4],api,seed_probe::Abi::Arm64)){
+        puts("PROBE_API_MISMATCH_OR_UNREVIEWED_NO_ATTACH");return 11;
+    }
+    printf("RESEARCH_ONLY_ACTUAL_API=%d ABI=arm64-v8a NOT_PRODUCT_QUALIFICATION\n",api);
     std::string raw=argv[1];if(!seed_root::start_ticks(raw)||raw.size()>10)return 3;
     auto value=strtoll(raw.c_str(),nullptr,10);if(value<=1||value>INT_MAX)return 3;int pid=int(value);
     std::string start=argv[2],payload=argv[3],name="dev.ody.seedlensarmprobe";
@@ -42,6 +49,6 @@ int main(int argc,char** argv){
     seed_root::LoadLease lease(directory,0);
     seed_root::LoadAttempt attempt(lease,boot,pid,start,app.st_uid,getpid(),ticks(getpid()),"arm64");
     printf("PROBE_ATTEMPT=%s\n",directory);
-    auto result=seed_arm64_load(pid,start,payload,34,attempt);close(file);
+    auto result=seed_arm64_load(pid,start,payload,api,attempt);close(file);
     if(!result)puts("ARM64_JNI_PROBE_RETURNED_REQUIRES_APP_RECEIPT");return result;
 }

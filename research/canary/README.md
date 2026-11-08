@@ -72,3 +72,22 @@ arbitrary dlopen side effects. The refusal described here is the historical
 research-stage state; 0.3.1 has a separately qualified API35 product candidate.
 Android12/API31 NativeBridge is not qualified by this canary evidence.
 The test APK is development tooling, not another package required by end users.
+
+## API31 research preparation (2026-11-09; no device qualification)
+
+The root runner now requires `canary-root PID START EXPECTED_API [--timeout-test]`.
+It reads the device API at runtime, admits only an exact API31 (experimental) or
+API35 (prior baseline) match, and passes that actual API to KittyInjector instead
+of the old fixed35 value. API32, missing/malformed API, and mismatches fail before
+process lookup, pidfd creation, fork or attach. Product x64/API35 and libnb guards
+remain unchanged. `probe_platform_test` compiles 22 selection assertions for both
+ABIs; it is not runtime, NativeBridge or containment acceptance.
+
+Only on a confirmed disposable API31 instance, use `canary-root PID START 31`;
+run `--timeout-test` against a **separate fresh probe process**, never the process
+used by a preceding uncertain load. Confirm API32 mismatch and stale-start
+refusals before the positive run. Runtime mapped-library exports, ClassLoader
+namespace, baseline ARM JNI, four canary values, wrong package/version/key,
+missing library/symbol, worker attach/detach, normal FINISH, timeout containment
+and a new-process repetition all still need private device receipts. Do not use
+this research admission to widen `Compatibility.java` or the production loader.
