@@ -72,3 +72,38 @@ runtime實際在軟體CPU下自動啟用GLDirectMem，故下一個比較只明�
 | 正確目標、預設TCG，inferior4535 | 仍5 pass／2 SIGSEGV fail，正常power-off／inferior exit0，未修好獨立的相鄰序列問題 |
 
 以上成功只涉及host研究分支與自有CPU fixture。其後回到4GiB／2vCPU／原GL選擇、同官方Android ramdisk及單指令TB，才執行有helper的完整Android研究輪；普通App／Root及遊戲尚未驗，九組矩陣不升格。
+
+
+## 有helper的完整Android：ADB可用，framework未完成
+
+gdb4670／inferior4680於UTC `2026-11-09T22:31:20`啟動，約13分鐘時ADB首次online。實際讀取Android12／API31、`arm64-v8a`（abilist亦僅ARM64）、NativeBridge `0`、SELinux Enforcing；guest kernel `5.10.110-android12-9-00004-gb92ac325368e-ab8731800`／aarch64。Fingerprint為`google/sdk_gphone64_arm64/emulator64_arm64:12/SE1A.220630.001.A1/9056438:userdebug/dev-keys`。這是有明確host helper／單指令TB的ARM軟體guest平台證據，不是實體ARM64、原廠無helper或完整App就緒。
+
+原廠shell起初UID2000。`adb root`回覆重啟後，第一次等待裝置曾逾時；沒有直接記成功。稍後重新讀取同boot ID `4a56b7c0-3c6a-4de8-b854-8f231a9e6df8`、實際UID0／API31／Enforcing，才進行fork-only自有原生fixture。這僅為原廠adbd Root；沒有安裝Magisk、改SELinux或驗普通App `su -M`，也未安裝研究APK、遊戲或透視鏡。
+
+context／fixture／supervisor三檔先逐一核guest SHA與來源吻合，再單次執行既有`arm64_context_test`，未改100ms call、alarm或UNKNOWN規則。第一輪9個context模式有輸出；第二輪mode0雖返回值等於子PID，狀態仍UNKNOWN、未還原，測試實際exit1／`ARM64_CONTEXT_FAIL`，不冒充正常返回、不重送不確定call。後續supervised loader測項未執行；另一個supervisor binary只有推送與核SHA，沒有執行證據。全部動作只對自有fork子程序，沒有外部目標PID。
+
+約20分鐘讀值仍為bootanim／zygote running、無system_server、無`sys.boot_completed`；窄範圍error logcat未見錯誤不代表完整系統健康。到30分鐘上限仍未完成，watchdog透過本輪已綁定pidfd送收容訊號，gdb最後exit1。**這是逾時收容，不是正常關機、context通過或產品成功。** 收容前尚未恢復adbd至UID2000；guest已退出，不能補寫unroot完成。下一輪必須重新核boot／UID，不沿用本輪Root身分。收尾後實際未見存活QEMU程序。
+
+## V3診斷：保留fatal signal及重試效應
+
+新增`research/build-tcg-memory-init.ps1 -FaultDiagnostics`只產生另一個自有PID1 initramfs；不替換V2或SDK。SIGINFO handler將PC／SP／X0等存入fork共享區，重送原訊號，由父程序wait/reap後列印。另有故意NULL read控制例，須同時取得address0、實際terminal SIGSEGV及child reaped，不計入七項CPU正例。
+
+第一個診斷稿讓handler直接返回；兩個序列雖記到fault，重試後卻exit0、印出7 pass。此稿的成功計數**作廢**，不能替換V2失敗。修正版重送原訊號，並把任何已記錄fault強制列fail：PID9993實際5 pass／2 fail／0 skip，兩個terminal signal均11；NULL控制通過，正常power-off／host exit0。PID10136另只對自有序列地址開TCG dump，結果相同。PID10274以同修正版原件加單指令TB，7 pass／0 fail、NULL控制通過、正常power-off／exit0。沒有故意alarm測項。
+
+修正版init SHA256 `ba06dd9f1b0230d0da750ed48a7114b9203bba7c4f12bc766c5c477e620a509c`；ramdisk `7e7b5fcb6e8ce7d5670f830ef3aa2d9762509735bbaf23994a9751367aa1d36f`。兩序列fault PC均`0x227f5c`，本fixture反組譯實際是STP Q0,Q0,[X0]；X0仍是自有合法mmap（或其top-byte-tagged形式），fault address卻為高位kernel樣式位址。TCG dump顯示guest X0暫存在host XMM0，且跨過一次可走slow path的stack store；這是待驗的clobber疑點，不宣稱已證明或修好根因，不對遊戲／產品繞過守門。
+
+
+## 實際XMM clobber與scalar host比較
+
+自有V3b的gdb10542／inferior10552，在只含自有序列的TCG dump完成後才對實際slow-store helper作entry／return觀察，沒有改guest。plain case的host XMM0由`0x7d81caf720`變成`0xffffff80ded5f001`；後者與接著STP的fault address完全相同。tagged case同樣觀察到helper覆寫。這是實際暫存器跨helper被改寫的證據，比最後一行log或靜態來源推論更具體；沒有把未驗的其他TCG路徑都宣稱已修好。
+
+新增[scalar host研究腳本](../research/tcg-scalar-host.md)，只對同一自行啟動、固定SHA的QEMU子程序，在真實host feature probe後將兩個TCG AVX generator旗標設0，選既有scalar生成路徑。**這輪確實改變host程序的兩個data bytes**，不同於前面純觀察；不改SDK檔案、Android API／ARM指令／clock／Root／SELinux、遊戲或產品准入，不稱為原廠無修改資格。guard固定exe／SHA／ASLR後指令／唯一AVD／port／software flag與獨立marker，且不attach外部PID。
+
+| 同guest／同官方kernel／2vCPU／4GiB | 實際結果 |
+|---|---|
+| 原V2 ramdisk、normal TB、scalar host，inferior10734 | 原件7 pass／0 fail／0 skip，正常power-off、inferior exit0，無收容訊號、無single-step |
+| 最終V3c、normal TB、scalar host，inferior10902 | 7 pass／0 fail，加故意NULL-fatal控制通過，正常power-off／inferior exit0、無收容訊號 |
+| 同V3c、移除scalar host、PID11053 | 仍5 pass／2實際SIGSEGV fail，NULL-fatal控制通過，正常power-off／exit0 |
+| scalar script錯marker／錯exe | 均exit1／SCALAR_HOST_REFUSED，在starti前拒絕，沒有啟動guest |
+
+V3c把no-core限制移到故意NULL控制之前；前稿NULL控制未先設定該限制，不能追溯宣稱它全程禁止core。最終init SHA256 `7d996e768c325a089ab77ea8ba7b70e56c684b2f7d1d24f15274e596bace4183`；ramdisk `9f00a9426f92fd22a6be1c9112f6d072bc88ec96e672eba3ca38a7778211b957`。預設未開診斷的build亦實際編譯通過，另存新原件，不覆寫舊V2或APK。以上僅CPU層；有兩項host研究改動的完整Android另驗。

@@ -8,7 +8,7 @@
 `dev.ody.seedpreview`，沿用原簽章。單一APK內含ARM64後端、x64 host及同批ARM renderer，
 不需要控制中心或額外顯示模組。PM路徑／SHA／stored ZIP／16KB對齊均在建置與執行時核對。
 
-2026-11-10本人主機重開後，已建立指定WSL2 Linux並實跑CPU對照；預設TCG仍5 pass／2 fail、單指令TB7 pass。完整Android在Linux也於ADB就緒前host SIGSEGV，GLDirectMem關閉及2GiB各自仍失敗。實際觀察到host註冊固定失敗的mapper後，新增僅限該研究程序的software-selection helper，自有fixture及目標負例已驗；有helper的完整Android另驗，尚無正常App／Root或遊戲資格，不稱為原廠無helper／實體ARM64通過。產品與九組完成條件不變，見[Linux實跑](docs/API31_LINUX_HOST_RESEARCH.md)。
+2026-11-10本人主機重開後，已建立指定WSL2 Linux。預設TCG自有CPU仍5 pass／2 fail，單指令TB7 pass；無helper的完整Android實際host SIGSEGV。限該host程序的software-selection helper通過目標負例後，有helper／單指令TB輪已讀到實際Android12/API31／ARM64／Enforcing及原廠adbd UID0，但framework於30分鐘仍未完成，自有context測試失敗，最後逾時收容。沒有普通App `su -M`／遊戲／產品資格，不稱為原廠無helper或實體ARM64通過。產品與九組完成條件不變，見[Linux實跑](docs/API31_LINUX_HOST_RESEARCH.md)。
 
 2026-11-09竹北已取得完整交接分支與recursive pins，乾淨candidate建置通過。
 新建隔離MuMu「12.0」實際回報API32，已停止並關閉，不能算必要API31驗收。

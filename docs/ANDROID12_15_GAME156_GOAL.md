@@ -59,3 +59,6 @@ API31 x64原遊戲啟動與獨立指令probe已找到SEVL缺口。原先本機�
 157原遊戲亦已分別在API31／34 x64實際於Unity+0x5e2760 SEVL SIGILL；不是由156.x跨版推論。API34本次首輪hostGL freeze的指定正常關閉逾時與精確host收容、後輪SwiftShader正常關閉均另記，見[157原遊戲獨立啟動](GAME157_PLATFORM_STARTUP.md)。
 
 同最終0.5.0的156.x已獨立重驗：156.0與156.1各自首輪、遊戲重啟及同帳號OS後兩頁已有分項證據；探險更長名稱縮字仍缺確認、庫存最長名稱仍截斷、長時間未驗，見[本版156.x回歸](PRODUCT050_GAME156_REGRESSION.md)。
+
+
+有helper／單指令TB的完整guest後續取得online ADB，實際Android12/API31、ARM64-only、NativeBridge0、Enforcing；原廠adbd Root重核實際UID0後，只跑自有fork context。第二輪正常mode0實際UNKNOWN未還原，整體exit1；沒有繼續supervised loader或普通App／遊戲。30分鐘仍無system_server／boot完成，由本輪pidfd收容，不能記正常關機或unroot完成。V3自有CPU診斷亦修正handler返回可能讓重試exit0的誤計：修正版預設5/2、單指令7/7，各有真實NULL-fatal控制及正常power-off。所有API31遊戲列仍未通過，來源與限制見[完整紀錄](API31_LINUX_HOST_RESEARCH.md)。
