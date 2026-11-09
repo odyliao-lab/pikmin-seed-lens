@@ -38,7 +38,8 @@ API31平台來源已接入明確的unsigned候選，Java與native使用同一開
 
 使用者指定D槽搜尋後，已取得原產品簽章及156.0完整base／ARM64 split，Play取得的156.1亦符合精確profile。
 原簽章0.4.1單APK已在新API35／156.0與156.1分別實際驗花苗名稱、長字縮小、捲動與兩頁OFF還原；
-兩版各自的新程序重新確認／再啟用與OFF亦已驗；探險長名稱／離屏重用及其他組合仍未完成。
+兩版各自的新程序重新確認／再啟用與OFF亦已驗；本人更換樣本後，兩版探險花苗真正離屏返回及兩頁OFF已有獨立畫面證據。
+探險長名稱觸發縮字仍未覆蓋；庫存最長紀念金苗名稱雖縮字仍會截斷，見[樣本回歸與限制](docs/API35_SEED_EXPEDITION_SAMPLE.md)。其他組合仍未完成。
 明確`-Api31Qualification`才允許原簽章新版本開啟API31驗收，預設仍API35；見[0.4.1分項紀錄](docs/PRODUCT041_QUALIFICATION.md)。
 
 API31 x64上156.0與156.1各次實際啟動均在Lens載入前出現Unity SEVL指令SIGILL；156.1系統後續另記SIGSEGV。自有ARM-only probe已重現31失敗、35返回。

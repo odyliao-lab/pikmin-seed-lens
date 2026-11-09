@@ -1,10 +1,18 @@
 # 驗證分層
 
+## 2026-11-09：API35／156.1樣本兩頁、離屏返回與遊戲重啟
+
+本人完成全部後續獎勵並回主畫面後，重新核對同API35／libnb／精確156.1/code1793076318／同原簽章0.4.1。PID10717/start267134具有完整持久journal與新鮮status，正常App重新同意再啟用；沒有追加attempt或重送載入。實際兩頁名稱、探險首排花苗完全離屏後返回同名、正常App OFF原名／字型還原均已比對。
+
+OFF後正常遊戲重啟至PID14356/start423650。未重新勾選啟用、舊status分別實際拒絕；確認主畫面並重新同意後完成新完整journal，兩頁名稱／庫存縮字、探險真正離屏返回與兩頁OFF再次觀察。結束同PID／156.1／ready／enable0、control OFF，adbd UID2000；先前15份attempt（含UNKNOWN）逐份SHA不變，新增一筆後總數16。實際frame及journal SHA見[樣本回歸](API35_SEED_EXPEDITION_SAMPLE.md)。
+
+156.0與156.1目前都已有探險離屏返回的畫面證據。**探險長名稱觸發縮字仍未覆蓋**；庫存最長紀念金苗名稱雖縮字，仍有省略號，保留此限制。OS重啟同帳號連續回歸、長時間及其餘Android／157仍未通過，不把本輪結果升格為九組完成。
+
 ## 2026-11-09：API35／156.0補齊未領回花苗離屏往返
 
 使用者再次本人更換有花苗樣本的帳號。同原簽章0.4.1在API35／libnb的PID1974/start13925與正常重開後PID9010/start223817，從正常App確認並載入；實際觀察多類探險名稱、首排花苗完全捲出畫面後返回名稱仍相符、兩頁OFF原文／字型還原。新程序未確認與舊status實際拒絕後才重新同意。原12份歷史attempt（含UNKNOWN）SHA不變，兩筆新完整journal另存；結束control OFF／enable0／TracerPid0、adbd UID2000。
 
-這次補的是156.0真正探險離屏返回的畫面證據。探險名稱目前都能完整容納，尚未覆蓋需要縮字的更長名稱；OS重啟同帳號前後與長時間仍未驗。本人處理既有種花結算／獎勵，沒有以領回或派遣製造測試樣本；帳號有自然狀態更新，不宣稱所有物品總量恆定。詳見[本輪樣本紀錄](API35_SEED_EXPEDITION_SAMPLE.md)。156.1已正常升級保留登入，首次載入完整但遇後續選獎勵彈窗，正常App OFF後待本人處理，尚不算156.1樣本畫面通過。
+這次補的是156.0真正探險離屏返回的畫面證據。探險名稱目前都能完整容納，尚未覆蓋需要縮字的更長名稱；OS重啟同帳號前後與長時間仍未驗。本人處理既有種花結算／獎勵，沒有以領回或派遣製造測試樣本；帳號有自然狀態更新，不宣稱所有物品總量恆定。詳見[本輪樣本紀錄](API35_SEED_EXPEDITION_SAMPLE.md)。當時156.1已正常升級保留登入，首次載入完整但遇後續選獎勵彈窗，正常App OFF後待本人處理，尚不算156.1樣本畫面通過；後續本人處理後的結果見上節。
 
 ## 2026-11-09：新增157，必要範圍擴為九組
 
@@ -126,8 +134,8 @@ API34後續三次stock boot的圖形比較已完成：156.0在SwiftShader、156.
 | 原生ARM64/API31/156.1 code1793076318 | 尚無確認目標 | 研究工具已編譯，裝置未驗 | 未驗 | 全部未驗 |
 | 官方AVD x64/API31/libndk_translation.so／156.0 code1792142832 | 新授權Magisk31.1，普通App su-M／PID1 mount view已驗；Zygisk OFF／Enforcing | 真App JNI／ClassLoader／PM載入／timeout及10類supervisor已驗；原遊戲SEVL SIGILL，自有0.0.2 probe含相同alarm基準通過、SEVL失敗 | 原簽章0.4.1同APK已安裝但未啟用；遊戲尚未到登入，無product attempt，不算產品通過 | 全部未驗；Root環境正常重啟另記，AVD已關閉 |
 | 官方AVD x64/API31/libndk_translation.so／156.1 code1793076318 | 同上，另次cold boot普通App su-M再通過／Enforcing | 原簽章完整splits正常升級；首程序Unity SEVL SIGILL、後續系統另記SIGSEGV，同0.4.1 SHA未變 | 未啟用產品，無product attempt，未完成登入；未驗 | 全部未驗；16份研究attempt保留，AVD已正常關閉 |
-| 新MuMu index5 x64/API35/libnb.so／156.1 code1793076318 | 內建KernelSU3.2.5，正常產品App su-M已驗／原Permissive | 10類supervisor、普通App PM loader與JNI／timeout已驗；0.4.1真遊戲新程序載入已驗，首筆UNKNOWN保留 | 0.4.1兩頁名稱／OFF與花苗長字已驗；探險長名待樣本 | 花苗重用已驗、探險離屏重用待樣本／新遊戲程序重新確認再啟用已驗／OS未驗／長時間未驗 |
-| 新MuMu index5 x64/API35/libnb.so／156.0 code1792142832 | 同機KernelSU3.2.5，正常產品App su-M已驗／原Permissive | 原簽章完整splits及profile已核；本人登入後0.4.1兩個新程序載入已驗 | 兩頁名稱／OFF、花苗長名與縮字已驗；探險長名待樣本 | 花苗重用及遊戲重啟／重新確認再啟用已驗；探險離屏重用／OS／長時間未驗 |
+| 新MuMu index5 x64/API35/libnb.so／156.1 code1793076318 | 內建KernelSU3.2.5，正常產品App su-M已驗／原Permissive | 10類supervisor、普通App PM loader與JNI／timeout已驗；0.4.1遊戲載入／同程序再啟用及新程序已驗，首筆UNKNOWN保留 | 同0.4.1兩頁名稱／OFF及庫存縮字已驗；最長庫存名仍截斷，探險長名縮字待樣本 | 花苗重用及探險真正離屏返回已有畫面／新程序重新確認再啟用、兩頁OFF再驗／OS未驗／長時間未驗 |
+| 新MuMu index5 x64/API35/libnb.so／156.0 code1792142832 | 同機KernelSU3.2.5，正常產品App su-M已驗／原Permissive | 原簽章完整splits及profile已核；本人登入後0.4.1載入及新樣本兩程序已驗，歷史UNKNOWN不變 | 兩頁名稱／OFF、庫存長名與縮字已驗；探險長名縮字待樣本 | 花苗重用、探險真正離屏返回及遊戲重啟／重新確認再啟用已驗；OS／長時間未驗 |
 | 新官方AVD x64/API34／156.0及156.1各有獨立啟動 | 未安裝Magisk／Enforcing；沒有產品 | 自有ARM JNI baseline通過、SEVL模式SIGILL；排查圖形環境後兩版原遊戲各自於Unity SEVL SIGILL，發生在產品載入前 | 產品x64 API34仍拒絕；兩頁未驗，不算通過 | 全部未驗；來源、取消安裝與GPU比較見[API34研究](API34_ISOLATED_RESEARCH.md) |
 | 新MuMu12.0/API32/x64/libnb.so/無遊戲 | Root關閉／原Permissive | 只量測OS；不符合API31 | 未驗，未安裝Lens | 全部未驗，已關閉 |
 
