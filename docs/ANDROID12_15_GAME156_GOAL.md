@@ -52,6 +52,8 @@ API31 x64原遊戲啟動與獨立指令probe已找到SEVL缺口。原先本機�
 
 使用者另授權直接安裝必要Google套件；新API35隔離機已由MuMu原廠谷歌安裝器完成Play／GMS／GSF，普通App Root再驗通過。Google及兩版遊戲的各次登入均由使用者完成，產品分項結果見上表；沒有複製遊戲session。Google來源與早期階段結果見[Google套件階段](API35_GOOGLE_INTAKE.md)。
 
+2026-11-10後續Linux完整Android雖完成原廠data加密，host仍在ADB就緒前SIGSEGV；修正gdb後捕捉主ELF+0xd58f91的null read，與address-space ping來源對照一致但未證明完整根因。TCG單執行緒／no-chain均未修好自有序列；GLDirectMem選項比較另以同fixture先行，不能把CPU或debugger結果算為任何API31遊戲通過。詳見[完整Linux結果](API31_LINUX_HOST_RESEARCH.md)，本輪未安裝Root、研究App或產品。
+
 新增API34的官方來源、普通App ARM JNI基準與SEVL失敗、兩版原遊戲啟動及GPU比較另見[API34隔離研究](API34_ISOLATED_RESEARCH.md)。新AVD的Root與產品載入尚未進行；不能用歷史Libra ARM64或API35/libnb的結果替代。
 
 157原遊戲亦已分別在API31／34 x64實際於Unity+0x5e2760 SEVL SIGILL；不是由156.x跨版推論。API34本次首輪hostGL freeze的指定正常關閉逾時與精確host收容、後輪SwiftShader正常關閉均另記，見[157原遊戲獨立啟動](GAME157_PLATFORM_STARTUP.md)。
