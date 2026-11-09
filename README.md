@@ -25,9 +25,13 @@
 每組都要驗兩頁、縮字、捲動、OFF及遊戲重啟，不以研究建置代替完成。
 見[四組驗收條件與進度](docs/ANDROID12_15_GAME156_GOAL.md)。
 
-API31平台來源已接入明確的unsigned native候選，與隔離研究共用adapter／runtime dispatcher；
-預設與Java准入仍維持既有API35資格，API32不接受。正常產品完整流程與遊戲仍待驗，
+API31平台來源已接入明確的unsigned候選，Java與native使用同一開關，
+與隔離研究共用adapter／runtime dispatcher；預設／可簽署建置仍維持API35資格，API32不接受。正常產品完整流程與遊戲仍待驗，
 見[API31候選整合及測試邊界](docs/API31_PRODUCT_INTEGRATION.md)。
+
+使用者授權後，新API35隔離機已用MuMu原廠谷歌安裝器安裝Play／GMS／GSF，
+普通App su-M再驗通過，商店開到登入頁待使用者登入；尚未取得指定遊戲版本。
+見[Google套件來源與實際結果](docs/API35_GOOGLE_INTAKE.md)。
 
 Virgo API35／x86_64／libnb.so／遊戲156.1已從正常App入口實際套用花苗頁及探險頁，
 兩頁關閉後還原原名及字型。Libra API34／ARM64也已用同一0.3.1 APK完成兩頁

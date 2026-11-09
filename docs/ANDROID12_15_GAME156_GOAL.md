@@ -36,3 +36,5 @@ ARM64與x64/NativeBridge各列實際資格；不能由x64上的ARM轉譯推論�
 5. 每階段測試、審查、commit/push私人功能分支`codex/zhubei-android12-compat`。不force、不自動merge main或公開發布。
 
 研究lab key、Android15新instance及API31隔離AVD安裝官方Root provider均已明確同意並實做。遊戲完整splits與原產品簽章來源仍缺，不冒充取得原產品key或操作未授權設備。
+
+使用者另授權直接安裝必要Google套件；新API35隔離機已由MuMu原廠谷歌安裝器完成Play／GMS／GSF，普通App Root再驗通過，商店到登入頁待使用者本人登入。此階段未取得遊戲，不更新四組通過欄位；版本、SHA與來源見[Google套件階段](API35_GOOGLE_INTAKE.md)。

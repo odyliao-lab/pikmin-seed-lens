@@ -48,6 +48,8 @@ timeout後另一新程序的普通App路徑再次完整通過JNI、負例、七�
 
 ## 遊戲來源補充盤點
 
+> 以下為先前未安裝Google套件時的盤點；使用者後續已明確授權，並經原廠小工具內建安裝器完成Play／GMS／GSF，商店到登入頁。最新結果見[Google套件階段](API35_GOOGLE_INTAKE.md)。四組遊戲仍未驗。
+
 API31正常關閉後，依CLI再確認新MuMu index5 `SeedLens-Isolated-A15`的建立身分、端點與本次boot，僅在該instance查package inventory。實際仍API35/libnb/原Permissive；`pm path`、含uninstalled的package清單及system app目錄均未找到Play商店／GMS／GSF，亦沒有遊戲包名。
 
 僅開啟原廠`com.mumu.store`檢查來源，跳過首啟的推薦遊戲安裝，搜尋Google沒有定位可確認來源的Google安裝材料；沒有安裝遊戲／Google元件或登入，沒有修改Root／SELinux。紀錄在ignored `.tools/lab/api35-store-intake/`，最後正常關閉同一index5，原四台不動。
