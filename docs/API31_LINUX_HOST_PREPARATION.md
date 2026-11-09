@@ -1,4 +1,8 @@
-# WSL2隔離研究：runtime已安裝、VMP待主機重開
+# WSL2隔離研究：runtime與指定distro已建立
+
+## 最新：2026-11-10本人重開後
+
+本人完成主機重開，新Windows boot已核對，指定`SeedLens-TCG-Linux`實際WSL2 import exit0並啟動Ubuntu24.04.5。14個官方SDK／自有fixture檔案在Linux逐一核大小／SHA通過；同V2 CPU原件預設TCG為5 pass／2 SIGSEGV fail，單指令TB為7 pass／0 fail，兩輪正常power-off及host exit0。完整Android仍須另驗；詳見[本輪Linux實跑與界線](API31_LINUX_HOST_RESEARCH.md)。以下待重開／取消敘述保留其原階段紀錄。
 
 ## 最新：2026-11-09實際安裝結果
 

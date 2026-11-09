@@ -1,5 +1,9 @@
 # 驗證分層
 
+## 2026-11-10：本人主機重開、Linux隔離CPU實跑
+
+Windows新boot實際04:58:25，WSL3.0.3／VMP已核；指定`SeedLens-TCG-Linux`以明確WSL2匯入exit0並實際Ubuntu24.04.5。官方SDK及同V2 fixture的14檔大小／SHA在Linux全數吻合。新ARM64 Linux AVD的預設TCG實際5 pass／2 SIGSEGV fail，父程序收容並繼續；單指令TB同原件實際7 pass／0 fail，兩輪正常power-off、host exit0。Linux沒有修好預設TCG的相鄰序列，CPU正例也不是Android API／App／產品通過。新index5關閉、原四台及台中未操作；完整Android及後續資格仍逐層另驗。見[本輪實跑](API31_LINUX_HOST_RESEARCH.md)。
+
 ## 2026-11-09：WSL runtime已安裝、VMP要求本人重開
 
 本人表示現在可操作並完成UAC後，PowerShell helper被本機Restricted原則拒絕（事件4100），未執行MSI。改以Microsoft原生MSI與Windows DISM直接操作，沒有改ExecutionPolicy。WSL3.0.3 MSI實際exit0、log0、CLI另回版本3.0.3.0；僅VMP enable作業實際exit3010，日誌確認NoRestart抑制重開。WMI雖回VMP InstallState1，仍待本人安排主機重開；WSL1元件未另啟用。新distro不存在、index5與研究AVD關閉、研究埠無listener，沒有Linux／新Android／App／Root或產品資格。私人狀態已保存，不重跑已成功安裝，重開後先核新host boot再繼續。詳見[Linux安裝進度](API31_LINUX_HOST_PREPARATION.md)。

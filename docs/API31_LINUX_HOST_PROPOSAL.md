@@ -1,4 +1,6 @@
-# 已授權：Linux host上的API31 ARM64隔離研究（待主機重開）
+# 已授權：Linux host上的API31 ARM64隔離研究
+
+2026-11-10本人完成主機重開後已核新boot，指定WSL2 distro實際匯入及啟動；同原件CPU預設5 pass／2 fail、單指令TB7 pass／0 fail，尚非Android／產品資格。最新結果見[Linux實跑](API31_LINUX_HOST_RESEARCH.md)；下段為前輪安裝完成、待重開時的checkpoint。
 
 **使用者已回覆「同意」，後續也完成兩個必要UAC。** 三份固定官方安裝檔及SDK／fixture已核；WSL3.0.3原生MSI實際exit0、CLI版本再核，VirtualMachinePlatform原生DISM實際exit3010，要求本人安排主機重開。兩者均抑制自動重開；Linux distro與新Android尚未建立，不能當作相容成功。較早UAC取消及腳本原則拒絕均保留於[準備／安裝紀錄](API31_LINUX_HOST_PREPARATION.md)，不重跑已成功安裝。本方案不改九組矩陣。Windows ARM64後端的自有CPU序列已有對照證據，但完整Android在hostGL與SwiftShader均未到ADB就緒；後者實際Windows access violation，見[本次研究](API31_ARM64_CPU_MEMORY_RESEARCH.md)。Linux比較是否能避開此問題仍須實測，不能保證。
 
