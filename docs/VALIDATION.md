@@ -663,3 +663,6 @@ Java／native／renderer共同改動：native持有同一lease完成OFF→必要
   **不供安裝／交付**，裝置仍0.1.6；產品版本不因研究建置推進，正式x64 gate仍關閉。
   未commit/push。遠端call未知副作用的正式收容／復原、真正遊戲兩頁ON/OFF／重啟、第二
   遊戲profile尚未完成，不能宣稱多版本目標達成。
+
+
+後續normal TB加scalar host的同API31 ARM軟體guest取得實際API31／ARM64／Enforcing，並進入SystemServer；舊套件27個context分項有預期結果，但真ELF載入仍失敗。獨立產品15s／2s界限研究的supervisor10/10通過，正常ELF load卻仍UNKNOWN／收容，沒有普通App／JNI／遊戲資格。每輪adbd Root後皆實際重核unroot UID2000。詳見[Linux分層證據](API31_LINUX_HOST_RESEARCH.md)。

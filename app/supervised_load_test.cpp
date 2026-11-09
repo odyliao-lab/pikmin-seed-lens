@@ -15,7 +15,12 @@ static std::string startTicks(pid_t pid){
 }
 int main(int argc,char**){
     if(argc!=1)return 2;
-    alarm(45);int checks=0;
+#ifdef SEED_SUPERVISOR_PRODUCT_BUDGET_FIXTURE
+    alarm(180); // Suite failsafe; each call retains the production default.
+#else
+    alarm(45);
+#endif
+    int checks=0;
     for(int scenario=0;scenario<10;++scenario){
         char directory[]="/data/local/tmp/seed-supervise-test-XXXXXX";if(!mkdtemp(directory))return 2;
         seed_root::LoadLease lease(directory,getuid());if(!lease.held())return 3;
@@ -76,12 +81,21 @@ int main(int argc,char**){
             if(scenario==6)return 12;
             if(!seed_root::worker_phase(socket,'D'))return 13;
             return scenario==5?14:0;
+#ifdef SEED_SUPERVISOR_PRODUCT_BUDGET_FIXTURE
+        }); // Unchanged production default, 15000ms.
+#else
         },scenario==3?100:scenario==7?500:2000);
+#endif
         bool shouldDie=scenario==2||scenario==3||scenario==6||scenario==7||scenario==8;
         pollfd dead{fd,POLLIN,0};bool exited=poll(&dead,1,0)>0&&(dead.revents&POLLIN);close(fd);
         auto expected=scenario==0?seed_root::SupervisedResult::Returned:shouldDie?seed_root::SupervisedResult::UnknownContained:seed_root::SupervisedResult::Refused;
         if(result!=expected||exited!=shouldDie){printf("FAIL scenario=%d result=%d dead=%d\n",scenario,int(result),exited);return 15;}
         ++checks;printf("SUPERVISOR_CASE_PASS %d target_stopped=%d\n",scenario,exited);
     }
-    printf("SUPERVISOR_PASS %d OWN_CHILDREN_ONLY\n",checks);return 0;
+#ifdef SEED_SUPERVISOR_PRODUCT_BUDGET_FIXTURE
+    printf("SUPERVISOR_PRODUCT_BUDGET_PASS %d OWN_CHILDREN_ONLY_NOT_GAME\n",checks);
+#else
+    printf("SUPERVISOR_PASS %d OWN_CHILDREN_ONLY\n",checks);
+#endif
+    return 0;
 }

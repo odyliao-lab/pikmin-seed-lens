@@ -10,6 +10,8 @@
 
 2026-11-10本人主機重開後，已建立指定WSL2 Linux。預設TCG自有CPU仍5 pass／2 fail，單指令TB7 pass；無helper的完整Android實際host SIGSEGV。限該host程序的software-selection helper通過目標負例後，有helper／單指令TB輪已讀到實際Android12/API31／ARM64／Enforcing及原廠adbd UID0，但framework於30分鐘仍未完成，自有context測試失敗，最後逾時收容。沒有普通App `su -M`／遊戲／產品資格，不稱為原廠無helper或實體ARM64通過。產品與九組完成條件不變，見[Linux實跑](docs/API31_LINUX_HOST_RESEARCH.md)。
 
+後續normal TB加scalar host的同API31 ARM軟體guest取得實際API31／ARM64／Enforcing，並進入SystemServer；舊套件27個context分項有預期結果，但真ELF載入仍失敗。獨立產品15s／2s界限研究的supervisor10/10通過，正常ELF load卻仍UNKNOWN／收容，沒有普通App／JNI／遊戲資格。每輪adbd Root後皆實際重核unroot UID2000。詳見[Linux分層證據](docs/API31_LINUX_HOST_RESEARCH.md)。
+
 2026-11-09竹北已取得完整交接分支與recursive pins，乾淨candidate建置通過。
 新建隔離MuMu「12.0」實際回報API32，已停止並關閉，不能算必要API31驗收。
 另已在官方API31 x64 AVD／Enforcing完成原生隔離安全測試，定位到平台export及

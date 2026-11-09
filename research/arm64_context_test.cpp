@@ -106,7 +106,12 @@ static bool supervised(int mode){
     struct Unmap{Shared* p;~Unmap(){munmap(p,sizeof(Shared));}} unmap{shared};
     auto parent=getpid();Child child;child.pid=fork();if(child.pid<0)return false;
     if(!child.pid){if(prctl(PR_SET_PDEATHSIG,SIGKILL)||getppid()!=parent)_exit(3);
-        alarm(8);while(!shared->done.load())shared->beat.fetch_add(1);_exit(0);}
+#ifdef SEED_ARM64_PRODUCT_BUDGET_FIXTURE
+        alarm(20); // Outer fixture failsafe, beyond the unchanged 15s supervisor.
+#else
+        alarm(8);
+#endif
+        while(!shared->done.load())shared->beat.fetch_add(1);_exit(0);}
     child.fd=int(syscall(SYS_pidfd_open,child.pid,0));if(child.fd<0)return false;
     auto until=Clock::now()+std::chrono::milliseconds(500);
     while(!shared->beat.load()&&Clock::now()<until)usleep(1000);
@@ -119,7 +124,11 @@ static bool supervised(int mode){
     auto result=seed_root::supervised_load(child.fd,attempt,[&](int socket){
         KittyMemoryMgr manager;
         if(mode==4&&!manager.initialize(child.pid,EK_MEM_OP_SYSCALL,true))return 8;
+#ifdef SEED_ARM64_PRODUCT_BUDGET_FIXTURE
+        manager.trace=KittyTraceMgr(child.pid,0,true,2000,reinterpret_cast<uintptr_t>(&gadget));
+#else
         manager.trace=KittyTraceMgr(child.pid,0,true,mode==4?2000:100,reinterpret_cast<uintptr_t>(&gadget));
+#endif
         auto& trace=manager.trace;
         if(!trace.seize(PTRACE_O_TRACESYSGOOD)||!trace.stop())return 9;
         Snapshot before;if(!before.capture(trace))return 10;
@@ -162,7 +171,11 @@ static bool supervised(int mode){
         if(mode!=0&&mode!=4){shared->unexpected.store(true);return 13;}
         if(!seed_root::worker_phase(socket,'R')||!trace.detach()||!seed_root::worker_phase(socket,'D'))return 14;
         return 0;
+#ifdef SEED_ARM64_PRODUCT_BUDGET_FIXTURE
+    }); // Production default remains 15000ms; no product timeout changes.
+#else
     },3000);
+#endif
     pollfd exited{child.fd,POLLIN,0};bool dead=poll(&exited,1,0)>0&&(exited.revents&POLLIN);
     bool good=(mode==0||mode==4)?result==seed_root::SupervisedResult::Returned&&!dead:
         result==seed_root::SupervisedResult::UnknownContained&&dead;
@@ -174,11 +187,24 @@ static bool supervised(int mode){
     return child.reap();
 }
 int main(int argc,char**){
-    if(argc!=1)return 2;setbuf(stdout,nullptr);alarm(30);
+    if(argc!=1)return 2;setbuf(stdout,nullptr);
+#ifdef SEED_ARM64_PRODUCT_BUDGET_FIXTURE
+    alarm(90); // Whole five-case fixture, not an individual loader budget.
+#else
+    alarm(30);
+#endif
     if(!hardwareQualified()){puts("ARM64_CONTEXT_HARDWARE_UNQUALIFIED");return 77;}
+#ifdef SEED_ARM64_PRODUCT_BUDGET_FIXTURE
+    // A separate executable. It does not replace or relabel the 100ms stress
+    // suite. Same fork-only targets, snapshot checks and unknown containment.
+    (void)&test;
+    for(int mode=0;mode<5;++mode)if(!supervised(mode)){puts("ARM64_PRODUCT_BUDGET_FAIL");return 1;}
+    puts("ARM64_PRODUCT_BUDGET_PASS 5 own-child cases; NOT game acceptance");
+#else
     // modes 1 and 2 intentionally repeat syscall timeout after fresh child state.
     for(int round=0;round<3;++round)for(int mode=0;mode<9;++mode)if(!test(mode)){
         puts("ARM64_CONTEXT_FAIL");return 1;}
     for(int mode=0;mode<5;++mode)if(!supervised(mode)){puts("ARM64_OVERLAY_SUPERVISION_FAIL");return 1;}
     puts("ARM64_CONTEXT_PASS 27 context + 5 supervised overlay/loader cases; NOT game acceptance");
+#endif
 }

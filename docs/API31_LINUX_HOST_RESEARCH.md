@@ -107,3 +107,22 @@ context／fixture／supervisor三檔先逐一核guest SHA與來源吻合，再�
 | scalar script錯marker／錯exe | 均exit1／SCALAR_HOST_REFUSED，在starti前拒絕，沒有啟動guest |
 
 V3c把no-core限制移到故意NULL控制之前；前稿NULL控制未先設定該限制，不能追溯宣稱它全程禁止core。最終init SHA256 `7d996e768c325a089ab77ea8ba7b70e56c684b2f7d1d24f15274e596bace4183`；ramdisk `9f00a9426f92fd22a6be1c9112f6d072bc88ec96e672eba3ca38a7778211b957`。預設未開診斷的build亦實際編譯通過，另存新原件，不覆寫舊V2或APK。以上僅CPU層；有兩項host研究改動的完整Android另驗。
+
+
+## Normal TB／scalar host的完整Android與原生隔離層
+
+同一AVD／原官方ramdisk／4GiB／2vCPU，以mapper helper加明確scalar host、**不使用single-step**啟動gdb11180／inferior11190。約6分鐘ADB online，實際API31／Android12／ARM64-only／NativeBridge0／同kernel及Enforcing；新boot `6d702f40-d28d-4903-ad7f-a730dd75f844`、初始UID2000。後續logcat確認zygote完成mainline classes驗證並建立system_server685、記錄進入SystemServer；不是只看到程序名或編譯成功。完整boot flag另讀，不由此直接算App就緒。
+
+每次adbd Root都先讀取同boot／API／ABI／kernel／UID／Enforcing／fingerprint，重啟後再次核UID0才測試；不把「restarting」文字當成功。首次三個自有原生檔案逐檔guest SHA吻合，舊100ms context套件的27個case均有預期結果，但後續mode4真ELF載入在3s supervisor下UNKNOWN／target dead，整體exit1。另一舊supervisor套件於scenario3只有ATTACHED、尚無CALLING即100ms拒絕；target保持存活符合安全規則，卻未達該測試期待的CALLING後timeout，因此exit15，不能記10例通過。之後unroot並實際重核同boot UID2000。
+
+另建立[獨立的產品界限研究套件](../research/arm64-product-budget.md)，保留上述失敗，不修改既有stress預期或產品時間限制。新targets只用自有fork，採產品同`-O2`及現有15s supervisor／2s call；suite總alarm另限90s／180s，不是單次loader界限。三檔在Linux及guest再次核SHA後，只執行一次；每一suite／child／attempt皆新建，不重送舊UNKNOWN。
+
+| 新研究artifact | SHA256 |
+|---|---|
+| arm64_product_budget_test | `326f6e85bc04ee8c41573cf516e026475670daba3384d37ebbfe7e7a234e361b` |
+| supervisor_product_budget_test | `d42f9687a53f57e3689a6bc085de7a4cf0fbe8c33e1947e07caea5c67ce571ae` |
+| paired ELF fixture | `da8b046ae3b80ebfe18cea6dc48929c22cadda14c1797cdcb47192dc7c026151` |
+
+產品界限ARM suite的正常function、spin／ppoll／SIGILL三個故障各有預期返回或UNKNOWN收容，但真正ELF load仍到整體界限、UNKNOWN且target dead，整體exit1；**沒有ELF正常載入／JNI通過**。獨立supervisor產品界限套件則實際10/10、exit0，包含非leader trace、CALLING前保留target及CALLING後timeout／worker exit。收容過程的中間log `reaped=0`不能單獨當最終失敗或成功，以最終result與各case的pidfd／expected檢查判定。
+
+後續再次unroot並實際讀回同boot／UID2000／API31／ARM64／Enforcing。普通App Root、真ART/JNI及產品仍未驗，沒有安裝Magisk或APK。framework初次logcat有一次空輸出exit255，後次獨立讀取才取得上述SystemServer證據，未將前次當健康正例。本輪不增加產品版本或改0.5.0 bytes；後續將先研究保留host向量暫存器的路徑，不以無限放寬逾時解決效能問題。

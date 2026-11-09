@@ -62,3 +62,6 @@ API31 x64原遊戲啟動與獨立指令probe已找到SEVL缺口。原先本機�
 
 
 有helper／單指令TB的完整guest後續取得online ADB，實際Android12/API31、ARM64-only、NativeBridge0、Enforcing；原廠adbd Root重核實際UID0後，只跑自有fork context。第二輪正常mode0實際UNKNOWN未還原，整體exit1；沒有繼續supervised loader或普通App／遊戲。30分鐘仍無system_server／boot完成，由本輪pidfd收容，不能記正常關機或unroot完成。V3自有CPU診斷亦修正handler返回可能讓重試exit0的誤計：修正版預設5/2、單指令7/7，各有真實NULL-fatal控制及正常power-off。所有API31遊戲列仍未通過，來源與限制見[完整紀錄](API31_LINUX_HOST_RESEARCH.md)。
+
+
+後續normal TB加scalar host的同API31 ARM軟體guest取得實際API31／ARM64／Enforcing，並進入SystemServer；舊套件27個context分項有預期結果，但真ELF載入仍失敗。獨立產品15s／2s界限研究的supervisor10/10通過，正常ELF load卻仍UNKNOWN／收容，沒有普通App／JNI／遊戲資格。每輪adbd Root後皆實際重核unroot UID2000。詳見[Linux分層證據](API31_LINUX_HOST_RESEARCH.md)。
