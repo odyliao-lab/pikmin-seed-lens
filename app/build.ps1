@@ -8,6 +8,7 @@ param(
  [switch]$Unsigned,
  [switch]$Candidate,
  [switch]$Api31Candidate,
+ [switch]$Api31Qualification,
  [string]$SigningKey='',
  [string]$StorePassEnv='SEED_LENS_STORE_PASS',
  [string]$KeyPassEnv='SEED_LENS_KEY_PASS'
@@ -15,6 +16,8 @@ param(
 $ErrorActionPreference='Stop'
 if($Candidate -and !$Unsigned){throw 'Candidate builds are unsigned and must not be installed or delivered'}
 if($Api31Candidate -and (!$Candidate -or !$Unsigned)){throw 'API31 integration requires -Candidate -Unsigned; no signed delivery before qualification'}
+if($Api31Qualification -and ($Unsigned -or $Candidate -or $Api31Candidate)){throw 'API31 device qualification requires a new signed product version; do not mix unsigned candidate modes'}
+$api31Enabled=[bool]($Api31Candidate -or $Api31Qualification)
 $root=Split-Path $PSScriptRoot -Parent
 $dep="$root/third_party/AndKittyInjector"
 if(!$Unsigned){
@@ -35,6 +38,7 @@ foreach($pin in $pins){
 $manifest=[xml](Get-Content "$PSScriptRoot/AndroidManifest.xml" -Raw)
 $version=[string]$manifest.manifest.versionName
 if($version -notmatch '^0\.[0-9]+\.[0-9]+$'){throw 'Invalid standalone version'}
+if($Api31Qualification -and ([long]$manifest.manifest.versionCode -le 12 -or [version]$version -le [version]'0.3.1')){throw 'API31 qualification must retain 0.3.1 and use a higher version/code'}
 $kind=if($Unsigned){'unsigned'}else{'signed'}
 $out=if($Candidate){"$root/.tools/candidates/$([Guid]::NewGuid().ToString('N'))"}else{"$root/.tools/build/$version/$kind"}
 $apk="$out/pikmin-seed-lens-$version-$kind.apk"
@@ -47,7 +51,7 @@ $checkedInCompatibility=(Resolve-Path "$PSScriptRoot/src/dev/ody/seedpreview/Com
 $compatibilityText=[IO.File]::ReadAllText($checkedInCompatibility)
 $declaration='static final boolean API31_CANDIDATE=false;'
 if([regex]::Matches($compatibilityText,[regex]::Escape($declaration)).Count -ne 1){throw 'Compatibility default declaration changed; refuse an ambiguous candidate'}
-$javaFlag=if($Api31Candidate){'true'}else{'false'}
+$javaFlag=if($api31Enabled){'true'}else{'false'}
 New-Item -ItemType Directory "$out/generated"|Out-Null
 $compatibilitySource="$out/generated/Compatibility.java"
 [IO.File]::WriteAllText($compatibilitySource,$compatibilityText.Replace($declaration,"static final boolean API31_CANDIDATE=$javaFlag;"),[Text.UTF8Encoding]::new($false))
@@ -66,8 +70,8 @@ if($LASTEXITCODE){throw 'APK layout checker compile failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.ApkNativeLayoutTest
 if($LASTEXITCODE){throw 'APK layout checker tests failed'}
 foreach($abi in @('arm64-v8a','x86_64')){
- $nativeBuild=if($Api31Candidate){"$root/.tools/native-build/api31-candidate/$abi"}else{"$root/.tools/native-build/$abi"}
- $api31Flag=if($Api31Candidate){'ON'}else{'OFF'}
+ $nativeBuild=if($api31Enabled){"$root/.tools/native-build/api31-candidate/$abi"}else{"$root/.tools/native-build/$abi"}
+ $api31Flag=if($api31Enabled){'ON'}else{'OFF'}
  # Build and copy ARM first. The bridge hashes THIS immutable build output,
  # never an earlier installed renderer or a stale CMake cache entry.
  $rendererPin=if($abi -eq 'x86_64'){"$out/assets/libseed_display.so"}else{''}
@@ -86,7 +90,7 @@ foreach($abi in @('arm64-v8a','x86_64')){
  }else{
   Copy-Item -LiteralPath "$nativeBuild/libseed_bridge.so" -Destination "$out/native/lib/$abi/libseed_bridge.so"
   $hasApi31Adapter=[Text.Encoding]::ASCII.GetString([IO.File]::ReadAllBytes("$out/native/lib/$abi/libseed_bridge.so")).Contains('API31_REQUIRED')
-  if($hasApi31Adapter -ne [bool]$Api31Candidate){throw 'Packaged bridge disagrees with Java candidate setting'}
+  if($hasApi31Adapter -ne $api31Enabled){throw 'Packaged bridge disagrees with Java candidate setting'}
   Copy-Item -LiteralPath "$nativeBuild/seed-bridge-renderer.sha256" -Destination "$out/assets/seed-bridge-renderer.sha256"
   $bridgeDigest=(Get-FileHash -Algorithm SHA256 "$nativeBuild/libseed_bridge.so").Hash.ToLowerInvariant()
   [IO.File]::WriteAllText("$out/assets/seed-bridge-x86_64.sha256",$bridgeDigest+"`n",[Text.Encoding]::ASCII)
@@ -128,4 +132,5 @@ if($LASTEXITCODE){throw 'Native APK layout/digest validation failed; artifact mu
 Get-FileHash $apk
 if($Candidate){Write-Output 'NOT_FOR_INSTALL_OR_DELIVERY: candidate retains development manifest only'}
 if($Api31Candidate){Write-Output 'API31_JAVA_AND_NATIVE_CANDIDATE: exact backend guards retained; product/game acceptance pending'}
+if($Api31Qualification){Write-Output 'API31_SIGNED_ISOLATED_QUALIFICATION_ONLY: not a support claim or public release; four-game acceptance pending'}
 Write-Output "Build completed ($kind). Not evidence of root load, UI restoration or multi-version compatibility."
