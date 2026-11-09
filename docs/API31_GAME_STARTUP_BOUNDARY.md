@@ -48,6 +48,16 @@ API31該bridge檔案`/system/lib64/libndk_translation.so` SHA為`c05f2b7ef51d3c8
 
 原始crash、反組譯、自有App receipts及APK僅在ignored `.tools/lab/api31-game1560-product041-cc84fc3b924642b0a2444390c3376121/`、`.tools/lab/api35-arm-hint-3e85c3fd673e4abf902dfb45753e77d8/`。API31資料與所有歷史attempt保留，恢復adbd non-root後正常關閉。
 
+## 156.1獨立實際啟動：同樣未到產品載入
+
+沿用同一已授權AVD、相同私人ramdisk及stock ramdisk SHA，另次headless cold boot `830a2982-53f0-494d-8c8c-4a51ce890819`，仍API31／x86_64／libndk_translation／Enforcing。普通App UID10148的PATH su-M再次exit0、Magisk domain、同PID1 mount namespace；沒有用adb root代替普通App Root。
+
+將該隔離機遊戲由156.0正常升級為原簽章156.1/code1793076318，完整base／ARM64 split在PM位置的SHA與Play intake逐一相同。產品仍為同一0.4.1／SHA `815de868e747111c9e9739ea9987337c53441e10a15e585d2192cecab4741cce`，沒有啟用產品。
+
+解析PM實際launcher後只啟動一次，首程序PID4221／UID10149約12秒後退出。Unity自己的第一段crash為Loading.Preload／TID4360／SIGILL，PC `libunity.so+0x5e2234`；同PID translator明確記錄undefined instruction `0xd50320bf`。從已核split抽出的未修改ELF反組譯，該offset為SEVL，下一條為WFE。系統隨後另記同程序的SIGSEGV／null PC；兩段記錄均保留，不把後一訊號冒充第一段原因，也不宣稱已完成登入。
+
+後續pidof曾回報另一程序4400，沒有驗證其就緒、重新導引登入或嘗試產品載入；不能據此把首程序崩潰算成功。16份研究attempt在boot前後及本次遊戲啟動後SHA全數不變，仍無product attempt目錄；bridge SHA亦不變。adbd恢復UID2000後正常關閉這個AVD。新證據只在ignored `.tools/lab/api31-game1561-product041-1758e0434c004ea8b8c02e929e0015f4/`。目前兩個指定遊戲版都在這個精確API31 x64環境遇到產品載入前的啟動失敗，兩列的產品兩頁驗收仍未通過。
+
 ## 下一環境：撤回x64 host上的ARM64 AVD提案
 
 官方[Google SDK image清單](https://dl.google.com/android/repository/sys-img/google_apis/sys-img2-3.xml)實際列出API31 google_apis/arm64-v8a rev11，archive `arm64-v8a-31_r11.zip`、1,415,899,687 bytes、SHA1 `21bcb00f4ac3dc91c4040da7980b8c5f3c681781`；本機SDK亦含ARM64 QEMU執行檔。但這不證明Windows frontend接受ARM64軟體模擬或效能足夠。
@@ -56,4 +66,4 @@ API31該bridge檔案`/system/lib64/libndk_translation.so` SHA為`c05f2b7ef51d3c8
 
 因此撤回這個本機ARM64 AVD提案，不因QEMU執行檔存在就下載大型image，也不繞過frontend或修改SDK。已改詢問可用的真API31 ARM64測試手機或ARM64主機；取得具體目標與隔離操作範圍後，先核原生能力、Root及自有fixture的正常／失敗收容，再進產品驗收。兩個ABI分開記錄，不把現有x64缺口當成原生ARM64的結果。
 
-離線另核兩版原簽章split內libunity：156.0為上述`38dc64…`，156.1為`69614a13a3200aad5964eb6698ea832e8397f562028128afd785b75abbdf9cc2`，兩者同為23,635,664 bytes但SHA不同。不能因相同大小或156.0的crash推定156.1已跑過；API31／156.1仍列未驗。
+兩版原簽章split內libunity：156.0為上述`38dc64…`，156.1為`69614a13a3200aad5964eb6698ea832e8397f562028128afd785b75abbdf9cc2`，兩者同為23,635,664 bytes但SHA不同。上方156.1結果來自獨立實際啟動及其精確crash PC，不由相同大小或156.0的crash推論。

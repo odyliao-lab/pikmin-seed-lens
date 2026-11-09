@@ -97,7 +97,7 @@
 | x64/API35/libnb.so/156.1 code1793076318（歷史Virgo） | provider版號本輪未量測／Permissive | 歷史namespace、JNI、故障fixtures已驗 | 同0.3.1兩頁已驗 | 本版獨立捲動紀錄待補／新程序重新同意已驗／未驗／未驗 |
 | 原生ARM64/API31/156.1 code1793076318 | 尚無確認目標 | 研究工具已編譯，裝置未驗 | 未驗 | 全部未驗 |
 | 官方AVD x64/API31/libndk_translation.so／156.0 code1792142832 | 新授權Magisk31.1，普通App su-M／PID1 mount view已驗；Zygisk OFF／Enforcing | 真App JNI／ClassLoader／PM載入／timeout及10類supervisor已驗；原遊戲SEVL SIGILL，自有0.0.2 probe含相同alarm基準通過、SEVL失敗 | 原簽章0.4.1同APK已安裝但未啟用；遊戲尚未到登入，無product attempt，不算產品通過 | 全部未驗；Root環境正常重啟另記，AVD已關閉 |
-| 官方AVD x64/API31/libndk_translation.so／156.1 code1793076318 | 同上；資格不能跨遊戲推論 | 156.1未安裝／啟動，現有image的SEVL缺口仍在 | 未驗 | 全部未驗 |
+| 官方AVD x64/API31/libndk_translation.so／156.1 code1793076318 | 同上，另次cold boot普通App su-M再通過／Enforcing | 原簽章完整splits正常升級；首程序Unity SEVL SIGILL、後續系統另記SIGSEGV，同0.4.1 SHA未變 | 未啟用產品，無product attempt，未完成登入；未驗 | 全部未驗；16份研究attempt保留，AVD已正常關閉 |
 | 新MuMu index5 x64/API35/libnb.so／156.1 code1793076318 | 內建KernelSU3.2.5，正常產品App su-M已驗／原Permissive | 10類supervisor、普通App PM loader與JNI／timeout已驗；0.4.1真遊戲新程序載入已驗，首筆UNKNOWN保留 | 0.4.1兩頁名稱／OFF與花苗長字已驗；探險長名待樣本 | 花苗重用已驗、探險離屏重用待樣本／新遊戲程序重新確認再啟用已驗／OS未驗／長時間未驗 |
 | 新MuMu index5 x64/API35/libnb.so／156.0 code1792142832 | 同機KernelSU3.2.5／原Permissive；產品0.4.1保留 | 原簽章完整splits與profile已核；PM拒絕直接降版後只乾淨重裝隔離遊戲，已到首次生日／登入畫面，等本人登入 | 未載入產品，未驗；伺服器是否要求更新尚未知 | 全部未驗 |
 | 新MuMu12.0/API32/x64/libnb.so/無遊戲 | Root關閉／原Permissive | 只量測OS；不符合API31 | 未驗，未安裝Lens | 全部未驗，已關閉 |

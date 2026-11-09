@@ -40,7 +40,7 @@ API31平台來源已接入明確的unsigned候選，Java與native使用同一開
 遊戲新程序重新確認／再啟用與OFF亦已驗；探險長名稱／離屏重用及其他組合仍未完成。
 明確`-Api31Qualification`才允許原簽章新版本開啟API31驗收，預設仍API35；見[0.4.1分項紀錄](docs/PRODUCT041_QUALIFICATION.md)。
 
-API31 x64上156.0在Lens載入前即因Unity SEVL指令SIGILL；自有ARM-only probe已重現31失敗、35返回。
+API31 x64上156.0與156.1各次實際啟動均在Lens載入前出現Unity SEVL指令SIGILL；156.1系統後續另記SIGSEGV。自有ARM-only probe已重現31失敗、35返回。
 這個image仍未通過遊戲能力；本機ARM64 AVD提案因官方frontend架構限制撤回，現待指定API31原生ARM64手機或ARM64主機，見[指令能力界線](docs/API31_GAME_STARTUP_BOUNDARY.md)。
 
 Virgo API35／x86_64／libnb.so／遊戲156.1已從正常App入口實際套用花苗頁及探險頁，
