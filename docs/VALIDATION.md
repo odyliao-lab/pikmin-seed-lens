@@ -1,5 +1,15 @@
 # 驗證分層
 
+## 2026-11-09：同0.5.0／156.1同帳號OS回歸
+
+正常OFF並關閉再啟動同index5，新boot984fe73b-9a82-41cb-abdd-f05bdbb8de18、實際API35／libnb／原Permissive、精確156.1及同0.5.0 APK SHA再次核對，登入保留。原24份attempt SHA不變；新PID1967/start4003／UID10066實際拒絕未確認啟用與舊status，新同意後才完成本程序完整journal。實際兩頁名稱、庫存紀念長字縮小／首排離屏返回、探險末排真正離屏返回及正常App OFF原文／字型還原已觀察，32/80。frame13為切頁動畫，不作穩定畫面證據；新公車苗名完整顯示不等於已確認長名縮字。最終control OFF／156.1／ready／enable0、178份讀到的thread TracerPid均0，adbd UID2000；原24份逐份SHA不變，新第25筆journal SHA442f1fcfa9dec5855e7beba3ed489da33a1bf7782c6298939a92e9c6ea3076bb。API35三版現各有同0.5.0首輪／遊戲重啟／OS分項；探險更長名稱縮字、長時間與API31／34仍未完成，見[本版156.x回歸](PRODUCT050_GAME156_REGRESSION.md)。
+
+## 2026-11-09：同0.5.0／API35／156.1首輪與遊戲重啟
+
+156.0正常OFF後，以合法完整原簽章base／ARM64 split正常升級精確156.1/code1793076318，保留本人登入。首程序3894/start48959完整新journal後，實際驗庫存名稱／紀念長字縮小及首排離屏返回、探險末排完全離屏返回與兩頁OFF，當次32/80。載入前既有探險卡片仍原名，重開列表後才更新；保留此限制，不以waiting-cards或ready替代所有卡片效果。
+
+正常遊戲重開至6349/start125778，未重新確認／舊status分別實際拒絕；新同意後完成本程序完整journal，兩頁名稱、庫存縮字／離屏返回、探險末排真正離屏返回與兩頁OFF再驗，當次32/80。兩筆新journal SHA5e1a8fb973153d728188adf78c72644cac36550166248c3120663d10580fe2a0、7eefc34a864e3ad2057a24aeaf14b2f29aec24fc50ff6e8666db92db381afbea；各自原22／23份SHA不變，總24。最終control OFF／156.1／ready／enable0、178份讀到的thread TracerPid均0、adbd UID2000。同帳號OS回歸進行中；探險更長名稱縮字、長時間及API31／34仍未完成，見[本版156.x回歸](PRODUCT050_GAME156_REGRESSION.md)。
+
 ## 2026-11-09：0.5.0／156.0遊戲及OS重啟回歸
 
 本人處理結算並授權關閉後續同類提示後，同API35新遊戲PID7631/start201500完成未確認／舊status實際拒絕、重新同意與本程序完整載入；兩頁名稱／庫存縮字、探險首排真正離屏返回及OFF還原再次觀察，當次30/80。再正常關閉／啟動同index5至新boot da15de1a-1d01-4e2d-8b57-153da7c53091，PID1900/start2779完成新同意與本程序完整載入、兩頁ON／OFF及探險末排真正離屏返回，當次31/80。OS frame05僅核對中，未將該截圖列為舊status負例通過。兩筆新journal SHA98f4630bb57868c0212d67a5e081acd7e6dbfa9a36389988d90ac0330ca7f3db、4bef34e136e20e9be001394f9c28e4929e1e354860014fc83e2f34c2edd7fe69；各自原20／21份SHA不變，總22。最終control OFF／156.0／ready／enable0、187份thread讀值TracerPid0、adbd UID2000。各階段庫存基準分開記錄，探險長名縮字／長時間仍未完成，見[156.x同APK回歸](PRODUCT050_GAME156_REGRESSION.md)。

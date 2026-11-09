@@ -25,7 +25,7 @@
 每組都要驗兩頁、縮字、捲動、OFF及遊戲重啟，不以研究建置代替完成。
 157已由使用者指定AutoFarm唯讀取得原簽章完整base／split，核為157.0/code1793360009；舊0.4.1未知版本拒絕已實跑。新增精確profile及來源負例後，原簽章0.5.0僅安裝新index5，已在新API35的兩個遊戲程序驗兩頁ON／OFF、花苗縮字及探險末排離屏返回；同帳號OS關閉／啟動後兩頁ON／OFF及探險離屏返回也已驗；探險長名縮字、長時間及其他平台仍未通過。見[157來源界線](docs/GAME157_OFFICIAL_INTAKE.md)。
 見[九組驗收條件與進度](docs/ANDROID12_15_GAME156_GOAL.md)。
-同0.5.0現另有API35／156.0首輪、正常遊戲重啟與OS後兩頁名稱、庫存縮字、探險離屏返回及OFF分項證據；156.1進行本版獨立重驗，見[本版156.x回歸](docs/PRODUCT050_GAME156_REGRESSION.md)。
+同0.5.0現另有API35／156.0與156.1各自首輪、正常遊戲重啟與OS後兩頁名稱、庫存縮字、離屏返回及OFF分項證據。156.1首輪載入前已開的探險卡片需重開列表才更新，保留此觀察；探險更長名稱縮字及長時間仍未完成，見[本版156.x回歸](docs/PRODUCT050_GAME156_REGRESSION.md)。
 
 API31平台來源已接入明確的unsigned候選，Java與native使用同一開關，
 與隔離研究共用adapter／runtime dispatcher；預設建置仍維持API35資格，明確signed qualification另見下方，API32不接受。API31正常產品完整流程與遊戲仍待驗，

@@ -15,7 +15,7 @@
 | Android14/API34 | 156.0/code1792142832 | 官方x64 AVD實際API34／libndk_translation／Enforcing，ARM JNI baseline通過、SEVL模式失敗；原遊戲在軟體GPU boot實際於Unity SEVL SIGILL，未安裝Magisk或產品 | 未完成登入／產品載入，兩頁未驗，不算通過 |
 | Android14/API34 | 156.1/code1793076318 | 同一AVD另一host OpenGL boot，取消前輪未完成安裝並核恢復後，新的更新session實際applied；精確156.1首程序亦於Unity SEVL SIGILL。產品API34 x64仍拒絕 | 產品兩頁未驗，不算通過 |
 | Android15/API35 | 156.0/code1792142832 | 同原簽章0.5.0：首程序3804、正常重開7631與OS後1900，各自有兩頁名稱／OFF與庫存長字縮小；兩頁離屏返回已有分項畫面，歷史UNKNOWN不變，總22份attempt | 遊戲重啟未確認／舊status拒絕及重新同意已驗；OS後兩頁回歸已驗，但OS舊status截圖只到核對中，不記負例通過。探險長名縮字與長時間仍未完成 |
-| Android15/API35 | 156.1/code1793076318 | 同原簽章0.4.1原分項證據保留；本人完成新樣本帳號獎勵後，PID10717及重開後14356各自補驗多類探險名稱、首排花苗真正離屏返回、兩頁OFF。新程序舊同意／status拒絕、重新確認再啟用已驗，歷史UNKNOWN不變 | 探險離屏往返已有畫面證據；探險更長名稱縮字仍未覆蓋，庫存最長名稱縮字後仍截斷；OS／長時間未驗 |
+| Android15/API35 | 156.1/code1793076318 | 同原簽章0.5.0首程序3894、遊戲重開6349及OS後1967，各有兩頁名稱、庫存長字縮小／離屏返回、探險末排真正離屏返回與兩頁OFF；歷史UNKNOWN不變，總25份attempt。首輪載入前既有探險卡片需重開列表才更新的觀察保留 | 遊戲及OS重啟未確認／舊status實際拒絕與新同意已驗；探險更長名稱縮字仍未覆蓋，庫存最長名稱縮字後仍截斷；長時間未驗，不算整組完成 |
 | Android12/API31 | 157.0/code1793360009 | 原簽章157正常更新、完整base／split SHA吻合；實際API31／Enforcing首程序在Lens載入前Unity+0x5e2760的SEVL SIGILL，16份歷史SHA不變 | 未到登入／無產品attempt，兩頁未驗，不算通過 |
 | Android14/API34 | 157.0/code1793360009 | 原簽章157在同AVD的SwiftShader boot正常更新、完整SHA吻合；實際API34／Enforcing原Unity+0x5e2760 SEVL SIGILL；前次hostGL boot無回應另記，沒有Root／產品 | 未完成登入，兩頁未驗；產品API34 x64仍拒絕，不算通過 |
 | Android15/API35 | 157.0/code1793360009 | 後續使用者指定AutoFarm原簽章來源，已正常更新新index5至精確157.0；0.4.1未知拒絕與歷史不變已驗，0.5.0原簽章在兩個獨立遊戲程序完成兩頁ON／OFF、花苗縮字／離屏返回及探險末排冰色三葉花苗真正離屏往返，舊同意／status拒絕與新同意已驗 | 探險長名稱縮字仍待觸發；最長庫存名縮字後仍截斷。同帳號OS關閉／啟動後兩頁ON／OFF與探險離屏返回已驗，長時間未驗，不算整組完成 |
@@ -54,4 +54,4 @@ API31 x64原遊戲啟動與獨立指令probe已找到SEVL缺口。原先本機�
 
 157原遊戲亦已分別在API31／34 x64實際於Unity+0x5e2760 SEVL SIGILL；不是由156.x跨版推論。API34本次首輪hostGL freeze的指定正常關閉逾時與精確host收容、後輪SwiftShader正常關閉均另記，見[157原遊戲獨立啟動](GAME157_PLATFORM_STARTUP.md)。
 
-同最終0.5.0的156.x須獨立重驗；目前156.0首輪、遊戲重啟及同帳號OS後兩頁已有分項證據，見[本版156.x回歸](PRODUCT050_GAME156_REGRESSION.md)。
+同最終0.5.0的156.x已獨立重驗：156.0與156.1各自首輪、遊戲重啟及同帳號OS後兩頁已有分項證據；探險更長名稱縮字仍缺確認、庫存最長名稱仍截斷、長時間未驗，見[本版156.x回歸](PRODUCT050_GAME156_REGRESSION.md)。
