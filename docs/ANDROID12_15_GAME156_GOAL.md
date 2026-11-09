@@ -8,7 +8,7 @@
 
 | 實際平台 | 遊戲精確版本 | 本輪進度 | 遊戲兩頁與重啟 |
 |---|---|---|---|
-| Android12/API31 | 156.0/code1792142832 | 官方x64 AVD真App JNI／PM載入／timeout及10類supervisor通過；正常App Root未合格，遊戲來源待提供 | 未驗 |
+| Android12/API31 | 156.0/code1792142832 | 官方x64 AVD：已授權安裝Magisk31.1、Enforcing／Zygisk OFF；普通App su-M、Magisk-domain JNI／timeout及10類supervisor通過，產品完整流程及遊戲來源待補 | 未驗 |
 | Android12/API31 | 156.1/code1793076318 | 同上；不能以API32替代 | 未驗 |
 | Android15/API35 | 156.0/code1792142832 | 新空白MuMu index5：KernelSU正常App su -M、10類supervisor、真App ClassLoader/JNI/正常FINISH及timeout通過；遊戲來源待提供 | 未驗 |
 | Android15/API35 | 156.1/code1793076318 | 同上；歷史Virgo 0.3.1通過不能代替本輪候選及新環境 | 未驗 |
@@ -30,9 +30,9 @@ ARM64與x64/NativeBridge各列實際資格；不能由x64上的ARM轉譯推論�
 ## 當前開發順序
 
 1. API31 Enforcing研究：PM安裝路徑與精確host digest、持久journal/ACK及pidfd收容；自有真App ClassLoader、ARM JNI、負例與生命週期。研究包可額外存在，不能變成產品使用者依賴。
-2. 原廠su不支援-M，仍需證明正常App可使用的等價安全Root契約；不可直接移除guard。需要變更隔離環境Root時另提出具體範圍，不自行改已授權條件。
+2. 使用者已明確授權API31 Root變更；私人ramdisk Magisk31.1標準setup後普通App PATH su-M／同PID1 mount view已驗，仍需產品完整載入驗收。沒有移除-M、改SELinux或放寬bridge；詳見[Root結果](API31_MAGISK_RESEARCH.md)。
 3. 隔離驗證後已接入API31 native unsigned候選及共用dispatcher，兩平台真App回歸通過；Java與預設資格不放寬，正常App Root／完整產品整合待補。見[候選階段證據](API31_PRODUCT_INTEGRATION.md)。
 4. 取得原產品簽章與合法遊戲splits，分配新產品版本及同批APK，才進四組正常UI實測。需要登入時提示使用者。
 5. 每階段測試、審查、commit/push私人功能分支`codex/zhubei-android12-compat`。不force、不自動merge main或公開發布。
 
-研究lab key與Android15新instance已由使用者明確同意並完成，詳見[本輪研究結果](ZHUBEI_LAB_20261109.md)。API31 AVD改用官方Root provider的具體方案另待回覆；遊戲完整splits與原產品簽章來源仍缺，不冒充取得原產品key或操作未授權設備。
+研究lab key、Android15新instance及API31隔離AVD安裝官方Root provider均已明確同意並實做。遊戲完整splits與原產品簽章來源仍缺，不冒充取得原產品key或操作未授權設備。

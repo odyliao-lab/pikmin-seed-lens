@@ -12,7 +12,9 @@
 新建隔離MuMu「12.0」實際回報API32，已停止並關閉，不能算必要API31驗收。
 另已在官方API31 x64 AVD／Enforcing完成原生隔離安全測試，定位到平台export及
 `su -M`差異；API31專用adapter已在自有真App通過JNI／ClassLoader canary及逾時收容，
-正常App Root與遊戲仍未驗。新API35隔離機內建KernelSU的正常App `su -M`及十例收容已驗。
+產品完整流程與遊戲仍未驗。新API35隔離機內建KernelSU的正常App `su -M`及十例收容已驗。
+後續使用者已授權API31安裝Magisk31.1：普通App `su -M`與Magisk-domain JNI／收容已驗，
+正常產品完整流程及遊戲仍未驗，見[API31 Root階段](docs/API31_MAGISK_RESEARCH.md)。
 產品x64仍限API35；詳見[本輪隔離研究與失敗修正](docs/ZHUBEI_LAB_20261109.md)。
 見[API31實際研究結果](docs/API31_AVD_RESEARCH.md)及
 [本輪接手、環境及下一步](docs/handoffs/2026-11-09-zhubei-intake.md)。
@@ -22,7 +24,7 @@
 見[四組驗收條件與進度](docs/ANDROID12_15_GAME156_GOAL.md)。
 
 API31平台來源已接入明確的unsigned native候選，與隔離研究共用adapter／runtime dispatcher；
-預設與Java准入仍維持既有API35資格，API32不接受。正常App Root與遊戲仍待驗，
+預設與Java准入仍維持既有API35資格，API32不接受。正常產品完整流程與遊戲仍待驗，
 見[API31候選整合及測試邊界](docs/API31_PRODUCT_INTEGRATION.md)。
 
 Virgo API35／x86_64／libnb.so／遊戲156.1已從正常App入口實際套用花苗頁及探險頁，

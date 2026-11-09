@@ -1,5 +1,7 @@
 # API31 官方 AVD 隔離研究（2026-11-09）
 
+> 後續已明確授權安裝Root，並以私人Magisk31.1 ramdisk／Enforcing／Zygisk OFF完成普通App su-M、Magisk-domain JNI／timeout與正常FINISH。見[最新Root實測](API31_MAGISK_RESEARCH.md)；下方原廠su不足與Root未授權均保留為先前階段，不代表目前狀態。
+
 > 最新：研究簽章已獲同意；真App PM／ClassLoader／ARM JNI與修正後timeout收容已通過，正常App Root及遊戲仍未驗。詳見[本輪新增實測](ZHUBEI_LAB_20261109.md)。下方「未簽署／未載入」是較早階段紀錄，保留原始限制與失敗歷史。
 
 ## 持續目標後續：PM研究載入器與封裝準備

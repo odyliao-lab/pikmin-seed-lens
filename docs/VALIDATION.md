@@ -1,5 +1,13 @@
 # 驗證分層
 
+## 2026-11-09：已授權API31 Magisk Root及同domain研究
+
+- 使用者調整條件並明確授權只替API31隔離AVD安裝Root。官方Magisk31.1 APK／同版本AVD patch，私人ramdisk override與冷備份；共享SDK ramdisk SHA不變。標準setup後關閉Zygisk並正常重啟，確認API31／libndk_translation／Enforcing／modules空；原四台與台中未操作。
+- 普通App UID10148實測PATH su-M及/debug_ramdisk固定入口均exit0、uid0、u:r:magisk:s0、同boot且mount namespace與PID1相同。產品可沿用原su-M，不需fallback。初始未完成setup的IOException保留。
+- Magisk domain十類supervisor實跑exit0。原probe0.0.6有兩筆CALLING前exit44與一筆timeout入口拒絕，全部保留UNKNOWN、不重送；另一新程序JNI／負例與90秒FINISH通過。
+- 自有fixture每增量查時鐘導致常停在clock_gettime；probe0.0.7以有界batch降低時鐘頻率，產品orig_rax／user-context與thread守門不變。新carrier0.0.6精確綁0.0.7；在Magisk domain實際timeout取得exit42／END UNKNOWN／精確程序退出。普通App Root與adbd發起的Magisk canary分層記錄，不稱產品整個App載入已驗。
+- API31 Root變更不再待批准；產品原簽章與兩遊戲完整splits仍缺，四組遊戲仍未驗。完整SHA、失敗歷史與最終回歸見[Root階段](API31_MAGISK_RESEARCH.md)。
+
 ## 2026-11-09：API31 native候選整合與兩平台dispatcher回歸
 
 - 已把API31 adapter移至共用native來源，新增依實際API／完整SDK property／精確bridge的dispatcher；預設API35/libnb不變，只有明確unsigned native候選可包含API31/libndk_translation。Java仍拒絕API31/32，候選簽署實際pre-build exit1；未交付或安裝產品APK。
@@ -55,7 +63,7 @@
 | ARM64/API34/156.1 code1793076318（歷史Libra） | 既有Magisk，provider版號本輪未量測／Enforcing | 歷史context、supervisor、真JNI已驗 | 同0.3.1兩頁已驗 | 0.3.1獨立捲動紀錄待補／遊戲重啟已驗／未驗／未驗 |
 | x64/API35/libnb.so/156.1 code1793076318（歷史Virgo） | provider版號本輪未量測／Permissive | 歷史namespace、JNI、故障fixtures已驗 | 同0.3.1兩頁已驗 | 本版獨立捲動紀錄待補／新程序重新同意已驗／未驗／未驗 |
 | 原生ARM64/API31/156.1 code1793076318 | 尚無確認目標 | 研究工具已編譯，裝置未驗 | 未驗 | 全部未驗 |
-| 官方AVD x64/API31/libndk_translation.so／尚無遊戲 | 原廠adb root可用，正常App su -M未合格／Enforcing | 真App JNI／ClassLoader／PM載入／timeout與10類supervisor已驗 | 未驗；產品仍拒絕API31；兩遊戲完整splits待提供 | 全部未驗 |
+| 官方AVD x64/API31/libndk_translation.so／尚無遊戲 | 新授權Magisk31.1，普通App su-M／PID1 mount view已驗；Zygisk OFF／Enforcing | 真App JNI／ClassLoader／PM載入／timeout、Magisk-domain與10類supervisor已驗 | 未驗；產品Java仍拒絕API31；兩遊戲完整splits及原簽章待提供 | 遊戲／產品OS重啟／長時間未驗；Root環境正常重啟另記 |
 | 新MuMu index5 x64/API35/libnb.so／無遊戲 | 內建KernelSU3.2.5正常App su -M已驗／原Permissive | 10類supervisor、真App JNI／ClassLoader／PM載入／正常FINISH及timeout已驗 | 未驗；兩遊戲完整splits待提供 | 全部未驗 |
 | 各平台/156.0 code1792142832 | 依上述平台資格分開 | 只有遊戲profile離線證據，無156.0遊戲實測 | 未驗 | 全部未驗 |
 | 新MuMu12.0/API32/x64/libnb.so/無遊戲 | Root關閉／原Permissive | 只量測OS；不符合API31 | 未驗，未安裝Lens | 全部未驗，已關閉 |

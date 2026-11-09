@@ -1,5 +1,7 @@
 # API31 native候選整合（2026-11-09）
 
+> 後續使用者已授權API31 Root變更；Magisk31.1／Enforcing／Zygisk關閉後，普通App PATH su-M與Magisk-domain canary／收容已有實測，見[Root階段紀錄](API31_MAGISK_RESEARCH.md)。以下「Root尚缺」保留為候選整合當時狀態；正常產品完整載入與遊戲仍未驗。
+
 此階段把已實測的隔離adapter接入單APK的native來源，**不宣告API31產品支援或四組遊戲通過**。API31正常App Root尚缺、合法遊戲splits與原產品簽章來源待提供；Java正式入口仍拒絕x64/API31及API32。
 
 ## 選擇與拒絕規則

@@ -1,5 +1,7 @@
 # 竹北隔離研究：API31真App與API35內建Root
 
+> API31後續已獲Root安裝授權並完成[Magisk31.1普通App及載入／收容實測](API31_MAGISK_RESEARCH.md)。本頁「Root方案待回覆」是原階段紀錄；產品與遊戲驗收仍未完成。
+
 > 後續已進一步完成[API31 native候選來源整合與兩平台共用dispatcher實測](API31_PRODUCT_INTEGRATION.md)。預設與Java資格仍不放寬，四組遊戲未驗。
 
 2026-11-09新增實測；取代早期「研究簽章／index5待確認、API31真JNI未驗」的當前狀態。**四個遊戲組合全部仍未驗收**。未交付新產品APK，產品x64仍限原API35/libnb資格。
