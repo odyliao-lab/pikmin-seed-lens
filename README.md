@@ -21,9 +21,10 @@
 見[API31實際研究結果](docs/API31_AVD_RESEARCH.md)及
 [本輪接手、環境及下一步](docs/handoffs/2026-11-09-zhubei-intake.md)。
 
-目前驗收目標為Android12/API31、Android14/API34、Android15/API35與遊戲156.0／156.1六組真實可用；
+目前驗收目標為Android12/API31、Android14/API34、Android15/API35與遊戲156.0／156.1／157九組真實可用；
 每組都要驗兩頁、縮字、捲動、OFF及遊戲重啟，不以研究建置代替完成。
-見[六組驗收條件與進度](docs/ANDROID12_15_GAME156_GOAL.md)。
+157是使用者於2026-11-09新增的必要範圍，尚未取得官方安裝包及精確versionName/code，沒有已審查profile或相容通過結論；現有APK對未知版本保留原顯示。
+見[九組驗收條件與進度](docs/ANDROID12_15_GAME156_GOAL.md)。
 
 API31平台來源已接入明確的unsigned候選，Java與native使用同一開關，
 與隔離研究共用adapter／runtime dispatcher；預設建置仍維持API35資格，明確signed qualification另見下方，API32不接受。API31正常產品完整流程與遊戲仍待驗，
@@ -41,7 +42,7 @@ API31平台來源已接入明確的unsigned候選，Java與native使用同一開
 明確`-Api31Qualification`才允許原簽章新版本開啟API31驗收，預設仍API35；見[0.4.1分項紀錄](docs/PRODUCT041_QUALIFICATION.md)。
 
 API31 x64上156.0與156.1各次實際啟動均在Lens載入前出現Unity SEVL指令SIGILL；156.1系統後續另記SIGSEGV。自有ARM-only probe已重現31失敗、35返回。
-這個image仍未通過遊戲能力；本機ARM64 AVD提案因官方frontend架構限制撤回，現待指定API31原生ARM64手機或ARM64主機，見[指令能力界線](docs/API31_GAME_STARTUP_BOUNDARY.md)。
+這個image仍未通過遊戲能力；本機標準ARM64 AVD frontend實際拒絕，獲准的完整ARM64 guest後端研究也尚未boot成功，見[指令能力界線](docs/API31_GAME_STARTUP_BOUNDARY.md)及[ARM64後端研究](docs/API31_ARM64_BACKEND_RESEARCH.md)。
 
 以下為0.3.1的歷史基線：Virgo API35／x86_64／libnb.so／遊戲156.1已從正常App入口實際套用花苗頁及探險頁，
 兩頁關閉後還原原名及字型。Libra API34／ARM64也已用同一0.3.1 APK完成兩頁

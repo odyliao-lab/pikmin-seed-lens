@@ -35,6 +35,12 @@ stock boot正常安裝原簽章156.0/code1792142832完整base／ARM64 split；�
 
 關閉全螢幕教學後選擇Wait，另保存系統負載；遊戲未做任何操作或產品載入。為隔離後續mode測試，正常force-stop的只限這個無登入的隔離遊戲。保留資料，adbd回non-root後正常關閉此AVD，確認原QEMU terminal才重開。
 
-第二次使用同一AVD及官方emulator `-gpu swiftshader`軟體GLES／Vulkan模式，比較顯示服務ANR；2CPU／4GB、API／bridge及遊戲bytes不變。沒有改共享SDK映像或Windows驅動／Hyper-V。此次boot及遊戲結果仍待實測；此準備不代表ANR原因已證實，亦非遊戲通過。
+第二次使用同一AVD及官方emulator `-gpu swiftshader`軟體GLES／Vulkan模式，比較顯示服務ANR；2CPU／4GB、API／bridge及遊戲bytes不變。boot `7c7d1219-f44d-46c1-a894-bafc2fd78a85`，GLES回報Google SwiftShader。156.0首程序PID1729在Loading.AsyncRe／TID1822發生SIGILL，translator明確指出`0xd50320bf`；Unity PC為原始libunity.so+`0x599200`，對應已核156.0 ELF的SEVL。這次有遊戲自己的指令失敗證據；不再由probe失敗推論遊戲。
 
-原始資料只在ignored `.tools/lab/api34-stock-f222f40580ae48a8b3d8e72985e60f16/`及`.tools/lab/api34-swiftshader-5806d8ce52514b0282126c5d70cfe8d5/`。先判斷平台能否正常跑原遊戲，再決定已授權的私人Root與隔離載入／失敗收容階段；目前未安裝Magisk或產品，兩個API34產品組合都未通過。
+同次截圖工具停滯，核對其唯一PID1832／UID2000／start15647及screencap命令後，只停止自有診斷工具及其ADB client，未停止任何loader或改遊戲。該畫面不能當成功截圖。隨後156.1更新的自身PackageInstaller session1593143407（UID2000、180,611,291 bytes）在committed／未applied階段未返回；只取消此session，記錄mDestroyed=true，沒有重送安裝。正常關閉該失常圖形環境後，另次boot確認active sessions清空、原156.0仍在，才重新進行版本升級。
+
+第三次仍為同一AVD，官方`-gpu host -feature -Vulkan`使用既有NVIDIA OpenGL驅動，沒有更新驅動或修改Hyper-V。boot `6ea3863d-b1c5-4e7c-b05f-f057b44894c5`，實際API34／原bridge SHA／Enforcing與空mode不變；GLES為NVIDIA RTX2060／OpenGL ES3.1。新的session769034203實際finalStatus1／applied=true／Session installed；PM精確156.1/code1793076318，base與split SHA逐一吻合Play intake。
+
+156.1只啟動一次，PID4192／UID10193，在Loading thread／TID4356先出現undefined `0xd50320bf`與SIGILL，Unity PC亦為該版libunity.so+`0x599200`（BuildId110e530d888cf082）。此位置與已驗簽原split的反組譯一致；不能拿API31先前另一thread的`0x5e2234`冒充本次PC。後續pidof回4390而前景已是Launcher，沒有把另一程序當登入就緒，未再導引登入或產品載入。
+
+原始資料只在ignored `.tools/lab/api34-stock-f222f40580ae48a8b3d8e72985e60f16/`、`.tools/lab/api34-swiftshader-5806d8ce52514b0282126c5d70cfe8d5/`及`.tools/lab/api34-hostgl-00e20dc07a554bd29c03055ef485d19e/`。結束前確認產品套件與product attempt不存在、adbd UID2000／Enforcing；正常關閉AVD。共享SDK ramdisk／bridge及遊戲指令未改。兩版原遊戲都已有產品載入前SEVL失敗證據，未安裝Magisk或產品，不把Root安裝或版本放寬當成CPU修復；兩個API34產品組合仍未通過。
