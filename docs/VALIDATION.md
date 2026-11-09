@@ -1,5 +1,9 @@
 # 驗證分層
 
+## 2026-11-09：Linux方案已授權、材料已核、安裝待本機UAC
+
+使用者同意新WSL2範圍後，三份固定官方下載的大小／雜湊皆吻合；Microsoft MSI的Authenticode實際Valid、ProductVersion3.0.3.0。官方API31 ARM64 rev11映像及自有V2 initramfs共14檔完成私人intake與逐檔SHA清單，沒有複製既有VM／登入資料／憑證。管理員安裝helper僅通過Windows PowerShell5語法解析；UAC要求最後回傳1223／取消，helper尚未開始、未安裝runtime或變更Windows元件／建立distro，沒有主機重開。WMI回報VMP與WSL optional feature均停用。這是實際準備結果，不是Linux／Android／產品通過，九組矩陣不變。詳見[Linux準備紀錄](API31_LINUX_HOST_PREPARATION.md)。
+
 ## 2026-11-09：ARM64後端自有initramfs CPU比較
 
 新index5完成0.5.0／156.1回歸並OFF、正常關閉後，同已核准空白ARM64研究AVD使用私人自有initramfs override，官方SDK ramdisk SHA未變。單獨SEVL／plain與tagged store等5項實跑通過；加入SDK fault附近向量序列後，V2實際5 pass／2 SIGSEGV fail／0 skip，父程序收容後正常power-off。只改`-singlestep`的同V2原件實際7 pass／0 fail／0 skip，正常power-off且host／兩埠消失。不是Android App或產品資格，也未測試故意alarm逾時。後續官方原ramdisk完整Android越過先前keystore位置至zygote，但hostGL host退出未得正常ack；SwiftShader另輪實際exit0xC0000005，未到online ADB／實際API／App。兩輪不算正常關閉或相容通過；目前研究host／supervisor與埠均消失、index5亦關閉，原SDK ramdisk SHA不變。來源、產物SHA與有限例外位置見[CPU研究](API31_ARM64_CPU_MEMORY_RESEARCH.md)，下一個[Linux host提案](API31_LINUX_HOST_PROPOSAL.md)尚未授權或執行。

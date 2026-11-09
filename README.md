@@ -44,7 +44,7 @@ API31平台來源已接入明確的unsigned候選，Java與native使用同一開
 明確`-Api31Qualification`才允許原簽章新版本開啟API31驗收，預設仍API35；見[0.4.1分項紀錄](docs/PRODUCT041_QUALIFICATION.md)。
 
 API31與API34 x64的157.0也各自實測原Unity+0x5e2760 SEVL SIGILL，見[157獨立啟動](docs/GAME157_PLATFORM_STARTUP.md)。API31 x64上156.0與156.1各次實際啟動均在Lens載入前出現Unity SEVL指令SIGILL；156.1系統後續另記SIGSEGV。自有ARM-only probe已重現31失敗、35返回。
-這個image仍未通過遊戲能力；本機標準ARM64 AVD frontend實際拒絕，獲准的完整ARM64 guest預設後端研究已到kernel／init，但keystore2反覆SIGSEGV、ADB offline。後續自有initramfs在預設TCG重現相鄰向量序列失敗、單指令TB模式同原件7項通過；完整Android另以hostGL／SwiftShader均在ADB就緒前host退出，後者實際Windows access violation，尚無正常App資格。見[指令能力界線](docs/API31_GAME_STARTUP_BOUNDARY.md)、[CPU記憶體研究](docs/API31_ARM64_CPU_MEMORY_RESEARCH.md)及[待確認Linux隔離方案](docs/API31_LINUX_HOST_PROPOSAL.md)。
+這個image仍未通過遊戲能力；本機標準ARM64 AVD frontend實際拒絕，獲准的完整ARM64 guest預設後端研究已到kernel／init，但keystore2反覆SIGSEGV、ADB offline。後續自有initramfs在預設TCG重現相鄰向量序列失敗、單指令TB模式同原件7項通過；完整Android另以hostGL／SwiftShader均在ADB就緒前host退出，後者實際Windows access violation，尚無正常App資格。見[指令能力界線](docs/API31_GAME_STARTUP_BOUNDARY.md)、[CPU記憶體研究](docs/API31_ARM64_CPU_MEMORY_RESEARCH.md)及[已授權Linux方案](docs/API31_LINUX_HOST_PROPOSAL.md)；安裝材料已核，尚待本機UAC，未變更Windows元件或建立新distro。
 
 以下為0.3.1的歷史基線：Virgo API35／x86_64／libnb.so／遊戲156.1已從正常App入口實際套用花苗頁及探險頁，
 兩頁關閉後還原原名及字型。Libra API34／ARM64也已用同一0.3.1 APK完成兩頁

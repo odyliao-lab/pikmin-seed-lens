@@ -1,6 +1,6 @@
-# 待確認：Linux host上的API31 ARM64隔離研究
+# 已授權：Linux host上的API31 ARM64隔離研究（安裝待本機UAC）
 
-**尚未下載、安裝、啟用Windows元件或建立Linux環境。** 本提案不是已成功的相容方案，也不改九組矩陣。Windows ARM64後端的自有CPU序列已有對照證據，但完整Android在hostGL與SwiftShader均未到ADB就緒；後者實際Windows access violation，見[本次研究](API31_ARM64_CPU_MEMORY_RESEARCH.md)。Linux比較是否能避開此問題仍須實測，不能保證。
+**使用者已回覆「同意」。** 三份固定官方安裝檔已下載並核大小／雜湊，MSI另核Microsoft有效簽章與3.0.3.0版本；官方API31映像與自有fixture亦已備妥。Windows UAC啟動回傳1223／操作被使用者取消，管理員腳本尚未開始；未安裝runtime、變更Windows元件或建立Linux環境，沒有自行重開。完整實際進度見[準備紀錄](API31_LINUX_HOST_PREPARATION.md)。本方案仍不是相容成功證據，也不改九組矩陣。Windows ARM64後端的自有CPU序列已有對照證據，但完整Android在hostGL與SwiftShader均未到ADB就緒；後者實際Windows access violation，見[本次研究](API31_ARM64_CPU_MEMORY_RESEARCH.md)。Linux比較是否能避開此問題仍須實測，不能保證。
 
 ## 新鮮盤點與需重新確認的原因
 

@@ -48,7 +48,7 @@ API31 x64原遊戲啟動與獨立指令probe已找到SEVL缺口。原先本機�
 
 後續獲准的官方rev11／同名空白ARM64 AVD，標準frontend實際拒絕；直接後端先在PCI/HDA初始化失敗，再於index5關閉後實際以virt主板比較，到達kernel／init，但keystore2反覆SIGSEGV、ADB offline，正常關閉。沒有App就緒／實際API證據或Root／產品安裝。這是[完整ARM guest軟體CPU研究](API31_ARM64_BACKEND_RESEARCH.md)，不覆寫前述標準frontend限制，也不算原生實機或NativeBridge已驗。
 
-後續[自有CPU initramfs](API31_ARM64_CPU_MEMORY_RESEARCH.md)的相鄰向量序列在預設TCG失敗、單指令TB同原件7項通過；官方Android完整guest在hostGL及SwiftShader仍均於ADB就緒前host退出，後者保存0xC0000005。沒有把此CPU正例轉記實際API／App／產品資格，所有API31列仍未通過。[Linux host新方案](API31_LINUX_HOST_PROPOSAL.md)涉及目前未安裝的WSL及Windows元件，待使用者重新確認，尚未執行。
+後續[自有CPU initramfs](API31_ARM64_CPU_MEMORY_RESEARCH.md)的相鄰向量序列在預設TCG失敗、單指令TB同原件7項通過；官方Android完整guest在hostGL及SwiftShader仍均於ADB就緒前host退出，後者保存0xC0000005。沒有把此CPU正例轉記實際API／App／產品資格，所有API31列仍未通過。[Linux host新方案](API31_LINUX_HOST_PROPOSAL.md)已由使用者確認；固定下載與官方SDK／自有fixture均已核，Windows UAC啟動回傳取消、管理員helper未開始，故未安裝或變更Windows元件／建立distro。見[準備紀錄](API31_LINUX_HOST_PREPARATION.md)。
 
 使用者另授權直接安裝必要Google套件；新API35隔離機已由MuMu原廠谷歌安裝器完成Play／GMS／GSF，普通App Root再驗通過。Google及兩版遊戲的各次登入均由使用者完成，產品分項結果見上表；沒有複製遊戲session。Google來源與早期階段結果見[Google套件階段](API35_GOOGLE_INTAKE.md)。
 
