@@ -132,5 +132,5 @@ if($LASTEXITCODE){throw 'Native APK layout/digest validation failed; artifact mu
 Get-FileHash $apk
 if($Candidate){Write-Output 'NOT_FOR_INSTALL_OR_DELIVERY: candidate retains development manifest only'}
 if($Api31Candidate){Write-Output 'API31_JAVA_AND_NATIVE_CANDIDATE: exact backend guards retained; product/game acceptance pending'}
-if($Api31Qualification){Write-Output 'API31_SIGNED_ISOLATED_QUALIFICATION_ONLY: not a support claim or public release; four-game acceptance pending'}
+if($Api31Qualification){Write-Output 'API31_SIGNED_ISOLATED_QUALIFICATION_ONLY: not a support claim or public release; nine-combination acceptance pending'}
 Write-Output "Build completed ($kind). Not evidence of root load, UI restoration or multi-version compatibility."

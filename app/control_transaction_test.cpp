@@ -56,6 +56,10 @@ int main(int argc,char**){
     check(!fresh_renderer_status(text,100,"123",100000,"156.1"));
     check(!fresh_renderer_status(good,100,"123",100000,"156.0"));
     check(!fresh_renderer_status(text,100,"123",100000,"156.2"));
+    text=good;text.replace(text.find("156.1"),5,"157.0");
+    check(fresh_renderer_status(text,100,"123",100000,"157.0"));
+    check(!fresh_renderer_status(text,100,"123",100000,"156.1"));
+    check(!fresh_renderer_status(good,100,"123",100000,"157.0"));
     using namespace seed_preview;
     for(const auto& profile:game_profiles){
         check(profile_for_version(profile.version,profile.versionCode)==&profile);

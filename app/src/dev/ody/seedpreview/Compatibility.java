@@ -7,7 +7,8 @@ public final class Compatibility {
     static final boolean API31_CANDIDATE=false;
     private Compatibility() {}
     public static String blockReason(int api,String abi,String version,long code) {
-        if(!(("156.1".equals(version)&&code==1793076318L)||("156.0".equals(version)&&code==1792142832L)))
+        if(!(("156.1".equals(version)&&code==1793076318L)||("156.0".equals(version)&&code==1792142832L)
+                ||("157.0".equals(version)&&code==1793360009L)))
             return "遊戲沒有精確配對的設定檔，保留原顯示；不會嘗試舊位址。";
         if(api<28||api>35)return "Android 版本尚未納入原型範圍，保留原顯示。";
         if("x86_64".equals(abi))return api==35||(API31_CANDIDATE&&api==31)?null:"此 Android 的 NativeBridge 尚未納入候選範圍，保留原顯示。";

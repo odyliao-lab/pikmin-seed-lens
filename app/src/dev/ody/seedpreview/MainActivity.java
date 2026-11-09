@@ -25,7 +25,7 @@ public final class MainActivity extends Activity {
         try{version=getPackageManager().getPackageInfo(getPackageName(),0).versionName;}
         catch(android.content.pm.PackageManager.NameNotFoundException e){version="版本未知";}
         TextView title=new TextView(this);title.setText("皮克敏花苗透視鏡 "+version+"（驗證原型）");title.setTextSize(23);box.addView(title);
-        TextView help=new TextView(this);help.setText("僅顯示名稱／縮字，不改物品。只需 Root，不安裝額外模組。\n精確設定檔：156.1；156.0仍待實機驗證。其他版本不套用。\n登入主畫面後再確認；每次啟用綁定當下程序，離開此頁即重新確認。\n關閉會還原已綁定卡片，載入的程式留到遊戲退出。請勿與控制中心預覽並用。");box.addView(help);
+        TextView help=new TextView(this);help.setText("僅顯示名稱／縮字，不改物品。只需 Root，不安裝額外模組。\n精確設定檔：156.0、156.1、157.0。其他版本不套用。\n登入主畫面後再確認；每次啟用綁定當下程序，離開此頁即重新確認。\n關閉會還原已綁定卡片，載入的程式留到遊戲退出。請勿與控制中心預覽並用。");box.addView(help);
         map=new CheckBox(this);map.setText("我已確認遊戲登入主畫面，其他操作已暫停");box.addView(map);
         contain=new CheckBox(this);contain.setText("若載入逾時或結果不明，允許停止這次遊戲程序；保留記錄、不自動重送，需重新開啟遊戲。");
         box.addView(contain);

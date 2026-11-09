@@ -4,7 +4,7 @@
 獨立 Android APK 的開發原型：只顯示花苗名稱與縮小長文字，不修改遊戲物品。
 目標是使用既有 Root，不另安裝控制中心、LSPosed 或花苗顯示模組。
 
-**目前仍是驗證原型，不是多版本正式版。** 竹北隔離驗收版 `0.4.1/code14`；先前交付基線保留`0.3.1/code12`，包名
+**目前仍是驗證原型，不是多版本正式版。** 竹北隔離驗收版 `0.5.0/code15`（新增157精確profile，分項實測）；先前交付基線保留`0.3.1/code12`，包名
 `dev.ody.seedpreview`，沿用原簽章。單一APK內含ARM64後端、x64 host及同批ARM renderer，
 不需要控制中心或額外顯示模組。PM路徑／SHA／stored ZIP／16KB對齊均在建置與執行時核對。
 
@@ -23,7 +23,7 @@
 
 目前驗收目標為Android12/API31、Android14/API34、Android15/API35與遊戲156.0／156.1／157九組真實可用；
 每組都要驗兩頁、縮字、捲動、OFF及遊戲重啟，不以研究建置代替完成。
-157是使用者於2026-11-09新增的必要範圍，尚未取得官方安裝包及精確versionName/code，沒有已審查profile或相容通過結論；現有APK對未知版本保留原顯示。
+157已由使用者指定AutoFarm唯讀取得原簽章完整base／split，核為157.0/code1793360009；舊0.4.1未知版本拒絕已實跑。新增精確profile及來源負例後，原簽章0.5.0僅安裝新index5，已在新API35的兩個遊戲程序驗兩頁ON／OFF、花苗縮字及探險末排離屏返回；探險長名縮字、OS／長時間及其他平台仍未驗。見[157來源界線](docs/GAME157_OFFICIAL_INTAKE.md)。
 見[九組驗收條件與進度](docs/ANDROID12_15_GAME156_GOAL.md)。
 
 API31平台來源已接入明確的unsigned候選，Java與native使用同一開關，
@@ -43,7 +43,7 @@ API31平台來源已接入明確的unsigned候選，Java與native使用同一開
 明確`-Api31Qualification`才允許原簽章新版本開啟API31驗收，預設仍API35；見[0.4.1分項紀錄](docs/PRODUCT041_QUALIFICATION.md)。
 
 API31 x64上156.0與156.1各次實際啟動均在Lens載入前出現Unity SEVL指令SIGILL；156.1系統後續另記SIGSEGV。自有ARM-only probe已重現31失敗、35返回。
-這個image仍未通過遊戲能力；本機標準ARM64 AVD frontend實際拒絕，獲准的完整ARM64 guest後端研究也尚未boot成功，見[指令能力界線](docs/API31_GAME_STARTUP_BOUNDARY.md)及[ARM64後端研究](docs/API31_ARM64_BACKEND_RESEARCH.md)。
+這個image仍未通過遊戲能力；本機標準ARM64 AVD frontend實際拒絕，獲准的完整ARM64 guest後端研究已到kernel／init，但keystore2反覆SIGSEGV、ADB offline，尚無正常App環境，見[指令能力界線](docs/API31_GAME_STARTUP_BOUNDARY.md)及[ARM64後端研究](docs/API31_ARM64_BACKEND_RESEARCH.md)。
 
 以下為0.3.1的歷史基線：Virgo API35／x86_64／libnb.so／遊戲156.1已從正常App入口實際套用花苗頁及探險頁，
 兩頁關閉後還原原名及字型。Libra API34／ARM64也已用同一0.3.1 APK完成兩頁
@@ -57,7 +57,7 @@ renderer回報。NativeBridge僅對已驗環境提供明確同意的候選入口
 
 ## 已知限制
 
-- 精確設定包括 **156.1/code1793076318** 與 **156.0/code1792142832**，不接受任意156.x；
+- 精確設定包括 **156.1/code1793076318**、**156.0/code1792142832** 與 **157.0/code1793360009**，不接受近似版本；
   兩版API35均有0.4.1分項畫面證據；API31未通過，API34新隔離環境研究中。未知版本保持原顯示。
 - Android API28–35／ARM64 是候選範圍；同版0.3.1 APK在Libra API34及Virgo API35有實際
   顯示與OFF證據。其他Android、NativeBridge ROM及遊戲版本尚未通過。

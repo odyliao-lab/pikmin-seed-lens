@@ -3,6 +3,7 @@ import struct
 import tempfile
 import unittest
 import profile_evidence as p
+import check_profile_sources as c
 
 class EvidenceTests(unittest.TestCase):
     def setUp(self):
@@ -45,5 +46,28 @@ class EvidenceTests(unittest.TestCase):
         with self.assertRaises(ValueError):p.parse_dump(self.dump(duplicate=True))
     def test_wrong_overload(self):
         with self.assertRaises(ValueError):p.parse_dump(self.dump(wrong_signature=True))
+
+class ProfileHeaderTests(unittest.TestCase):
+    def header(self, versions=None, words=6):
+        versions=list(c.REVIEWED_CODES.items()) if versions is None else versions
+        hook='{0x1000,{'+','.join(['0x1']*words)+'}}'
+        records=['{"'+v+'",'+str(code)+',512,"'+'0'*64+'",1,'+','.join([hook]*5)+'}' for v,code in versions]
+        return 'inline constexpr GameProfile game_profiles[]{\n'+',\n'.join(records)+',\n};'
+    def test_complete_reviewed_set(self):
+        self.assertEqual(set(c.native_profiles(self.header())),{'156.0','156.1','157.0'})
+    def test_missing_reviewed_version(self):
+        with self.assertRaises(ValueError):c.native_profiles(self.header(list(c.REVIEWED_CODES.items())[:2]))
+    def test_wrong_exact_code(self):
+        values=list(c.REVIEWED_CODES.items());values[-1]=('157.0',1793360010)
+        with self.assertRaises(ValueError):c.native_profiles(self.header(values))
+    def test_duplicate_version(self):
+        with self.assertRaises(ValueError):c.native_profiles(self.header(list(c.REVIEWED_CODES.items())+[('157.0',1793360009)]))
+    def test_unreviewed_version(self):
+        with self.assertRaises(ValueError):c.native_profiles(self.header(list(c.REVIEWED_CODES.items())+[('157.1',1793360009)]))
+    def test_malformed_extra_record_not_silently_ignored(self):
+        header=self.header().replace('\n};','\n{"158.0",broken},\n};')
+        with self.assertRaises(ValueError):c.native_profiles(header)
+    def test_short_prefix(self):
+        with self.assertRaises(ValueError):c.native_profiles(self.header(words=5))
 
 if __name__=='__main__':unittest.main()

@@ -1,5 +1,15 @@
 # 驗證分層
 
+## 2026-11-09：157.0原簽章來源、未知拒絕與0.5.0
+
+新index5的Play當時未提供157更新；後續使用者指定AutoFarm已安裝版本，限定唯讀取得原簽章base／完整ARM64 split，核實157.0/code1793360009。未操作來源UI／遊戲／scanner／憑證或Root狀態，其餘原instance及台中未操作。0.4.1在新index5實跑未知版本拒絕，control OFF／無Lens mapping／無新attempt，16份歷史SHA不變，見[來源界線](GAME157_OFFICIAL_INTAKE.md)。
+
+新增精確157 profile，三版完整來源重驗3 ELF／15 hook／3 veneer／14同布局／39破壞負例，Python16項通過。0.5.0/code15保留原簽章、新SHA與舊APK；預設與API31 qualification完整建置48／29／27／8／4檢查通過，API34 x64仍拒絕。新API35自有control fixture76項實跑通過，沒有改動遊戲或16份歷史紀錄。
+
+0.5.0只安裝新index5。使用者本人處理157獎勵後，正常App對PID2033/start22615首次載入，完整七階段journal與新鮮157.0 status；實際兩頁細分名稱、花苗長字縮小／離屏返回、探險末排冰色三葉花苗完全離屏後返回同名、兩頁正常App OFF原文／字型還原已觀察。最長紀念名稱縮字後仍截斷，探險長字縮小尚未觸發；正常遊戲重開至PID5504/start188935後，未確認及舊status實際拒絕；新同意／新完整journal後再驗兩頁ON／OFF、紀念長字縮小與探險末排完全離屏返回。OS／長時間與其他平台未驗。原16份SHA不變，兩筆新完整journal保留，總數18；最後control OFF／157.0／ready／enable0、讀到的thread TracerPid均0，adbd UID2000。詳見[0.5.0分項驗收](PRODUCT050_QUALIFICATION.md)。
+
+API31 ARM64 virt比較已到kernel／init，但keystore2反覆SIGSEGV、ADB offline，無實際API或App就緒證據；已正常關閉，未安裝Root／遊戲／產品，詳見[後端研究](API31_ARM64_BACKEND_RESEARCH.md)。下列較早階段材料不足與未執行敘述保留當時狀態，不覆寫最新結果。
+
 ## 2026-11-09：API35／156.1樣本兩頁、離屏返回與遊戲重啟
 
 本人完成全部後續獎勵並回主畫面後，重新核對同API35／libnb／精確156.1/code1793076318／同原簽章0.4.1。PID10717/start267134具有完整持久journal與新鮮status，正常App重新同意再啟用；沒有追加attempt或重送載入。實際兩頁名稱、探險首排花苗完全離屏後返回同名、正常App OFF原名／字型還原均已比對。
@@ -14,11 +24,11 @@ OFF後正常遊戲重啟至PID14356/start423650。未重新勾選啟用、舊sta
 
 這次補的是156.0真正探險離屏返回的畫面證據。探險名稱目前都能完整容納，尚未覆蓋需要縮字的更長名稱；OS重啟同帳號前後與長時間仍未驗。本人處理既有種花結算／獎勵，沒有以領回或派遣製造測試樣本；帳號有自然狀態更新，不宣稱所有物品總量恆定。詳見[本輪樣本紀錄](API35_SEED_EXPEDITION_SAMPLE.md)。當時156.1已正常升級保留登入，首次載入完整但遇後續選獎勵彈窗，正常App OFF後待本人處理，尚不算156.1樣本畫面通過；後續本人處理後的結果見上節。
 
-## 2026-11-09：新增157，必要範圍擴為九組
+## 2026-11-09：新增157時的階段紀錄，必要範圍擴為九組
 
 使用者補充157已釋出，要求加入功能驗證。最新必要範圍為Android12/API31、14/API34、15/API35 × 156.0、156.1、157；[九組矩陣](ANDROID12_15_GAME156_GOAL.md)是目前完成條件，以下較早的四組／六組敘述保留歷史範圍。
 
-157尚未從官方來源取得精確Android versionName/code、完整splits、簽章、ELF／metadata，沒有profile或任何裝置通過結果。現有0.4.1只有156.0與156.1精確profile，未知版本維持原顯示；不得沿用舊偏移或放寬NativeBridge。完成既有156.x分項驗收後，才在已授權新index5從官方Play取得157，先驗未知版本拒絕，再進隔離研究與新版本原簽章產品；不同交付bytes必須新version/code，最終九組以同一APK逐組重驗。
+新增當時157尚未從官方來源取得精確Android versionName/code、完整splits、簽章、ELF／metadata，沒有profile或任何裝置通過結果。現有0.4.1只有156.0與156.1精確profile，未知版本維持原顯示；不得沿用舊偏移或放寬NativeBridge。完成既有156.x分項驗收後，才在已授權新index5從官方Play取得157，先驗未知版本拒絕，再進隔離研究與新版本原簽章產品；不同交付bytes必須新version/code，最終九組以同一APK逐組重驗。
 
 | 157必要組合 | 目前狀態 |
 |---|---|
@@ -28,7 +38,7 @@ OFF後正常遊戲重啟至PID14356/start423650。未重新勾選啟用、舊sta
 
 目前新樣本帳號由使用者本人完成156.0登入，boot `072e4811-b253-460d-b471-a318cd4bf015`。既有12份產品／研究attempt在OS重開後SHA不變，control保持OFF；尚未在本次boot啟用產品，不能算OS重啟再啟用通過。探險列表實際捲到底目前只觀察到禮品與水果，未觀察到未領回花苗；已請本人確認花苗樣本，沒有點擊領回／派遣，也沒有把禮品的捲動算成花苗重用驗收。帳號與原始截圖只留ignored私人資料夾。
 
-API34後續三次stock boot的圖形比較已完成：156.0在SwiftShader、156.1在host OpenGL分別於原Unity的SEVL SIGILL，均在產品載入前；取消首輪未完成安裝、確認恢復後才提交新156.1更新。未安裝Magisk或產品，詳見[API34研究](API34_ISOLATED_RESEARCH.md)。獲准的[API31完整ARM64 guest後端研究](API31_ARM64_BACKEND_RESEARCH.md)目前仍未boot成功，不能新增ARM64實機或遊戲通過欄。
+API34後續三次stock boot的圖形比較已完成：156.0在SwiftShader、156.1在host OpenGL分別於原Unity的SEVL SIGILL，均在產品載入前；取消首輪未完成安裝、確認恢復後才提交新156.1更新。未安裝Magisk或產品，詳見[API34研究](API34_ISOLATED_RESEARCH.md)。當時獲准的[API31完整ARM64 guest後端研究](API31_ARM64_BACKEND_RESEARCH.md)仍未boot成功；後續virt到達kernel／init但App未就緒，不能新增ARM64實機或遊戲通過欄。
 
 ## 2026-11-09：API35／156.0實際畫面與新增API34範圍
 
@@ -124,6 +134,8 @@ API34後續三次stock boot的圖形比較已完成：156.0在SwiftShader、156.
 - 未連線台中Libra/Virgo或本機既有四台的Android系統，未讀取／複製scanner、token、帳號session，未重啟host。四台既有instance未改動。
 
 ### 目前組合矩陣（不得跨列推論）
+
+最新新增API35／157.0及0.5.0結果見本頁首節與[九組矩陣](ANDROID12_15_GAME156_GOAL.md)；下表保留156.x各原APK的分項證據，不能移作0.5.0重驗結果。
 
 歷史產品兩列均為0.3.1/code12，同SHA`e6262ccdbe50314ebe80063c67943e59a3cae4b5cc9dbae9059197849d2eb284`；本輪沒有重新操作它們。
 

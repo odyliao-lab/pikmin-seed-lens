@@ -4,7 +4,7 @@
 
 「156」依目前交接採精確156.0/code1792142832；156.1/code1793076318。若使用者另指不同code，必須先核對完整profile，不能用近似版本通過。
 
-157的發行資訊目前來自使用者回報；精確Android versionName/code、官方完整base／splits與簽章尚待取得。不得推測code或沿用156.1偏移。取得前現有產品仍按未知版本保留原顯示，新增profile也不能替代逐平台真實驗收。
+157已由使用者指定AutoFarm唯讀取得完整原簽章安裝包，實際157.0/code1793360009；0.4.1未知版本拒絕已驗。0.5.0新增精確profile及完整來源／負例，僅在新API35隔離機取得兩頁分項證據，見[0.5.0紀錄](PRODUCT050_QUALIFICATION.md)；新增profile不能替代逐平台真實驗收。見[來源與界線](GAME157_OFFICIAL_INTAKE.md)。
 
 ## 必要的九個交叉組合
 
@@ -16,9 +16,9 @@
 | Android14/API34 | 156.1/code1793076318 | 同一AVD另一host OpenGL boot，取消前輪未完成安裝並核恢復後，新的更新session實際applied；精確156.1首程序亦於Unity SEVL SIGILL。產品API34 x64仍拒絕 | 產品兩頁未驗，不算通過 |
 | Android15/API35 | 156.0/code1792142832 | 同原簽章0.4.1兩頁名稱／OFF、花苗長字／捲動及遊戲重啟已驗；本人再次更換樣本後，另一兩程序實際補驗多類探險名稱與花苗真正離屏返回／兩頁OFF，歷史UNKNOWN不變 | 探險離屏往返已有畫面證據；需要觸發縮字的更長探險名稱仍待樣本，OS／長時間未驗 |
 | Android15/API35 | 156.1/code1793076318 | 同原簽章0.4.1原分項證據保留；本人完成新樣本帳號獎勵後，PID10717及重開後14356各自補驗多類探險名稱、首排花苗真正離屏返回、兩頁OFF。新程序舊同意／status拒絕、重新確認再啟用已驗，歷史UNKNOWN不變 | 探險離屏往返已有畫面證據；探險更長名稱縮字仍未覆蓋，庫存最長名稱縮字後仍截斷；OS／長時間未驗 |
-| Android12/API31 | 157（精確versionName/code待官方intake） | 未取得／未安裝／無profile；既有x64的156.x SEVL缺口仍未解，157需獨立確認 | 全部未驗，不算通過 |
-| Android14/API34 | 157（精確versionName/code待官方intake） | 未取得／未安裝／無profile；產品x64 API34仍拒絕，須先驗原遊戲與平台能力 | 全部未驗，不算通過 |
-| Android15/API35 | 157（精確versionName/code待官方intake） | 完成既有156.0／156.1驗收後才在新index5從官方Play取得；先驗未知版本拒絕，再研究精確profile | 全部未驗，不算通過 |
+| Android12/API31 | 157.0/code1793360009 | 原簽章材料及精確profile已取得，尚未在API31安裝／啟動；既有156.x SEVL失敗不能跨版推論 | 全部未驗，不算通過 |
+| Android14/API34 | 157.0/code1793360009 | 原簽章材料及精確profile已取得，尚未在API34安裝／啟動；產品x64 API34仍拒絕，須先驗平台能力 | 全部未驗，不算通過 |
+| Android15/API35 | 157.0/code1793360009 | 後續使用者指定AutoFarm原簽章來源，已正常更新新index5至精確157.0；0.4.1未知拒絕與歷史不變已驗，0.5.0原簽章在兩個獨立遊戲程序完成兩頁ON／OFF、花苗縮字／離屏返回及探險末排冰色三葉花苗真正離屏往返，舊同意／status拒絕與新同意已驗 | 探險長名稱縮字仍待觸發；最長庫存名縮字後仍截斷，OS／長時間未驗，不算整組完成 |
 
 ARM64與x64/NativeBridge各列實際資格；不能由x64上的ARM轉譯推論原生ARM64通過。最終九組須使用同一個正式候選單APK／原產品簽章及新版本/code，逐組記錄SHA；過程中的不同研究／產品artifact保留原版本與hash，不覆寫。
 
@@ -39,14 +39,14 @@ ARM64與x64/NativeBridge各列實際資格；不能由x64上的ARM轉譯推論�
 1. API31 Enforcing研究：PM安裝路徑與精確host digest、持久journal/ACK及pidfd收容；自有真App ClassLoader、ARM JNI、負例與生命週期。研究包可額外存在，不能變成產品使用者依賴。
 2. 使用者已明確授權API31 Root變更；私人ramdisk Magisk31.1標準setup後普通App PATH su-M／同PID1 mount view已驗，仍需產品完整載入驗收。沒有移除-M、改SELinux或放寬bridge；詳見[Root結果](API31_MAGISK_RESEARCH.md)。
 3. API31共用dispatcher及普通App自行su-M／PM loader完整研究路徑已驗；Java與native使用同批開關，預設維持API35，明確signed qualification才開啟API31隔離產品驗收。原簽章0.4.1單APK已交付新隔離機；API35／156.1部分效果已驗，API31 x64原遊戲啟動失敗。見[普通App階段證據](API31_APP_ROOT_FLOW.md)、[候選來源](API31_PRODUCT_INTEGRATION.md)與[目前產品結果](PRODUCT041_QUALIFICATION.md)。
-4. 原簽章與156.0／156.1合法完整splits已齊，API35／兩遊戲版已各有同0.4.1兩頁與新程序分項證據。兩版缺少的探險長名／離屏重用需真實樣本；不為測試派遣或改動物品。API31仍缺可運行原遊戲的目標，API34新AVD已授權且先跑平台／自有fixture／失敗收容。157依[精確來源流程](GAME_PROFILES.md)新增官方intake、負例及profile審查；取得後先驗現有APK保持未知版本拒絕。任何整合改動產品bytes都另分配更高版本/code及原簽章，再以同一新APK重驗九組。
+4. 原簽章與156.0／156.1合法完整splits已齊，API35／兩遊戲版已各有同0.4.1兩頁與新程序分項證據。兩版探險離屏返回已有0.4.1證據，探險長名縮字仍需樣本；不為測試派遣或改動物品。API31仍缺可運行原遊戲的目標，API34新AVD已授權且先跑平台／自有fixture／失敗收容。157的原簽章intake、舊0.4.1未知拒絕與完整profile來源審查已完成；0.5.0在API35有兩頁及遊戲重啟分項證據，其餘平台另驗。任何整合改動產品bytes都另分配更高版本/code及原簽章，再以同一新APK重驗九組。
 5. 每階段測試、審查、commit/push私人功能分支`codex/zhubei-android12-compat`。不force、不自動merge main或公開發布。
 
-研究lab key、Android15新instance及API31隔離AVD安裝官方Root provider均已明確同意並實做。後續使用者指定D槽搜尋，已核原產品keystore與156.0／156.1合法APK；這兩版材料不再缺，157材料仍待取得，不能把材料齊全當九組成功。最新產品分項證據見[0.4.1驗收](PRODUCT041_QUALIFICATION.md)。
+研究lab key、Android15新instance及API31隔離AVD安裝官方Root provider均已明確同意並實做。後續使用者指定D槽搜尋，已核原產品keystore與156.0／156.1合法APK；三版材料及精確profile均已取得，不能把材料齊全當九組成功。最新產品分項證據見[0.4.1驗收](PRODUCT041_QUALIFICATION.md)。
 
 API31 x64原遊戲啟動與獨立指令probe已找到SEVL缺口。原先本機標準API31 ARM64 AVD frontend提案因x64 host／API>=28架構限制撤回，使用者確認沒有可用原生ARM64手機或ARM64主機；後續獲准的直接後端研究如下，仍未解決實際遊戲啟動。見[指令能力紀錄](API31_GAME_STARTUP_BOUNDARY.md)。
 
-後續收到先前ARM64研究的明確同意後，官方rev11 image及同名空白AVD已建立；標準frontend實際拒絕，直接官方後端亦在PCI/HDA初始化拒絕，未boot Android或安裝Root。依固定官方來源準備的virt主板比較尚未執行，會避開目前本人在index5登入的時段。這是[完整ARM guest軟體CPU研究](API31_ARM64_BACKEND_RESEARCH.md)，不覆寫前述標準frontend限制，也不算原生實機或NativeBridge已驗。
+後續獲准的官方rev11／同名空白ARM64 AVD，標準frontend實際拒絕；直接後端先在PCI/HDA初始化失敗，再於index5關閉後實際以virt主板比較，到達kernel／init，但keystore2反覆SIGSEGV、ADB offline，正常關閉。沒有App就緒／實際API證據或Root／產品安裝。這是[完整ARM guest軟體CPU研究](API31_ARM64_BACKEND_RESEARCH.md)，不覆寫前述標準frontend限制，也不算原生實機或NativeBridge已驗。
 
 使用者另授權直接安裝必要Google套件；新API35隔離機已由MuMu原廠谷歌安裝器完成Play／GMS／GSF，普通App Root再驗通過。Google及兩版遊戲的各次登入均由使用者完成，產品分項結果見上表；沒有複製遊戲session。Google來源與早期階段結果見[Google套件階段](API35_GOOGLE_INTAKE.md)。
 

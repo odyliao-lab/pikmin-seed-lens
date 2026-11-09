@@ -40,9 +40,9 @@ OS重啟、詳細頁及第二遊戲版本尚未完成。
 切回遊戲前再比對，native呼叫前又核對同tuple；不以新PID承接舊同意。
 純Java的嚴格session parser已有27項測試；不回溯聲稱0.2.2有此行為。
 
-`game_profiles.h`分開列出156.0與156.1的精確version/code、ELF大小／SHA、五組hook
+`game_profiles.h`分開列出156.0、156.1與157.0的精確version/code、ELF大小／SHA、五組hook
 入口／指令及layout編號；loader、bridge host及renderer共用同一選擇規則，狀態驗證也
-核對所選版本。未審查版本不套用。156.0已完成離線來源比對，尚非實機驗收。
+核對所選版本。未審查版本不套用。以下早期狀態以[最新驗收](VALIDATION.md)為準；0.4.1已有156.x分項實測，新增157的0.5.0須另驗。
 新增profile的來源工具、負例及證據界線見[精確設定檔流程](GAME_PROFILES.md)。
 
 `app/` 包含 Android UI、root loader、JNI payload 及建置入口；

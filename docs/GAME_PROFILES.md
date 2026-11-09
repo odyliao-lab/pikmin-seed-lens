@@ -4,13 +4,15 @@
 該階段156.0只有離線來源比對；2026-11-09已由使用者本人登入，在新API35隔離機以同一原簽章0.4.1完成兩頁名稱／OFF、花苗長字／捲動及遊戲重啟後重新確認再啟用等分項驗收。本人更換樣本後，兩版探險真正離屏返回及OFF亦各自實測；探險長名稱觸發縮字仍待樣本，庫存最長紀念名稱縮字後仍截斷，API31／34未通過，不能稱全部組合成功。
 156.0／156.1的各APK實際證據請看[驗收矩陣](VALIDATION.md)及[0.4.1分項結果](PRODUCT041_QUALIFICATION.md)。
 
-## 157新增範圍（尚無設定檔）
+## 157.0新增精確設定檔（0.5.0）
 
-使用者於2026-11-09回報157釋出並要求加入Android12／14／15功能驗證。精確versionName/code及官方完整安裝包尚未取得，`game_profiles.h`目前仍只有下方兩版，不以版本號相近通過，也不推測新RVA或metadata布局。
+使用者於2026-11-09回報157釋出並要求加入Android12／14／15功能驗證。其後指定AutoFarm已安裝版本，限定唯讀取得完整原簽章base／split，核為157.0/code1793360009。三版完整來源比對通過，新增精確profile；未知／近似code仍拒絕。原簽章0.5.0的新UI驗收獨立於0.4.1。
+
+新index5官方Play當時只提供156.1；後續使用者指定的AutoFarm來源已取得，沒有操作其UI／scanner／憑證。0.4.1在新index5對真實157的未知版本拒絕、OFF／無mapping／無新attempt及16份歷史SHA不變已驗；詳細來源、雜湊及hook見[157 intake](GAME157_OFFICIAL_INTAKE.md)。以下為新增版本的一般流程，已執行結果以該紀錄為準。
 
 取得與整合順序：
 
-1. 先保留156.0／156.1既有APK與私人證據，完成可取得樣本的分項驗收；產品OFF後才在已授權新index5透過官方Play正常更新157，不操作正式節點或複製session。
+1. 先保留156.0／156.1既有APK與私人證據，完成可取得樣本的分項驗收；產品OFF後只在已授權新index5以已核合法原簽章完整splits正常更新157；來源唯讀例外另記，不部署正式節點或複製session。
 2. 由PM核實完整versionName/code／base與全部splits路徑；逐份pull前後及本機SHA一致，apksigner核原簽章與split集合。遊戲包、ELF、metadata及dump全部只存私人ignored目錄。
 3. 舊0.4.1對此未知版本須在載入前拒絕、原顯示不變且無新attempt；這是負例，不能當157功能通過。取得精確code後再新增可重跑的未知版本測試資料，不以猜測code驗收。
 4. 重新抽取並審查完整hook簽名、可執行segment／前綴／veneer、所有用到的類別欄位與runtime metadata契約。布局改變須獨立實作，不只追加digest；檢查工具不得靜默忽略新profile。保留錯code／SHA／RVA／指令／布局等拒絕測試及歷史UNKNOWN。
@@ -23,7 +25,7 @@
 - 遊戲層：versionName/code、完整ELF大小／SHA、五個hook完整簽名／入口指令、文字入口
   veneer及實際metadata守門。任一不符便保留原顯示，不猜偏移或採用「最接近版本」。
 
-`native/renderer/game_profiles.h`是本次兩組完整設定的來源；loader、x64 host及ARM renderer
+`native/renderer/game_profiles.h`是本次三組完整設定的來源；loader、x64 host及ARM renderer
 都重新驗證所見的實際ELF。狀態回報必須屬於被選中的版本、同PID/start及新鮮時間。
 OFF不必取得新版本的載入資格；不能以新程序替舊UNKNOWN載入補成成功。
 
@@ -59,11 +61,11 @@ OFF不必取得新版本的載入資格；不能以新程序替舊UNKNOWN載入�
 
 ```powershell
 python -m unittest discover -s research -p test_profile_evidence.py
-python research/check_profile_sources.py --game1560 <private-1560-folder> --game1561 <private-1561-folder> --output <new-private-report.json>
+python research/check_profile_sources.py --game1560 <private-1560-folder> --game1561 <private-1561-folder> --game1570 <private-1570-folder> --output <new-private-report.json>
 ```
 
 輸出必須是新檔，拒絕覆寫；工具不連裝置、不改來源、不自動核准設定檔。
-ELF映射測試9項含錯架構、非可執行segment、BSS／越界／重疊映射、錯誤overload及重複簽名。
+Python測試16項含錯架構、非可執行segment、BSS／越界／重疊映射、錯誤overload、重複簽名及完整profile陣列／精確code拒絕。2026-11-09三版實際來源重驗為3 ELF／15完整hook／3 veneer／14類別相同布局／39個破壞負例；不是裝置驗收。
 新增版本仍需審查整組metadata欄位與runtime guards，再在經授權的隔離裝置完成主畫面、
 花苗頁、未領回探險、長字縮小、OFF還原、捲動重用、正常重開遊戲及掃描恢復驗收。
 不可為第二版驗收直接降版正式掃描中的Libra／Virgo；另建instance／帳號要先取得授權。
