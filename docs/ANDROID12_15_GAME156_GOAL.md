@@ -8,10 +8,10 @@
 
 | 實際平台 | 遊戲精確版本 | 本輪進度 | 遊戲兩頁與重啟 |
 |---|---|---|---|
-| Android12/API31 | 156.0/code1792142832 | 官方x64 AVD：已授權安裝Magisk31.1、Enforcing／Zygisk OFF；普通App su-M、Magisk-domain JNI／timeout及10類supervisor通過，產品完整流程及遊戲來源待補 | 未驗 |
+| Android12/API31 | 156.0/code1792142832 | 官方x64 AVD：Magisk31.1／Enforcing／Zygisk OFF，普通App／JNI／收容已驗；兩版遊戲及原簽章0.4.1已備，待該平台安裝與登入 | 未驗 |
 | Android12/API31 | 156.1/code1793076318 | 同上；不能以API32替代 | 未驗 |
-| Android15/API35 | 156.0/code1792142832 | 新MuMu index5：Google套件後普通App自行su-M／PM loader、真App JNI／正常FINISH／timeout／新程序回歸通過；Play到登入頁待使用者登入，遊戲來源待取得 | 未驗 |
-| Android15/API35 | 156.1/code1793076318 | 同上；歷史Virgo 0.3.1通過不能代替本輪候選及新環境 | 未驗 |
+| Android15/API35 | 156.0/code1792142832 | 新MuMu index5研究回歸已驗；156.0原簽章base／split已取得及核profile，待獨立版本實測 | 未驗 |
+| Android15/API35 | 156.1/code1793076318 | 原簽章0.4.1已驗兩頁名稱／OFF、花苗長字／捲動及另一新程序重新確認後再啟用／OFF；首筆UNKNOWN保留 | 部分已驗；探險長名／離屏重用待更多樣本，OS／長時間未驗 |
 
 ARM64與x64/NativeBridge各列實際資格；不能由x64上的ARM轉譯推論原生ARM64通過。最終四組須使用同一個正式候選單APK／原產品簽章及新版本/code，逐組記錄SHA；過程中的不同研究／產品artifact保留原版本與hash，不覆寫。
 
@@ -35,6 +35,6 @@ ARM64與x64/NativeBridge各列實際資格；不能由x64上的ARM轉譯推論�
 4. 取得原產品簽章與合法遊戲splits，分配新產品版本及同批APK，才進四組正常UI實測。需要登入時提示使用者。
 5. 每階段測試、審查、commit/push私人功能分支`codex/zhubei-android12-compat`。不force、不自動merge main或公開發布。
 
-研究lab key、Android15新instance及API31隔離AVD安裝官方Root provider均已明確同意並實做。遊戲完整splits與原產品簽章來源仍缺，不冒充取得原產品key或操作未授權設備。
+研究lab key、Android15新instance及API31隔離AVD安裝官方Root provider均已明確同意並實做。後續使用者指定D槽搜尋，已核原產品keystore與兩版合法APK；材料不再缺，不能把材料齊全當四組成功。最新產品分項證據見[0.4.1驗收](PRODUCT041_QUALIFICATION.md)。
 
 使用者另授權直接安裝必要Google套件；新API35隔離機已由MuMu原廠谷歌安裝器完成Play／GMS／GSF，普通App Root再驗通過，商店到登入頁待使用者本人登入。此階段未取得遊戲，不更新四組通過欄位；版本、SHA與來源見[Google套件階段](API35_GOOGLE_INTAKE.md)。

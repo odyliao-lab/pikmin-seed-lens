@@ -31,6 +31,17 @@ OFF不必取得新版本的載入資格；不能以新程序替舊UNKNOWN載入�
 
 ## 可重跑的離線檢查
 
+### 2026-11-09私人來源重新取得
+
+使用者授權D槽搜尋後，找到156.0的base／ARM64 split；156.1由已登入的新MuMu index5 Play商店直接安裝，再依PM列出的完整兩個APK逐份pull並比對前後及本機SHA。兩版base／split均以apksigner驗證，signer SHA256皆為`944bda466eaf64be1c93896d5c8e9a454a07c8d8fcbc4adeeefb3545b335e979`；不複製帳號資料或scanner。
+
+| 版本 | base SHA256 | ARM64 split SHA256 | metadata SHA256 |
+|---|---|---|---|
+| 156.0/code1792142832 | `61c13513f3710b469f33ae3f63af9eaeca7b80fa046f3669ac73fa35392bdd8a` | `6aa9c204928b5f80164b4206c27960d0467038db2cc192827e5e102785b4f960` | `5240b679b85fc1b02b1284f0fe2d8eddd33fecfde3c0688c798035719a83f878` |
+| 156.1/code1793076318 | `070c75d6e253317438dc4ac1b0f60b5dbf9e5250763827b7c6b6197f0e81e9dc` | `7b05aa1c10acad9266c1daeea68d466c138b2ecb35a9d03717af273dd13e4836` | `b3e4d8ec9a9e8794f68132b01c49a7b05f1be57497654efd1d785892e5810eff` |
+
+直接由兩版APK抽取的完整ELF大小／SHA均符合上表既有profile，五個hook完整前綴及文字B+4 veneer逐一重驗相符。這是來源比對，不宣告156.0能登入。156.1已由使用者在index5完成登入，0.4.1畫面驗收進度見[本輪產品驗收](PRODUCT041_QUALIFICATION.md)；原始APK與metadata只留ignored `.tools/lab/`。
+
 每個私人輸入目錄含`libil2cpp.so`、`global-metadata.dat`與`dump/dump.cs`。
 遊戲APK、dump、原始結果、帳號與截圖不進Git。
 

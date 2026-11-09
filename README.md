@@ -4,7 +4,7 @@
 獨立 Android APK 的開發原型：只顯示花苗名稱與縮小長文字，不修改遊戲物品。
 目標是使用既有 Root，不另安裝控制中心、LSPosed 或花苗顯示模組。
 
-**目前仍是驗證原型，不是多版本正式版。** 最新測試版 `0.3.1/code12`，包名
+**目前仍是驗證原型，不是多版本正式版。** 竹北隔離驗收版 `0.4.1/code14`；先前交付基線保留`0.3.1/code12`，包名
 `dev.ody.seedpreview`，沿用原簽章。單一APK內含ARM64後端、x64 host及同批ARM renderer，
 不需要控制中心或額外顯示模組。PM路徑／SHA／stored ZIP／16KB對齊均在建置與執行時核對。
 
@@ -30,10 +30,15 @@ API31平台來源已接入明確的unsigned候選，Java與native使用同一開
 見[API31候選整合及測試邊界](docs/API31_PRODUCT_INTEGRATION.md)。
 
 使用者授權後，新API35隔離機已用MuMu原廠谷歌安裝器安裝Play／GMS／GSF，
-普通App su-M再驗通過，商店開到登入頁待使用者登入；尚未取得指定遊戲版本。
+普通App su-M再驗通過；其後使用者已完成Google與精確156.1遊戲登入。
 見[Google套件來源與實際結果](docs/API35_GOOGLE_INTAKE.md)。
 安裝後API35普通App自行su-M／PM loader的正常、timeout及新程序回歸亦通過，
 見[API35普通App研究](docs/API35_APP_ROOT_FLOW.md)，仍不是遊戲驗收。
+
+使用者指定D槽搜尋後，已取得原產品簽章及156.0完整base／ARM64 split，Play取得的156.1亦符合精確profile。
+原簽章0.4.1單APK已在新API35／156.1實際驗花苗名稱、長字縮小、捲動與兩頁OFF還原；
+遊戲新程序重新確認／再啟用與OFF亦已驗；探險長名稱／離屏重用及其他組合仍未完成。
+明確`-Api31Qualification`才允許原簽章新版本開啟API31驗收，預設仍API35；見[0.4.1分項紀錄](docs/PRODUCT041_QUALIFICATION.md)。
 
 Virgo API35／x86_64／libnb.so／遊戲156.1已從正常App入口實際套用花苗頁及探險頁，
 兩頁關閉後還原原名及字型。Libra API34／ARM64也已用同一0.3.1 APK完成兩頁

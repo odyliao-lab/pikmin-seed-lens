@@ -1,5 +1,7 @@
 # API35隔離機Google套件（2026-11-09）
 
+> 後續使用者已完成Google及遊戲登入。Play實際取得156.1/code1793076318，D槽亦找到156.0與原產品簽章，經驗證後已進0.4.1產品隔離測試。見[遊戲來源](GAME_PROFILES.md)及[最新產品結果](PRODUCT041_QUALIFICATION.md)；以下登入待完成描述保留為套件安裝階段。
+
 使用者明確授權直接安裝必要Google套件。操作僅限新建MuMu index5 `SeedLens-Isolated-A15`（created timestamp `1794181954477010`），不操作原四台或台中裝置、不複製任何帳號／scanner／憑證。Google與遊戲登入仍由使用者完成。
 
 ## 來源與實際安裝

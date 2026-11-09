@@ -1,5 +1,7 @@
 # API31 native候選整合（2026-11-09）
 
+> 後續已取得使用者認可的原產品簽章及兩版遊戲APK。新增明確signed `-Api31Qualification`供隔離實測；預設API35與原unsigned候選模式仍分開。0.4.1在API35／156.1已驗部分真實畫面及新程序回歸，API31與其餘項目尚待驗。最新界線見[0.4.1產品紀錄](PRODUCT041_QUALIFICATION.md)。以下unsigned-only為先前準備階段。
+
 ## 最新：Java與native同一候選開關
 
 普通App自行su-M／PM loader的正常、timeout及新程序回歸完成後，將Java准入接上既有native候選開關；仍只有`-Unsigned -Candidate -Api31Candidate`可以開啟API31。checked-in Java常數為false，建置只在獨立輸出目錄生成Java副本，與CMake使用同一參數；預設／可簽署路徑維持API35資格。API32、錯版本/code、錯bridge與其他精確守門不變。這是完整產品來源接線，不是遊戲能力通過。

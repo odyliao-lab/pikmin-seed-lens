@@ -1,5 +1,11 @@
 # 驗證分層
 
+## 2026-11-09：原簽章0.4.1與API35／156.1產品畫面（進行中）
+
+使用者指定D槽搜尋後，已取得並驗證原產品簽章與兩版遊戲原簽章APK；材料不再缺。新增明確signed `-Api31Qualification`，預設仍API35，API32與所有精確守門保留。0.4.0未安裝且原件保留；修正動態標題後使用0.4.1/code14／SHA `815de868e747111c9e9739ea9987337c53441e10a15e585d2192cecab4741cce`，只安裝新index5。
+
+首筆ATTACHING未完成exit44／UNKNOWN保留；新程序保持前景後，正常App su-M完成完整journal及啟用。實際花苗名稱／長字縮小／四次捲動重用、未領回黃色花苗→黃色金幣苗、兩頁正常App OFF原文／字型還原已觀察，花苗數356不變。再重啟新PID，舊consent／status拒絕，重新確認後兩頁ON／OFF與花苗捲動再次通過；原UNKNOWN及七份研究attempt SHA不變。探險僅一筆花苗，長名及離屏重用仍待樣本；API31／156.0及OS／長時間待後續。不可把這個部分結果寫為四組通過。詳見[0.4.1分項證據](PRODUCT041_QUALIFICATION.md)。
+
 ## 2026-11-09：Google套件後API35普通App載入回歸
 
 - 使用者授權後，只在新MuMu index5由原廠小工具安裝器安裝Play／GMS／GSF，記錄實際版本／APK及cert SHA；商店到登入頁，登入由使用者完成，未取得指定遊戲。API35／libnb／原Permissive不變，普通App su-M再驗通過。見[Google套件紀錄](API35_GOOGLE_INTAKE.md)。
@@ -83,7 +89,7 @@
 | x64/API35/libnb.so/156.1 code1793076318（歷史Virgo） | provider版號本輪未量測／Permissive | 歷史namespace、JNI、故障fixtures已驗 | 同0.3.1兩頁已驗 | 本版獨立捲動紀錄待補／新程序重新同意已驗／未驗／未驗 |
 | 原生ARM64/API31/156.1 code1793076318 | 尚無確認目標 | 研究工具已編譯，裝置未驗 | 未驗 | 全部未驗 |
 | 官方AVD x64/API31/libndk_translation.so／尚無遊戲 | 新授權Magisk31.1，普通App su-M／PID1 mount view已驗；Zygisk OFF／Enforcing | 真App JNI／ClassLoader／PM載入／timeout、Magisk-domain與10類supervisor已驗 | 未驗；Java／native僅unsigned API31候選接線完成，預設仍拒絕；兩遊戲完整splits及原簽章待提供 | 遊戲／產品OS重啟／長時間未驗；Root環境正常重啟另記 |
-| 新MuMu index5 x64/API35/libnb.so／無遊戲 | 內建KernelSU3.2.5正常App su -M已驗，Google套件後再驗／原Permissive | 10類supervisor、普通App自行su-M／自身PM loader、真App JNI／ClassLoader／正常FINISH、timeout及新程序回歸已驗 | 未驗；Play／GMS已裝待使用者登入、兩遊戲完整splits待取得 | 全部未驗 |
+| 新MuMu index5 x64/API35/libnb.so／156.1 code1793076318 | 內建KernelSU3.2.5，正常產品App su-M已驗／原Permissive | 10類supervisor、普通App PM loader與JNI／timeout已驗；0.4.1真遊戲新程序載入已驗，首筆UNKNOWN保留 | 0.4.1兩頁名稱／OFF與花苗長字已驗；探險長名待樣本 | 花苗重用已驗、探險離屏重用待樣本／新遊戲程序重新確認再啟用已驗／OS未驗／長時間未驗 |
 | 各平台/156.0 code1792142832 | 依上述平台資格分開 | 只有遊戲profile離線證據，無156.0遊戲實測 | 未驗 | 全部未驗 |
 | 新MuMu12.0/API32/x64/libnb.so/無遊戲 | Root關閉／原Permissive | 只量測OS；不符合API31 | 未驗，未安裝Lens | 全部未驗，已關閉 |
 

@@ -1,5 +1,7 @@
 # 架構
 
+最新隔離產品驗收增加明確`-Api31Qualification`：只接受原簽章的新version/code，與unsigned candidate模式互斥；Java／native仍同一開關，預設仍API35。API31／35 canary及普通App研究通過後，才以此變體進行真正遊戲驗收；不是直接宣告API31合格。來源、APK與實測限制見[0.4.1紀錄](PRODUCT041_QUALIFICATION.md)。以下unsigned-only描述為前一準備階段。
+
 ## API31 native候選來源整合（未交付）
 
 API31隔離真App證據後，`bridge_platform_api31.h`共用四參數adapter，`bridge_dispatch.h`按native API／完整SDK文字／精確bridge選擇介面；root loader與worker也重核相同tuple。預設仍僅API35/libnb，明確unsigned候選才編入API31/libndk_translation，不在失敗後換ABI。`app/build.ps1 -Api31Candidate`強制`-Candidate -Unsigned`，同一開關生成獨立Java准入副本並選擇native cache／ON或OFF，且核對cache及封裝host marker。checked-in Java維持API31候選false；預設／可簽署建置仍拒絕API31，所有變體仍拒絕API32。實測與未達條件見[候選整合](API31_PRODUCT_INTEGRATION.md)，不是API31產品驗收或新交付。
