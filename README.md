@@ -40,6 +40,9 @@ API31平台來源已接入明確的unsigned候選，Java與native使用同一開
 遊戲新程序重新確認／再啟用與OFF亦已驗；探險長名稱／離屏重用及其他組合仍未完成。
 明確`-Api31Qualification`才允許原簽章新版本開啟API31驗收，預設仍API35；見[0.4.1分項紀錄](docs/PRODUCT041_QUALIFICATION.md)。
 
+API31 x64上156.0在Lens載入前即因Unity SEVL指令SIGILL；自有ARM-only probe已重現31失敗、35返回。
+這個image仍未通過遊戲能力，新的官方API31 ARM64隔離研究方案待使用者確認，見[指令能力界線](docs/API31_GAME_STARTUP_BOUNDARY.md)。
+
 Virgo API35／x86_64／libnb.so／遊戲156.1已從正常App入口實際套用花苗頁及探險頁，
 兩頁關閉後還原原名及字型。Libra API34／ARM64也已用同一0.3.1 APK完成兩頁
 顯示與OFF還原回歸。156.0另已加入精確設定檔並完成離線比對，但只有156.1有實機效果

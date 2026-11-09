@@ -8,9 +8,9 @@
 
 | 實際平台 | 遊戲精確版本 | 本輪進度 | 遊戲兩頁與重啟 |
 |---|---|---|---|
-| Android12/API31 | 156.0/code1792142832 | 官方x64 AVD：Magisk31.1／Enforcing／Zygisk OFF，普通App／JNI／收容已驗；兩版遊戲及原簽章0.4.1已備，待該平台安裝與登入 | 未驗 |
-| Android12/API31 | 156.1/code1793076318 | 同上；不能以API32替代 | 未驗 |
-| Android15/API35 | 156.0/code1792142832 | 新MuMu index5研究回歸已驗；156.0原簽章base／split已取得及核profile，待獨立版本實測 | 未驗 |
+| Android12/API31 | 156.0/code1792142832 | 官方x64 AVD與普通App Root再驗通過，原遊戲／0.4.1同APK已安裝；原遊戲在Lens載入前Unity SEVL處SIGILL，自有probe重現31失敗／35通過 | 未到登入；指令能力缺口未解，不算通過 |
+| Android12/API31 | 156.1/code1793076318 | 尚未在該平台安裝／啟動；目前x64 bridge缺少SEVL能力，不能推論本列通過或以API32替代 | 未驗 |
+| Android15/API35 | 156.0/code1792142832 | 新MuMu index5已核原簽章完整splits及profile；原廠PM拒絕直接降版後，只將該隔離機遊戲乾淨重裝為156.0，已到首次生日／登入畫面，等待使用者本人登入 | 產品未載入；未驗，尚不能判定伺服器是否要求更新 |
 | Android15/API35 | 156.1/code1793076318 | 原簽章0.4.1已驗兩頁名稱／OFF、花苗長字／捲動及另一新程序重新確認後再啟用／OFF；首筆UNKNOWN保留 | 部分已驗；探險長名／離屏重用待更多樣本，OS／長時間未驗 |
 
 ARM64與x64/NativeBridge各列實際資格；不能由x64上的ARM轉譯推論原生ARM64通過。最終四組須使用同一個正式候選單APK／原產品簽章及新版本/code，逐組記錄SHA；過程中的不同研究／產品artifact保留原版本與hash，不覆寫。
@@ -37,4 +37,6 @@ ARM64與x64/NativeBridge各列實際資格；不能由x64上的ARM轉譯推論�
 
 研究lab key、Android15新instance及API31隔離AVD安裝官方Root provider均已明確同意並實做。後續使用者指定D槽搜尋，已核原產品keystore與兩版合法APK；材料不再缺，不能把材料齊全當四組成功。最新產品分項證據見[0.4.1驗收](PRODUCT041_QUALIFICATION.md)。
 
-使用者另授權直接安裝必要Google套件；新API35隔離機已由MuMu原廠谷歌安裝器完成Play／GMS／GSF，普通App Root再驗通過，商店到登入頁待使用者本人登入。此階段未取得遊戲，不更新四組通過欄位；版本、SHA與來源見[Google套件階段](API35_GOOGLE_INTAKE.md)。
+API31 x64原遊戲啟動與獨立指令probe已找到SEVL缺口；已提出新的官方API31 ARM64具體隔離方案待確認，不能把新環境計畫算成已建立或已驗。見[指令能力紀錄](API31_GAME_STARTUP_BOUNDARY.md)。
+
+使用者另授權直接安裝必要Google套件；新API35隔離機已由MuMu原廠谷歌安裝器完成Play／GMS／GSF，普通App Root再驗通過。Google及156.1遊戲登入已由使用者完成，156.1產品分項結果見上表；改裝156.0後另待本人登入，不複製156.1 session。Google來源與早期階段結果見[Google套件階段](API35_GOOGLE_INTAKE.md)。

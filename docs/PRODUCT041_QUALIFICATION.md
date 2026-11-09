@@ -36,6 +36,12 @@
 | 遊戲重啟後再確認／再啟用 | 新PID12519/start324403：未勾選直接啟用被拒；舊status回NO_FRESH_SAME_PID_START_STATUS。重新確認後完整載入，兩頁ON／OFF、長字縮小及一次捲動往返再次實際比對通過 |
 | OS重啟／長時間 | 未驗 |
 
-原始證據僅在ignored `.tools/lab/api35-game1561-product041-afc82f4e4d8440f79ef74a6bc4b938b1/`。原簽章APK已在index5安裝，尚未在API31或156.0實測；四個組合尚未全部達成。
+原始證據僅在ignored `.tools/lab/api35-game1561-product041-afc82f4e4d8440f79ef74a6bc4b938b1/`。以下新增其他組合的後續狀態；四個組合尚未全部達成。
 
 結束確認control=off，renderer為同PID12519/start324403／156.1／enable0，TracerPid0，無loader存活，adbd恢復UID2000。原拒絕UNKNOWN SHA不變；兩個正常attempt SHA依序為`271f3116c1da4d615c2a65216f94d5dd60e7835c02d7178b33e87bb9f4b7a896`、`1edf389489fb330c240d4792aad9124438e63c404c3eb023b4f47dcd528ab737`。另一研究journal目錄的七份舊attempt亦逐字SHA不變。PM實際安裝的0.4.1 APK SHA仍與上表相同。沒有完成OS重啟、長時間或探險缺少的樣本項目。
+
+## 後續API31／156.0與API35／156.0
+
+同一0.4.1原簽章APK亦已安裝至官方API31 x64隔離AVD；精確156.0完整splits啟動時，原遊戲在Lens載入前於Unity SEVL指令SIGILL。沒有product attempt，不算產品效果或API31支援；獨立JNI probe與相同保護機制的baseline對照見[平台啟動界線](API31_GAME_STARTUP_BOUNDARY.md)。
+
+API35同一index5重開後仍為API35／libnb／原Permissive，同一0.4.1保留。156.1到156.0的原廠PM降版請求被拒絕，保留拒絕結果；接著只移除該隔離機的遊戲並安裝已核原簽章156.0完整base／split，不繞過PM或複製登入資料。156.0已到首次生日／登入畫面，等待使用者完成；此時沒有156.0產品載入，不推論伺服器可登入或必定強制更新。私人證據位於ignored `.tools/lab/api35-game1560-product041-1f15e80502404dae826afc85e5c8d710/`。
