@@ -8,9 +8,9 @@
 
 | 實際平台 | 遊戲精確版本 | 本輪進度 | 遊戲兩頁與重啟 |
 |---|---|---|---|
-| Android12/API31 | 156.0/code1792142832 | 官方x64 AVD已建立，native fault fixtures通過；App Root與JNI仍未合格，遊戲來源未指定 | 未驗 |
+| Android12/API31 | 156.0/code1792142832 | 官方x64 AVD真App JNI／PM載入／timeout及10類supervisor通過；正常App Root未合格，遊戲來源待提供 | 未驗 |
 | Android12/API31 | 156.1/code1793076318 | 同上；不能以API32替代 | 未驗 |
-| Android15/API35 | 156.0/code1792142832 | 已提出竹北空白MuMu index5具體方案，待確認；沒有操作原四台 | 未驗 |
+| Android15/API35 | 156.0/code1792142832 | 新空白MuMu index5已獲同意並建立；內建KernelSU正常App su -M及10類supervisor通過，真App canary待回歸 | 未驗 |
 | Android15/API35 | 156.1/code1793076318 | 同上；歷史Virgo 0.3.1通過不能代替本輪候選及新環境 | 未驗 |
 
 ARM64與x64/NativeBridge各列實際資格；不能由x64上的ARM轉譯推論原生ARM64通過。最終四組須使用同一個正式候選單APK／原產品簽章及新版本/code，逐組記錄SHA；過程中的不同研究／產品artifact保留原版本與hash，不覆寫。
@@ -35,4 +35,4 @@ ARM64與x64/NativeBridge各列實際資格；不能由x64上的ARM轉譯推論�
 4. 取得原產品簽章與合法遊戲splits，分配新產品版本及同批APK，才進四組正常UI實測。需要登入時提示使用者。
 5. 每階段測試、審查、commit/push私人功能分支`codex/zhubei-android12-compat`。不force、不自動merge main或公開發布。
 
-研究簽章的原來源／獨立lab key確認，以及Android15新instance確認尚待回覆。只因要求「持續推進」不冒充取得原產品key，也不操作未確認的正式設備。
+研究lab key與Android15新instance已由使用者明確同意並完成，詳見[本輪研究結果](ZHUBEI_LAB_20261109.md)。API31 AVD改用官方Root provider的具體方案另待回覆；遊戲完整splits與原產品簽章來源仍缺，不冒充取得原產品key或操作未授權設備。

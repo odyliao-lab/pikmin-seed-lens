@@ -11,7 +11,9 @@
 2026-11-09竹北已取得完整交接分支與recursive pins，乾淨candidate建置通過。
 新建隔離MuMu「12.0」實際回報API32，已停止並關閉，不能算必要API31驗收。
 另已在官方API31 x64 AVD／Enforcing完成原生隔離安全測試，定位到平台export及
-`su -M`差異；API31專用adapter僅研究編譯，真JNI／遊戲仍未驗。產品x64仍限API35。
+`su -M`差異；API31專用adapter已在自有真App通過JNI／ClassLoader canary及逾時收容，
+正常App Root與遊戲仍未驗。新API35隔離機內建KernelSU的正常App `su -M`及十例收容已驗。
+產品x64仍限API35；詳見[本輪隔離研究與失敗修正](docs/ZHUBEI_LAB_20261109.md)。
 見[API31實際研究結果](docs/API31_AVD_RESEARCH.md)及
 [本輪接手、環境及下一步](docs/handoffs/2026-11-09-zhubei-intake.md)。
 

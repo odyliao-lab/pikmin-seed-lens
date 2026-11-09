@@ -58,13 +58,39 @@ template<class Worker> SupervisedResult supervised_load(int targetFd,LoadAttempt
         reaped&&WIFEXITED(status)?WEXITSTATUS(status):-1,reaped&&WIFSIGNALED(status)?WTERMSIG(status):0,uncertain);
     // No kill-by-numeric-target-PID fallback. Any unconfirmed containment is
     // reported and never used to authorize another load or to fake a receipt.
-    bool dead=true;
+    bool signalAccepted=!uncertain;
     if(uncertain){
         int sent=int(syscall(SYS_pidfd_send_signal,targetFd,SIGKILL,nullptr,0));
-        pollfd exited{targetFd,POLLIN,0};dead=(sent==0||errno==ESRCH)&&poll(&exited,1,2000)>0&&(exited.revents&POLLIN);
+        signalAccepted=sent==0||errno==ESRCH;
     }
-    if(!reaped){kill(child,SIGKILL);for(int i=0;i<200;++i){if(waitpid(child,&status,WNOHANG)==child){reaped=true;break;}usleep(10000);}}
-    if(!reaped||!dead)return SupervisedResult::ContainmentUnconfirmed;
+    // A traced non-leader can keep the thread group from completing exit while
+    // its tracer is alive. Reap our worker BEFORE observing target pidfd exit;
+    // successful SIGKILL delivery alone never proves containment. This is only
+    // local worker teardown, never remote cleanup or target-register recovery.
+    if(!reaped){
+        kill(child,SIGKILL);
+        auto reapUntil=std::chrono::steady_clock::now()+std::chrono::seconds(2);
+        while(std::chrono::steady_clock::now()<reapUntil){
+            auto got=waitpid(child,&status,WNOHANG);
+            if(got==child){reaped=true;break;}
+            if(got<0&&errno!=EINTR)break;usleep(10000);
+        }
+    }
+    bool dead=!uncertain;
+    if(uncertain&&signalAccepted){
+        auto exitUntil=std::chrono::steady_clock::now()+std::chrono::seconds(2);
+        while(std::chrono::steady_clock::now()<exitUntil){
+            auto left=std::chrono::duration_cast<std::chrono::milliseconds>(exitUntil-std::chrono::steady_clock::now()).count();
+            if(left<1)break;pollfd exited{targetFd,POLLIN,0};
+            auto ready=poll(&exited,1,int(left));
+            if(ready>0){dead=exited.revents&POLLIN;break;}
+            if(ready==0||errno!=EINTR)break;
+        }
+    }
+    if(!reaped||!dead){
+        printf("SUPERVISED_CONTAINMENT_UNCONFIRMED worker_reaped=%d target_exit=%d signal_accepted=%d\n",reaped,dead,signalAccepted);
+        return SupervisedResult::ContainmentUnconfirmed;
+    }
     return uncertain?SupervisedResult::UnknownContained:SupervisedResult::Refused;
 }
 }
