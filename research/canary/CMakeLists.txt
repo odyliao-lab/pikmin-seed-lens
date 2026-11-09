@@ -53,7 +53,7 @@ if(NOT API31_VERSION_COUNT EQUAL 1 OR NOT API31_CODE_COUNT EQUAL 1)
 endif()
 string(REGEX REPLACE "android:versionName=\"([^\"]+)\"" "\\1" API31_VERSION "${API31_VERSIONS}")
 string(REGEX REPLACE "android:versionCode=\"([0-9]+)\"" "\\1" API31_CODE "${API31_CODES}")
-target_compile_definitions(seedprobe_api31_host PRIVATE SEED_API31_CANARY SEED_CANARY_SHA="${CANARY_SHA}"
+target_compile_definitions(seedprobe_api31_host PRIVATE SEED_API31_CANARY SEED_API31_CANDIDATE SEED_CANARY_SHA="${CANARY_SHA}"
   SEED_API31_PROBE_VERSION="${API31_VERSION}" SEED_API31_PROBE_CODE=${API31_CODE})
 target_include_directories(seedprobe_api31_host PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../third_party/xdl/include"
   "${CMAKE_CURRENT_SOURCE_DIR}/../../app" "${CMAKE_CURRENT_SOURCE_DIR}/../../native/renderer")

@@ -10,6 +10,7 @@
 #include <sys/system_properties.h>
 #if defined(__x86_64__)
 #include "x64_backend.h"
+#include "bridge_runtime.h"
 #else
 #include "arm64_backend.h"
 #endif
@@ -73,8 +74,7 @@ static int inject_game(int pid,const std::string& start,const std::string& paylo
     char sdk[PROP_VALUE_MAX]{};__system_property_get("ro.build.version.sdk",sdk);
     int api=atoi(sdk);if(api<28||api>35)return 7;
 #if defined(__x86_64__)
-    char bridge[PROP_VALUE_MAX]{};__system_property_get("ro.dalvik.vm.native.bridge",bridge);
-    if(api!=35||strcmp(bridge,"libnb.so"))return fail(22);
+    if(seed_bridge::runtime_backend()==seed_bridge::Backend::Unsupported)return fail(22);
 #endif
     // Persistent intent prevents automatic retries after ambiguous injection or app death.
     // Boot ID + start ticks also protects against PID reuse across reboots.

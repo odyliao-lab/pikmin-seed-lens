@@ -2,7 +2,7 @@
 // This x86_64 host uses ART's real application ClassLoader namespace to enter
 // the exact ARM64 renderer contained in the same PM-installed APK. No module,
 // namespace fabrication, hiding, arbitrary library arguments or game RPCs.
-#include "bridge_platform.h"
+#include "bridge_dispatch.h"
 #include "apk_payload.h"
 #include "payload_policy.h"
 #include "identity_policy.h"
@@ -86,7 +86,7 @@ std::string mappedGame(){
 void* worker(void*){
     if(!self())return nullptr;
     auto start=startTicks();Receipt receipt(start);if(!receipt.add("HOST_ENTER_NOT_READY"))return nullptr;
-    seed_bridge::Platform bridge;
+    seed_bridge::PlatformForRuntime bridge;
     if(!bridge.open(game)){receipt.add(bridge.error());return nullptr;}
     auto gameFile=mappedGame();
     const auto* profile=gameFile.empty()?nullptr:seed_preview::verified_game_profile(gameFile.c_str());

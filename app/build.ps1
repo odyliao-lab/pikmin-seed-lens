@@ -7,12 +7,14 @@ param(
  [Parameter(Mandatory)][string]$NinjaPath,
  [switch]$Unsigned,
  [switch]$Candidate,
+ [switch]$Api31Candidate,
  [string]$SigningKey='',
  [string]$StorePassEnv='SEED_LENS_STORE_PASS',
  [string]$KeyPassEnv='SEED_LENS_KEY_PASS'
 )
 $ErrorActionPreference='Stop'
 if($Candidate -and !$Unsigned){throw 'Candidate builds are unsigned and must not be installed or delivered'}
+if($Api31Candidate -and (!$Candidate -or !$Unsigned)){throw 'API31 native integration requires -Candidate -Unsigned; no signed delivery before qualification'}
 $root=Split-Path $PSScriptRoot -Parent
 $dep="$root/third_party/AndKittyInjector"
 if(!$Unsigned){
@@ -54,11 +56,12 @@ if($LASTEXITCODE){throw 'APK layout checker compile failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.ApkNativeLayoutTest
 if($LASTEXITCODE){throw 'APK layout checker tests failed'}
 foreach($abi in @('arm64-v8a','x86_64')){
- $nativeBuild="$root/.tools/native-build/$abi"
+ $nativeBuild=if($Api31Candidate){"$root/.tools/native-build/api31-candidate/$abi"}else{"$root/.tools/native-build/$abi"}
+ $api31Flag=if($Api31Candidate){'ON'}else{'OFF'}
  # Build and copy ARM first. The bridge hashes THIS immutable build output,
  # never an earlier installed renderer or a stale CMake cache entry.
  $rendererPin=if($abi -eq 'x86_64'){"$out/assets/libseed_display.so"}else{''}
- & $CmakePath -G Ninja "-DCMAKE_MAKE_PROGRAM=$NinjaPath" "-DCMAKE_TOOLCHAIN_FILE=$NdkPath/build/cmake/android.toolchain.cmake" "-DANDROID_ABI=$abi" "-DSEED_BRIDGE_RENDERER=$rendererPin" -DANDROID_PLATFORM=android-28 -DANDROID_STL=c++_static -DCMAKE_BUILD_TYPE=Release -S $PSScriptRoot -B $nativeBuild
+ & $CmakePath -G Ninja "-DCMAKE_MAKE_PROGRAM=$NinjaPath" "-DCMAKE_TOOLCHAIN_FILE=$NdkPath/build/cmake/android.toolchain.cmake" "-DANDROID_ABI=$abi" "-DSEED_BRIDGE_RENDERER=$rendererPin" "-DSEED_API31_CANDIDATE=$api31Flag" -DANDROID_PLATFORM=android-28 -DANDROID_STL=c++_static -DCMAKE_BUILD_TYPE=Release -S $PSScriptRoot -B $nativeBuild
  if($LASTEXITCODE){throw 'Native configure failed'}
  & $CmakePath --build $nativeBuild --parallel 4
  if($LASTEXITCODE){throw 'Native build failed'}
@@ -111,4 +114,5 @@ if($LASTEXITCODE){throw 'Final APK alignment failed'}
 if($LASTEXITCODE){throw 'Native APK layout/digest validation failed; artifact must not be delivered'}
 Get-FileHash $apk
 if($Candidate){Write-Output 'NOT_FOR_INSTALL_OR_DELIVERY: candidate retains development manifest only'}
+if($Api31Candidate){Write-Output 'API31_NATIVE_INTEGRATION_ONLY: Java admission remains API35; Root and game qualification pending'}
 Write-Output "Build completed ($kind). Not evidence of root load, UI restoration or multi-version compatibility."

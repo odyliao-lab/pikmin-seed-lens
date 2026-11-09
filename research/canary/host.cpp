@@ -10,7 +10,10 @@
 #include "apk_payload.h"
 #ifdef SEED_API31_CANARY
 #include "api31_platform.h"
-using CanaryPlatform=seed_bridge_api31::Platform;
+using CanaryPlatform=seed_probe_api31::Platform;
+#elif defined(SEED_API35_LAB_CANARY)
+#include "bridge_dispatch.h"
+using CanaryPlatform=seed_bridge::PlatformForRuntime;
 #else
 #include "bridge_platform.h"
 using CanaryPlatform=seed_bridge::Platform;

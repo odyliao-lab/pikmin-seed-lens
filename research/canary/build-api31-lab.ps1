@@ -8,6 +8,8 @@ param(
  [switch]$Unsigned,
  [string]$SigningKey='',
  [string]$ExpectedCertificateSha256='',
+ [string]$ExistingProbeApk='',
+ [string]$ExpectedProbeSha256='',
  [string]$StorePassEnv='SEED_LENS_STORE_PASS',
  [string]$KeyPassEnv='SEED_LENS_KEY_PASS'
 )
@@ -16,7 +18,17 @@ $root=Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 [xml]$probeManifest=Get-Content "$PSScriptRoot/AndroidManifest.api31.xml" -Raw
 [xml]$carrierManifest=Get-Content "$PSScriptRoot/AndroidManifest.carrier.xml" -Raw
 $versions=@{probe=[string]$probeManifest.manifest.versionName;carrier=[string]$carrierManifest.manifest.versionName}
+$kinds=if($ExistingProbeApk){@('carrier')}else{@('probe','carrier')}
 foreach($value in $versions.Values){if($value -notmatch '^0\.[0-9]+\.[0-9]+$'){throw 'Invalid research version'}}
+if($ExistingProbeApk){
+ if($Unsigned -or $ExpectedProbeSha256 -notmatch '^[0-9a-fA-F]{64}$' -or
+    (Get-FileHash -LiteralPath $ExistingProbeApk).Hash -ine $ExpectedProbeSha256){throw 'Reusing signed probe requires exact existing APK SHA and signed carrier build'}
+ $env:JAVA_HOME=$JavaHome;$tools="$SdkPath/build-tools/35.0.0"
+ $certificate=& "$tools/apksigner.bat" verify --print-certs $ExistingProbeApk
+ if($LASTEXITCODE -or $ExpectedCertificateSha256 -notmatch '^[0-9a-fA-F]{64}$' -or !($certificate -match $ExpectedCertificateSha256)){throw 'Existing probe certificate mismatch'}
+ $badging=& "$tools/aapt.exe" dump badging $ExistingProbeApk
+ if($LASTEXITCODE -or !($badging -match "^package: name='dev.ody.seedlensprobe' versionCode='$($probeManifest.manifest.versionCode)' versionName='$($probeManifest.manifest.versionName)'")){throw 'Existing probe version mismatch'}
+}
 if(!$Unsigned){
  if(!$SigningKey -or $ExpectedCertificateSha256 -notmatch '^[0-9a-fA-F]{64}$'){throw 'Explicit external key and expected certificate required'}
  $key=(Resolve-Path -LiteralPath $SigningKey).Path
@@ -25,11 +37,11 @@ if(!$Unsigned){
   if($name -notmatch '^[A-Za-z_][A-Za-z0-9_]*$' -or ![Environment]::GetEnvironmentVariable($name)){throw 'Missing signing environment'}
  }
  $reserved="$root/.tools/research/api31-lab-signed"
- foreach($kind in @('probe','carrier')){
+ foreach($kind in $kinds){
   if(Test-Path "$reserved/$kind-$($versions[$kind])"){throw 'Signed research artifact/version already reserved; bump manifest version and code, never overwrite'}
  }
  New-Item -ItemType Directory $reserved -Force | Out-Null
- foreach($kind in @('probe','carrier')){New-Item -ItemType Directory "$reserved/$kind-$($versions[$kind])" | Out-Null}
+ foreach($kind in $kinds){New-Item -ItemType Directory "$reserved/$kind-$($versions[$kind])" | Out-Null}
 }
 $out=Join-Path $root ('.tools/research/api31-lab-'+[Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory "$out/classes","$out/dex","$out/fixture/lib/arm64-v8a","$out/payload/assets/bridge","$out/carrier/lib/x86_64" | Out-Null
@@ -40,6 +52,20 @@ foreach($name in @('fixture','canary')){
  if($LASTEXITCODE){throw "ARM fixture build failed: $name"}
  $dynamic=& "$NdkPath/toolchains/llvm/prebuilt/windows-x86_64/bin/llvm-readelf.exe" -d $library
  if($LASTEXITCODE -or ($dynamic -match 'libc\+\+_shared')){throw 'Unpackaged runtime dependency'}
+}
+if($ExistingProbeApk){
+ # Changes to either ARM library require a new probe version. Never silently
+ # build a new host pin against bytes absent from the reused signed package.
+ $zip=[IO.Compression.ZipFile]::OpenRead((Resolve-Path $ExistingProbeApk))
+ try{
+  foreach($pair in @(@('lib/arm64-v8a/libfixture.so',"$out/fixture/lib/arm64-v8a/libfixture.so"),@('assets/bridge/libcanary.so',"$out/payload/assets/bridge/libcanary.so"))){
+   $entries=@($zip.Entries|Where-Object FullName -ceq $pair[0])
+   if($entries.Count -ne 1){throw 'Reused probe entry ambiguous'}
+   $copy="$($pair[1]).existing"
+   [IO.Compression.ZipFileExtensions]::ExtractToFile($entries[0],$copy)
+   if((Get-FileHash $copy).Hash -cne (Get-FileHash $pair[1]).Hash){throw 'ARM source bytes changed; bump probe version/code instead of reuse'}
+  }
+ }finally{$zip.Dispose()}
 }
 $build="$out/x64-build"
 $common=@('-G','Ninja',"-DCMAKE_MAKE_PROGRAM=$NinjaPath","-DCMAKE_TOOLCHAIN_FILE=$NdkPath/build/cmake/android.toolchain.cmake",'-DANDROID_ABI=x86_64','-DANDROID_PLATFORM=android-28','-DANDROID_STL=c++_static','-DCMAKE_BUILD_TYPE=Release',"-DSEED_CANARY_LIBRARY=$out/payload/assets/bridge/libcanary.so",'-S',$PSScriptRoot,'-B',$build)
@@ -63,7 +89,7 @@ if($LASTEXITCODE){throw 'Research Java compile failed'}
 if($LASTEXITCODE){throw 'Class jar failed'}
 & "$bt/d8.bat" --lib $jar --min-api 28 --output "$out/dex" "$out/classes.jar"
 if($LASTEXITCODE){throw 'Research dex failed'}
-foreach($kind in @('probe','carrier')){
+foreach($kind in $kinds){
  $manifest=if($kind -eq 'probe'){"$PSScriptRoot/AndroidManifest.api31.xml"}else{"$PSScriptRoot/AndroidManifest.carrier.xml"}
  & "$bt/aapt2.exe" link -I $jar --manifest $manifest -o "$out/$kind-unsigned.apk"
  if($LASTEXITCODE){throw 'Research manifest packaging failed'}
@@ -97,5 +123,6 @@ foreach($kind in @('probe','carrier')){
 }
 Get-FileHash -Algorithm SHA256 $hostLibrary,"$out/api31-canary-root"
 Write-Output "API31_LAB_BUILD=$out"
+if($ExistingProbeApk){Write-Output "EXISTING_SIGNED_PROBE_REUSED=$ExistingProbeApk"}
 Write-Output 'Two development-only packages; product remains one APK. No deployment or device qualification implied.'
 if($Unsigned){Write-Output 'NOT_FOR_INSTALL_OR_DELIVERY'}

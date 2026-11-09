@@ -2,6 +2,7 @@
 #include "entry_context.h"
 #include "identity_policy.h"
 #include "supervised_load.h"
+#include "bridge_runtime.h"
 #include "Injector/KittyInjector.hpp"
 #include <dirent.h>
 #include <algorithm>
@@ -21,8 +22,8 @@ std::vector<int> candidates(int pid){
         if(readFile(prefix+"/comm")=="UnityMain\n"&&readFile(prefix+"/wchan")=="0")result.push_back(int(t));
     }closedir(dir);std::sort(result.begin(),result.end());if(result.size()>8)result.clear();return result;
 }
-int run(int pid,const std::string& start,const std::string& host,int socket){
-    if(!gameIdentity(pid,start))return 10;
+int run(int pid,const std::string& start,const std::string& host,int socket,int api){
+    if(seed_bridge::runtime_backend()==seed_bridge::Backend::Unsupported||android_get_device_api_level()!=api||!gameIdentity(pid,start))return 10;
     KittyMemoryMgr mgr{};if(!mgr.initialize(pid,EK_MEM_OP_SYSCALL,true))return 11;
     bool acquired=false;
     for(int round=0;round<12&&!acquired;++round){
@@ -53,7 +54,7 @@ int run(int pid,const std::string& start,const std::string& host,int socket){
     if(!seed_root::worker_phase(socket,'C'))return 18;
     if(!mgr.trace.setOptions(PTRACE_O_TRACESYSGOOD|PTRACE_O_EXITKILL))return 19;
     armed=true;mgr.trace.setRemoteCallTimeout(2000);
-    inject_elf_config_t cfg{};cfg.sdk=35;cfg.timeout=2000;cfg.seize=true;
+    inject_elf_config_t cfg{};cfg.sdk=api;cfg.timeout=2000;cfg.seize=true;
     cfg.package="com.nianticlabs.pikmin";cfg.selinux_state=Utils::selinux_state();
     KittyInjector injector;if(!injector.init(&mgr,cfg))return 20;
     auto result=injector.inject(host);
@@ -69,9 +70,10 @@ bool seed_game_trace_admitted(int tid){
     return armed&&tid==traceTid&&gameIdentity(gamePid,gameStart)&&seed_root::thread_owner(tid,gamePid,threadStart);
 }
 int seed_x64_load(int pid,const std::string& start,const std::string& host,seed_root::LoadAttempt& attempt){
-    if(!gameIdentity(pid,start))return 40;
+    if(seed_bridge::runtime_backend()==seed_bridge::Backend::Unsupported||!gameIdentity(pid,start))return 40;
+    const int api=android_get_device_api_level();
     int target=int(syscall(SYS_pidfd_open,pid,0));if(target<0||!gameIdentity(pid,start)){if(target>=0)close(target);return 41;}
-    auto result=seed_root::supervised_load(target,attempt,[&](int socket){return run(pid,start,host,socket);});close(target);
+    auto result=seed_root::supervised_load(target,attempt,[&](int socket){return run(pid,start,host,socket,api);});close(target);
     switch(result){
         case seed_root::SupervisedResult::Returned:puts("NATIVEBRIDGE_HOST_RETURNED_NOT_READY");return 0;
         case seed_root::SupervisedResult::UnknownContained:puts("UNKNOWN_PRESERVED_EXACT_GAME_STOPPED_REOPEN_REQUIRED");return 42;
