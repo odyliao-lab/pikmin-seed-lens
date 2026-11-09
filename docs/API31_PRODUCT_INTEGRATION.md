@@ -1,5 +1,20 @@
 # API31 native候選整合（2026-11-09）
 
+## 最新：Java與native同一候選開關
+
+普通App自行su-M／PM loader的正常、timeout及新程序回歸完成後，將Java准入接上既有native候選開關；仍只有`-Unsigned -Candidate -Api31Candidate`可以開啟API31。checked-in Java常數為false，建置只在獨立輸出目錄生成Java副本，與CMake使用同一參數；預設／可簽署路徑維持API35資格。API32、錯版本/code、錯bridge與其他精確守門不變。這是完整產品來源接線，不是遊戲能力通過。
+
+兩種完整建置完成雙ABI native／ARM renderer、Java/dex、16KB封裝及29 InstalledNative、27 GameSession、8 APKLayout、4 PairedDigest檢查。Compatibility原完整建置各34項；加入編譯flag的測試參數後，對兩份實際產物各重跑35項通過。測試也刻意傳相反flag，兩份均拒絕；另以javap核對真正App classes為false／true。CMake cache及封裝x64 host marker均與同批Java一致，禁止混用候選與預設輸出。
+
+| 新unsigned candidate，禁止安裝／交付 | SHA256 |
+|---|---|
+| Java＋native API31候選ON | `961d772b6aa0aba73d81952f5f35c1e167ee11b94d88075ebe75de8ef2778de3` |
+| 預設API35資格、候選OFF | `b84bb4c57c260317b62023d748e8a1b903376ffa2c3d7138ee1fc6ef242a2a30` |
+
+要求API31但未指定unsigned candidate時，仍在工具／簽章存取前實際exit1。未升產品版本、未以lab key簽產品、未安裝上述APK；既有0.3.1交付保持原件。四組遊戲驗收、原產品簽章及合法完整遊戲splits仍待補。後續須先完成新版本／原簽章封裝與實測，才能宣告支援。
+
+以下保留先前native-only階段的歷史證據；其「Java仍拒絕API31」描述不代表上述明確unsigned候選。
+
 > 後續使用者已授權API31 Root變更；Magisk31.1／Enforcing／Zygisk關閉後，普通App PATH su-M與Magisk-domain canary／收容已有實測，見[Root階段紀錄](API31_MAGISK_RESEARCH.md)。以下「Root尚缺」保留為候選整合當時狀態；正常產品完整載入與遊戲仍未驗。
 
 此階段把已實測的隔離adapter接入單APK的native來源，**不宣告API31產品支援或四組遊戲通過**。API31正常App Root尚缺、合法遊戲splits與原產品簽章來源待提供；Java正式入口仍拒絕x64/API31及API32。

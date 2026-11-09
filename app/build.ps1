@@ -14,7 +14,7 @@ param(
 )
 $ErrorActionPreference='Stop'
 if($Candidate -and !$Unsigned){throw 'Candidate builds are unsigned and must not be installed or delivered'}
-if($Api31Candidate -and (!$Candidate -or !$Unsigned)){throw 'API31 native integration requires -Candidate -Unsigned; no signed delivery before qualification'}
+if($Api31Candidate -and (!$Candidate -or !$Unsigned)){throw 'API31 integration requires -Candidate -Unsigned; no signed delivery before qualification'}
 $root=Split-Path $PSScriptRoot -Parent
 $dep="$root/third_party/AndKittyInjector"
 if(!$Unsigned){
@@ -41,9 +41,19 @@ $apk="$out/pikmin-seed-lens-$version-$kind.apk"
 if(Test-Path $apk){throw 'Delivered artifact immutable; bump manifest and output version for changes'}
 New-Item -ItemType Directory -Force "$out/assets","$out/classes","$out/dex"|Out-Null
 New-Item -ItemType Directory -Force "$out/tests"|Out-Null
-& "$JavaHome/bin/javac.exe" -encoding UTF-8 -d "$out/tests" "$PSScriptRoot/src/dev/ody/seedpreview/Compatibility.java" "$PSScriptRoot/tests/CompatibilityTest.java" "$PSScriptRoot/src/dev/ody/seedpreview/InstalledNative.java" "$PSScriptRoot/tests/InstalledNativeTest.java"
+# Generate only in this unique output directory; never mutate checked-in Java
+# or reuse another variant's generated source. One input selects Java AND native.
+$checkedInCompatibility=(Resolve-Path "$PSScriptRoot/src/dev/ody/seedpreview/Compatibility.java").Path
+$compatibilityText=[IO.File]::ReadAllText($checkedInCompatibility)
+$declaration='static final boolean API31_CANDIDATE=false;'
+if([regex]::Matches($compatibilityText,[regex]::Escape($declaration)).Count -ne 1){throw 'Compatibility default declaration changed; refuse an ambiguous candidate'}
+$javaFlag=if($Api31Candidate){'true'}else{'false'}
+New-Item -ItemType Directory "$out/generated"|Out-Null
+$compatibilitySource="$out/generated/Compatibility.java"
+[IO.File]::WriteAllText($compatibilitySource,$compatibilityText.Replace($declaration,"static final boolean API31_CANDIDATE=$javaFlag;"),[Text.UTF8Encoding]::new($false))
+& "$JavaHome/bin/javac.exe" -encoding UTF-8 -d "$out/tests" $compatibilitySource "$PSScriptRoot/tests/CompatibilityTest.java" "$PSScriptRoot/src/dev/ody/seedpreview/InstalledNative.java" "$PSScriptRoot/tests/InstalledNativeTest.java"
 if($LASTEXITCODE){throw 'Compatibility test compile failed'}
-& "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.CompatibilityTest
+& "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.CompatibilityTest $javaFlag
 if($LASTEXITCODE){throw 'Compatibility tests failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.InstalledNativeTest
 if($LASTEXITCODE){throw 'Installed native path/digest tests failed'}
@@ -63,6 +73,7 @@ foreach($abi in @('arm64-v8a','x86_64')){
  $rendererPin=if($abi -eq 'x86_64'){"$out/assets/libseed_display.so"}else{''}
  & $CmakePath -G Ninja "-DCMAKE_MAKE_PROGRAM=$NinjaPath" "-DCMAKE_TOOLCHAIN_FILE=$NdkPath/build/cmake/android.toolchain.cmake" "-DANDROID_ABI=$abi" "-DSEED_BRIDGE_RENDERER=$rendererPin" "-DSEED_API31_CANDIDATE=$api31Flag" -DANDROID_PLATFORM=android-28 -DANDROID_STL=c++_static -DCMAKE_BUILD_TYPE=Release -S $PSScriptRoot -B $nativeBuild
  if($LASTEXITCODE){throw 'Native configure failed'}
+ if(!(Get-Content "$nativeBuild/CMakeCache.txt" -Raw).Contains("SEED_API31_CANDIDATE:BOOL=$api31Flag")){throw 'Native candidate setting mismatch'}
  & $CmakePath --build $nativeBuild --parallel 4
  if($LASTEXITCODE){throw 'Native build failed'}
  New-Item -ItemType Directory -Force "$out/native/lib/$abi"|Out-Null
@@ -74,6 +85,8 @@ foreach($abi in @('arm64-v8a','x86_64')){
   Copy-Item -LiteralPath "$nativeBuild/libseed_display.so" -Destination "$out/native/lib/$abi/libseed_display.so"
  }else{
   Copy-Item -LiteralPath "$nativeBuild/libseed_bridge.so" -Destination "$out/native/lib/$abi/libseed_bridge.so"
+  $hasApi31Adapter=[Text.Encoding]::ASCII.GetString([IO.File]::ReadAllBytes("$out/native/lib/$abi/libseed_bridge.so")).Contains('API31_REQUIRED')
+  if($hasApi31Adapter -ne [bool]$Api31Candidate){throw 'Packaged bridge disagrees with Java candidate setting'}
   Copy-Item -LiteralPath "$nativeBuild/seed-bridge-renderer.sha256" -Destination "$out/assets/seed-bridge-renderer.sha256"
   $bridgeDigest=(Get-FileHash -Algorithm SHA256 "$nativeBuild/libseed_bridge.so").Hash.ToLowerInvariant()
   [IO.File]::WriteAllText("$out/assets/seed-bridge-x86_64.sha256",$bridgeDigest+"`n",[Text.Encoding]::ASCII)
@@ -85,7 +98,7 @@ Copy-Item -LiteralPath "$root/third_party/RENDERER_NOTICES.md" -Destination "$ou
 $bt="$SdkPath/build-tools/35.0.0";$jar="$SdkPath/platforms/android-35/android.jar";$env:JAVA_HOME=$JavaHome
 & "$bt/aapt2.exe" link -I $jar --manifest "$PSScriptRoot/AndroidManifest.xml" -A "$out/assets" -0 so -o "$out/unsigned.apk"
 if($LASTEXITCODE){throw 'Resource link failed'}
-$sources=@(Get-ChildItem "$PSScriptRoot/src" -Recurse -Filter *.java|ForEach-Object FullName)
+$sources=@(Get-ChildItem "$PSScriptRoot/src" -Recurse -Filter *.java|Where-Object {$_.FullName -ine $checkedInCompatibility}|ForEach-Object FullName)+@($compatibilitySource)
 & "$JavaHome/bin/javac.exe" -encoding UTF-8 -source 8 -target 8 -classpath $jar -d "$out/classes" $sources
 if($LASTEXITCODE){throw 'Java compile failed'}
 & "$JavaHome/bin/jar.exe" cf "$out/classes.jar" -C "$out/classes" .
@@ -114,5 +127,5 @@ if($LASTEXITCODE){throw 'Final APK alignment failed'}
 if($LASTEXITCODE){throw 'Native APK layout/digest validation failed; artifact must not be delivered'}
 Get-FileHash $apk
 if($Candidate){Write-Output 'NOT_FOR_INSTALL_OR_DELIVERY: candidate retains development manifest only'}
-if($Api31Candidate){Write-Output 'API31_NATIVE_INTEGRATION_ONLY: Java admission remains API35; Root and game qualification pending'}
+if($Api31Candidate){Write-Output 'API31_JAVA_AND_NATIVE_CANDIDATE: exact backend guards retained; product/game acceptance pending'}
 Write-Output "Build completed ($kind). Not evidence of root load, UI restoration or multi-version compatibility."

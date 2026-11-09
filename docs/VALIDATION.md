@@ -1,5 +1,11 @@
 # 驗證分層
 
+## 2026-11-09：API31 Java／native候選接線（未安裝）
+
+- 普通App研究路徑實測後，將Java與native接上同一`-Api31Candidate`開關；只允許unsigned candidate。預設Java常數false／native OFF，API35資格不變；API32及不精確遊戲版本仍拒絕，native bridge／digest／prologue／runtime metadata守門保留。
+- 兩種完整建置及29/27/8/4 JVM與封裝檢查通過。Compatibility新增編譯flag核對後各35項通過，對兩份實際App classes核對flag且相反flag負例均拒絕。兩種CMake cache／封裝host marker與Java一致；API31簽署路徑實際pre-build exit1。
+- 新unsigned候選SHA、來源與歷史分層見[候選整合](API31_PRODUCT_INTEGRATION.md)。未新簽署／安裝／交付產品，四組遊戲全未驗。使用者已授權在新API35隔離機安裝必要Google套件，來源／實際安裝結果後續記錄；登入仍由使用者完成。
+
 ## 2026-11-09：普通App → su-M → PM研究loader完整API31路徑
 
 - 新研究client0.0.4/code4內嵌精確SHA的x64 PIE，PM安裝後從自身nativeLibraryDir執行。Java核canonical path／digest，native重核精確client PM位置、祖先owner/mode及原probe／host守門；同bytes tmp副本實際exit14拒絕。
@@ -70,7 +76,7 @@
 | ARM64/API34/156.1 code1793076318（歷史Libra） | 既有Magisk，provider版號本輪未量測／Enforcing | 歷史context、supervisor、真JNI已驗 | 同0.3.1兩頁已驗 | 0.3.1獨立捲動紀錄待補／遊戲重啟已驗／未驗／未驗 |
 | x64/API35/libnb.so/156.1 code1793076318（歷史Virgo） | provider版號本輪未量測／Permissive | 歷史namespace、JNI、故障fixtures已驗 | 同0.3.1兩頁已驗 | 本版獨立捲動紀錄待補／新程序重新同意已驗／未驗／未驗 |
 | 原生ARM64/API31/156.1 code1793076318 | 尚無確認目標 | 研究工具已編譯，裝置未驗 | 未驗 | 全部未驗 |
-| 官方AVD x64/API31/libndk_translation.so／尚無遊戲 | 新授權Magisk31.1，普通App su-M／PID1 mount view已驗；Zygisk OFF／Enforcing | 真App JNI／ClassLoader／PM載入／timeout、Magisk-domain與10類supervisor已驗 | 未驗；產品Java仍拒絕API31；兩遊戲完整splits及原簽章待提供 | 遊戲／產品OS重啟／長時間未驗；Root環境正常重啟另記 |
+| 官方AVD x64/API31/libndk_translation.so／尚無遊戲 | 新授權Magisk31.1，普通App su-M／PID1 mount view已驗；Zygisk OFF／Enforcing | 真App JNI／ClassLoader／PM載入／timeout、Magisk-domain與10類supervisor已驗 | 未驗；Java／native僅unsigned API31候選接線完成，預設仍拒絕；兩遊戲完整splits及原簽章待提供 | 遊戲／產品OS重啟／長時間未驗；Root環境正常重啟另記 |
 | 新MuMu index5 x64/API35/libnb.so／無遊戲 | 內建KernelSU3.2.5正常App su -M已驗／原Permissive | 10類supervisor、真App JNI／ClassLoader／PM載入／正常FINISH及timeout已驗 | 未驗；兩遊戲完整splits待提供 | 全部未驗 |
 | 各平台/156.0 code1792142832 | 依上述平台資格分開 | 只有遊戲profile離線證據，無156.0遊戲實測 | 未驗 | 全部未驗 |
 | 新MuMu12.0/API32/x64/libnb.so/無遊戲 | Root關閉／原Permissive | 只量測OS；不符合API31 | 未驗，未安裝Lens | 全部未驗，已關閉 |
