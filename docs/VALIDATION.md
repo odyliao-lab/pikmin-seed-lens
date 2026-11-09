@@ -1,5 +1,11 @@
 # 驗證分層
 
+## 2026-11-09：API35／156.0實際畫面與新增API34範圍
+
+使用者確認156.0登入完成後，同一原簽章0.4.1／SHA `815de868e747111c9e9739ea9987337c53441e10a15e585d2192cecab4741cce`在新index5 API35／libnb分別以PID2274/start17271與重啟後PID6657/start317279完成正常App確認／載入、兩頁名稱ON／OFF、花苗長字縮小及捲動重用。新程序未確認啟用與舊status均實際拒絕；重新確認後兩頁再次ON／OFF。花苗數維持356，未領回／派遣或改物品。原UNKNOWN及七份研究紀錄SHA不變，新兩筆完整journal保留；adbd恢復non-root後正常關閉index5。
+
+兩版API35目前都缺探險長名稱及真正離屏重用樣本，OS／長時間另列未驗。使用者後續要求Android12／14／15與兩版遊戲共六組；新API34 x64 AVD及私人Magisk31.1 Root研究已明確確認，官方image rev14已安裝並完成stock boot，實測API34／libndk_translation／Enforcing及自有ARM JNI baseline；後續能力研究中。產品x64的API34仍拒絕，須先驗平台與失敗收容；不能由API34歷史Libra ARM64結果推論新x64通過。詳見[六組條件](ANDROID12_15_GAME156_GOAL.md)及[0.4.1分項證據](PRODUCT041_QUALIFICATION.md)。
+
 ## 2026-11-09：原生ARM64 API31研究入口補強（尚未部署）
 
 自有ARM64 JNI研究App升至0.0.2/code2、保留原簽章。載入fixture前核明確expected API／Java實際API、普通App UID、64-bit process／主要ARM64 ABI及Java平台kernel uname `aarch64`；載入後再核native實際API，才啟動thread。研究建置保留version目錄，拒絕覆寫。Java/dex／簽章／stored ARM64-only libraries／16KB封裝與配對digest已查；ARM64 root verifier、context、supervisor及platform test executables均編譯通過，未裝置執行。原產品0.4.1未變，新裝置操作範圍仍待指定，不能新增原生API31通過欄。SHA與後續條件見[ARM64研究準備](../research/arm64-jni/README.md)。
@@ -99,7 +105,8 @@
 | 官方AVD x64/API31/libndk_translation.so／156.0 code1792142832 | 新授權Magisk31.1，普通App su-M／PID1 mount view已驗；Zygisk OFF／Enforcing | 真App JNI／ClassLoader／PM載入／timeout及10類supervisor已驗；原遊戲SEVL SIGILL，自有0.0.2 probe含相同alarm基準通過、SEVL失敗 | 原簽章0.4.1同APK已安裝但未啟用；遊戲尚未到登入，無product attempt，不算產品通過 | 全部未驗；Root環境正常重啟另記，AVD已關閉 |
 | 官方AVD x64/API31/libndk_translation.so／156.1 code1793076318 | 同上，另次cold boot普通App su-M再通過／Enforcing | 原簽章完整splits正常升級；首程序Unity SEVL SIGILL、後續系統另記SIGSEGV，同0.4.1 SHA未變 | 未啟用產品，無product attempt，未完成登入；未驗 | 全部未驗；16份研究attempt保留，AVD已正常關閉 |
 | 新MuMu index5 x64/API35/libnb.so／156.1 code1793076318 | 內建KernelSU3.2.5，正常產品App su-M已驗／原Permissive | 10類supervisor、普通App PM loader與JNI／timeout已驗；0.4.1真遊戲新程序載入已驗，首筆UNKNOWN保留 | 0.4.1兩頁名稱／OFF與花苗長字已驗；探險長名待樣本 | 花苗重用已驗、探險離屏重用待樣本／新遊戲程序重新確認再啟用已驗／OS未驗／長時間未驗 |
-| 新MuMu index5 x64/API35/libnb.so／156.0 code1792142832 | 同機KernelSU3.2.5／原Permissive；產品0.4.1保留 | 原簽章完整splits與profile已核；PM拒絕直接降版後只乾淨重裝隔離遊戲，已到首次生日／登入畫面，等本人登入 | 未載入產品，未驗；伺服器是否要求更新尚未知 | 全部未驗 |
+| 新MuMu index5 x64/API35/libnb.so／156.0 code1792142832 | 同機KernelSU3.2.5，正常產品App su-M已驗／原Permissive | 原簽章完整splits及profile已核；本人登入後0.4.1兩個新程序載入已驗 | 兩頁名稱／OFF、花苗長名與縮字已驗；探險長名待樣本 | 花苗重用及遊戲重啟／重新確認再啟用已驗；探險離屏重用／OS／長時間未驗 |
+| 新官方AVD x64/API34／156.0已裝，156.1待裝 | 已授權私人Magisk31.1 Root研究，stock階段尚未安裝／Enforcing | stock boot與自有ARM JNI baseline已驗，SEVL兩模式SIGILL；156.0首啟system ANR，官方軟體GPU比較中 | 產品x64 API34仍拒絕，先隔離研究；未完成登入或產品載入 | 全部未驗；來源與分項見[API34研究](API34_ISOLATED_RESEARCH.md) |
 | 新MuMu12.0/API32/x64/libnb.so/無遊戲 | Root關閉／原Permissive | 只量測OS；不符合API31 | 未驗，未安裝Lens | 全部未驗，已關閉 |
 
 至少兩Android及兩遊戲版、包含真API31的完成條件仍未達成；編譯、API範圍、安裝及waiting-cards不替代兩頁實際驗收。

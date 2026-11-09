@@ -21,32 +21,32 @@
 見[API31實際研究結果](docs/API31_AVD_RESEARCH.md)及
 [本輪接手、環境及下一步](docs/handoffs/2026-11-09-zhubei-intake.md)。
 
-目前持續目標為Android12/API31、Android15/API35與遊戲156.0／156.1四組真實可用；
+目前驗收目標為Android12/API31、Android14/API34、Android15/API35與遊戲156.0／156.1六組真實可用；
 每組都要驗兩頁、縮字、捲動、OFF及遊戲重啟，不以研究建置代替完成。
-見[四組驗收條件與進度](docs/ANDROID12_15_GAME156_GOAL.md)。
+見[六組驗收條件與進度](docs/ANDROID12_15_GAME156_GOAL.md)。
 
 API31平台來源已接入明確的unsigned候選，Java與native使用同一開關，
 與隔離研究共用adapter／runtime dispatcher；預設建置仍維持API35資格，明確signed qualification另見下方，API32不接受。API31正常產品完整流程與遊戲仍待驗，
 見[API31候選整合及測試邊界](docs/API31_PRODUCT_INTEGRATION.md)。
 
 使用者授權後，新API35隔離機已用MuMu原廠谷歌安裝器安裝Play／GMS／GSF，
-普通App su-M再驗通過；其後使用者已完成Google與精確156.1遊戲登入。
+普通App su-M再驗通過；其後使用者已完成Google與兩個精確遊戲版本的各次登入。
 見[Google套件來源與實際結果](docs/API35_GOOGLE_INTAKE.md)。
 安裝後API35普通App自行su-M／PM loader的正常、timeout及新程序回歸亦通過，
 見[API35普通App研究](docs/API35_APP_ROOT_FLOW.md)，仍不是遊戲驗收。
 
 使用者指定D槽搜尋後，已取得原產品簽章及156.0完整base／ARM64 split，Play取得的156.1亦符合精確profile。
-原簽章0.4.1單APK已在新API35／156.1實際驗花苗名稱、長字縮小、捲動與兩頁OFF還原；
-遊戲新程序重新確認／再啟用與OFF亦已驗；探險長名稱／離屏重用及其他組合仍未完成。
+原簽章0.4.1單APK已在新API35／156.0與156.1分別實際驗花苗名稱、長字縮小、捲動與兩頁OFF還原；
+兩版各自的新程序重新確認／再啟用與OFF亦已驗；探險長名稱／離屏重用及其他組合仍未完成。
 明確`-Api31Qualification`才允許原簽章新版本開啟API31驗收，預設仍API35；見[0.4.1分項紀錄](docs/PRODUCT041_QUALIFICATION.md)。
 
 API31 x64上156.0與156.1各次實際啟動均在Lens載入前出現Unity SEVL指令SIGILL；156.1系統後續另記SIGSEGV。自有ARM-only probe已重現31失敗、35返回。
 這個image仍未通過遊戲能力；本機ARM64 AVD提案因官方frontend架構限制撤回，現待指定API31原生ARM64手機或ARM64主機，見[指令能力界線](docs/API31_GAME_STARTUP_BOUNDARY.md)。
 
-Virgo API35／x86_64／libnb.so／遊戲156.1已從正常App入口實際套用花苗頁及探險頁，
+以下為0.3.1的歷史基線：Virgo API35／x86_64／libnb.so／遊戲156.1已從正常App入口實際套用花苗頁及探險頁，
 兩頁關閉後還原原名及字型。Libra API34／ARM64也已用同一0.3.1 APK完成兩頁
-顯示與OFF還原回歸。156.0另已加入精確設定檔並完成離線比對，但只有156.1有實機效果
-證據，不宣稱多遊戲版本驗收完成。主畫面確認改為同PID/start單次使用，離開App就失效。
+顯示與OFF還原回歸。該階段156.0僅完成離線profile；本輪0.4.1才新增上方API35／156.0分項實測。
+主畫面確認綁定同PID/start單次使用，離開App就失效。本輪未重新操作上述正式節點。
 
 ON／載入／OFF由單一native lease協調，保留持久attempt；新啟用要求同PID/start的新鮮
 renderer回報。NativeBridge僅對已驗環境提供明確同意的候選入口：按下啟用先切回遊戲，
@@ -56,7 +56,7 @@ renderer回報。NativeBridge僅對已驗環境提供明確同意的候選入口
 ## 已知限制
 
 - 精確設定包括 **156.1/code1793076318** 與 **156.0/code1792142832**，不接受任意156.x；
-  後者只有離線來源驗證，待隔離實機驗收。未知版本保持原顯示。
+  兩版API35均有0.4.1分項畫面證據；API31未通過，API34新隔離環境研究中。未知版本保持原顯示。
 - Android API28–35／ARM64 是候選範圍；同版0.3.1 APK在Libra API34及Virgo API35有實際
   顯示與OFF證據。其他Android、NativeBridge ROM及遊戲版本尚未通過。
 - x64僅允許API35/libnb.so的既有測試組合。取得namespace不等於全部NativeBridge相容；
@@ -66,7 +66,7 @@ renderer回報。NativeBridge僅對已驗環境提供明確同意的候選入口
 - 模糊載入結果保留append-only attempt，不自動重試；0.3.1 ARM64已有界收容，但拒絕尚未
   涵蓋的SVE／SME／MTE／PAC與缺pidfd環境，不宣稱所有API28–35硬體都適用。
   Libra同版正常遊戲重開／再啟用、Virgo新程序再啟用已驗兩頁ON/OFF；OS重啟、
-  詳細頁、長時間運作及第二遊戲profile仍待驗證。
+  詳細頁、長時間運作及其他平台上的第二遊戲profile仍待驗證。
 
 0.3.1已補齊ARM64呼叫有界收容、CPU context與實際JNI／ART隔離測試，並在Libra
 完成新遊戲程序兩頁ON/OFF、恢復原掃描；Virgo同版兩頁ON/OFF亦已完成。既有0.3.0產物不改，

@@ -47,3 +47,21 @@
 另次cold boot後，該API31 AVD已正常升級原簽章156.1完整splits；普通App su-M及PM位置同一0.4.1 SHA再核。首遊戲程序在產品載入前於另一精確Unity SEVL位置SIGILL，系統隨後另記SIGSEGV；後續另一PID不當成登入就緒，沒有啟用產品。研究歷史16份attempt SHA均不變，仍無product attempt；恢復non-root adbd後正常關閉AVD。兩版API31產品兩頁仍未通過，詳見同份啟動界線紀錄。
 
 API35同一index5重開後仍為API35／libnb／原Permissive，同一0.4.1保留。156.1到156.0的原廠PM降版請求被拒絕，保留拒絕結果；接著只移除該隔離機的遊戲並安裝已核原簽章156.0完整base／split，不繞過PM或複製登入資料。156.0已到首次生日／登入畫面，等待使用者完成；此時沒有156.0產品載入，不推論伺服器可登入或必定強制更新。私人證據位於ignored `.tools/lab/api35-game1560-product041-1f15e80502404dae826afc85e5c8d710/`。
+
+## API35／156.0：本人登入後的產品畫面及新程序驗收
+
+使用者後續明確回覆156.0登入完成。同一index5／created timestamp不變，boot `244903e1-7019-4eb6-bae4-e99697a170cb`，實際API35／x86_64／libnb.so／原Permissive。PM遊戲156.0/code1792142832，base／split SHA與原簽章intake一致；產品仍為上表同一原簽章0.4.1，沒有重建或覆寫。本人已登入且實際進入主畫面／兩頁，本次未遇強制更新。
+
+| 項目 | 分項結果與私人證據 |
+|---|---|
+| 首程序正常App載入 | PID2274/start17271／遊戲UID10065。正常App重新確認後自行su-M，保持遊戲前景，完整七階段journal；同PID/start的156.0 status與control ON、TracerPid0。frame16只是waiting-cards載入證據，後續才比對畫面 |
+| OFF基準與ON名稱／縮字 | frame09原通用金色花苗及截斷；frame18實際紅色照片鈕扣徽章金苗、白／羽翅／黃／藍／岩石咖啡杯金苗，長名完整且較小字；後續亦見冰／紫／紅等名稱 |
+| 花苗捲動重用 | frames19–22兩次下捲／兩次上捲，不同卡片後回到原卡，名稱正確；顯示總數持續356 |
+| 未領回探險與OFF | frame10黃色花苗→frame23黃色金幣苗；青蘋果及三張完成水果卡未變。正常App OFF回OFF_COMMITTED_REQUIRES_UI_RESTORE，再回遊戲實際觀察frame26黃色花苗、frame27花苗原大字／截斷還原 |
+| 遊戲重啟與舊同意／狀態拒絕 | 正常OFF後只重啟隔離遊戲，進主畫面新PID6657/start317279。frame31未重新確認不能啟用，frame32舊status拒絕為NO_FRESH_SAME_PID_START_STATUS；不沿用舊ready或consent |
+| 新程序再啟用／捲動／兩頁OFF | 正常App重新核對新程序，完整七階段journal；frames37–40花苗長名／縮字、一次捲動往返與探險黃色金幣苗再次觀察。正常App OFF後，frames42–43兩頁原文／字型還原；總花苗仍356 |
+| 尚缺覆蓋 | 探險仍只有一筆短名稱未領回花苗，不能驗長名稱縮字或真正離屏重用；沒有領回／派遣／拔苗／購買。OS重啟及長時間另列未驗；不是六組全部成功 |
+
+結束control OFF，同PID6657/start317279／156.0／enable0／ready、TracerPid0，adbd恢復UID2000。原三份產品attempt（含首筆UNKNOWN）及七份研究attempt逐字SHA不變；本輪兩筆正常journal SHA為`38d7e77fda62a168f9e9ae42ecc9386933f114d15a4a8c64e0789db504ed0b64`與`876f2576274fe1f0b6e1749f0606bd0eaf3f9588e7db324adaabe31c64c42f93`。舊UNKNOWN不補寫成功、不重送。
+
+全部原始PNG／XML／receipt仍只在上方ignored私人156.0資料夾。確認OFF後正常關閉index5，保留登入資料；才進已獲確認的新API34隔離環境，未操作既有四台或台中設備。
