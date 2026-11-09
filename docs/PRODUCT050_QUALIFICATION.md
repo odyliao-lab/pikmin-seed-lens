@@ -30,8 +30,22 @@ PID2033/start22615／UID10065，正常App重新確認主畫面並同意未知呼
 
 第二筆journal SHA256：`70d4c3a8b845b518d71ac2c670ad63934916773b13be1e72ba47f1f5ded14733`。原17份逐份SHA不變，總數18；沒有以新PID承接舊同意或改寫UNKNOWN。
 
+## API35／157.0同帳號OS關閉再啟動
+
+上述157回歸結束OFF後正常關閉index5，再啟動同instance，boot由`1774a036-4821-48f3-9eec-e31e64252589`改為`f41b9c04-8464-49bc-882e-5ea87def0bfc`；實際API35／libnb／原Permissive與精確157.0／0.5.0不變。PM安裝的產品APK SHA再次吻合上方原簽章artifact，18份歷史attempt逐份SHA不變。本人帳號保留登入，無複製session或代操作獎勵。
+
+新遊戲PID1948/start8264／UID10065，OS私人frames03／04實際拒絕未重新確認的啟用與舊status；05重新確認並取得本次同意，正常App su-M首次載入此新程序。完整七階段journal與同PID/start新鮮157.0狀態，未承接舊ready。
+
+08實際庫存紀念長字縮小／岩石剪刀苗；09探險金幣／廚師帽子／貼紙等名稱。10末排冰色三葉花苗可見，11回頂部時該卡完整離屏，12到底部仍同名。13正常App OFF後，14探險原名／字型、15庫存原大字與金苗原截斷還原；29/80不變。16最終同程序／157.0／ready／enable0、control OFF、165份讀到的thread TracerPid均0（非原子snapshot），adbd UID2000。
+
+新journal SHA256：`8758bbf120f9611178cacbe6d120a00f87d49432b8a4673e6cec339718c6affb`；原18份SHA不變，總數19。這是同帳號157的OS重啟後分項回歸，不把其他平台／遊戲版或長時間升格為通過。原始frame只留同私人intake目錄的`os-reboot-5d8aa35dcc46419c8ae6a31d3bf34c39/`。
+
 ## 未完成與限制
 
-探險長名稱縮字尚未觸發，不從庫存跨頁推論；最長庫存名稱縮字後仍截斷。OS重啟、長時間、API31／34與156.0／156.1的本版重驗未完成。0.4.1既有156.x證據保留為其原APK結果，不能轉記本版。九組矩陣見[目標](ANDROID12_15_GAME156_GOAL.md)。
+探險長名稱縮字尚未觸發，不從庫存跨頁推論；最長庫存名稱縮字後仍截斷。API35／157的上述OS分項已驗；長時間、API31／34與156.0／156.1的本版重驗未完成。0.4.1既有156.x證據保留為其原APK結果，不能轉記本版。九組矩陣見[目標](ANDROID12_15_GAME156_GOAL.md)。
 
 原始PNG／XML／PM／receipt只在ignored `.tools/lab/game157-official-intake-d31158fd456e4abbb7dd3e69370156b9/`；不提交帳號、遊戲包或dump。
+
+## 同一0.5.0的156.x回歸準備
+
+完成157同帳號OS回歸後，依既定隔離測試範圍僅在新index5正常移除157並乾淨安裝156.0/code1792142832；不繞過Package Manager降版／伺服器檢查、不複製登入資料。完整base／ARM64 split安裝後SHA再次吻合既有合法intake，產品仍同一0.5.0/code15／原簽章SHA。遊戲停在出生日期／登入起始頁，交由本人；透視鏡保持OFF、沒有嘗試本次遊戲載入。156.0／156.1仍需各自取得本版UI證據，不能轉用0.4.1結果。

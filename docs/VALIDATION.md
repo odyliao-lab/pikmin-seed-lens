@@ -1,5 +1,9 @@
 # 驗證分層
 
+## 2026-11-09：0.5.0／API35／157同帳號OS重啟回歸
+
+新index5先OFF並正常關閉，再啟動為新boot f41b9c04-8464-49bc-882e-5ea87def0bfc，同原簽章0.5.0 SHA、精確157.0與本人帳號。18份歷史SHA不變；新PID1948/start8264的未確認／舊status實際拒絕，重新同意後完成新完整journal。兩頁細分名稱、庫存長字縮小、探險末排真正離屏返回與正常App OFF原文／字型還原再次觀察；最終ready／enable0／control OFF、165份thread讀值TracerPid0，adbd UID2000。新journal SHA8758bbf120f9611178cacbe6d120a00f87d49432b8a4673e6cec339718c6affb，原18份不變、總19。探險長名縮字與長時間仍未驗，不移作其他組合通過；見[0.5.0紀錄](PRODUCT050_QUALIFICATION.md)。
+
 ## 2026-11-09：157原遊戲在API31／34獨立啟動失敗
 
 完成API35分項回歸後依序關閉／啟動隔離機，實際API31／34的原簽章157.0各自正常更新、安裝後完整SHA相符，首遊戲程序分別4254／4305；兩者translator均回報原Unity+0x5e2760的SEVL未實作並SIGILL，發生在產品載入前。API31原16份研究attempt SHA不變／無產品attempt；API34沒有安裝Root或產品，資格拒絕保留。API34首輪hostGL boot無回應、指定正常關閉逾時後精確host收容，未啟動157；後輪SwiftShader才取得上述實際結果並正常關閉。兩平台SDK ramdisk SHA不變，原件與界線見[157平台啟動](GAME157_PLATFORM_STARTUP.md)。
