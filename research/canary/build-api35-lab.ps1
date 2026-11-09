@@ -50,9 +50,10 @@ $hostLibrary="$out/carrier/lib/x86_64/libseedprobe_api35_lab_host.so"
 Copy-Item -LiteralPath "$build/libseedprobe_api35_lab_host.so" -Destination $hostLibrary
 & $CmakePath @common "-DSEED_API35_LAB_HOST_LIBRARY=$hostLibrary"
 if($LASTEXITCODE){throw 'API35 PM verifier configure failed'}
-& $CmakePath --build $build --parallel 4 --target api35-canary-root
+& $CmakePath --build $build --parallel 4 --target api35-canary-root api35-app-root
 if($LASTEXITCODE){throw 'API35 PM verifier build failed'}
 Copy-Item -LiteralPath "$build/api35-canary-root" -Destination "$out/api35-canary-root"
+Copy-Item -LiteralPath "$build/api35-app-root" -Destination "$out/api35-app-root"
 & "$bt/aapt2.exe" link -I "$SdkPath/platforms/android-35/android.jar" --manifest "$PSScriptRoot/AndroidManifest.carrier-api35.xml" -o "$out/unsigned.apk"
 if($LASTEXITCODE){throw 'Carrier manifest failed'}
 & "$JavaHome/bin/jar.exe" u0f "$out/unsigned.apk" -C "$out/carrier" lib
@@ -69,5 +70,5 @@ if($LASTEXITCODE){throw 'Final carrier alignment failed'}
 $listing=& "$bt/aapt.exe" list -v $apk
 if($LASTEXITCODE -or !($listing -match 'Stored.*lib/x86_64/libseedprobe_api35_lab_host.so')){throw 'Carrier missing stored host'}
 Copy-Item -LiteralPath $apk -Destination "$reserved/carrier-$version-signed-research-only.apk"
-Get-FileHash $apk,$hostLibrary,"$out/api35-canary-root"
+Get-FileHash $apk,$hostLibrary,"$out/api35-canary-root","$out/api35-app-root"
 Write-Output "API35_LAB_BUILD=$out"

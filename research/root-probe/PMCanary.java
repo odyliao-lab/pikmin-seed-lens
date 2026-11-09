@@ -26,7 +26,8 @@ final class PMCanary {
     static int run(Context context,Bundle args)throws Exception{
         String pid=args.getString("load_pid"),start=args.getString("load_start"),host=args.getString("load_host");
         String timeout=args.getString("timeout_test","false");
-        if(android.os.Build.VERSION.SDK_INT!=31||Process.myUid()<10000||
+        int api=android.os.Build.VERSION.SDK_INT;
+        if((api!=31&&api!=35)||!Integer.toString(api).equals(args.getString("expected_api"))||Process.myUid()<10000||
            !"dev.ody.seedlensrootprobe".equals(context.getPackageName())||
            pid==null||!pid.matches("[1-9][0-9]{0,9}")||start==null||!start.matches("[1-9][0-9]{0,19}")||
            host==null||!host.matches("/[A-Za-z0-9_+=~/.-]+")||
@@ -45,7 +46,7 @@ final class PMCanary {
         File receipt=new File(context.getFilesDir(),"pm-"+Process.myPid()+"-"+SystemClock.elapsedRealtime()+".tsv");
         if(!receipt.createNewFile())throw new IllegalStateException();
         // All fields are restricted above; no quotes, spaces or shell expansion.
-        String command=runner.getPath()+" "+pid+" "+start+" 31 "+host+(timeout.equals("true")?" --timeout-test":"");
+        String command=runner.getPath()+" "+pid+" "+start+" "+api+" "+host+(timeout.equals("true")?" --timeout-test":"");
         try(FileOutputStream output=new FileOutputStream(receipt,true)){
             output.write(("APP_UID\t"+Process.myUid()+"\nRUNNER_SHA\t"+expected+"TARGET\t"+pid+"\t"+start+"\nONE_COMMAND_ONLY\n").getBytes(StandardCharsets.UTF_8));
             output.getFD().sync();

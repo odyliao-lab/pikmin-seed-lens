@@ -17,7 +17,7 @@ param(
 )
 $ErrorActionPreference='Stop'
 if($RootViaMagisk -and $ExpectedApi -ne 31){throw 'Magisk provider research option is API31-only'}
-if($RootViaApp -and ($ExpectedApi -ne 31 -or $RootViaMagisk -or !$RootProbeApk)){throw 'Normal App mode requires exact API31, client APK and no shell Root mode'}
+if($RootViaApp -and ($RootViaMagisk -or !$RootProbeApk)){throw 'Normal App mode requires exact API31/35, client APK and no shell Root mode'}
 $root=Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $out=Join-Path $root (".tools/lab/api$ExpectedApi-run-"+[Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory $out | Out-Null
@@ -29,9 +29,9 @@ function Read-Guest([string]$Command){
 function Invoke-Runner([string]$Arguments){
  if($RootViaApp){
   $fields=$Arguments.Split(' ',[StringSplitOptions]::RemoveEmptyEntries)
-  if($fields.Count -notin 4,5 -or $fields[2] -cne '31' -or ($fields.Count -eq 5 -and $fields[4] -cne '--timeout-test')){throw 'Internal App argument mismatch'}
+  if($fields.Count -notin 4,5 -or $fields[2] -cne "$ExpectedApi" -or ($fields.Count -eq 5 -and $fields[4] -cne '--timeout-test')){throw 'Internal App argument mismatch'}
   $timeout=if($fields.Count -eq 5){'true'}else{'false'}
-  $reply=& $AdbPath -s $Serial shell am instrument -w -e expected_boot $ExpectedBoot -e expected_api 31 -e su_endpoint path -e load_pid $fields[0] -e load_start $fields[1] -e load_host $fields[3] -e timeout_test $timeout dev.ody.seedlensrootprobe/.RootInstrumentation 2>&1
+  $reply=& $AdbPath -s $Serial shell am instrument -w -e expected_boot $ExpectedBoot -e expected_api $ExpectedApi -e su_endpoint path -e load_pid $fields[0] -e load_start $fields[1] -e load_host $fields[3] -e timeout_test $timeout dev.ody.seedlensrootprobe/.RootInstrumentation 2>&1
   $raw=$reply -join "`n"
   $code=[regex]::Match($raw,'(?m)^INSTRUMENTATION_RESULT: pm_loader_exit=([0-9]+)\r?$')
   $client=[regex]::Match($raw,'(?m)^INSTRUMENTATION_RESULT: pm_client_pid=([0-9]+)\r?$')
@@ -67,6 +67,7 @@ function Fresh-Identity {
   if(!$MumuCliPath){throw 'Explicit MuMu CLI required for index5 identity'}
   $info=& $MumuCliPath info --vmindex 5 | ConvertFrom-Json
   if($LASTEXITCODE -or $info.error_code -ne 0 -or $info.index -ne '5' -or
+     $info.created_timestamp -ne 1794181954477010 -or
      $info.name -cne 'SeedLens-Isolated-A15' -or !$info.is_android_started -or
      $Serial -cne "$($info.adb_host_ip):$($info.adb_port)"){throw 'Exact authorized index5 identity mismatch'}
  }

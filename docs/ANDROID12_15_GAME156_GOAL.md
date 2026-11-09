@@ -10,7 +10,7 @@
 |---|---|---|---|
 | Android12/API31 | 156.0/code1792142832 | 官方x64 AVD：已授權安裝Magisk31.1、Enforcing／Zygisk OFF；普通App su-M、Magisk-domain JNI／timeout及10類supervisor通過，產品完整流程及遊戲來源待補 | 未驗 |
 | Android12/API31 | 156.1/code1793076318 | 同上；不能以API32替代 | 未驗 |
-| Android15/API35 | 156.0/code1792142832 | 新空白MuMu index5：KernelSU正常App su -M、10類supervisor、真App ClassLoader/JNI/正常FINISH及timeout通過；遊戲來源待提供 | 未驗 |
+| Android15/API35 | 156.0/code1792142832 | 新MuMu index5：Google套件後普通App自行su-M／PM loader、真App JNI／正常FINISH／timeout／新程序回歸通過；Play到登入頁待使用者登入，遊戲來源待取得 | 未驗 |
 | Android15/API35 | 156.1/code1793076318 | 同上；歷史Virgo 0.3.1通過不能代替本輪候選及新環境 | 未驗 |
 
 ARM64與x64/NativeBridge各列實際資格；不能由x64上的ARM轉譯推論原生ARM64通過。最終四組須使用同一個正式候選單APK／原產品簽章及新版本/code，逐組記錄SHA；過程中的不同研究／產品artifact保留原版本與hash，不覆寫。

@@ -32,6 +32,8 @@ API31平台來源已接入明確的unsigned候選，Java與native使用同一開
 使用者授權後，新API35隔離機已用MuMu原廠谷歌安裝器安裝Play／GMS／GSF，
 普通App su-M再驗通過，商店開到登入頁待使用者登入；尚未取得指定遊戲版本。
 見[Google套件來源與實際結果](docs/API35_GOOGLE_INTAKE.md)。
+安裝後API35普通App自行su-M／PM loader的正常、timeout及新程序回歸亦通過，
+見[API35普通App研究](docs/API35_APP_ROOT_FLOW.md)，仍不是遊戲驗收。
 
 Virgo API35／x86_64／libnb.so／遊戲156.1已從正常App入口實際套用花苗頁及探險頁，
 兩頁關閉後還原原名及字型。Libra API34／ARM64也已用同一0.3.1 APK完成兩頁
