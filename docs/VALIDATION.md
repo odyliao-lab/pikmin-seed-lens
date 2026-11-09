@@ -5,7 +5,7 @@
 - 使用者同意兩項後，建立repo外lab key與新空白MuMu index5 Android15。研究簽章與產品原簽章分開；產品未新交付，四組遊戲驗收仍全部未完成。
 - API31／Enforcing上，已簽署probe0.0.6與carrier0.0.1實際通過PM host、真ClassLoader／bridged namespace、ARM JNI四值、版本／key／缺library及symbol負例、worker生命週期、七階段journal及正常FINISH。不是正常App Root或遊戲通過。
 - 真App timeout首次exit43未確認收容，保留UNKNOWN。多執行緒ptrace非leader fixture重現舊supervisor順序問題；先回收本地worker再觀察target pidfd後，10類fixture於API31及新API35實跑通過。API31另一新App timeout確認exit42／END UNKNOWN／精確程序退出，再於另一新程序正常JNI及FINISH通過，舊attempt未清除／重送。
-- 新API35實際x64/libnb、原Permissive、內建KernelSU3.2.5；僅授權Root probe。真正App UID10052執行su -M exit0／uid0／同boot、mount namespace與PID1相同。新環境真App canary與遊戲待驗。
+- 新API35實際x64/libnb、原Permissive、內建KernelSU3.2.5；僅授權Root probe。真正App UID10052執行su -M exit0／uid0／同boot、mount namespace與PID1相同。後續同probe0.0.6配新carrier0.0.2完成真App ClassLoader/JNI與負例、七階段journal、正常FINISH；另一新程序timeout確認exit42／UNKNOWN及精確退出。遊戲仍未驗。
 - 共用修正完整unsigned candidate建置通過26/29/27/8/4 JVM／封裝檢查與雙ABI native編譯；沒有新產品APK安裝或版本覆寫。細節、SHA與待取得材料見[本輪隔離研究](ZHUBEI_LAB_20261109.md)。以下各「待確認／未載入」保留為先前階段紀錄。
 
 ## 2026-11-09：持續目標與API31 PM研究準備
@@ -49,7 +49,7 @@
 | x64/API35/libnb.so/156.1 code1793076318（歷史Virgo） | provider版號本輪未量測／Permissive | 歷史namespace、JNI、故障fixtures已驗 | 同0.3.1兩頁已驗 | 本版獨立捲動紀錄待補／新程序重新同意已驗／未驗／未驗 |
 | 原生ARM64/API31/156.1 code1793076318 | 尚無確認目標 | 研究工具已編譯，裝置未驗 | 未驗 | 全部未驗 |
 | 官方AVD x64/API31/libndk_translation.so／尚無遊戲 | 原廠adb root可用，正常App su -M未合格／Enforcing | 真App JNI／ClassLoader／PM載入／timeout與10類supervisor已驗 | 未驗；產品仍拒絕API31；兩遊戲完整splits待提供 | 全部未驗 |
-| 新MuMu index5 x64/API35/libnb.so／無遊戲 | 內建KernelSU3.2.5正常App su -M已驗／原Permissive | 10類supervisor實跑通過；新環境真App canary待回歸 | 未驗；兩遊戲完整splits待提供 | 全部未驗 |
+| 新MuMu index5 x64/API35/libnb.so／無遊戲 | 內建KernelSU3.2.5正常App su -M已驗／原Permissive | 10類supervisor、真App JNI／ClassLoader／PM載入／正常FINISH及timeout已驗 | 未驗；兩遊戲完整splits待提供 | 全部未驗 |
 | 各平台/156.0 code1792142832 | 依上述平台資格分開 | 只有遊戲profile離線證據，無156.0遊戲實測 | 未驗 | 全部未驗 |
 | 新MuMu12.0/API32/x64/libnb.so/無遊戲 | Root關閉／原Permissive | 只量測OS；不符合API31 | 未驗，未安裝Lens | 全部未驗，已關閉 |
 

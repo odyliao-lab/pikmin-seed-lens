@@ -57,7 +57,7 @@ int run(int pid,const std::string& start,const std::string& host,int socket,bool
     if(!mgr.trace.setOptions(PTRACE_O_TRACESYSGOOD|PTRACE_O_EXITKILL))return 19;
     armed=true;mgr.trace.setRemoteCallTimeout(2000);
     if(timeoutTest){puts("PROBE_PM_TIMEOUT_ARMED_AFTER_DURABLE_CALLING");for(;;)pause();}
-    inject_elf_config_t cfg{};cfg.sdk=31;cfg.timeout=2000;cfg.seize=true;
+    inject_elf_config_t cfg{};cfg.sdk=SEED_PROBE_API;cfg.timeout=2000;cfg.seize=true;
     cfg.package="dev.ody.seedlensprobe";cfg.selinux_state=Utils::selinux_state();
     KittyInjector injector;if(!injector.init(&mgr,cfg))return 20;
     auto result=injector.inject(host);
@@ -73,7 +73,7 @@ bool seed_game_trace_admitted(int tid){
     return armed&&tid==traceTid&&probeIdentity(probePid,probeStart)&&seed_root::thread_owner(tid,probePid,threadStart);
 }
 int seed_probe_pm_load(int pid,const std::string& start,const std::string& host,seed_root::LoadAttempt& attempt,bool timeoutTest){
-    if(android_get_device_api_level()!=31||!probeIdentity(pid,start))return 40;
+    if(android_get_device_api_level()!=SEED_PROBE_API||!probeIdentity(pid,start))return 40;
     int target=int(syscall(SYS_pidfd_open,pid,0));if(target<0||!probeIdentity(pid,start)){if(target>=0)close(target);return 41;}
     auto result=seed_root::supervised_load(target,attempt,[&](int socket){return run(pid,start,host,socket,timeoutTest);},timeoutTest?3000:15000);close(target);
     switch(result){

@@ -19,7 +19,7 @@ using CanaryPlatform=seed_bridge::Platform;
 #error host probe requires x86_64
 #endif
 namespace {
-#ifdef SEED_API31_CANARY
+#if defined(SEED_API31_CANARY) || defined(SEED_API35_LAB_CANARY)
 constexpr const char* probeVersion=SEED_API31_PROBE_VERSION;
 constexpr jlong probeCode=SEED_API31_PROBE_CODE;
 #else

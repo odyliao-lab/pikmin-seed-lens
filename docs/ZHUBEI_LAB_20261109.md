@@ -57,10 +57,30 @@ Root provider是內建KernelSU管理器v3.2.5（32525-2），未另裝Magisk。�
 
 真正正常App UID以固定唯讀`su -M -c`實際exit0、uid0、u:r:ksu:s0、本次boot吻合；自身與PID1 mount namespace相同。這證明此環境正常App Root契約，**不是JNI／遊戲／產品顯示通過**。同環境另實際執行前述10例自有child supervisor通過。
 
+## API35後續真App回歸
+
+新`seedprobe_api35_lab_host`使用原API35 adapter與manifest生成的精確probe版本；歷史API35/0.0.5 target與產品守門不變。新carrier交付0.0.2/code2，沿用研究憑證，不覆寫carrier0.0.1或probe0.0.6。`build-api35-lab.ps1`先核既有probe SHA、憑證及版本，再取其不可變canary建host。PM runner分開編譯API31/35，各binary只接受自己的API、host路徑及SHA，不做runtime fallback。
+
+| 新研究artifact | SHA256 |
+|---|---|
+| carrier0.0.2 APK | `7acc4b33b57fc9af6ea5becc91398640d7565018b01e1d4954702c44befe7f14` |
+| API35 lab host | `9966319d555ffe00ba3fef04e28d90fcbe1efeeca64b6bec9c4108160c72010f` |
+| API35 PM runner | `f69fcb03bb67dc2aad2e13e2e8c25ae604f2bb598031afacb20e6d6befc76b8e` |
+
+同一probe0.0.6及新carrier0.0.2只裝在已授權index5。原腳本新增API35選項，必須由CLI再核index5／名稱／當次端點及boot，限定原API35/libnb/Permissive；API31仍限定同一AVD/Enforcing/libndk_translation。loopback serial本身不代表授權。
+
+PM host／真ClassLoader namespace／ARM JNI四值／版本、key、缺library/symbol負例／singleton與attach/detach全通過，七階段journal完整、90秒FINISH PASS且程序消失。另API31、32與035格式均pre-attach exit3。接著另一新程序故意timeout，確認exit42、CALLING、END UNKNOWN及精確程序退出，保留紀錄；不是在遊戲製造故障。
+
+首次正常及timeout收據分別為`.tools/lab/api35-run-53ac985d67e94a70b682968d71f02847/`與`api35-run-7cd04290ae1f46afbccba139e687f64f/`。正常namespace SHA256 `4e6eb467717d07cec7e6c8fbf2d8759ab593e33653e068538daf6fbeb8fd89ad`，正常FINISH `f8cb6e58dcbfb137e58b2f5b219be469d19f75bfc07b86cca7d75ca0488f7bca`；timeout UNKNOWN journal `043bad5498bf856850cccef52c77e76a1caf2e4d1d30813a5db075511fd66abe`。
+
+共用研究參數化後，API31 PM runner、API31 host與歷史API35 host均在新目錄編譯通過；不當成API31新裝置測試，不更改已簽署host。
+
+timeout後又以另一新程序完成全套正常JNI與FINISH，收據`.tools/lab/api35-run-770daea1cd614de0a1aff99befcd09c5/`。沒有重用或更改timeout attempt。結束確認無probe／runner存活、UNKNOWN原件仍在，adbd恢復non-root後僅正常關閉index5，研究包及資料保留；原四台不動。
+
 ## 建置與剩餘工作
 
 共用修正後完整unsigned candidate通過Compatibility26、InstalledNative29、GameSession27、APKLayout8、PairedDigest4；雙ABI native、ARM renderer、Java/dex/16KB封裝完成。native執行檔編譯不當成ARM64裝置實跑。Candidate SHA256 `362b25dc25333d521148d9380a3701d1465279eaf4a799d5a57e5022fb0abdb7`，未簽署、安裝或交付，不覆寫原0.3.1 APK。
 
-下一步為新API35真App canary回歸、API31正常App Root及產品後端整合。已另提出僅對API31 AVD使用官方Magisk Root provider／私人ramdisk override、保留Enforcing及原SDK的範圍，**尚待回覆**；僅下載官方材料及複製原ramdisk準備，未patch／安裝／啟動。lab key及index5授權不推論為同意改AVD Root。
+下一步為API31正常App Root與產品後端整合。已另提出僅對API31 AVD使用官方Magisk Root provider／私人ramdisk override、保留Enforcing及原SDK的範圍，**尚待回覆**；僅下載官方材料及複製原ramdisk準備，未patch／安裝／啟動。lab key及index5授權不推論為同意改AVD Root。
 
 合法原簽章遊戲156.0／156.1完整splits及產品原簽章來源仍未提供。尚無遊戲登入條件，需登入時通知使用者完成；不複製其他instance帳號。四組真實兩頁、縮字、捲動、OFF及遊戲重啟全部待驗；原生ARM64/API31亦尚無確認目標。

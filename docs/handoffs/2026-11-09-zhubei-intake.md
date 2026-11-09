@@ -1,5 +1,7 @@
 # 竹北接手第一階段（2026-11-09）
 
+> 後續已獲同意建立lab key及API35 index5。API31與API35自有真App ClassLoader/JNI、正常FINISH、timeout及修正後十例supervisor已驗；API35正常App KernelSU su -M已驗。API31正常App Root與四組遊戲仍未驗，見[最新研究與具體缺口](../ZHUBEI_LAB_20261109.md)。以下保留第一階段時序，不把較早「待簽章」當現況。
+
 ## 來源與現況
 
 - 在原本空白的 `D:\AI_Workspace\PikminLens` 取得指定私人 repo；沒有既有修改被移走或覆寫。

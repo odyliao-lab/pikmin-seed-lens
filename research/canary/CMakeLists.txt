@@ -59,6 +59,28 @@ target_include_directories(seedprobe_api31_host PRIVATE "${CMAKE_CURRENT_SOURCE_
   "${CMAKE_CURRENT_SOURCE_DIR}/../../app" "${CMAKE_CURRENT_SOURCE_DIR}/../../native/renderer")
 target_compile_options(seedprobe_api31_host PRIVATE -fvisibility=hidden)
 target_link_libraries(seedprobe_api31_host dl)
+# New lab host uses the unchanged API35 adapter with the exact existing signed
+# 0.0.6 probe contract. Historical API35/0.0.5 target is left intact.
+add_library(seedprobe_api35_lab_host SHARED host.cpp ${XDL})
+target_compile_definitions(seedprobe_api35_lab_host PRIVATE SEED_API35_LAB_CANARY SEED_CANARY_SHA="${CANARY_SHA}"
+  SEED_API31_PROBE_VERSION="${API31_VERSION}" SEED_API31_PROBE_CODE=${API31_CODE})
+target_include_directories(seedprobe_api35_lab_host PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../third_party/xdl/include"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../../app" "${CMAKE_CURRENT_SOURCE_DIR}/../../native/renderer")
+target_compile_options(seedprobe_api35_lab_host PRIVATE -fvisibility=hidden)
+target_link_libraries(seedprobe_api35_lab_host dl)
+if(SEED_API35_LAB_HOST_LIBRARY)
+  if(NOT EXISTS "${SEED_API35_LAB_HOST_LIBRARY}")
+    message(FATAL_ERROR "SEED_API35_LAB_HOST_LIBRARY must be the immutable PM carrier host")
+  endif()
+  file(SHA256 "${SEED_API35_LAB_HOST_LIBRARY}" API35_LAB_HOST_SHA)
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${SEED_API35_LAB_HOST_LIBRARY}")
+  add_executable(api35-canary-root pm_loader.cpp pm_backend.cpp ${KM} ${INJ} "${CMAKE_CURRENT_BINARY_DIR}/KittyTrace-bounded.cpp")
+  target_include_directories(api35-canary-root PRIVATE "${K}/AndKittyInjector/src" "${K}/KittyMemoryEx/KittyMemoryEx")
+  target_compile_definitions(api35-canary-root PRIVATE kNO_KEYSTONE NDEBUG SEED_GAME_TRACE SEED_PROBE_API=35
+    SEED_PROBE_HOST_NAME="libseedprobe_api35_lab_host.so" SEED_API31_HOST_SHA="${API35_LAB_HOST_SHA}")
+  set_source_files_properties(pm_loader.cpp pm_backend.cpp PROPERTIES COMPILE_OPTIONS "-Wall;-Wextra;-Werror")
+  target_link_libraries(api35-canary-root log dl)
+endif()
 if(SEED_API31_HOST_LIBRARY)
   if(NOT EXISTS "${SEED_API31_HOST_LIBRARY}")
     message(FATAL_ERROR "SEED_API31_HOST_LIBRARY must be the immutable PM carrier host")

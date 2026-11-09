@@ -11,11 +11,14 @@
 #include <cstdlib>
 #include <fstream>
 #include <sys/stat.h>
+#ifndef SEED_PROBE_HOST_NAME
+#define SEED_PROBE_HOST_NAME "libseedprobe_api31_host.so"
+#endif
 static std::string readFile(const std::string& path){
     std::ifstream file(path);return {std::istreambuf_iterator<char>(file),{}};
 }
 static bool pmFile(const std::string& path){
-    if(!seed_root::installed_package_path(path,"/lib/x86_64/libseedprobe_api31_host.so",
+    if(!seed_root::installed_package_path(path,"/lib/x86_64/" SEED_PROBE_HOST_NAME,
         "dev.ody.seedlenshostcarrier"))return false;
     char resolved[PATH_MAX]{};
     if(!realpath(path.c_str(),resolved)||path!=resolved)return false;
@@ -31,7 +34,7 @@ int main(int argc,char** argv){
     setbuf(stdout,nullptr);alarm(30);
     bool timeoutTest=argc==6&&std::string_view(argv[5])=="--timeout-test";
     if(getuid()!=0||(argc!=5&&!timeoutTest))return 2;
-    if(android_get_device_api_level()!=31||std::string_view(argv[3])!="31")return 3;
+    if(android_get_device_api_level()!=SEED_PROBE_API||std::string_view(argv[3])!=std::to_string(SEED_PROBE_API))return 3;
     std::string raw=argv[1],start=argv[2],host=argv[4];
     if(!seed_root::start_ticks(raw)||raw.size()>10||!seed_root::start_ticks(start))return 4;
     auto number=strtoll(raw.c_str(),nullptr,10);if(number<=1||number>INT_MAX)return 4;
@@ -63,6 +66,6 @@ int main(int argc,char** argv){
     struct stat named{};
     if(!pmFile(host)||stat(host.c_str(),&named)||named.st_dev!=before.st_dev||named.st_ino!=before.st_ino||
        named.st_size!=before.st_size)return 13;
-    printf("PROBE_PM_ATTEMPT pid=%d start=%s api=31\n",pid,start.c_str());
+    printf("PROBE_PM_ATTEMPT pid=%d start=%s api=%d\n",pid,start.c_str(),SEED_PROBE_API);
     return seed_probe_pm_load(pid,start,host,attempt,timeoutTest);
 }
