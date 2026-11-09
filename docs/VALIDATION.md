@@ -1,5 +1,9 @@
 # 驗證分層
 
+## 2026-11-09：同0.5.0／API35／156.0首輪回歸
+
+本人完成156.0登入後，重新核對API35／libnb、精確156.0/code1792142832與同原簽章0.5.0；PID3804/start49157／UID10066由正常App確認並首次載入，完整七階段journal與新鮮同程序狀態。兩頁細分名稱、庫存長名縮字與首排完全離屏返回、探險首排完全離屏返回及正常App OFF原文／字型還原已實際比對，29/80不變。原19份attempt SHA不變，新增一筆35c3ed069eb16f8b47b1db0cefdcdfafd49330fcca8721d1bca7ffb9144f95e2，總20。最終ready／enable0／control OFF、209份讀到的thread TracerPid均0，adbd UID2000。正常遊戲重開至7631後遇本人既有種花結算，未載入新程序、待本人處理；重啟回歸與156.1本版UI尚未完成。探險更長名稱縮字、庫存最長名稱仍截斷的限制保留，見[同APK 156.x回歸](PRODUCT050_GAME156_REGRESSION.md)。
+
 ## 2026-11-09：0.5.0／API35／157同帳號OS重啟回歸
 
 新index5先OFF並正常關閉，再啟動為新boot f41b9c04-8464-49bc-882e-5ea87def0bfc，同原簽章0.5.0 SHA、精確157.0與本人帳號。18份歷史SHA不變；新PID1948/start8264的未確認／舊status實際拒絕，重新同意後完成新完整journal。兩頁細分名稱、庫存長字縮小、探險末排真正離屏返回與正常App OFF原文／字型還原再次觀察；最終ready／enable0／control OFF、165份thread讀值TracerPid0，adbd UID2000。新journal SHA8758bbf120f9611178cacbe6d120a00f87d49432b8a4673e6cec339718c6affb，原18份不變、總19。探險長名縮字與長時間仍未驗，不移作其他組合通過；見[0.5.0紀錄](PRODUCT050_QUALIFICATION.md)。

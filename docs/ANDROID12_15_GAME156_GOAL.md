@@ -14,7 +14,7 @@
 | Android12/API31 | 156.1/code1793076318 | 同一官方x64 AVD另次cold boot已正常升級完整原簽章156.1；普通App Root及同0.4.1 SHA再核。遊戲首程序在產品載入前SEVL SIGILL、後續系統另記SIGSEGV | 未完成登入；無product attempt，兩頁仍未驗，不算通過 |
 | Android14/API34 | 156.0/code1792142832 | 官方x64 AVD實際API34／libndk_translation／Enforcing，ARM JNI baseline通過、SEVL模式失敗；原遊戲在軟體GPU boot實際於Unity SEVL SIGILL，未安裝Magisk或產品 | 未完成登入／產品載入，兩頁未驗，不算通過 |
 | Android14/API34 | 156.1/code1793076318 | 同一AVD另一host OpenGL boot，取消前輪未完成安裝並核恢復後，新的更新session實際applied；精確156.1首程序亦於Unity SEVL SIGILL。產品API34 x64仍拒絕 | 產品兩頁未驗，不算通過 |
-| Android15/API35 | 156.0/code1792142832 | 同原簽章0.4.1兩頁名稱／OFF、花苗長字／捲動及遊戲重啟已驗；本人再次更換樣本後，另一兩程序實際補驗多類探險名稱與花苗真正離屏返回／兩頁OFF，歷史UNKNOWN不變 | 探險離屏往返已有畫面證據；需要觸發縮字的更長探險名稱仍待樣本，OS／長時間未驗 |
+| Android15/API35 | 156.0/code1792142832 | 0.4.1歷史分項保留；同原簽章0.5.0的PID3804已獨立驗兩頁名稱／OFF、庫存長字縮小及兩頁真正離屏返回，19份歷史SHA不變；正常重開至7631後遇本人種花結算，本版新程序再啟用待本人處理 | 探險離屏往返已有畫面證據；需要觸發縮字的更長探險名稱仍待樣本，OS／長時間未驗 |
 | Android15/API35 | 156.1/code1793076318 | 同原簽章0.4.1原分項證據保留；本人完成新樣本帳號獎勵後，PID10717及重開後14356各自補驗多類探險名稱、首排花苗真正離屏返回、兩頁OFF。新程序舊同意／status拒絕、重新確認再啟用已驗，歷史UNKNOWN不變 | 探險離屏往返已有畫面證據；探險更長名稱縮字仍未覆蓋，庫存最長名稱縮字後仍截斷；OS／長時間未驗 |
 | Android12/API31 | 157.0/code1793360009 | 原簽章157正常更新、完整base／split SHA吻合；實際API31／Enforcing首程序在Lens載入前Unity+0x5e2760的SEVL SIGILL，16份歷史SHA不變 | 未到登入／無產品attempt，兩頁未驗，不算通過 |
 | Android14/API34 | 157.0/code1793360009 | 原簽章157在同AVD的SwiftShader boot正常更新、完整SHA吻合；實際API34／Enforcing原Unity+0x5e2760 SEVL SIGILL；前次hostGL boot無回應另記，沒有Root／產品 | 未完成登入，兩頁未驗；產品API34 x64仍拒絕，不算通過 |
@@ -53,3 +53,5 @@ API31 x64原遊戲啟動與獨立指令probe已找到SEVL缺口。原先本機�
 新增API34的官方來源、普通App ARM JNI基準與SEVL失敗、兩版原遊戲啟動及GPU比較另見[API34隔離研究](API34_ISOLATED_RESEARCH.md)。新AVD的Root與產品載入尚未進行；不能用歷史Libra ARM64或API35/libnb的結果替代。
 
 157原遊戲亦已分別在API31／34 x64實際於Unity+0x5e2760 SEVL SIGILL；不是由156.x跨版推論。API34本次首輪hostGL freeze的指定正常關閉逾時與精確host收容、後輪SwiftShader正常關閉均另記，見[157原遊戲獨立啟動](GAME157_PLATFORM_STARTUP.md)。
+
+同最終0.5.0的156.x須獨立重驗；目前156.0首輪已有兩頁與離屏返回／OFF證據，遊戲重啟待本人完成結算，見[本版156.x回歸](PRODUCT050_GAME156_REGRESSION.md)。
