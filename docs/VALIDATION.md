@@ -1,5 +1,9 @@
 # 驗證分層
 
+## 2026-11-09：ARM64後端自有initramfs CPU比較
+
+新index5完成0.5.0／156.1回歸並OFF、正常關閉後，同已核准空白ARM64研究AVD使用私人自有initramfs override，官方SDK ramdisk SHA未變。單獨SEVL／plain與tagged store等5項實跑通過；加入SDK fault附近向量序列後，V2實際5 pass／2 SIGSEGV fail／0 skip，父程序收容後正常power-off。只改`-singlestep`的同V2原件實際7 pass／0 fail／0 skip，正常power-off且host／兩埠消失。不是Android App或產品資格，也未測試故意alarm逾時；後續官方原ramdisk完整Android開機比較仍待實際API／ADB／App證據。來源與產物SHA見[CPU研究](API31_ARM64_CPU_MEMORY_RESEARCH.md)。
+
 ## 2026-11-09：同0.5.0／156.1同帳號OS回歸
 
 正常OFF並關閉再啟動同index5，新boot984fe73b-9a82-41cb-abdd-f05bdbb8de18、實際API35／libnb／原Permissive、精確156.1及同0.5.0 APK SHA再次核對，登入保留。原24份attempt SHA不變；新PID1967/start4003／UID10066實際拒絕未確認啟用與舊status，新同意後才完成本程序完整journal。實際兩頁名稱、庫存紀念長字縮小／首排離屏返回、探險末排真正離屏返回及正常App OFF原文／字型還原已觀察，32/80。frame13為切頁動畫，不作穩定畫面證據；新公車苗名完整顯示不等於已確認長名縮字。最終control OFF／156.1／ready／enable0、178份讀到的thread TracerPid均0，adbd UID2000；原24份逐份SHA不變，新第25筆journal SHA442f1fcfa9dec5855e7beba3ed489da33a1bf7782c6298939a92e9c6ea3076bb。API35三版現各有同0.5.0首輪／遊戲重啟／OS分項；探險更長名稱縮字、長時間與API31／34仍未完成，見[本版156.x回歸](PRODUCT050_GAME156_REGRESSION.md)。
