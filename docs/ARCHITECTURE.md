@@ -1,5 +1,9 @@
 # 架構
 
+## API31 native候選來源整合（未交付）
+
+API31隔離真App證據後，`bridge_platform_api31.h`共用四參數adapter，`bridge_dispatch.h`按native API／完整SDK文字／精確bridge選擇介面；root loader與worker也重核相同tuple。預設仍僅API35/libnb，明確unsigned native候選才編入API31/libndk_translation，不在失敗後換ABI。`app/build.ps1 -Api31Candidate`強制`-Candidate -Unsigned`，不同cache且每次明確ON/OFF；Java仍拒絕API31/32。實測與未達條件見[候選整合](API31_PRODUCT_INTEGRATION.md)，不是API31產品驗收或新交付。
+
 ## 0.3.1 ARM64安全整合
 
 工作區`arm64_backend.cpp`已與`supervised_load.h`整合，兩ABI UI皆須明確fail-stop同意。

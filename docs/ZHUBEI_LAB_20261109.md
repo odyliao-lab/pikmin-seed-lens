@@ -1,5 +1,7 @@
 # 竹北隔離研究：API31真App與API35內建Root
 
+> 後續已進一步完成[API31 native候選來源整合與兩平台共用dispatcher實測](API31_PRODUCT_INTEGRATION.md)。預設與Java資格仍不放寬，四組遊戲未驗。
+
 2026-11-09新增實測；取代早期「研究簽章／index5待確認、API31真JNI未驗」的當前狀態。**四個遊戲組合全部仍未驗收**。未交付新產品APK，產品x64仍限原API35/libnb資格。
 
 ## 授權與研究產物

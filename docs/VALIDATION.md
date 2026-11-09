@@ -1,5 +1,12 @@
 # 驗證分層
 
+## 2026-11-09：API31 native候選整合與兩平台dispatcher回歸
+
+- 已把API31 adapter移至共用native來源，新增依實際API／完整SDK property／精確bridge的dispatcher；預設API35/libnb不變，只有明確unsigned native候選可包含API31/libndk_translation。Java仍拒絕API31/32，候選簽署實際pre-build exit1；未交付或安裝產品APK。
+- 候選ON／預設OFF兩種完整建置均通過Compatibility28、InstalledNative29、GameSession27、APKLayout8、PairedDigest4、雙ABI native與Java/dex/16KB封裝。實際APK與cache核對沒有候選設定外洩。
+- API31／Enforcing以carrier0.0.4、API35／原Permissive以carrier0.0.5各完成與產品相同dispatcher的真App namespace／ARM JNI／版本與其他負例、七階段journal、正常FINISH及程序退出；同一probe0.0.6 bytes不變。API31正常App Root仍缺，API35新boot正常App su -M再次通過。
+- API31實跑兩份policy fixture各51項；原生ARM64僅編譯。兩台舊UNKNOWN核對保留，先後正常關閉新隔離環境；沒有原四台／台中操作、遊戲或登入。**四組遊戲仍全部未驗**。SHA、版本及證據邊界見[候選整合](API31_PRODUCT_INTEGRATION.md)。
+
 ## 2026-11-09：API31真App canary、實際收容缺陷修正與新API35
 
 - 使用者同意兩項後，建立repo外lab key與新空白MuMu index5 Android15。研究簽章與產品原簽章分開；產品未新交付，四組遊戲驗收仍全部未完成。

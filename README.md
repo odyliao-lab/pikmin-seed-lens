@@ -21,6 +21,10 @@
 每組都要驗兩頁、縮字、捲動、OFF及遊戲重啟，不以研究建置代替完成。
 見[四組驗收條件與進度](docs/ANDROID12_15_GAME156_GOAL.md)。
 
+API31平台來源已接入明確的unsigned native候選，與隔離研究共用adapter／runtime dispatcher；
+預設與Java准入仍維持既有API35資格，API32不接受。正常App Root與遊戲仍待驗，
+見[API31候選整合及測試邊界](docs/API31_PRODUCT_INTEGRATION.md)。
+
 Virgo API35／x86_64／libnb.so／遊戲156.1已從正常App入口實際套用花苗頁及探險頁，
 兩頁關閉後還原原名及字型。Libra API34／ARM64也已用同一0.3.1 APK完成兩頁
 顯示與OFF還原回歸。156.0另已加入精確設定檔並完成離線比對，但只有156.1有實機效果
