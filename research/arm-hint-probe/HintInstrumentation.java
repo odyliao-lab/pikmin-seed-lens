@@ -23,7 +23,7 @@ public final class HintInstrumentation extends Instrumentation {
             int api=Build.VERSION.SDK_INT;
             String mode=arguments.getString("mode"),expected=arguments.getString("expected_api");
             int instruction="baseline".equals(mode)?0:"sevl".equals(mode)?1:"pair".equals(mode)?2:-1;
-            if(Process.myUid()<10000||!(api==31||api==35)||!Integer.toString(api).equals(expected)||instruction<0||
+            if(Process.myUid()<10000||!(api==31||api==34||api==35)||!Integer.toString(api).equals(expected)||instruction<0||
                !getTargetContext().getPackageName().equals("dev.ody.seedlensarmhintprobe"))throw new IllegalArgumentException();
             File receipt=new File(getTargetContext().getFilesDir(),"hint-"+mode+"-"+Process.myPid()+"-"+SystemClock.elapsedRealtime()+".tsv");
             if(!receipt.createNewFile())throw new IllegalStateException();

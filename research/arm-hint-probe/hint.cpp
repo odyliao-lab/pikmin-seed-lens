@@ -9,7 +9,7 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM*,void*){return JNI_VERSION_1
 extern "C" JNIEXPORT jint JNICALL
 Java_dev_ody_seedlensarmhintprobe_HintInstrumentation_runHint(JNIEnv*,jclass,jint mode,jint expected){
     const int api=android_get_device_api_level();
-    if(api!=expected||(api!=31&&api!=35)||mode<0||mode>2)return -1;
+    if(api!=expected||(api!=31&&api!=34&&api!=35)||mode<0||mode>2)return -1;
     // A hang or illegal instruction terminates only this disposable process.
     // Do not catch SIGILL, rewrite instructions or change any bridge/library.
     signal(SIGALRM,SIG_DFL);alarm(3);

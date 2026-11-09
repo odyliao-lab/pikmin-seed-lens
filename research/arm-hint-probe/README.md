@@ -9,12 +9,13 @@ certificate SHA256 and password environment variable names. `build.ps1` reserves
 each research version; changed bytes require a higher version/code. It verifies
 the signature, stored ARM64-only native library and 16KB APK alignment.
 
-On a freshly identified, authorized API31 or API35 laboratory guest:
+On a freshly identified, authorized API31, API34 or API35 laboratory guest
+(API34 research admission added in version 0.0.3):
 
 ```
-adb -s <exact-authorized-serial> shell am instrument -w -e expected_api <31-or-35> -e mode baseline dev.ody.seedlensarmhintprobe/.HintInstrumentation
-adb -s <exact-authorized-serial> shell am instrument -w -e expected_api <31-or-35> -e mode sevl dev.ody.seedlensarmhintprobe/.HintInstrumentation
-adb -s <exact-authorized-serial> shell am instrument -w -e expected_api <31-or-35> -e mode pair dev.ody.seedlensarmhintprobe/.HintInstrumentation
+adb -s <exact-authorized-serial> shell am instrument -w -e expected_api <31-or-34-or-35> -e mode baseline dev.ody.seedlensarmhintprobe/.HintInstrumentation
+adb -s <exact-authorized-serial> shell am instrument -w -e expected_api <31-or-34-or-35> -e mode sevl dev.ody.seedlensarmhintprobe/.HintInstrumentation
+adb -s <exact-authorized-serial> shell am instrument -w -e expected_api <31-or-34-or-35> -e mode pair dev.ody.seedlensarmhintprobe/.HintInstrumentation
 ```
 
 Each command starts a distinct disposable App process. `baseline` confirms JNI
@@ -31,3 +32,6 @@ returned. `shortMsg=Process crashed` / instrumentation 0 is a failure, even when
 ADB exits 0. Preserve the durable BEFORE marker, crash evidence and exact APK
 SHA; do not substitute instructions or install another translator to call it a
 pass. Actual results: [API31 startup boundary](../../docs/API31_GAME_STARTUP_BOUNDARY.md).
+The 0.0.3 API34 baseline/negative tests and instruction failures are recorded
+separately in [API34 isolated research](../../docs/API34_ISOLATED_RESEARCH.md);
+they do not qualify API34 or either game.
