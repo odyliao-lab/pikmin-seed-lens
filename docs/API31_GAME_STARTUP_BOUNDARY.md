@@ -48,8 +48,12 @@ API31該bridge檔案`/system/lib64/libndk_translation.so` SHA為`c05f2b7ef51d3c8
 
 原始crash、反組譯、自有App receipts及APK僅在ignored `.tools/lab/api31-game1560-product041-cc84fc3b924642b0a2444390c3376121/`、`.tools/lab/api35-arm-hint-3e85c3fd673e4abf902dfb45753e77d8/`。API31資料與所有歷史attempt保留，恢復adbd non-root後正常關閉。
 
-## 下一環境尚待確認
+## 下一環境：撤回x64 host上的ARM64 AVD提案
 
 官方[Google SDK image清單](https://dl.google.com/android/repository/sys-img/google_apis/sys-img2-3.xml)實際列出API31 google_apis/arm64-v8a rev11，archive `arm64-v8a-31_r11.zip`、1,415,899,687 bytes、SHA1 `21bcb00f4ac3dc91c4040da7980b8c5f3c681781`；本機SDK亦含ARM64 QEMU執行檔。但這不證明Windows frontend接受ARM64軟體模擬或效能足夠。
 
-已向使用者提出具體`SeedLens_API31_arm64`／emulator-5582／D槽資料／2vCPU／4GB隔離研究，先驗stock boot及原生ARM64／API31能力，再以私人Root override跑安全fixture。未收到該新環境確認前，不建立或啟動它。兩個ABI分開記錄，不把現有x64缺口當成原生ARM64的結果。
+原先提出`SeedLens_API31_arm64`／emulator-5582／D槽資料／2vCPU／4GB方案，尚未下載image、建立或啟動。進一步只讀核對發現，本機emulator37.2.13（exe SHA `06af3c5da3c2cef7266822fe653f54371fc746d78db6f4282e1b2338a70970c8`）內含x86_64 host／image架構不符的拒絕訊息；[官方來源的明確檢查](https://android.googlesource.com/platform/external/qemu/+/ae9d18d2b6261179fbd57fffec720a04f7bfb053/android/emulator/main-emulator.cpp#1050)在x86_64 host對arm64且API>=28直接拒絕。這是來源與本機靜態證據，沒有把未執行的新AVD寫成實測boot失敗。
+
+因此撤回這個本機ARM64 AVD提案，不因QEMU執行檔存在就下載大型image，也不繞過frontend或修改SDK。已改詢問可用的真API31 ARM64測試手機或ARM64主機；取得具體目標與隔離操作範圍後，先核原生能力、Root及自有fixture的正常／失敗收容，再進產品驗收。兩個ABI分開記錄，不把現有x64缺口當成原生ARM64的結果。
+
+離線另核兩版原簽章split內libunity：156.0為上述`38dc64…`，156.1為`69614a13a3200aad5964eb6698ea832e8397f562028128afd785b75abbdf9cc2`，兩者同為23,635,664 bytes但SHA不同。不能因相同大小或156.0的crash推定156.1已跑過；API31／156.1仍列未驗。

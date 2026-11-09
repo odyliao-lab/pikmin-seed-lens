@@ -2,7 +2,7 @@
 
 ## 2026-11-09：API31原遊戲啟動缺口與自有ARM指令對照
 
-官方API31 x64 AVD本輪cold boot仍為API31／libndk_translation／Enforcing，普通App su-M通過；同一原簽章0.4.1及精確156.0完整splits已安裝。原遊戲在透視鏡載入前Unity SEVL處SIGILL，沒有product attempt。獨立無Root ARM-only probe 0.0.2的baseline（含相同signal／alarm設定）通過，SEVL及SEVL＋WFE各在新程序SIGILL；同一APK於API35/libnb三模式均返回。16份API31歷史attempt SHA不變；恢復adbd non-root並正常關閉AVD。不能由先前JNI canary或安裝成功宣告這個API31 image可運行遊戲。原件、SHA與待確認的新ARM64隔離方案見[啟動指令界線](API31_GAME_STARTUP_BOUNDARY.md)。
+官方API31 x64 AVD本輪cold boot仍為API31／libndk_translation／Enforcing，普通App su-M通過；同一原簽章0.4.1及精確156.0完整splits已安裝。原遊戲在透視鏡載入前Unity SEVL處SIGILL，沒有product attempt。獨立無Root ARM-only probe 0.0.2的baseline（含相同signal／alarm設定）通過，SEVL及SEVL＋WFE各在新程序SIGILL；同一APK於API35/libnb三模式均返回。16份API31歷史attempt SHA不變；恢復adbd non-root並正常關閉AVD。不能由先前JNI canary或安裝成功宣告這個API31 image可運行遊戲。本機ARM64 AVD提案已因官方frontend架構限制撤回，待指定新的原生目標；原件與SHA見[啟動指令界線](API31_GAME_STARTUP_BOUNDARY.md)。
 
 ## 2026-11-09：原簽章0.4.1與API35／156.1產品畫面（進行中）
 

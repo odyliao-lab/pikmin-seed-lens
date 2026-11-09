@@ -37,6 +37,6 @@ ARM64與x64/NativeBridge各列實際資格；不能由x64上的ARM轉譯推論�
 
 研究lab key、Android15新instance及API31隔離AVD安裝官方Root provider均已明確同意並實做。後續使用者指定D槽搜尋，已核原產品keystore與兩版合法APK；材料不再缺，不能把材料齊全當四組成功。最新產品分項證據見[0.4.1驗收](PRODUCT041_QUALIFICATION.md)。
 
-API31 x64原遊戲啟動與獨立指令probe已找到SEVL缺口；已提出新的官方API31 ARM64具體隔離方案待確認，不能把新環境計畫算成已建立或已驗。見[指令能力紀錄](API31_GAME_STARTUP_BOUNDARY.md)。
+API31 x64原遊戲啟動與獨立指令probe已找到SEVL缺口。原先本機官方API31 ARM64 AVD提案已因官方frontend的x64 host／API>=28架構拒絕而撤回；未下載、建立或啟動該環境。現待指定API31原生ARM64手機或ARM64主機及具體隔離範圍，不能把新環境計畫算成已驗。見[指令能力紀錄](API31_GAME_STARTUP_BOUNDARY.md)。
 
 使用者另授權直接安裝必要Google套件；新API35隔離機已由MuMu原廠谷歌安裝器完成Play／GMS／GSF，普通App Root再驗通過。Google及156.1遊戲登入已由使用者完成，156.1產品分項結果見上表；改裝156.0後另待本人登入，不複製156.1 session。Google來源與早期階段結果見[Google套件階段](API35_GOOGLE_INTAKE.md)。
