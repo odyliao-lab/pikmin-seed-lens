@@ -60,6 +60,14 @@ public final class RootInstrumentation extends Instrumentation {
                     (root?"NORMAL_APP_SU_M_PASS_NOT_GAME_ACCEPTANCE":"ROOT_CAPABILITY_NOT_PROVEN")+"\n";
                 file.write(report.getBytes(StandardCharsets.UTF_8));file.getFD().sync();
             }
+            if(root&&arguments.getString("load_pid")!=null){
+                int loader=PMCanary.run(getTargetContext(),arguments);
+                result.putInt("pm_loader_exit",loader);
+                result.putInt("pm_client_pid",Process.myPid());
+                result.putInt("pm_client_uid",Process.myUid());
+                result.putString("root_probe","normal-app-pm-command-returned-not-game");
+                finish(-1,result);return;
+            }
             result.putString("root_probe",root?"normal-app-su-M-pass-not-game":"not-proven");finish(root?-1:1,result);
         }catch(Throwable error){
             if(receipt!=null)try(FileOutputStream file=new FileOutputStream(receipt,true)){

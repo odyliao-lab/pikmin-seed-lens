@@ -7,14 +7,17 @@ param(
  [string]$MumuCliPath='',
  [Parameter(Mandatory)][ValidatePattern('^[0-9a-f-]{36}$')][string]$ExpectedBoot,
  [Parameter(Mandatory)][string]$Runner,
- [Parameter(Mandatory)][ValidatePattern('^/data/local/tmp/[A-Za-z0-9_/-]+$')][string]$DeviceRunner,
+ [ValidatePattern('^$|^/data/local/tmp/[A-Za-z0-9_/-]+$|^/data/app/[A-Za-z0-9_+=~/.-]+/lib/x86_64/libseed_probe_runner\.so$')][string]$DeviceRunner='',
  [Parameter(Mandatory)][string]$ProbeApk,
  [Parameter(Mandatory)][string]$CarrierApk,
  [switch]$TimeoutTest,
- [switch]$RootViaMagisk
+ [switch]$RootViaMagisk,
+ [switch]$RootViaApp,
+ [string]$RootProbeApk=''
 )
 $ErrorActionPreference='Stop'
 if($RootViaMagisk -and $ExpectedApi -ne 31){throw 'Magisk provider research option is API31-only'}
+if($RootViaApp -and ($ExpectedApi -ne 31 -or $RootViaMagisk -or !$RootProbeApk)){throw 'Normal App mode requires exact API31, client APK and no shell Root mode'}
 $root=Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $out=Join-Path $root (".tools/lab/api$ExpectedApi-run-"+[Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory $out | Out-Null
@@ -24,11 +27,36 @@ function Read-Guest([string]$Command){
  return ($value -join "`n").Trim()
 }
 function Invoke-Runner([string]$Arguments){
+ if($RootViaApp){
+  $fields=$Arguments.Split(' ',[StringSplitOptions]::RemoveEmptyEntries)
+  if($fields.Count -notin 4,5 -or $fields[2] -cne '31' -or ($fields.Count -eq 5 -and $fields[4] -cne '--timeout-test')){throw 'Internal App argument mismatch'}
+  $timeout=if($fields.Count -eq 5){'true'}else{'false'}
+  $reply=& $AdbPath -s $Serial shell am instrument -w -e expected_boot $ExpectedBoot -e expected_api 31 -e su_endpoint path -e load_pid $fields[0] -e load_start $fields[1] -e load_host $fields[3] -e timeout_test $timeout dev.ody.seedlensrootprobe/.RootInstrumentation 2>&1
+  $raw=$reply -join "`n"
+  $code=[regex]::Match($raw,'(?m)^INSTRUMENTATION_RESULT: pm_loader_exit=([0-9]+)\r?$')
+  $client=[regex]::Match($raw,'(?m)^INSTRUMENTATION_RESULT: pm_client_pid=([0-9]+)\r?$')
+  $uid=[regex]::Match($raw,'(?m)^INSTRUMENTATION_RESULT: pm_client_uid=([0-9]+)\r?$')
+  if($LASTEXITCODE -ne 0 -or !$raw.Contains('INSTRUMENTATION_CODE: -1') -or !$code.Success -or !$client.Success -or !$uid.Success -or
+     [int]$uid.Groups[1].Value -ne [int](Read-Guest 'stat -c %u /data/user/0/dev.ody.seedlensrootprobe') -or [int]$uid.Groups[1].Value -lt 10000){throw 'Normal App command not proven; never retry'}
+  $script:runnerExit=[int]$code.Groups[1].Value
+  $clientPid=$client.Groups[1].Value
+  $raw | Set-Content "$out/app-$clientPid-instrumentation.txt"
+  $files=(Read-Guest "printf '%s\n' /data/user/0/dev.ody.seedlensrootprobe/files/pm-$clientPid-*.tsv") -split "`n"
+  if($files.Count -ne 1 -or $files[0] -notmatch "^/data/user/0/dev\.ody\.seedlensrootprobe/files/pm-$clientPid-[0-9]+\.tsv$"){throw 'Ambiguous normal App receipt; never retry'}
+  $receipt=Read-Guest "cat $($files[0])"
+  $receipt | Set-Content "$out/app-$clientPid-pm.txt"
+  if(!$receipt.Contains("APP_UID`t$($uid.Groups[1].Value)") -or !$receipt.Contains("RUNNER_SHA`t$localRunnerSha") -or
+     !$receipt.Contains("LOADER_EXIT`t$script:runnerExit") -or
+     !(($receipt -split "`n") -ccontains "TARGET`t$($fields[0])`t$($fields[1])") -or
+     [regex]::Matches($receipt,'(?m)^ONE_COMMAND_ONLY\r?$').Count -ne 1){throw 'Normal App receipt mismatch; never retry'}
+  return $reply
+ }
  $command="$DeviceRunner $Arguments"
  # Every interpolated field is already restricted to digits or canonical PM /
  # runner paths; no arbitrary shell program or untrusted quoting is accepted.
  if($RootViaMagisk){$command="su -M -c '$command'"}
  & $AdbPath -s $Serial shell $command 2>&1
+ $script:runnerExit=$LASTEXITCODE
 }
 function Fresh-Identity {
  if($ExpectedApi -eq 31){
@@ -57,6 +85,14 @@ function Package-Path([string]$Package){
 Fresh-Identity
 if($RootViaMagisk -and (Read-Guest "su -M -c 'id -u'") -cne '0'){throw 'Provider Root unavailable'}
 $localRunnerSha=(Get-FileHash -LiteralPath $Runner).Hash.ToLowerInvariant()
+if($RootViaApp){
+ $clientBase=Package-Path 'dev.ody.seedlensrootprobe'
+ if(((Read-Guest "sha256sum $clientBase") -split '\s+')[0] -ine (Get-FileHash -LiteralPath $RootProbeApk).Hash){throw 'Installed client APK digest mismatch'}
+ $clientRunner=$clientBase.Substring(0,$clientBase.Length-8)+'lib/x86_64/libseed_probe_runner.so'
+ if($DeviceRunner -and $DeviceRunner -cne $clientRunner){throw 'Client PM runner mismatch'}
+ $DeviceRunner=$clientRunner
+}
+if(!$DeviceRunner){throw 'Explicit verified runner required'}
 if(((Read-Guest "sha256sum $DeviceRunner") -split '\s+')[0] -cne $localRunnerSha){throw 'Installed runner SHA mismatch'}
 foreach($item in @(@('dev.ody.seedlensprobe',$ProbeApk),@('dev.ody.seedlenshostcarrier',$CarrierApk))){
  $path=Package-Path $item[0]
@@ -92,13 +128,13 @@ Fresh-Identity
 @{pid=$probePid;start=$start;host=$hostPath;boot=$ExpectedBoot;runnerSha256=$localRunnerSha} | ConvertTo-Json | Set-Content "$out/attempt.json"
 Write-Output "FIXTURE_READY PID=$probePid START=$start; one load only"
 $wrongPath=Invoke-Runner "$probePid $start $ExpectedApi /data/local/tmp/forbidden.so"
-if($LASTEXITCODE -ne 6){throw 'PM-path negative failed; no load'}
+if($runnerExit -ne 6){throw 'PM-path negative failed; no load'}
 $wrongStart=([uint64]$start+1).ToString()
 $stale=Invoke-Runner "$probePid $wrongStart $ExpectedApi $hostPath"
-if($LASTEXITCODE -ne 5){throw 'Stale-identity negative failed; no load'}
+if($runnerExit -ne 5){throw 'Stale-identity negative failed; no load'}
 $option=if($TimeoutTest){' --timeout-test'}else{''}
 $load=Invoke-Runner "$probePid $start $ExpectedApi $hostPath$option"
-$loadExit=$LASTEXITCODE
+$loadExit=$runnerExit
 @("EXIT=$loadExit")+$load | Set-Content "$out/load.txt"
 Write-Output "LOADER_EXIT=$loadExit; no retry"
 $load
@@ -134,7 +170,7 @@ if($TimeoutTest){
  if(!$namespaceText.Contains($namespaceStage)){$ok=$false}
  $status=if($ok){"API${ExpectedApi}_SELF_APP_CANARY_PASS_NOT_GAME_ACCEPTANCE"}else{'CANARY_NOT_PROVEN_NO_RETRY'}
 }
-@{status=$status;loaderExit=$loadExit;pid=$probePid;start=$start;boot=$ExpectedBoot;processGone=$processGone;instrumentationExited=$instrumentation.HasExited;rootViaMagisk=[bool]$RootViaMagisk} | ConvertTo-Json | Set-Content "$out/result.json"
+@{status=$status;loaderExit=$loadExit;pid=$probePid;start=$start;boot=$ExpectedBoot;processGone=$processGone;instrumentationExited=$instrumentation.HasExited;rootViaMagisk=[bool]$RootViaMagisk;rootViaApp=[bool]$RootViaApp} | ConvertTo-Json | Set-Content "$out/result.json"
 Get-Content "$out/result.json"
 Write-Output "PRIVATE_RECEIPTS=$out"
 if(!$ok){exit 1}

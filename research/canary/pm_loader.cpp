@@ -17,9 +17,7 @@
 static std::string readFile(const std::string& path){
     std::ifstream file(path);return {std::istreambuf_iterator<char>(file),{}};
 }
-static bool pmFile(const std::string& path){
-    if(!seed_root::installed_package_path(path,"/lib/x86_64/" SEED_PROBE_HOST_NAME,
-        "dev.ody.seedlenshostcarrier"))return false;
+static bool pmOwned(const std::string& path){
     char resolved[PATH_MAX]{};
     if(!realpath(path.c_str(),resolved)||path!=resolved)return false;
     for(size_t at=1;at<=path.size();++at)if(at==path.size()||path[at]=='/'){
@@ -30,10 +28,20 @@ static bool pmFile(const std::string& path){
     }
     return true;
 }
+static bool pmFile(const std::string& path){
+    return seed_root::installed_package_path(path,"/lib/x86_64/" SEED_PROBE_HOST_NAME,
+        "dev.ody.seedlenshostcarrier")&&pmOwned(path);
+}
 int main(int argc,char** argv){
     setbuf(stdout,nullptr);alarm(30);
     bool timeoutTest=argc==6&&std::string_view(argv[5])=="--timeout-test";
     if(getuid()!=0||(argc!=5&&!timeoutTest))return 2;
+#ifdef SEED_PROBE_PM_CLIENT
+    char exe[PATH_MAX]{};auto length=readlink("/proc/self/exe",exe,sizeof(exe)-1);
+    if(length<=0||length>=static_cast<ssize_t>(sizeof(exe)-1)||
+       !seed_root::installed_package_path(exe,"/lib/x86_64/libseed_probe_runner.so",
+           "dev.ody.seedlensrootprobe")||!pmOwned(exe))return 14;
+#endif
     if(android_get_device_api_level()!=SEED_PROBE_API||std::string_view(argv[3])!=std::to_string(SEED_PROBE_API))return 3;
     std::string raw=argv[1],start=argv[2],host=argv[4];
     if(!seed_root::start_ticks(raw)||raw.size()>10||!seed_root::start_ticks(start))return 4;
