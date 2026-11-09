@@ -1,4 +1,19 @@
-# WSL2隔離研究：已授權、材料已核、待本機管理員操作
+# WSL2隔離研究：runtime已安裝、VMP待主機重開
+
+## 最新：2026-11-09實際安裝結果
+
+使用者回覆前次來不及操作、現在可重新開啟UAC後，重新核MSI pin／Microsoft簽章與既有安裝是否正在進行，才再次提升。UAC通過的PowerShell程序在執行腳本前被本機預設`Restricted`原則拒絕，事件4100另有實際證據；helper未開始，沒有把UAC通過或語法解析記為MSI成功。
+
+改用Microsoft簽署的原生MSI及Windows內建DISM直接操作，沒有變更ExecutionPolicy。兩個必要UAC皆由本人確認：
+
+- WSL3.0.3 MSI於19:30:30返回exit0，MSI log亦為0；`wsl --version`另實際exit0並回報3.0.3.0。這只證明桌面runtime，未當作Linux／Android開機。
+- 僅對已授權VirtualMachinePlatform執行`/Enable-Feature /All /NoRestart`，19:32:29返回exit3010，日誌明確記錄restart suppressed。WMI其後InstallState1，但**仍須依3010完成主機重開**，不以此值宣稱可用。
+- 舊Microsoft-Windows-Subsystem-Linux元件仍InstallState2，未另啟用WSL1；無ExecutionPolicy、BIOS、GPU驅動或Hyper-V開關操作。沒有發出主機重開指令，原四台與台中設備未操作。
+- 新distro目錄仍不存在，index5關閉，研究5580–5587無listener；未匯入Linux、未啟動新Android、未安裝Root／App／產品，九組矩陣不升格。
+
+私人`native-msi-state.json`、`native-vmp-state.json`及日誌保存實際結果；`resume-after-restart.json`保存重開前host boot與材料pointer。**不重跑已成功MSI／feature操作**；本人安排重開並回覆後，先核新的host boot、runtime與功能狀態，再依方案建立指定distro及API31 guest，先跑隔離CPU／失敗收容。是否需要任何額外元件，以當時實際錯誤為準，不盲目啟用。
+
+以下「未開始／取消」為本輪較早的真實紀錄，保留沿革，以本段為最新狀態。
 
 使用者對[具體Linux方案](API31_LINUX_HOST_PROPOSAL.md)回覆「同意」後，重新核對私人origin、HEAD `7c8850a88da30c513424404ea4a055b897466cf3`、乾淨工作區與新index5身分／關閉狀態，未操作原四台。依原方案不自行重開主機。
 

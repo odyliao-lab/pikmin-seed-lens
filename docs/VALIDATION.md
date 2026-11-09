@@ -1,5 +1,9 @@
 # 驗證分層
 
+## 2026-11-09：WSL runtime已安裝、VMP要求本人重開
+
+本人表示現在可操作並完成UAC後，PowerShell helper被本機Restricted原則拒絕（事件4100），未執行MSI。改以Microsoft原生MSI與Windows DISM直接操作，沒有改ExecutionPolicy。WSL3.0.3 MSI實際exit0、log0、CLI另回版本3.0.3.0；僅VMP enable作業實際exit3010，日誌確認NoRestart抑制重開。WMI雖回VMP InstallState1，仍待本人安排主機重開；WSL1元件未另啟用。新distro不存在、index5與研究AVD關閉、研究埠無listener，沒有Linux／新Android／App／Root或產品資格。私人狀態已保存，不重跑已成功安裝，重開後先核新host boot再繼續。詳見[Linux安裝進度](API31_LINUX_HOST_PREPARATION.md)。
+
 ## 2026-11-09：Linux方案已授權、材料已核、安裝待本機UAC
 
 使用者同意新WSL2範圍後，三份固定官方下載的大小／雜湊皆吻合；Microsoft MSI的Authenticode實際Valid、ProductVersion3.0.3.0。官方API31 ARM64 rev11映像及自有V2 initramfs共14檔完成私人intake與逐檔SHA清單，沒有複製既有VM／登入資料／憑證。管理員安裝helper僅通過Windows PowerShell5語法解析；UAC要求最後回傳1223／取消，helper尚未開始、未安裝runtime或變更Windows元件／建立distro，沒有主機重開。WMI回報VMP與WSL optional feature均停用。這是實際準備結果，不是Linux／Android／產品通過，九組矩陣不變。詳見[Linux準備紀錄](API31_LINUX_HOST_PREPARATION.md)。

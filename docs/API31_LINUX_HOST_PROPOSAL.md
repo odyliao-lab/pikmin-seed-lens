@@ -1,6 +1,6 @@
-# 已授權：Linux host上的API31 ARM64隔離研究（安裝待本機UAC）
+# 已授權：Linux host上的API31 ARM64隔離研究（待主機重開）
 
-**使用者已回覆「同意」。** 三份固定官方安裝檔已下載並核大小／雜湊，MSI另核Microsoft有效簽章與3.0.3.0版本；官方API31映像與自有fixture亦已備妥。Windows UAC啟動回傳1223／操作被使用者取消，管理員腳本尚未開始；未安裝runtime、變更Windows元件或建立Linux環境，沒有自行重開。完整實際進度見[準備紀錄](API31_LINUX_HOST_PREPARATION.md)。本方案仍不是相容成功證據，也不改九組矩陣。Windows ARM64後端的自有CPU序列已有對照證據，但完整Android在hostGL與SwiftShader均未到ADB就緒；後者實際Windows access violation，見[本次研究](API31_ARM64_CPU_MEMORY_RESEARCH.md)。Linux比較是否能避開此問題仍須實測，不能保證。
+**使用者已回覆「同意」，後續也完成兩個必要UAC。** 三份固定官方安裝檔及SDK／fixture已核；WSL3.0.3原生MSI實際exit0、CLI版本再核，VirtualMachinePlatform原生DISM實際exit3010，要求本人安排主機重開。兩者均抑制自動重開；Linux distro與新Android尚未建立，不能當作相容成功。較早UAC取消及腳本原則拒絕均保留於[準備／安裝紀錄](API31_LINUX_HOST_PREPARATION.md)，不重跑已成功安裝。本方案不改九組矩陣。Windows ARM64後端的自有CPU序列已有對照證據，但完整Android在hostGL與SwiftShader均未到ADB就緒；後者實際Windows access violation，見[本次研究](API31_ARM64_CPU_MEMORY_RESEARCH.md)。Linux比較是否能避開此問題仍須實測，不能保證。
 
 ## 新鮮盤點與需重新確認的原因
 
