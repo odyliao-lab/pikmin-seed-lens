@@ -52,3 +52,23 @@ ELF已strip，不能把距離很遠的最近export `goldfish_address_space_memor
 runtime實際在軟體CPU下自動啟用GLDirectMem，故下一個比較只明確關閉此選項；先以同自有V2 fixture確認CPU／收容，再測完整Android。這是同一私人guest的官方runtime選項比較，不patch遊戲、SDK／kernel／SELinux，也不調整產品准入。
 
 此比較的自有V2輪PID2535實際7 pass／0 fail／0 skip、正常power-off及host exit0。runtime解析`-Vulkan,-GLDirectMem`並記錄override disabled；初始化仍有無條件的Enabling文字，保留原件，不靠單一文字宣稱完整Android成功。其後才執行同guest的完整Android比較。
+
+完整比較gdb2667／inferior2677仍在同`+0xd58f91`／RBX0／fault address0終止，沒有改善；非逾時、supervisor未送收容訊號。該輪另外捕捉hash entry的記憶體，與前述結構對照的pingInfoGpa欄位為`0x1166d7000`（大於4GiB），pingInfo欄仍0。這提出位址範圍的候選疑點，不宣稱已證明32-bit截斷或映射根因。下一個比較在同guest runtime將RAM由4GiB降為2GiB，其他設定回到原GLDirectMem自動選擇；先跑同V2 CPU fixture。降低RAM是同私人guest的資源比較，沒有換API／image、改產品守門或將編譯視為合格。
+
+2GiB自有V2：PID3013預設TCG仍5 pass／2 fail，PID3143單指令TB7 pass／0 fail，皆正常power-off／host exit0。完整Android gdb3267／inferior3277仍在同`+0xd58f91` null read並SIGSEGV終止；本輪對應GPA為`0x54fd2000`，低於4GiB，故「僅因超過4GiB」的假設不成立。非逾時、supervisor未送訊號，ADB仍offline，未裝Root、研究App、遊戲或產品。後續改查host的實際位址映射callback，不繼續盲目降低RAM或替此結果補成功。
+
+## 實際callback註冊與software-selection研究
+
+同ELF的`get_address_space_device_control_ops`／relocations與tellPingInfo反組譯確認VM-ops `+0xb8`呼叫位置。只在自有V2 guest啟動時觀察公開setter及該函式實際引用的global寫入，沒有對guest呼叫或改寫callback。PID3777與顯式`-accel off`的4004均註冊主ELF`+0xa24080`：實際三條指令固定寫`found=false`、回傳null。註冊stack含`androidSnapshot_initialize`；因此這條映射路徑無法返回有效host pointer，單換RAM或GL選項沒有修好它。CPU fixture仍7項通過及正常power-off，與完整Android失敗分開。
+
+同binary的實際switch另有`+0xcd6210`的TCG mapper；[固定QEMU來源](https://android.googlesource.com/platform/external/qemu/+/4f8bb7a074c4cd727acfdfa1e7bb092a2480696c/android-qemu2-glue/qemu-vm-operations-impl.cpp)顯示依host CPU detector選映射分支。此source作結構對照，不代替SDK完整build manifest。為同一軟體CPU研究程序加入[明確host helper](../research/tcg-software-selection.md)，透過公開函式符號選NONE，保留真實host probe／status初始化，限制marker／exe／AVD及software flag。只有本輪child env使用，不放全域或產品APK；不覆寫SDK、Android API／Root／遊戲回報，不稱為原廠無helper或實體ARM64驗收。
+
+| 自有研究案例 | 實際結果 |
+|---|---|
+| 錯誤marker，inferior4232 | 仍選原`+0xa24080`失敗stub，未出現選擇成功notice；CPU7/7、正常power-off／inferior exit0 |
+| 正確目標，inferior4375 | 實際選到`+0xcd6210`，會呼叫既有實體位址映射並在有pointer時設found；CPU7/7、正常power-off／inferior exit0 |
+| 錯誤exe的自有Linux程序 | 原host detector enum1與加入helper後均為1，沒有NONE選擇notice |
+| 缺原函式的自有Linux程序 | 實際exit86／明確失敗notice，沒有偽造原函式或成功 |
+| 正確目標、預設TCG，inferior4535 | 仍5 pass／2 SIGSEGV fail，正常power-off／inferior exit0，未修好獨立的相鄰序列問題 |
+
+以上成功只涉及host研究分支與自有CPU fixture。其後回到4GiB／2vCPU／原GL選擇、同官方Android ramdisk及單指令TB，才執行有helper的完整Android研究輪；普通App／Root及遊戲尚未驗，九組矩陣不升格。

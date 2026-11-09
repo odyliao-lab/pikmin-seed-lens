@@ -6,6 +6,8 @@ Windows新boot實際04:58:25，WSL3.0.3／VMP已核；指定`SeedLens-TCG-Linux`
 
 其後完整Android首輪因未格式化data／keystore資料庫失敗，指定console正常關閉exit0；另建ext4／encrypt data後，第二輪成功完成原廠metadata加密及post-fs-data，但12分12秒時Linux host實際SIGSEGV／exit -11，ADB仍offline，非逾時或正常關閉。TCG單執行緒與no-chain自有fixture各仍5 pass／2 fail、正常power-off，沒有修好序列。後續同guest的gdb診斷仍分開記錄，不把debugger stop／exit0當Android通過；未裝Root、App、遊戲或產品，九組矩陣不升格。
 
+修正gdb設定後實際捕捉主ELF+0xd58f91 null read；GLDirectMem關閉與2GiB比較仍同位置失敗，後者對應GPA低於4GiB，未證明位址截斷根因。再以自有CPU guest觀察到初始mapper固定回false/null，顯式`-accel off`也相同。新增限Linux研究host的software-selection helper：錯marker仍原stub、錯exe保留原enum、無原函式exit86；正確目標選到實際TCG mapper，自有CPU單指令7/7及正常關機，預設仍5/2。helper不進APK，實際Android／App／Root／遊戲另驗，沒有把研究host修改算原廠或實體ARM64通過。
+
 ## 2026-11-09：WSL runtime已安裝、VMP要求本人重開
 
 本人表示現在可操作並完成UAC後，PowerShell helper被本機Restricted原則拒絕（事件4100），未執行MSI。改以Microsoft原生MSI與Windows DISM直接操作，沒有改ExecutionPolicy。WSL3.0.3 MSI實際exit0、log0、CLI另回版本3.0.3.0；僅VMP enable作業實際exit3010，日誌確認NoRestart抑制重開。WMI雖回VMP InstallState1，仍待本人安排主機重開；WSL1元件未另啟用。新distro不存在、index5與研究AVD關閉、研究埠無listener，沒有Linux／新Android／App／Root或產品資格。私人狀態已保存，不重跑已成功安裝，重開後先核新host boot再繼續。詳見[Linux安裝進度](API31_LINUX_HOST_PREPARATION.md)。
