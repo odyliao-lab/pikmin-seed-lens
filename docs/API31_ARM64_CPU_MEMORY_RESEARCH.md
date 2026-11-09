@@ -26,6 +26,8 @@ V1 init SHA256 `deaf940b58dbb1b2342cfda7b75580cab8ef018e0f01d07984129a13c62876fa
 
 同一研究AVD恢復官方原ramdisk、只新增`-singlestep`，host8212的實際kernel／init已越過先前反覆GenerateBcc SIGSEGV的位置，掛載／初次加密data後啟動zygote。仍未取得online ADB／實際API／App證據。2026-11-09 18:17:12 hostGL輸出停於guest約365秒的vendor.usb-hal啟動附近，之後host與5584／5585消失；沒有正常關機ack或退出碼。**這是未釐清的host退出，不算正常收尾或Android開機成功**，也不認定最後一行就是根因。
 
-其後同目標另以SwiftShader比較GPU，保留單指令TB及原Android ramdisk；增加私人背景supervisor持有本次host handle，退出時保存實際exit code。此輪執行中，尚不記結果；未安裝Root、研究App、遊戲或產品。
+其後同目標另以SwiftShader比較GPU，保留單指令TB及原Android ramdisk；增加私人背景supervisor持有本次host handle。host24888於2026-11-09 18:23:34退出，實際exit code `-1073741819`／Windows `0xC0000005`；仍未取得online ADB、實際API或App證據。不是正常關閉，不能把最後一行vendor.usb-hal當根因。host／supervisor及5584／5585均已消失，SDK原ramdisk SHA不變；新index5亦保持OFF／關閉，未操作原四台。
 
-目前自有fixture可重現「相鄰向量序列失敗／單獨store通過」，並在單指令TB模式取得同原件7項正例；這支持進一步測TCG區塊相關問題，但不是完整Android keystore根因證明。Android完整開機、實際API、App／Root、JNI／context／失敗收容及原遊戲仍須逐層另驗；九組矩陣不升格。私人輸出在ignored `.tools/lab/api31-arm64-0bc610f9cca14c298aa7b0a2f4c2890b/`的`cpu-probe-*`與`virt-singlestep-*`；Git不含ramdisk、SDK ELF或原始診斷。
+本次既有本機minidump的ProcessId實際24888，exception code同為`0xC0000005`，exception address位於`qemu-system-aarch64-headless.exe+0x659e84`，exception資訊為read／address0。SDK PE無COFF symbols；該位址反組譯為`MOV RAX,[RSI]`，不能用距離很遠的最近export label當函式名。這是有限的例外位置證據，沒有完整symbolicated stack或根因結論；沒有上傳dump或啟用crashreport同意。未安裝Root、研究App、遊戲或產品。
+
+目前自有fixture可重現「相鄰向量序列失敗／單獨store通過」，並在單指令TB模式取得同原件7項正例；這支持進一步測TCG區塊相關問題，但不是完整Android keystore根因證明，也未解決完整guest的host退出。Android完整開機、實際API、App／Root、JNI／context／失敗收容及原遊戲仍須逐層另驗；九組矩陣不升格。下一個Linux host隔離方案須重新確認範圍，見[待確認提案](API31_LINUX_HOST_PROPOSAL.md)。私人輸出在ignored `.tools/lab/api31-arm64-0bc610f9cca14c298aa7b0a2f4c2890b/`的`cpu-probe-*`與`virt-singlestep-*`；Git不含ramdisk、SDK ELF或原始診斷。
