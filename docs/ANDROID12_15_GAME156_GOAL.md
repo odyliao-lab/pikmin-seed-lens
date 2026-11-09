@@ -65,3 +65,6 @@ API31 x64原遊戲啟動與獨立指令probe已找到SEVL缺口。原先本機�
 
 
 後續normal TB加scalar host的同API31 ARM軟體guest取得實際API31／ARM64／Enforcing，並進入SystemServer；舊套件27個context分項有預期結果，但真ELF載入仍失敗。獨立產品15s／2s界限研究的supervisor10/10通過，正常ELF load卻仍UNKNOWN／收容，沒有普通App／JNI／遊戲資格。每輪adbd Root後皆實際重核unroot UID2000。詳見[Linux分層證據](API31_LINUX_HOST_RESEARCH.md)。
+
+
+Scalar完整Android其後由Watchdog殺掉阻塞於PM政策讀取的SystemServer，未完成boot；已在UID2000後正常console關機／inferior exit0。另以host MMU vector-save取代scalar generator選擇，原V2及V3c CPU7/7、故意NULL-fatal與host ABI／拒絕控制已驗；這是明確改動host程序資料的研究，完整Android／App／Root及遊戲另驗，不放寬時間或版本守門。見[最新Linux分層結果](API31_LINUX_HOST_RESEARCH.md)。

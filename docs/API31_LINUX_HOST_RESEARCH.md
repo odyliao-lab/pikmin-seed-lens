@@ -126,3 +126,24 @@ V3c把no-core限制移到故意NULL控制之前；前稿NULL控制未先設定�
 產品界限ARM suite的正常function、spin／ppoll／SIGILL三個故障各有預期返回或UNKNOWN收容，但真正ELF load仍到整體界限、UNKNOWN且target dead，整體exit1；**沒有ELF正常載入／JNI通過**。獨立supervisor產品界限套件則實際10/10、exit0，包含非leader trace、CALLING前保留target及CALLING後timeout／worker exit。收容過程的中間log `reaped=0`不能單獨當最終失敗或成功，以最終result與各case的pidfd／expected檢查判定。
 
 後續再次unroot並實際讀回同boot／UID2000／API31／ARM64／Enforcing。普通App Root、真ART/JNI及產品仍未驗，沒有安裝Magisk或APK。framework初次logcat有一次空輸出exit255，後次獨立讀取才取得上述SystemServer證據，未將前次當健康正例。本輪不增加產品版本或改0.5.0 bytes；後續將先研究保留host向量暫存器的路徑，不以無限放寬逾時解決效能問題。
+
+
+## Scalar完整輪的framework失敗與正常收尾
+
+後續實際`sys.boot_completed`仍空、bootanim running、該次`pidof system_server`沒有PID。另次logcat確認Watchdog685記錄`WATCHDOG KILLING SYSTEM PROCESS`，main stack停在PackageManagerService初始化的SELinuxMMAC.readInstallPolicy／XML FileReader，隨後SystemServer因signal9退出、zygote302跟著退出，新zygote865重新preload。這不是完整開機成功，也不能只憑較早「Entered SystemServer」當作framework健康。沒有停用／延長Android Watchdog或跳過安裝政策來使它過關。
+
+本輪兩次Root測試後均已實際重核UID2000。於UTC `2026-11-09T23:41:47`前指定console正常kill回OK，inferior11190實際exit0、gdb exit0，supervisor `timedOut=false`／未送收容訊號；不是30分鐘逾時或強殺。SDK原件保留，沒有Magisk或App安裝。正常關閉後5586／5587短暫TIME_WAIT令下一輪bind拒絕；核對無存活QEMU／listener後等釋放，未kill-server、改埠或略過檢查。
+
+## 保留host向量暫存器的替代研究
+
+新增[MMU vector-save研究來源](../research/tcg-mmu-vector.md)，不關閉真實host AVX generator、不使用single-step。獨立Linux程序先驗weighted參數／整數回傳／SysV stack alignment、YMM0–15及MXCSR保存：PASS／exit0；未初始化入口實際SIGILL／exit-4，harness禁core。此測試只涉及自有Linux程序，不是Android或Root。
+
+新host assembly helper沒有constructor或自動hook；只有有明確marker的gdb自行啟動同SHA／AVD／port／software CPU後，驗實際AVX旗標1/1不變、完整32-slot原表及wrapper範圍，才將本輪host MMU table的14個非null pointer指向保存暫存器的wrapper。這是**host程序資料記憶體的明確變更**，不是原廠無helper證據；SDK／guest檔案、API、ARM指令、clock、Watchdog、SELinux、Root及產品守門不變。原先mapper helper仍另列，不把兩項host研究改動隱藏成一般官方AVD。
+
+| 實際自有測試 | 結果 |
+|---|---|
+| 原V2、normal TB、vector-save，inferior12132 | 7 pass／0 fail／0 skip，guest正常power-off、inferior exit0、無收容訊號 |
+| 原V3c、normal TB、vector-save，inferior12273 | 7 pass／0 fail，故意NULL仍terminal SIGSEGV／address0／reaped；正常power-off、inferior exit0、無收容訊號 |
+| controller錯marker／錯exe | 均exit1／VECTOR_SAVE_REFUSED，在starti前拒絕，沒有啟動guest |
+
+helper17,712 bytes／SHA256 `823f6e1826a353ad38a91e7652ec46132c69c349bf6bcc28d1399c512323508c`；host ABI fixture15,416 bytes／`e2c60e7e01d5435cbd4106deeaf5c1373e906773fe96d851caa48fdaf9a28496`。以checked-in build腳本另存唯一目錄重建，兩者SHA相同。不是原廠TCG全面修復、任意host向量狀態或完整Android資格；接下來仍須另驗完整boot／原生loader／普通App及遊戲，九組不升格。
