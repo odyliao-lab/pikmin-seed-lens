@@ -44,6 +44,6 @@ Python16項測試通過，三版實際來源比對涵蓋3個ELF、15個完整簽
 
 API35以新x64 control fixture實跑76項通過，只操作自建fixture；原16份attempt SHA不變，adbd恢復UID2000。ARM64 fixture只有編譯。0.5.0正常升級安裝於新index5；切換繁體中文後的帳號獎勵由本人處理。其後兩個遊戲程序各自驗兩頁ON／OFF、花苗縮字與探險末排真正離屏返回，未知歷史保留；探險長名縮字與OS／長時間仍未驗。詳見[0.5.0驗收](PRODUCT050_QUALIFICATION.md)。
 
-API31／34上的157原遊戲尚未執行，不能從156.x的SEVL失敗跨版推論。新APK也需重新驗156.0／156.1，不能把0.4.1證據當0.5.0通過。九組、探險長名縮字、OS與長時間條件仍依[驗收矩陣](ANDROID12_15_GAME156_GOAL.md)。
+API31／34上的157原遊戲後續各自實跑，均在產品載入前Unity+0x5e2760 SEVL SIGILL，見[獨立啟動證據](GAME157_PLATFORM_STARTUP.md)；不是由156.x跨版推論。新APK也需重新驗156.0／156.1，不能把0.4.1證據當0.5.0通過。九組、探險長名縮字、OS與長時間條件仍依[驗收矩陣](ANDROID12_15_GAME156_GOAL.md)。
 
 原APK／dump／manifest／PM、截圖與原始receipt只留ignored私人`.tools/lab/`；Git只留本摘要、來源守門與測試。

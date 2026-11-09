@@ -1,5 +1,9 @@
 # 驗證分層
 
+## 2026-11-09：157原遊戲在API31／34獨立啟動失敗
+
+完成API35分項回歸後依序關閉／啟動隔離機，實際API31／34的原簽章157.0各自正常更新、安裝後完整SHA相符，首遊戲程序分別4254／4305；兩者translator均回報原Unity+0x5e2760的SEVL未實作並SIGILL，發生在產品載入前。API31原16份研究attempt SHA不變／無產品attempt；API34沒有安裝Root或產品，資格拒絕保留。API34首輪hostGL boot無回應、指定正常關閉逾時後精確host收容，未啟動157；後輪SwiftShader才取得上述實際結果並正常關閉。兩平台SDK ramdisk SHA不變，原件與界線見[157平台啟動](GAME157_PLATFORM_STARTUP.md)。
+
 ## 2026-11-09：157.0原簽章來源、未知拒絕與0.5.0
 
 新index5的Play當時未提供157更新；後續使用者指定AutoFarm已安裝版本，限定唯讀取得原簽章base／完整ARM64 split，核實157.0/code1793360009。未操作來源UI／遊戲／scanner／憑證或Root狀態，其餘原instance及台中未操作。0.4.1在新index5實跑未知版本拒絕，control OFF／無Lens mapping／無新attempt，16份歷史SHA不變，見[來源界線](GAME157_OFFICIAL_INTAKE.md)。

@@ -24,4 +24,4 @@ console仍可回報已核對的`SeedLens_API31_arm64`名稱。多次相同crash�
 
 即使後續boot成功，也只是**完整ARM64 guest在x64 host的軟體CPU模擬**，不是原生ARM64實機資格，也不是x64/NativeBridge的成功。須以實際kernel／Java與native API、ARM JNI、CPU context／Root／正常與失敗收容全部實測，再進產品；不能用image標籤、process啟動或編譯通過代替。
 
-原始資料與本次腳本只在ignored `.tools/lab/api31-arm64-0bc610f9cca14c298aa7b0a2f4c2890b/`。標準frontend限制仍成立；目前API31三個遊戲組合均未通過，先前API31 x64的156.x SEVL失敗及所有UNKNOWN亦未改寫；157尚未在這些目標實測。
+原始資料與本次腳本只在ignored `.tools/lab/api31-arm64-0bc610f9cca14c298aa7b0a2f4c2890b/`。標準frontend限制仍成立；目前API31三個遊戲組合均未通過，先前API31 x64的156.x SEVL失敗及所有UNKNOWN亦未改寫；157未在本ARM64 guest實測；x64另次原遊戲SEVL失敗見[157獨立啟動](GAME157_PLATFORM_STARTUP.md)。
