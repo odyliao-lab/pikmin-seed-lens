@@ -19,7 +19,9 @@ adb -s <exact-authorized-serial> shell am instrument -w -e expected_api <31-or-3
 
 Each command starts a distinct disposable App process. `baseline` confirms JNI
 and the actual native API without executing either instruction. `sevl` executes
-only SEVL; `pair` executes SEVL followed by WFE. Before the instruction, Java
+only SEVL; `pair` executes SEVL followed by WFE. Version 0.0.2 also executes the
+same signal/alarm setup and cancellation in `baseline`, isolating the watchdog
+from the instruction difference. Before the instruction, Java
 durably records the phase in its private files. Native code sets a three-second
 alarm with default disposition: a hang or illegal instruction ends only this
 process. No outcome is promoted to game or platform qualification.

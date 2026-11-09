@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="dev.ody.seedlensarmhintprobe" android:versionCode="1" android:versionName="0.0.1">
+    package="dev.ody.seedlensarmhintprobe" android:versionCode="2" android:versionName="0.0.2">
   <uses-sdk android:minSdkVersion="28" android:targetSdkVersion="35" />
   <application android:label="Seed Lens ARM instruction probe" android:allowBackup="false"
       android:extractNativeLibs="true" android:hasCode="true" />
