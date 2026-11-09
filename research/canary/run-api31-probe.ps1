@@ -10,9 +10,11 @@ param(
  [Parameter(Mandatory)][ValidatePattern('^/data/local/tmp/[A-Za-z0-9_/-]+$')][string]$DeviceRunner,
  [Parameter(Mandatory)][string]$ProbeApk,
  [Parameter(Mandatory)][string]$CarrierApk,
- [switch]$TimeoutTest
+ [switch]$TimeoutTest,
+ [switch]$RootViaMagisk
 )
 $ErrorActionPreference='Stop'
+if($RootViaMagisk -and $ExpectedApi -ne 31){throw 'Magisk provider research option is API31-only'}
 $root=Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $out=Join-Path $root (".tools/lab/api$ExpectedApi-run-"+[Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory $out | Out-Null
@@ -20,6 +22,13 @@ function Read-Guest([string]$Command){
  $value=& $AdbPath -s $Serial shell $Command 2>&1
  if($LASTEXITCODE){throw "Read-only guest query failed: $Command"}
  return ($value -join "`n").Trim()
+}
+function Invoke-Runner([string]$Arguments){
+ $command="$DeviceRunner $Arguments"
+ # Every interpolated field is already restricted to digits or canonical PM /
+ # runner paths; no arbitrary shell program or untrusted quoting is accepted.
+ if($RootViaMagisk){$command="su -M -c '$command'"}
+ & $AdbPath -s $Serial shell $command 2>&1
 }
 function Fresh-Identity {
  if($ExpectedApi -eq 31){
@@ -46,6 +55,7 @@ function Package-Path([string]$Package){
  return $Matches[1]
 }
 Fresh-Identity
+if($RootViaMagisk -and (Read-Guest "su -M -c 'id -u'") -cne '0'){throw 'Provider Root unavailable'}
 $localRunnerSha=(Get-FileHash -LiteralPath $Runner).Hash.ToLowerInvariant()
 if(((Read-Guest "sha256sum $DeviceRunner") -split '\s+')[0] -cne $localRunnerSha){throw 'Installed runner SHA mismatch'}
 foreach($item in @(@('dev.ody.seedlensprobe',$ProbeApk),@('dev.ody.seedlenshostcarrier',$CarrierApk))){
@@ -81,13 +91,13 @@ $start=($tail -split '\s+')[19]
 Fresh-Identity
 @{pid=$probePid;start=$start;host=$hostPath;boot=$ExpectedBoot;runnerSha256=$localRunnerSha} | ConvertTo-Json | Set-Content "$out/attempt.json"
 Write-Output "FIXTURE_READY PID=$probePid START=$start; one load only"
-$wrongPath=& $AdbPath -s $Serial shell "$DeviceRunner $probePid $start $ExpectedApi /data/local/tmp/forbidden.so" 2>&1
+$wrongPath=Invoke-Runner "$probePid $start $ExpectedApi /data/local/tmp/forbidden.so"
 if($LASTEXITCODE -ne 6){throw 'PM-path negative failed; no load'}
 $wrongStart=([uint64]$start+1).ToString()
-$stale=& $AdbPath -s $Serial shell "$DeviceRunner $probePid $wrongStart $ExpectedApi $hostPath" 2>&1
+$stale=Invoke-Runner "$probePid $wrongStart $ExpectedApi $hostPath"
 if($LASTEXITCODE -ne 5){throw 'Stale-identity negative failed; no load'}
 $option=if($TimeoutTest){' --timeout-test'}else{''}
-$load=& $AdbPath -s $Serial shell "$DeviceRunner $probePid $start $ExpectedApi $hostPath$option" 2>&1
+$load=Invoke-Runner "$probePid $start $ExpectedApi $hostPath$option"
 $loadExit=$LASTEXITCODE
 @("EXIT=$loadExit")+$load | Set-Content "$out/load.txt"
 Write-Output "LOADER_EXIT=$loadExit; no retry"
@@ -124,7 +134,7 @@ if($TimeoutTest){
  if(!$namespaceText.Contains($namespaceStage)){$ok=$false}
  $status=if($ok){"API${ExpectedApi}_SELF_APP_CANARY_PASS_NOT_GAME_ACCEPTANCE"}else{'CANARY_NOT_PROVEN_NO_RETRY'}
 }
-@{status=$status;loaderExit=$loadExit;pid=$probePid;start=$start;boot=$ExpectedBoot;processGone=$processGone;instrumentationExited=$instrumentation.HasExited} | ConvertTo-Json | Set-Content "$out/result.json"
+@{status=$status;loaderExit=$loadExit;pid=$probePid;start=$start;boot=$ExpectedBoot;processGone=$processGone;instrumentationExited=$instrumentation.HasExited;rootViaMagisk=[bool]$RootViaMagisk} | ConvertTo-Json | Set-Content "$out/result.json"
 Get-Content "$out/result.json"
 Write-Output "PRIVATE_RECEIPTS=$out"
 if(!$ok){exit 1}

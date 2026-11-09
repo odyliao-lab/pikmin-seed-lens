@@ -22,7 +22,7 @@ New-Item -ItemType Directory "$out/classes","$out/dex" | Out-Null
 $bt="$SdkPath/build-tools/35.0.0";$jar="$SdkPath/platforms/android-35/android.jar";$env:JAVA_HOME=$JavaHome
 & "$bt/aapt2.exe" link -I $jar --manifest "$PSScriptRoot/AndroidManifest.xml" -o "$out/unsigned.apk"
 if($LASTEXITCODE){throw 'Root probe manifest failed'}
-& "$JavaHome/bin/javac.exe" -encoding UTF-8 -source 8 -target 8 -classpath $jar -d "$out/classes" "$PSScriptRoot/RootInstrumentation.java"
+& "$JavaHome/bin/javac.exe" -encoding UTF-8 -source 8 -target 8 -classpath $jar -d "$out/classes" "$PSScriptRoot/RootInstrumentation.java" "$PSScriptRoot/RootEndpoint.java"
 if($LASTEXITCODE){throw 'Root probe Java compile failed'}
 & "$JavaHome/bin/jar.exe" cf "$out/classes.jar" -C "$out/classes" .
 if($LASTEXITCODE){throw 'Class jar failed'}

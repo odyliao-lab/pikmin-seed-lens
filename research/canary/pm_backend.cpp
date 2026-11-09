@@ -24,33 +24,38 @@ std::vector<int> candidates(int pid){
         if(readFile(prefix+"/comm")=="SeedLensProbe\n"&&readFile(prefix+"/wchan")=="0")result.push_back(int(t));
     }closedir(dir);std::sort(result.begin(),result.end());if(result.size()>8)result.clear();return result;
 }
+int refused(int stage){printf("PROBE_PM_WORKER_REFUSED stage=%d errno=%d\n",stage,errno);return stage;}
 int run(int pid,const std::string& start,const std::string& host,int socket,bool timeoutTest){
-    if(!probeIdentity(pid,start))return 10;
-    KittyMemoryMgr mgr{};if(!mgr.initialize(pid,EK_MEM_OP_SYSCALL,true))return 11;
+    if(!probeIdentity(pid,start))return refused(10);
+    KittyMemoryMgr mgr{};if(!mgr.initialize(pid,EK_MEM_OP_SYSCALL,true))return refused(11);
     bool acquired=false;
     for(int round=0;round<12&&!acquired;++round){
-        if(!probeIdentity(pid,start))return 12;
-        for(int tid:candidates(pid)){
+        if(!probeIdentity(pid,start))return refused(12);
+        auto available=candidates(pid);
+        printf("PROBE_PM_CANDIDATES round=%d count=%zu\n",round,available.size());
+        for(int tid:available){
             auto ts=seed_root::proc_start(tid);
             if(!seed_root::thread_owner(tid,pid,ts))continue;
             mgr.trace=KittyTraceMgr(tid,0,true,250);
-            if(!mgr.trace.seize(PTRACE_O_TRACESYSGOOD))continue;
-            if(!mgr.trace.stop())return 13; // worker exit detaches; no remote write yet
+            if(!mgr.trace.seize(PTRACE_O_TRACESYSGOOD)){printf("PROBE_PM_SEIZE_REFUSED errno=%d\n",errno);continue;}
+            if(!mgr.trace.stop())return refused(13); // worker exit detaches; no remote write yet
             siginfo_t info{};user_regs_struct regs{};
             bool own=mgr.trace.getSignalInfo(&info)&&info.si_signo==SIGTRAP&&info.si_code==((PTRACE_EVENT_STOP<<8)|SIGTRAP);
             if(!own){
                 // No syscall/function has run; preserve a concurrent signal.
                 int sig=info.si_signo;ptrace(PTRACE_DETACH,tid,nullptr,reinterpret_cast<void*>(static_cast<intptr_t>(sig)));
-                return 14;
+                return refused(14);
             }
-            if(mgr.trace.getRegs(&regs)&&static_cast<int64_t>(regs.orig_rax)==-1&&seed_root::thread_owner(tid,pid,ts)){
+            bool haveRegs=mgr.trace.getRegs(&regs),sameOwner=seed_root::thread_owner(tid,pid,ts);
+            printf("PROBE_PM_CONTEXT regs=%d orig_rax=%lld owner=%d\n",haveRegs,static_cast<long long>(regs.orig_rax),sameOwner);
+            if(haveRegs&&static_cast<int64_t>(regs.orig_rax)==-1&&sameOwner){
                 probePid=pid;probeStart=start;traceTid=tid;threadStart=ts;acquired=true;break;
             }
-            if(!mgr.trace.detach())return 15;
+            if(!mgr.trace.detach())return refused(15);
         }
         if(!acquired)usleep(19000+round*1700);
     }
-    if(!acquired)return 16;
+    if(!acquired)return refused(16);
     if(!seed_root::worker_phase(socket,'A')||!probeIdentity(pid,start)||!seed_root::thread_owner(traceTid,pid,threadStart))return 17;
     // Explicit fail-stop is armed only after the parent durably records CALLING.
     if(!seed_root::worker_phase(socket,'C'))return 18;

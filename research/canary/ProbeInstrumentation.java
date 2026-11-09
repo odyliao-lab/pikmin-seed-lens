@@ -41,7 +41,12 @@ public final class ProbeInstrumentation extends Instrumentation {
             // there. Its bounded lifetime prevents a stranded busy worker.
             Thread callThread = new Thread(() -> {
                 final long until = System.nanoTime() + 30000000000L;
-                while (System.nanoTime() < until) callTicks++;
+                // Checking the clock on every increment can spend nearly all
+                // translated execution in clock_gettime on API31. Give this
+                // disposable fixture a real, bounded batch of user-space work;
+                // never relax the native orig_rax/user-context admission rule.
+                while (System.nanoTime() < until)
+                    for (int spin=0;spin<65536;spin++) callTicks++;
             }, "SeedLensProbe");
             callThread.start();
             // Keep our own process alive for a bounded namespace probe. The ARM64

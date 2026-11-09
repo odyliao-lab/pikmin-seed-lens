@@ -19,6 +19,13 @@ public final class RootInstrumentation extends Instrumentation {
         try{
             String expectedBoot=arguments==null?null:arguments.getString("expected_boot");
             String expectedApi=arguments==null?null:arguments.getString("expected_api");
+            String endpoint=arguments==null?null:arguments.getString("su_endpoint");
+            String abi=android.os.Build.SUPPORTED_ABIS.length==0?"":android.os.Build.SUPPORTED_ABIS[0];
+            String su=dev.ody.seedpreview.RootEndpoint.command(android.os.Build.VERSION.SDK_INT,abi,
+                new File("/debug_ramdisk/su").canExecute());
+            if("debug_ramdisk".equals(endpoint)&&"31".equals(expectedApi))su="/debug_ramdisk/su";
+            else if("path".equals(endpoint))su="su";
+            else if(endpoint!=null&&!"auto".equals(endpoint))throw new IllegalArgumentException();
             if(!"dev.ody.seedlensrootprobe".equals(getTargetContext().getPackageName())||Process.myUid()<10000||
                expectedBoot==null||!expectedBoot.matches("[0-9a-f-]{36}")||
                !("31".equals(expectedApi)||"35".equals(expectedApi))||
@@ -27,7 +34,7 @@ public final class RootInstrumentation extends Instrumentation {
             if(!receipt.createNewFile())throw new IllegalStateException();
             StringBuilder output=new StringBuilder();
             AtomicBoolean readFailed=new AtomicBoolean(false);
-            java.lang.Process child=new ProcessBuilder("su","-M","-c",
+            java.lang.Process child=new ProcessBuilder(su,"-M","-c",
                 "id -u; id; readlink /proc/self/ns/mnt; readlink /proc/1/ns/mnt; cat /proc/sys/kernel/random/boot_id")
                 .redirectErrorStream(true).start();
             Thread reader=new Thread(()->{
@@ -43,11 +50,13 @@ public final class RootInstrumentation extends Instrumentation {
             if(!ended){child.destroyForcibly();child.waitFor(1,TimeUnit.SECONDS);}
             reader.join(1000);
             String text; synchronized(output){text=output.toString();}
-            boolean root=ended&&!reader.isAlive()&&!readFailed.get()&&child.exitValue()==0&&text.startsWith("0\n")&&
-                text.contains("uid=0(root)")&&text.contains(expectedBoot)&&text.contains("mnt:[");
+            String[] lines=text.trim().split("\n");
+            boolean root=ended&&!reader.isAlive()&&!readFailed.get()&&child.exitValue()==0&&lines.length==5&&
+                lines[0].equals("0")&&lines[1].contains("uid=0(root)")&&
+                lines[2].matches("mnt:\\[[0-9]+\\]")&&lines[2].equals(lines[3])&&lines[4].equals(expectedBoot);
             try(FileOutputStream file=new FileOutputStream(receipt,true)){
                 String report="APP_UID\t"+Process.myUid()+"\nAPI\t"+android.os.Build.VERSION.SDK_INT+
-                    "\nSU_M_EXIT\t"+(ended?child.exitValue():-1)+"\n"+text+"\n"+
+                    "\nSU_ENDPOINT\t"+su+"\nSU_M_EXIT\t"+(ended?child.exitValue():-1)+"\n"+text+"\n"+
                     (root?"NORMAL_APP_SU_M_PASS_NOT_GAME_ACCEPTANCE":"ROOT_CAPABILITY_NOT_PROVEN")+"\n";
                 file.write(report.getBytes(StandardCharsets.UTF_8));file.getFD().sync();
             }
