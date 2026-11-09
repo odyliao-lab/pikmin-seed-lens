@@ -15,6 +15,8 @@
 產品完整流程與遊戲仍未驗。新API35隔離機內建KernelSU的正常App `su -M`及十例收容已驗。
 後續使用者已授權API31安裝Magisk31.1：普通App `su -M`與Magisk-domain JNI／收容已驗，
 正常產品完整流程及遊戲仍未驗，見[API31 Root階段](docs/API31_MAGISK_RESEARCH.md)。
+其後普通研究App已自行完成`su -M → 自身PM loader → ARM JNI`、故意timeout及新程序回歸；
+仍不是產品或遊戲驗收，見[普通App完整研究路徑](docs/API31_APP_ROOT_FLOW.md)。
 產品x64仍限API35；詳見[本輪隔離研究與失敗修正](docs/ZHUBEI_LAB_20261109.md)。
 見[API31實際研究結果](docs/API31_AVD_RESEARCH.md)及
 [本輪接手、環境及下一步](docs/handoffs/2026-11-09-zhubei-intake.md)。

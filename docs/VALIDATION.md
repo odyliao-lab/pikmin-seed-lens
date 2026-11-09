@@ -1,5 +1,12 @@
 # 驗證分層
 
+## 2026-11-09：普通App → su-M → PM研究loader完整API31路徑
+
+- 新研究client0.0.4/code4內嵌精確SHA的x64 PIE，PM安裝後從自身nativeLibraryDir執行。Java核canonical path／digest，native重核精確client PM位置、祖先owner/mode及原probe／host守門；同bytes tmp副本實際exit14拒絕。
+- 已授權API31 Root AVD新cold boot中，普通App UID10148自行呼叫PATH su-M，完成PM-path／stale-start負例（6／5），再一次正常JNI／其他負例、完整journal及90秒FINISH。載入命令由普通App發起，不是ADB代執行Root。
+- 另一新程序由相同普通App路徑故意timeout，確認42／END UNKNOWN／精確target退出；之後新程序正常完整回歸。client不強殺in-flight loader、不自動重送。13份前輪attempt SHA均不變，原四台／台中未操作。
+- 這是自有probe的完整普通App載入路徑，不是產品／遊戲／原生ARM64驗收。四組遊戲仍未驗，產品原簽章與遊戲材料尚缺。SHA與角色邊界見[普通App路徑](API31_APP_ROOT_FLOW.md)。
+
 ## 2026-11-09：已授權API31 Magisk Root及同domain研究
 
 - 使用者調整條件並明確授權只替API31隔離AVD安裝Root。官方Magisk31.1 APK／同版本AVD patch，私人ramdisk override與冷備份；共享SDK ramdisk SHA不變。標準setup後關閉Zygisk並正常重啟，確認API31／libndk_translation／Enforcing／modules空；原四台與台中未操作。

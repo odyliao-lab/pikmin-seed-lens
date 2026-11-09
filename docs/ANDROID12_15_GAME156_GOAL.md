@@ -31,7 +31,7 @@ ARM64與x64/NativeBridge各列實際資格；不能由x64上的ARM轉譯推論�
 
 1. API31 Enforcing研究：PM安裝路徑與精確host digest、持久journal/ACK及pidfd收容；自有真App ClassLoader、ARM JNI、負例與生命週期。研究包可額外存在，不能變成產品使用者依賴。
 2. 使用者已明確授權API31 Root變更；私人ramdisk Magisk31.1標準setup後普通App PATH su-M／同PID1 mount view已驗，仍需產品完整載入驗收。沒有移除-M、改SELinux或放寬bridge；詳見[Root結果](API31_MAGISK_RESEARCH.md)。
-3. 隔離驗證後已接入API31 native unsigned候選及共用dispatcher，兩平台真App回歸通過；Java與預設資格不放寬，正常App Root／完整產品整合待補。見[候選階段證據](API31_PRODUCT_INTEGRATION.md)。
+3. API31 native unsigned候選、共用dispatcher及普通App自行su-M／PM loader完整研究路徑已驗；Java與預設資格不放寬，正常產品整合與遊戲驗收待補。見[普通App階段證據](API31_APP_ROOT_FLOW.md)及[候選來源](API31_PRODUCT_INTEGRATION.md)。
 4. 取得原產品簽章與合法遊戲splits，分配新產品版本及同批APK，才進四組正常UI實測。需要登入時提示使用者。
 5. 每階段測試、審查、commit/push私人功能分支`codex/zhubei-android12-compat`。不force、不自動merge main或公開發布。
 

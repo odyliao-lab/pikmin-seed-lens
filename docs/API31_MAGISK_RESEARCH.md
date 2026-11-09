@@ -1,5 +1,7 @@
 # API31隔離AVD的Magisk Root驗證（2026-11-09）
 
+> 後續已完成[普通App自行呼叫su-M及PM loader的完整研究路徑](API31_APP_ROOT_FLOW.md)，含正常JNI、故意timeout、新程序回歸。以下「Root probe與adbd canary分開」保留原階段邊界；產品與遊戲仍未驗。
+
 使用者明確調整條件並授權安裝Root，原先AVD「不安裝Root」限制僅對此階段解除。目標仍只限`SeedLens_API31_x64`／emulator-5580；原四台及台中Libra/Virgo未操作。四組遊戲驗收仍未完成。
 
 ## 來源、隔離與還原材料
