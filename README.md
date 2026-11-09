@@ -26,7 +26,7 @@
 見[四組驗收條件與進度](docs/ANDROID12_15_GAME156_GOAL.md)。
 
 API31平台來源已接入明確的unsigned候選，Java與native使用同一開關，
-與隔離研究共用adapter／runtime dispatcher；預設／可簽署建置仍維持API35資格，API32不接受。正常產品完整流程與遊戲仍待驗，
+與隔離研究共用adapter／runtime dispatcher；預設建置仍維持API35資格，明確signed qualification另見下方，API32不接受。API31正常產品完整流程與遊戲仍待驗，
 見[API31候選整合及測試邊界](docs/API31_PRODUCT_INTEGRATION.md)。
 
 使用者授權後，新API35隔離機已用MuMu原廠谷歌安裝器安裝Play／GMS／GSF，

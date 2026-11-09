@@ -1,5 +1,9 @@
 # 驗證分層
 
+## 2026-11-09：原生ARM64 API31研究入口補強（尚未部署）
+
+自有ARM64 JNI研究App升至0.0.2/code2、保留原簽章。載入fixture前核明確expected API／Java實際API、普通App UID、64-bit process／主要ARM64 ABI及Java平台kernel uname `aarch64`；載入後再核native實際API，才啟動thread。研究建置保留version目錄，拒絕覆寫。Java/dex／簽章／stored ARM64-only libraries／16KB封裝與配對digest已查；ARM64 root verifier、context、supervisor及platform test executables均編譯通過，未裝置執行。原產品0.4.1未變，新裝置操作範圍仍待指定，不能新增原生API31通過欄。SHA與後續條件見[ARM64研究準備](../research/arm64-jni/README.md)。
+
 ## 2026-11-09：API31原遊戲啟動缺口與自有ARM指令對照
 
 官方API31 x64 AVD本輪cold boot仍為API31／libndk_translation／Enforcing，普通App su-M通過；同一原簽章0.4.1及精確156.0完整splits已安裝。原遊戲在透視鏡載入前Unity SEVL處SIGILL，沒有product attempt。獨立無Root ARM-only probe 0.0.2的baseline（含相同signal／alarm設定）通過，SEVL及SEVL＋WFE各在新程序SIGILL；同一APK於API35/libnb三模式均返回。16份API31歷史attempt SHA不變；恢復adbd non-root並正常關閉AVD。不能由先前JNI canary或安裝成功宣告這個API31 image可運行遊戲。本機ARM64 AVD提案已因官方frontend架構限制撤回，待指定新的原生目標；原件與SHA見[啟動指令界線](API31_GAME_STARTUP_BOUNDARY.md)。

@@ -9,6 +9,8 @@ by Java: the candidate root backend must load it and invoke its JNI entry.
 Build the APK with `build.ps1` and explicit SDK/JDK/NDK/external signing paths.
 Signing passwords use existing environment variables only. The output directory
 is unique and the existing certificate is checked. No product artifact changes.
+Version 0.0.2 reserves a version-specific output directory and refuses rebuilds
+over existing bytes. It retains this probe's original signing identity.
 
 Configure app CMake in a **separate build directory**, ABI arm64-v8a, with
 `SEED_ARM64_PROBE_LIBRARY` naming this APK's exact `libcanary.so`, then build
@@ -32,6 +34,17 @@ must not be used to claim API31 evidence. See `../probe_platform_test.cpp` for
 
 On an explicitly authorized, freshly identified **native ARM64** API31 target,
 use the new verifier as `arm64_jni_probe PID START PM_CANARY_PATH 31`.
+Start its ordinary App fixture with
+`adb -s <authorized-serial> shell am instrument -w -e expected_api 31 dev.ody.seedlensarmprobe/.ProbeInstrumentation`.
+For the historical API34 baseline, use explicit `expected_api 34` instead.
+Version 0.0.2 requires the exact Java API, ordinary App UID, ARM64 as
+the primary supported ABI, a 64-bit process, and the Java platform's kernel
+uname `aarch64` before loading the fixture. After loading, it also verifies
+the actual native API before starting its thread. API32,
+missing/mismatched expected API and x64/NativeBridge targets must be refused;
+do not treat a translated ARM JNI result as native-backend evidence.
+These App guards complement fresh external device identity; they do not grant
+authorization for an unapproved device.
 Before any successful-target run, check wrong API32 and stale-start refusals
 without attach or an attempt; keep the private receipts. Continue with actual
 CPU-context/supervisor fault fixtures and JNI lifecycle evidence. A translated
@@ -46,8 +59,10 @@ Acceptance requires all of:
   worker detach;
 - baseline instrumentation finishes with its original native thread returned
   and a subsequent JNI call correct;
-- original game PID/start unchanged, all game threads untraced, Lens OFF,
-  scanner config/code hashes unchanged, no scanner maintenance pause.
+- Lens OFF, no game target selected or modified; any authorized game PID/start
+  observation remains separate from fixture success;
+- no scanner control or access to existing production nodes. This fixture's
+  preparation never authorizes Libra/Virgo or the four existing local instances.
 
 First run refused before attach because the research verifier required root
 ownership rather than Android's actual system-owned PM paths. The second run
@@ -57,3 +72,26 @@ permissions or SELinux policy were changed to make the test pass.
 This proves candidate ARM64 JNI mechanics in an isolated App only. It does not
 prove game namespace, renderer hooks, naming, OFF restoration, other Android
 versions, other root implementations or the second game profile.
+
+## 2026-11-09 API31 preparation: not deployed
+
+0.0.2/code2 Java/dex, both ARM64 libraries, original-certificate signature,
+stored ARM64-only APK entries, matching extracted library digests and 16KB ZIP
+alignment were checked. A separate CMake directory compiled the paired
+`arm64_jni_probe`, `arm64_context_test`, `supervised_load_test` and
+`probe_platform_test`; those executables have not been run on native API31.
+The App's new admission guards have not been device-tested. No product bytes
+or existing device installation changed in this preparation.
+
+| Prepared artifact | SHA256 |
+|---|---|
+| 0.0.2 APK | `040bd1b0b9e14b8999aa9bf976ca47a9588cd396039f9bd2b0a1039dc01a2da2` |
+| baseline libfixture.so | `17800bce942837c22104cc11062cfd5a41bdca3abf319e0f12a91939e04356c7` |
+| pinned libcanary.so | `ca754d78dc17eb9dd1d66f8ab03da8c22f043d69cbd3b5889b3fc15a9b551773` |
+| paired arm64_jni_probe | `1cb26b6a2a6a0fb9e2a579522abb8d3ffaca5275ec77eba12ee30a138613d460` |
+
+Private artifacts are under ignored `.tools/research/arm64-jni-0.0.2/`.
+Before using them, obtain a concrete authorized native ARM64 API31 target;
+verify fresh identity, ordinary-App Root, kernel/CPU restrictions and isolated
+fault containment. These prepared files do not resolve the existing API31 x64
+image's SEVL failure or qualify either game version.

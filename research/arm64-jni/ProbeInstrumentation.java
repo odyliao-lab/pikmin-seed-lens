@@ -1,27 +1,39 @@
 package dev.ody.seedlensarmprobe;
 import android.app.Instrumentation;
 import android.os.Bundle;
+import android.os.Build;
 import android.os.Process;
+import android.system.Os;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
 public final class ProbeInstrumentation extends Instrumentation {
     private static native long fixture(long value);
+    private static native int nativeApi();
     private static native void spin();
+    private Bundle arguments;
     private File receipt;
     private void append(String value)throws Exception{
         try(FileOutputStream file=new FileOutputStream(receipt,true)){
             file.write((value+"\n").getBytes(StandardCharsets.UTF_8));file.getFD().sync();
         }
     }
-    @Override public void onCreate(Bundle args){super.onCreate(args);start();}
+    @Override public void onCreate(Bundle args){arguments=args;super.onCreate(args);start();}
     @Override public void onStart(){
         Bundle result=new Bundle();
         try{
-            if(!"dev.ody.seedlensarmprobe".equals(getTargetContext().getPackageName()))throw new IllegalStateException();
+            int api=Build.VERSION.SDK_INT;
+            String expected=arguments==null?null:arguments.getString("expected_api");
+            String machine=Os.uname().machine;
+            if(!"dev.ody.seedlensarmprobe".equals(getTargetContext().getPackageName())||Process.myUid()<10000||
+               !(api==31||api==34)||!Integer.toString(api).equals(expected)||!Process.is64Bit()||
+               Build.SUPPORTED_ABIS.length==0||!"arm64-v8a".equals(Build.SUPPORTED_ABIS[0])||
+               !"aarch64".equals(machine))throw new IllegalStateException("Unreviewed API or non-native ARM64 target");
             receipt=new File(getTargetContext().getFilesDir(),"baseline-"+Process.myPid()+".tsv");
             if(!receipt.createNewFile())throw new IllegalStateException();
+            append("START\t"+Process.myPid()+"\t"+Process.myUid()+"\t"+api+"\t"+machine);
             System.loadLibrary("fixture");
+            if(nativeApi()!=api)throw new IllegalStateException("Native API mismatch");
             if(fixture(123)!=(123L^0x53454544L))throw new IllegalStateException();
             append("BASELINE_JNI_PASS");
             Thread thread=new Thread(ProbeInstrumentation::spin,"SeedLensProbe");thread.start();
