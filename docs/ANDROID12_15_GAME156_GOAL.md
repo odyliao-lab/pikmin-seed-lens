@@ -14,7 +14,7 @@
 | Android12/API31 | 156.1/code1793076318 | 同一官方x64 AVD另次cold boot已正常升級完整原簽章156.1；普通App Root及同0.4.1 SHA再核。遊戲首程序在產品載入前SEVL SIGILL、後續系統另記SIGSEGV | 未完成登入；無product attempt，兩頁仍未驗，不算通過 |
 | Android14/API34 | 156.0/code1792142832 | 官方x64 AVD實際API34／libndk_translation／Enforcing，ARM JNI baseline通過、SEVL模式失敗；原遊戲在軟體GPU boot實際於Unity SEVL SIGILL，未安裝Magisk或產品 | 未完成登入／產品載入，兩頁未驗，不算通過 |
 | Android14/API34 | 156.1/code1793076318 | 同一AVD另一host OpenGL boot，取消前輪未完成安裝並核恢復後，新的更新session實際applied；精確156.1首程序亦於Unity SEVL SIGILL。產品API34 x64仍拒絕 | 產品兩頁未驗，不算通過 |
-| Android15/API35 | 156.0/code1792142832 | 本人登入後，同原簽章0.4.1已驗兩頁名稱／OFF、花苗長字／四次捲動，以及新程序重新確認後再啟用／捲動往返／兩頁OFF；歷史UNKNOWN不變 | 部分已驗；探險長名／離屏重用待更多樣本，OS／長時間未驗 |
+| Android15/API35 | 156.0/code1792142832 | 同原簽章0.4.1兩頁名稱／OFF、花苗長字／捲動及遊戲重啟已驗；本人再次更換樣本後，另一兩程序實際補驗多類探險名稱與花苗真正離屏返回／兩頁OFF，歷史UNKNOWN不變 | 探險離屏往返已有畫面證據；需要觸發縮字的更長探險名稱仍待樣本，OS／長時間未驗 |
 | Android15/API35 | 156.1/code1793076318 | 原簽章0.4.1已驗兩頁名稱／OFF、花苗長字／捲動及另一新程序重新確認後再啟用／OFF；首筆UNKNOWN保留 | 部分已驗；探險長名／離屏重用待更多樣本，OS／長時間未驗 |
 | Android12/API31 | 157（精確versionName/code待官方intake） | 未取得／未安裝／無profile；既有x64的156.x SEVL缺口仍未解，157需獨立確認 | 全部未驗，不算通過 |
 | Android14/API34 | 157（精確versionName/code待官方intake） | 未取得／未安裝／無profile；產品x64 API34仍拒絕，須先驗原遊戲與平台能力 | 全部未驗，不算通過 |

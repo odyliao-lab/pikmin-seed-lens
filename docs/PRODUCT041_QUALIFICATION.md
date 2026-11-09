@@ -65,3 +65,9 @@ API35同一index5重開後仍為API35／libnb／原Permissive，同一0.4.1保�
 結束control OFF，同PID6657/start317279／156.0／enable0／ready、TracerPid0，adbd恢復UID2000。原三份產品attempt（含首筆UNKNOWN）及七份研究attempt逐字SHA不變；本輪兩筆正常journal SHA為`38d7e77fda62a168f9e9ae42ecc9386933f114d15a4a8c64e0789db504ed0b64`與`876f2576274fe1f0b6e1749f0606bd0eaf3f9588e7db324adaabe31c64c42f93`。舊UNKNOWN不補寫成功、不重送。
 
 全部原始PNG／XML／receipt仍只在上方ignored私人156.0資料夾。確認OFF後正常關閉index5，保留登入資料；才進已獲確認的新API34隔離環境，未操作既有四台或台中設備。
+
+## 後續本人更換未領回花苗樣本
+
+上述「只有一筆短名稱」是先前帳號範圍。使用者再次自行更換樣本後，API35／精確156.0以同0.4.1在PID1974/start13925及正常重啟後PID9010/start223817，實際補驗多類未領回花苗名稱、首排花苗完全離屏後返回仍對應、兩頁正常App OFF原文／字型還原；新程序未確認與舊status實際拒絕，重新確認後才載入。原12份歷史attempt不變，沒有重送UNKNOWN。
+
+探險名稱均可容納，長名稱觸發縮字仍未覆蓋，不把完整顯示當縮字通過。新樣本遇到的原有種花結算／獎勵由本人處理，未以領回或派遣製造樣本；詳見[本輪樣本證據及SHA](API35_SEED_EXPEDITION_SAMPLE.md)。原始截圖與帳號資料不進Git。
