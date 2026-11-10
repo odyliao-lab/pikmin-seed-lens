@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="dev.ody.seedpreview" android:versionCode="17" android:versionName="0.5.2">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="dev.ody.seedpreview" android:versionCode="18" android:versionName="0.6.0">
   <uses-sdk android:minSdkVersion="28" android:targetSdkVersion="35" />
   <queries><package android:name="com.nianticlabs.pikmin"/><package android:name="dev.ody.pikmincontrol"/><package android:name="dev.ody.pikmincontrol.mumu"/></queries>
   <application android:label="皮克敏花苗透視鏡" android:extractNativeLibs="true" android:theme="@android:style/Theme.Material.Light.NoActionBar" android:allowBackup="false" android:usesCleartextTraffic="false">

@@ -71,6 +71,12 @@ if($LASTEXITCODE){throw 'Installed native path/digest tests failed'}
 if($LASTEXITCODE){throw 'Game session test compile failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.GameSessionTest
 if($LASTEXITCODE){throw 'Game session tests failed'}
+& "$JavaHome/bin/javac.exe" -encoding UTF-8 -classpath "$out/tests" -d "$out/tests" "$PSScriptRoot/src/dev/ody/seedpreview/LensContext.java" "$PSScriptRoot/src/dev/ody/seedpreview/LensStatus.java" "$PSScriptRoot/tests/LensStatusTest.java" "$PSScriptRoot/tests/LensContextTest.java"
+if($LASTEXITCODE){throw 'Lens presentation protocol compile failed'}
+& "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.LensStatusTest
+if($LASTEXITCODE){throw 'Lens presentation protocol checks failed'}
+& "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.LensContextTest
+if($LASTEXITCODE){throw 'Lens boot/process binding checks failed'}
 & "$JavaHome/bin/javac.exe" -encoding UTF-8 -d "$out/tests" "$PSScriptRoot/tests/ApkNativeLayout.java" "$PSScriptRoot/tests/ApkNativeLayoutTest.java"
 if($LASTEXITCODE){throw 'APK layout checker compile failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.ApkNativeLayoutTest
@@ -110,6 +116,8 @@ foreach($abi in @('arm64-v8a','x86_64')){
 Copy-Item -LiteralPath "$dep/LICENSE" -Destination "$out/assets/AndKittyInjector-LICENSE.txt"
 Copy-Item -LiteralPath "$dep/KittyMemoryEx/LICENSE" -Destination "$out/assets/KittyMemoryEx-LICENSE.txt"
 Copy-Item -LiteralPath "$root/third_party/RENDERER_NOTICES.md" -Destination "$out/assets/Renderer-THIRD-PARTY-NOTICES.txt"
+New-Item -ItemType Directory "$out/assets/art" | Out-Null
+Copy-Item -LiteralPath "$PSScriptRoot/assets/art/forest-lens-mascot-v1.png" -Destination "$out/assets/art/forest-lens-mascot-v1.png"
 $bt="$SdkPath/build-tools/35.0.0";$jar="$SdkPath/platforms/android-35/android.jar";$env:JAVA_HOME=$JavaHome
 & "$bt/aapt2.exe" link -I $jar --manifest "$PSScriptRoot/AndroidManifest.xml" -A "$out/assets" -0 so -o "$out/unsigned.apk"
 if($LASTEXITCODE){throw 'Resource link failed'}
