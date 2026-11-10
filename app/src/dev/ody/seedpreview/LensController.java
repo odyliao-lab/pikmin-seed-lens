@@ -24,18 +24,38 @@ final class LensController {
     LensStatus state=LensStatus.unverified();
     String raw="尚無操作紀錄。",progress="",reason="";
     LensContext barrier;
+    boolean unscopedBarrier;
     LensStatus.Phase barrierPhase=LensStatus.Phase.UNKNOWN;
     private LensController(Context context){
         operations=new LensOperations(context);preferences=context.getApplicationContext().getSharedPreferences("lens-interface",Context.MODE_PRIVATE);
-        barrier=LensContext.parse(preferences.getString("retry-barrier",""));
-        barrierPhase=LensStatus.savedBarrierPhase(preferences.getString("retry-barrier-phase",null),preferences.getBoolean("ui-uncertain",false));
-        if(barrier!=null)state=new LensStatus(barrierPhase,barrier,0,false);
+        boolean current=preferences.contains("retry-barrier-v2"),legacyUncertain=false;
+        try{legacyUncertain=preferences.getBoolean("ui-uncertain",false);}catch(ClassCastException ignored){}
+        barrier=LensContext.preference(storedText("retry-barrier-v2"),current?null:storedText("retry-barrier"));
+        barrierPhase=LensStatus.savedBarrierPhase(storedText("retry-barrier-phase"),legacyUncertain);
+        if(barrier!=null){
+            state=new LensStatus(barrierPhase,barrier,0,false);
+            if(!current)persistBarrier();
+        }else if(current||preferences.contains("retry-barrier")||preferences.contains("retry-barrier-phase")||legacyUncertain){
+            unscopedBarrier=true;barrierPhase=LensStatus.Phase.UNCERTAIN;
+            state=new LensStatus(barrierPhase,null,0,false);
+        }
+    }
+    private String storedText(String key){try{return preferences.getString(key,null);}catch(ClassCastException malformed){return null;}}
+    private void persistBarrier(){
+        if(barrier==null)return;
+        preferences.edit().putString("retry-barrier-v2",barrier.preferenceRecord()).putString("retry-barrier-phase",barrierPhase.name()).putBoolean("ui-uncertain",barrierPhase!=LensStatus.Phase.UNKNOWN).apply();
+    }
+    private void bindUnscopedBarrier(LensContext current){
+        if(unscopedBarrier&&current!=null){
+            barrier=current;barrierPhase=LensStatus.Phase.UNCERTAIN;unscopedBarrier=false;
+            state=new LensStatus(barrierPhase,current,System.currentTimeMillis(),false);persistBarrier();
+        }
     }
     void attach(Observer value){observer=new WeakReference<>(value);notifyView();}
     void detach(Observer value){if(observer.get()==value)observer.clear();}
     private void notifyView(){Observer value=observer.get();if(value!=null)value.changed();}
     boolean busy(){return active.get();}
-    boolean blockedFor(LensContext context){return barrier!=null&&(context==null||barrier.same(context));}
+    boolean blockedFor(LensContext context){return unscopedBarrier||barrier!=null&&(context==null||barrier.same(context));}
     void confirm(Confirmation callback){
         if(!active.compareAndSet(false,true)){callback.finished(null,true);return;}
         reason="";progress="正在核對當次遊戲程序…";notifyView();
@@ -44,7 +64,7 @@ final class LensController {
             final LensContext current=found;
             main.post(()->{
                 active.set(false);progress="";
-                boolean blocked=blockedFor(current);
+                bindUnscopedBarrier(current);boolean blocked=blockedFor(current);
                 if(current!=null&&barrier!=null&&!barrier.same(current)&&state.blocksEnable())state=new LensStatus(LensStatus.Phase.UNVERIFIED,current,System.currentTimeMillis(),false);
                 notifyView();callback.finished(current,blocked);
             });
@@ -64,15 +84,16 @@ final class LensController {
             main.post(()->{
                 raw=result.blocked!=null?result.blocked:result.reply.output;
                 reason=result.blocked==null?"":result.blocked;
+                bindUnscopedBarrier(parsed.session);
                 if(parsed.phase==LensStatus.Phase.UNKNOWN||parsed.phase==LensStatus.Phase.UNCERTAIN||parsed.phase==LensStatus.Phase.RESTART_REQUIRED){
                     if(parsed.session!=null){
                         barrier=parsed.session;barrierPhase=parsed.phase;
-                        preferences.edit().putString("retry-barrier",barrier.record()).putString("retry-barrier-phase",barrierPhase.name()).putBoolean("ui-uncertain",barrierPhase!=LensStatus.Phase.UNKNOWN).apply();
+                        unscopedBarrier=false;persistBarrier();
                     }
                 }
                 // OFF and read errors never erase a barrier for the same
                 // process. A fresh boot/PID/start is required to proceed.
-                state=LensStatus.retainingBarrier(parsed,barrier,barrierPhase);
+                state=LensStatus.retainingBarrier(parsed,barrier,barrierPhase,unscopedBarrier);
                 progress="";active.set(false);notifyView();
             });
         });

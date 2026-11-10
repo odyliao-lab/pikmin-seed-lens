@@ -20,6 +20,10 @@ final class LensStatus {
         return legacyUncertain?Phase.UNCERTAIN:Phase.UNKNOWN;
     }
     static LensStatus retainingBarrier(LensStatus value,LensContext barrier,Phase phase){
+        return retainingBarrier(value,barrier,phase,false);
+    }
+    static LensStatus retainingBarrier(LensStatus value,LensContext barrier,Phase phase,boolean unscoped){
+        if(unscoped)return new LensStatus(Phase.UNCERTAIN,null,value.observedAt,false);
         if(barrier!=null&&(value.session==null||barrier.same(value.session)))
             return new LensStatus(phase,barrier,value.observedAt,false);
         return value;

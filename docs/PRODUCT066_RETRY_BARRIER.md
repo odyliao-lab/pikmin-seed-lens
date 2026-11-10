@@ -29,3 +29,17 @@ OFF及只讀不能清除同程序屏障，以及新boot／程序觀察的各自�
 此處是來源／建置與協定驗證，不是對遊戲製造signal，也不是完整裝置驗收。
 下一步在同index5用真實APK升級／舊renderer路徑衝突驗拒絕、屏障持久性、OFF／只讀不清除，
 再正常重開遊戲驗新程序與兩頁回歸。0.6.5原件不覆寫、畫面資格不轉記本版。
+
+## 實機升級拒絕與持久化缺陷
+
+同index5／boot400309d5…5a35，精確157遊戲PID12384/start296654/UID10067先由0.6.5正常
+載入並OFF；保留該程序及舊renderer後，-r升級原簽章0.6.6，遊戲身分不變。
+新App由兩項新確認提出一次請求，native實際回報OTHER_RENDERER／BLOCKED_STAGE26；
+介面顯示「這次載入已停止」、開關disabled，未新增載入attempt。原41筆SHA完全一致，
+舊renderer仍mapped（舊APK路徑已deleted）、control OFF、thread TracerPid均0。
+
+**App重啟持久化未通過**：重開App後呈現尚未核對，而非應保留的屏障。
+私人偏好XML中的舊retry-barrier值在換行字元後多了4個縮排空白，嚴格runtime parser拒絕。
+phase及舊值原件保留，沒有在此狀態再按啟用；native守門／41筆歷史仍保持原狀。
+0.6.6保留，不稱完整UI通過；下一版改用無換行的版本化偏好記錄、精確遷移已測舊值，
+並對無法解碼的既存屏障採保守處理。不得放寬runtime session parser來配合XML格式。

@@ -80,6 +80,11 @@ public final class LensStatusTest {
             expect(LensStatus.Phase.UNVERIFIED,LensStatus.retainingBarrier(new LensStatus(LensStatus.Phase.UNVERIFIED,next,100000,false),S,barrier));
             expect(LensStatus.Phase.UNVERIFIED,LensStatus.retainingBarrier(new LensStatus(LensStatus.Phase.UNVERIFIED,LensContext.parse("4322\t9877\t"+B+"\n"),100000,false),S,barrier));
         }
+        for(LensStatus value:new LensStatus[]{parse(off,0,H+OFF,true),parse(read,0,H+R,true),LensStatus.unverified()}){
+            LensStatus blocked=LensStatus.retainingBarrier(value,null,LensStatus.Phase.UNKNOWN,true);
+            expect(LensStatus.Phase.UNCERTAIN,blocked);
+            if(!blocked.blocksEnable()||blocked.controlOn)throw new AssertionError("unreadable stored scope lost barrier");++checks;
+        }
         System.out.println("LensStatusTest: "+checks+" protocol/presentation cases passed; not device acceptance");
     }
 }
