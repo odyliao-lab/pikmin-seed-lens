@@ -33,7 +33,7 @@ int main(){
     for(auto name:{u"水果",u"禮物盒",u"紅色皮克敏"})assert(decorate(name,4,1,true,u"咖啡杯")==name);
     assert(seed_preview::subtype(137).empty()&&seed_preview::subtype(138).empty()); // no upgrade prediction
     assert(seed_preview::plain_name(u"<b broken").empty());
-    assert(seed_preview::minimum_font_size(24)==18&&seed_preview::minimum_font_size(16)==12);
+    assert(seed_preview::minimum_font_size(24)==12&&seed_preview::minimum_font_size(16)==12);
     assert(seed_preview::minimum_font_size(12)==12);
     seed_preview::FontState font;
     int restores=0;

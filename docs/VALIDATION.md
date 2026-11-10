@@ -669,3 +669,6 @@ Java／native／renderer共同改動：native持有同一lease完成OFF→必要
 
 
 Scalar完整Android其後由Watchdog殺掉阻塞於PM政策讀取的SystemServer，未完成boot；已在UID2000後正常console關機／inferior exit0。另以host MMU vector-save取代scalar generator選擇，原V2及V3c CPU7/7、故意NULL-fatal與host ABI／拒絕控制已驗；這是明確改動host程序資料的研究，完整Android／App／Root及遊戲另驗，不放寬時間或版本守門。見[最新Linux分層結果](API31_LINUX_HOST_RESEARCH.md)。
+
+
+Vector-save完整API31 ARM guest另次獨立觀察取得新boot／API31／ARM64及SystemServer entered，25分鐘仍未完成boot，沒有執行Root／native stress或安裝APK。UID2000／Enforcing確認後正常關機、inferior exit0。本輪未取得Watchdog kill證據，不套用前輪原因，API31遊戲仍未通過。另準備原簽章0.5.1/code16長字下限候選，建置／host policy檢查已通過，畫面驗收尚未開始，詳見[本版候選](PRODUCT051_FONT_CANDIDATE.md)。

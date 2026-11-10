@@ -49,7 +49,11 @@ inline std::u16string decorate(std::u16string_view source,int seed_type,int colo
     const auto suffix=seed_type==4?u"金苗":(treasure==25||treasure==26?u"花苗":u"苗");
     return std::u16string(colours[colour])+kind+suffix;
 }
-inline int minimum_font_size(int original) { return std::max(12,(original*3+3)/4); }
+// Keep the existing 12-point readability floor. The game's AutoSize still
+// chooses the largest fitting size up to the saved original; a 75% lower bound
+// prevented longer catalog names from fitting even when readable sizes existed.
+// FontState admits only originals >=12; the cap also avoids min > max.
+inline int minimum_font_size(int original) { return std::min(12,original); }
 struct FontState {
     bool saved{},automatic{};
     int minimum{},maximum{},size{};

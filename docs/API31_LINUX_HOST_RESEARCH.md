@@ -147,3 +147,12 @@ V3c把no-core限制移到故意NULL控制之前；前稿NULL控制未先設定�
 | controller錯marker／錯exe | 均exit1／VECTOR_SAVE_REFUSED，在starti前拒絕，沒有啟動guest |
 
 helper17,712 bytes／SHA256 `823f6e1826a353ad38a91e7652ec46132c69c349bf6bcc28d1399c512323508c`；host ABI fixture15,416 bytes／`e2c60e7e01d5435cbd4106deeaf5c1373e906773fe96d851caa48fdaf9a28496`。以checked-in build腳本另存唯一目錄重建，兩者SHA相同。不是原廠TCG全面修復、任意host向量狀態或完整Android資格；接下來仍須另驗完整boot／原生loader／普通App及遊戲，九組不升格。
+
+
+## Vector-save完整Android的獨立開機觀察
+
+同一API31 ARM guest以mapper＋vector-save／normal TB啟動gdb12456／inferior12466，實際註冊14 wrappers、真實host AVX旗標仍1/1。新boot `6643d549-6d5a-4d7c-9b82-0a4dd2d6ff31`，ADB再次實讀Android12／API31／ARM64-only／NativeBridge0及相同fingerprint。為減少干擾，本輪沒有請求adbd Root、執行原生stress或安裝Magisk／APK；只有read-only props與log觀察。
+
+一次props讀取逾時，後續多次同boot讀取exit0；log實際記錄SystemServer569 entered，但25分鐘觀察期限內`sys.boot_completed`仍空、bootanim running。一次500行errors／Watchdog範圍log只見livelock samples，**沒有取得本輪Watchdog kill證據**，不把前一scalar輪原因直接套用。gated原生產品界限套件因boot條件未達而未執行，不以先前fork正例替代本輪App就緒。
+
+收尾實際讀回UID2000、Enforcing及同boot，再正常console kill回OK。UTC `2026-11-10T00:16:22` inferior實際exit0，debugger exit0，`timedOut=false`／無收容訊號；其後核無存活QEMU，才啟動已授權index5。這是完整boot仍未達成的有限觀察，不是App／Root／JNI或任何API31遊戲通過。原SDK、舊UNKNOWN及private data保留，沒有停用Watchdog、改clock或延長產品loader界限。
