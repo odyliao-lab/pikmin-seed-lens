@@ -118,3 +118,17 @@ APEX預設可為每個套件建立一個並行worker；dm裝置等待預設1秒�
 下一個單獨比較只要求worker數1，以實際property／啟動紀錄確認是否生效；**不增加dm等待時間、
 loop重試次數、產品15s／2s界限，不停用self-test／Watchdog或修改SELinux／clock／API**。
 目前只是並行負載的假設，尚未取得有效設定或成功開機證據。
+
+### 固定單一屬性的私人 ramdisk 候選
+
+`-prop`比較輪有SDK「only qemu properties supported」警告，仍未讀回實際設定，APEX仍失敗；
+已正常關閉，不當作worker數1有效或成功。唯讀檢視官方ramdisk確認存在
+`system/etc/ramdisk/build.prop`；AOSP init的second-stage property讀取流程有對應來源。
+另建[固定用途工具](../research/api34-apex-single-ramdisk.md)，保留整份原壓縮ramdisk作prefix，
+只附加一份覆蓋該build.prop的newc／LZ4 archive，原屬性內容及owner／mode／time保留，
+僅增加`apexd.config.boot_activation.threads=1`，沒有加入Root或修改init可執行檔。
+32個effective entries逐一比對，差異只有該檔；原SDK不變，私人候選SHA
+`ccba894ee41e3388f4228949418be61c728fc02c79caa631241ddf6fa1c3e072`。
+錯API31來源、SDK內輸出、覆寫既有候選三個實際負例均拒絕，原件SHA保留。
+同新guest的明確private ramdisk override已開始獨立觀察；目前仍未讀回property或完整boot，
+不稱為原官方無修改ramdisk、Root、App或產品資格。所有原失敗與冷備份保留。
