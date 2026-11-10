@@ -18,6 +18,8 @@ API34原kernel的自有V2基準實際5 pass／2 SIGSEGV fail；同V2配API34 map
 
 同Root會話後段的共用fixture普通budget比較兩者皆exit1：direct達完整ELF lifecycle及四階段但未於期限內確認worker reap，判Refused；baseline為兩階段UNKNOWN／已收容。前段成功不升格穩定資格；停止新增boot負載下loader測試。PM已掃完258項並重新解壓前輪未完成的Trichrome，完整boot仍待核對；詳見上述比較紀錄。
 
+只讀Trichrome FD樣本另證實gzip及`.apk.new`輸出位置持續增加（輸入3.35→6.81MB／總58.7MB，輸出9.44→16.78MB），尚未完成正式APK。因而保留同一boot，以精確pidfd host guardian接手總7200秒觀察，原3600與handoff分開留存；原Root收尾時點及產品15s／2s不變。沒有改guest資源、映像或安全設定，boot／App／遊戲與最終關機仍待驗；見[同次開機觀察](API34_ARM_LINUX_RESEARCH.md)。
+
 ## 2026-11-10：同0.5.2／API35／157首輪及遊戲重啟
 
 156.1正常OFF後，以合法完整原簽章splits正常升級157.0/code1793360009，PM逐份SHA、同0.5.2 APK及原28份歷史再次核對。經正常設定切回繁體並重新進入本人帳號後，PID10899/start264686正常App新同意／完整journal，兩頁名稱、庫存完整紀念長字、兩頁真正離屏返回及OFF還原已觀察；中途OFF snapshot保留原時序，稍後ON_COMMITTED與ready／ON獨立核實，不重送載入。

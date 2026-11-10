@@ -292,3 +292,28 @@ budget套件，順序direct再baseline，兩者皆exit1。direct的ELF雖載入�
 本身不足以讓較後段boot負載穩定通過；先停止新增loader測試，沒有放寬期限或reap條件。
 PM同時於UTC06:42:05完成258個system packages（625310ms、cached258），發現前輪未完成的
 Trichrome目錄缺base APK，正常刪除無效目錄後開始新解壓。此記錄不是已有完整解壓或boot成功。
+
+### Trichrome 實際進度與同次開機的有界延長
+
+在既有單次Root會話內，以同boot、system_server PID570／UID1000／start81150前後核對，
+只讀FD與fdinfo，沒有signal、Root切換或寫系統／data。實際開啟的輸入是官方image內
+`TrichromeLibrary.apk.gz`，輸出則為AtomicFile的`TrichromeLibrary.apk.new`；正式目的檔尚未
+存在，不等於沒有寫入或大小0。AOSP14r1的
+[decompressFile](https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-14.0.0_r1/services/core/java/com/android/server/pm/PackageManagerServiceUtils.java)
+亦使用AtomicFile；這是來源對照，實際進度仍由本輪FD讀值判定。
+
+兩次後續只讀樣本的command開始時間UTC06:47:27與06:50:52，相隔約205秒；各讀取本身
+耗時約53／51秒，因此不是瞬時或精確吞吐基準。輸入位置3350538→6809098，輸出位置
+9436452→16781107，官方壓縮檔大小58715906bytes。兩者都向前，足以否定此區間完全沒有
+I/O進展；不能據此宣告解壓完成、沒有其他卡點或整體boot成功。`stat`未加dereference時
+取得的是proc FD symlink長度64，不當作輸出APK大小。粗略速率只供安排開發環境觀察窗口，
+不作產品效能或成功證據。
+
+為保留同次初始化，UTC06:55另以新host guardian接手**同一QEMU／boot**的觀察，上限由
+3600延到總7200秒（UTC08:13:41）。新guardian先以pidfd與exe／start／parent綁定自己的
+QEMU、gdb、原supervisor及原關閉計時器；實讀舊supervisor暫停及舊timer退出後才接手。
+原state.json的3600保留為原設定，另外的私人handoff receipt才記有效新界限，不覆寫歷史。
+新guardian負責有界console關閉／必要時精確pidfd收容，結束後恢復原supervisor記錄實際退出。
+這不改guest CPU／RAM、image、clock、Watchdog、SELinux或產品15s／2s；原單次Root會話
+仍在原2700秒點結束並實讀UID2000。新guardian的完整boot／PM／AM雙次核對與最終退出
+仍待實際回報；此時未提前宣稱正常收尾。
