@@ -1,5 +1,14 @@
 # 驗證分層
 
+## 2026-11-10：API34 AOSP 新目標 CPU gate，尚無 Android／遊戲資格
+
+前輪 Google-APIs 單執行緒完整 Android 實際出現三次 stock Watchdog kill，boot flag 未完成；
+UTC09:21 正常關閉、實際 inferior/gdb exit0，保留資料及失敗。使用者另核准 AOSP ARM64
+rev4／新 AVD／5590，官方大小／SHA1／SHA256、全新6GiB data 及獨立守門已核。
+新目標 V3c 自有 CPU 實際7/7、故意NULL／child-reap控制通過、正常power-off與真實exit0；
+只代表CPU層，不承接成API34完整boot、普通App Root／JNI或三遊戲成功。見
+[AOSP分層證據](API34_AOSP_ARM_LINUX_RESEARCH.md)。產品0.5.2/code17與守門未變。
+
 ## 2026-11-10：API34 ARM/Linux 新授權目標與 CPU 對照
 
 使用者核准指定 WSL2／SeedLens_API34_ARM64_Linux／5588，新 index5 OFF／30份歷史可見／無 active loader、adbd恢復UID2000後正常關閉，原四台不動。官方API34 ARM64 rev14 archive大小／SHA1及23個解壓檔案SHA256已核，原映像不改，另建全新6GiB data。

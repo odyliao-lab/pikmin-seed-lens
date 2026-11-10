@@ -26,7 +26,21 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-static const char *fixture_marker = marker;
+#if defined(SEEDLENS_API34_AOSP_HOST_RESEARCH)
+#define TEST_VALID_AVD "SeedLens_API34_AOSP_ARM64_Linux"
+#define TEST_VALID_PORT "5590"
+#define TEST_EXPECTED_MARKER "seedlens-api34-aosp-tcg-single-mapper-v1"
+#else
+#define TEST_VALID_AVD "SeedLens_API34_ARM64_Linux"
+#define TEST_VALID_PORT "5588"
+#if defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH)
+#define TEST_EXPECTED_MARKER "seedlens-api34-tcg-single-mapper-v1"
+#else
+#define TEST_EXPECTED_MARKER "seedlens-api34-tcg-mapper-selection-v1"
+#endif
+#endif
+
+static const char *fixture_marker = TEST_EXPECTED_MARKER;
 static const char *fixture_exe =
     "/opt/seedlens-lab/sdk/emulator/qemu/linux-x86_64/qemu-system-aarch64-headless";
 static char fixture_argv[8192];
@@ -84,8 +98,8 @@ static int run_case(const char *name, const char *const *argv, int expected) {
 }
 
 int main(void) {
-    const char *valid[] = {"qemu", "-avd", "SeedLens_API34_ARM64_Linux",
-                           "-port", "5588", "-no-accel",
+    const char *valid[] = {"qemu", "-avd", TEST_VALID_AVD,
+                           "-port", TEST_VALID_PORT, "-no-accel",
 #if defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH)
                            "-qemu", "-accel", "tcg,thread=single",
 #endif
@@ -95,43 +109,52 @@ int main(void) {
     failed += run_case("old-marker-refused", valid, 1);
     fixture_marker = NULL;
     failed += run_case("missing-marker-refused", valid, 1);
-    fixture_marker = marker;
+    fixture_marker = TEST_EXPECTED_MARKER;
     fixture_exe = "/usr/bin/true";
     failed += run_case("wrong-executable-refused", valid, 1);
     fixture_exe = expected_exe;
-    const char *wrong_avd[] = {"qemu", "-avd", "SeedLens_API31_ARM64_Linux", "-port", "5588", "-no-accel", NULL};
+    const char *wrong_avd[] = {"qemu", "-avd", "SeedLens_API31_ARM64_Linux", "-port", TEST_VALID_PORT, "-no-accel", NULL};
     failed += run_case("old-avd-refused", wrong_avd, 1);
-    const char *wrong_port[] = {"qemu", "-avd", "SeedLens_API34_ARM64_Linux", "-port", "5586", "-no-accel", NULL};
+    const char *wrong_port[] = {"qemu", "-avd", TEST_VALID_AVD, "-port", "5586", "-no-accel", NULL};
     failed += run_case("wrong-port-refused", wrong_port, 1);
-    const char *duplicate_avd[] = {"qemu", "-avd", "SeedLens_API34_ARM64_Linux", "-avd", "other", "-port", "5588", "-no-accel", NULL};
+    const char *duplicate_avd[] = {"qemu", "-avd", TEST_VALID_AVD, "-avd", "other", "-port", TEST_VALID_PORT, "-no-accel", NULL};
     failed += run_case("duplicate-avd-refused", duplicate_avd, 1);
-    const char *duplicate_port[] = {"qemu", "-avd", "SeedLens_API34_ARM64_Linux", "-port", "5588", "-port", "5589", "-no-accel", NULL};
+    const char *duplicate_port[] = {"qemu", "-avd", TEST_VALID_AVD, "-port", TEST_VALID_PORT, "-port", "5589", "-no-accel", NULL};
     failed += run_case("duplicate-port-refused", duplicate_port, 1);
-    const char *no_software[] = {"qemu", "-avd", "SeedLens_API34_ARM64_Linux", "-port", "5588", NULL};
+    const char *no_software[] = {"qemu", "-avd", TEST_VALID_AVD, "-port", TEST_VALID_PORT, NULL};
     failed += run_case("missing-software-refused", no_software, 1);
-    const char *duplicate_software[] = {"qemu", "-avd", "SeedLens_API34_ARM64_Linux", "-port", "5588", "-no-accel", "-no-accel", NULL};
+    const char *duplicate_software[] = {"qemu", "-avd", TEST_VALID_AVD, "-port", TEST_VALID_PORT, "-no-accel", "-no-accel", NULL};
     failed += run_case("duplicate-software-refused", duplicate_software, 1);
-    const char *conflicting_accel[] = {"qemu", "-avd", "SeedLens_API34_ARM64_Linux", "-port", "5588", "-no-accel", "-accel", "kvm", NULL};
+    const char *conflicting_accel[] = {"qemu", "-avd", TEST_VALID_AVD, "-port", TEST_VALID_PORT, "-no-accel", "-accel", "kvm", NULL};
     failed += run_case("conflicting-accelerator-refused", conflicting_accel, 1);
-    const char *enable_kvm[] = {"qemu", "-avd", "SeedLens_API34_ARM64_Linux", "-port", "5588", "-no-accel", "-enable-kvm", NULL};
+    const char *enable_kvm[] = {"qemu", "-avd", TEST_VALID_AVD, "-port", TEST_VALID_PORT, "-no-accel", "-enable-kvm", NULL};
     failed += run_case("enable-kvm-refused", enable_kvm, 1);
 #if defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH)
     fixture_marker = "seedlens-api34-tcg-mapper-selection-v1";
     failed += run_case("default-api34-marker-refused", valid, 1);
-    fixture_marker = marker;
+    fixture_marker = TEST_EXPECTED_MARKER;
     const char *modes[] = {"tcg,thread=multi", "tcg", "off", "kvm", "tcg,thread=single,invalid=1"};
     for (unsigned int index=0; index<sizeof(modes)/sizeof(modes[0]); ++index) {
-        const char *wrong_mode[] = {"qemu", "-avd", "SeedLens_API34_ARM64_Linux", "-port", "5588", "-no-accel", "-qemu", "-accel", modes[index], NULL};
+        const char *wrong_mode[] = {"qemu", "-avd", TEST_VALID_AVD, "-port", TEST_VALID_PORT, "-no-accel", "-qemu", "-accel", modes[index], NULL};
         failed += run_case("non-exact-scheduling-refused", wrong_mode, 1);
     }
-    const char *no_mode[] = {"qemu", "-avd", "SeedLens_API34_ARM64_Linux", "-port", "5588", "-no-accel", NULL};
+    const char *no_mode[] = {"qemu", "-avd", TEST_VALID_AVD, "-port", TEST_VALID_PORT, "-no-accel", NULL};
     failed += run_case("missing-single-mode-refused", no_mode, 1);
-    const char *front_mode[] = {"qemu", "-avd", "SeedLens_API34_ARM64_Linux", "-port", "5588", "-no-accel", "-accel", "tcg,thread=single", "-qemu", NULL};
+    const char *front_mode[] = {"qemu", "-avd", TEST_VALID_AVD, "-port", TEST_VALID_PORT, "-no-accel", "-accel", "tcg,thread=single", "-qemu", NULL};
     failed += run_case("frontend-accelerator-refused", front_mode, 1);
-    const char *duplicate_qemu[] = {"qemu", "-avd", "SeedLens_API34_ARM64_Linux", "-port", "5588", "-no-accel", "-qemu", "-accel", "tcg,thread=single", "-qemu", NULL};
+    const char *duplicate_qemu[] = {"qemu", "-avd", TEST_VALID_AVD, "-port", TEST_VALID_PORT, "-no-accel", "-qemu", "-accel", "tcg,thread=single", "-qemu", NULL};
     failed += run_case("duplicate-qemu-refused", duplicate_qemu, 1);
-    const char *duplicate_accel[] = {"qemu", "-avd", "SeedLens_API34_ARM64_Linux", "-port", "5588", "-no-accel", "-qemu", "-accel", "tcg,thread=single", "-accel", "tcg,thread=single", NULL};
+    const char *duplicate_accel[] = {"qemu", "-avd", TEST_VALID_AVD, "-port", TEST_VALID_PORT, "-no-accel", "-qemu", "-accel", "tcg,thread=single", "-accel", "tcg,thread=single", NULL};
     failed += run_case("duplicate-accelerator-refused", duplicate_accel, 1);
+#if defined(SEEDLENS_API34_AOSP_HOST_RESEARCH)
+    fixture_marker = "seedlens-api34-tcg-single-mapper-v1";
+    failed += run_case("google-api-single-marker-refused", valid, 1);
+    fixture_marker = TEST_EXPECTED_MARKER;
+    const char *google_avd[] = {"qemu", "-avd", "SeedLens_API34_ARM64_Linux", "-port", TEST_VALID_PORT, "-no-accel", "-qemu", "-accel", "tcg,thread=single", NULL};
+    failed += run_case("google-api-avd-refused", google_avd, 1);
+    const char *google_port[] = {"qemu", "-avd", TEST_VALID_AVD, "-port", "5588", "-no-accel", "-qemu", "-accel", "tcg,thread=single", NULL};
+    failed += run_case("google-api-port-refused", google_port, 1);
+#endif
 #endif
     const pid_t child = fork();
     if (child == 0) { fixture_has_original = 0; seedlens_software_cpu(); _Exit(99); }
@@ -140,7 +163,9 @@ int main(void) {
         !WIFEXITED(status) || WEXITSTATUS(status) != 86) ++failed;
     else puts("HOST_GUARD_PASS missing-original-exit86");
     printf("HOST_GUARD_SUMMARY cases=%d failed=%d android_qualification=0\n",
-#if defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH)
+#if defined(SEEDLENS_API34_AOSP_HOST_RESEARCH)
+           26,
+#elif defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH)
            23,
 #else
            13,

@@ -78,6 +78,27 @@ class HostTargetTests(unittest.TestCase):
             with self.subTest(option=option),self.assertRaises(ValueError):
                 validate_target_argv(argv,target)
 
+    def test_aosp_is_separate_target_and_artifact(self):
+        google=select_target('seedlens-api34-tcg-single-vector-v1')
+        aosp=select_target('seedlens-api34-aosp-tcg-single-vector-v1')
+        self.assertEqual(aosp.avd,b'SeedLens_API34_AOSP_ARM64_Linux')
+        self.assertEqual(aosp.port,b'5590')
+        self.assertNotEqual(aosp.mapper,google.mapper)
+        self.assertNotEqual(aosp.mapper_sha256,google.mapper_sha256)
+        valid=self.args(aosp)+[b'-qemu',b'-accel',b'tcg,thread=single']
+        validate_target_argv(valid,aosp)
+        for argv,target in [(valid,google),(self.args(google)+[b'-qemu',b'-accel',b'tcg,thread=single'],aosp)]:
+            with self.subTest(argv=argv),self.assertRaises(ValueError):
+                validate_target_argv(argv,target)
+
+    def test_aosp_rejects_cross_ports_and_modes(self):
+        aosp=select_target('seedlens-api34-aosp-tcg-single-vector-v1')
+        valid=self.args(aosp)+[b'-qemu',b'-accel',b'tcg,thread=single']
+        for position,value in [(valid.index(b'-port')+1,b'5588'),(valid.index(b'-avd')+1,b'SeedLens_API34_ARM64_Linux'),(len(valid)-1,b'kvm')]:
+            argv=list(valid);argv[position]=value
+            with self.subTest(argv=argv),self.assertRaises(ValueError):
+                validate_target_argv(argv,aosp)
+
 
 if __name__=='__main__':
     unittest.main()

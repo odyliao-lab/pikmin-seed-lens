@@ -11,6 +11,9 @@ _Static_assert(sizeof(void *) == 8 && sizeof(long) == 8, "Linux x64 ABI required
 #if defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH) && !defined(SEEDLENS_API34_HOST_RESEARCH)
 #error Single-thread scheduling research requires the separate API34 host target.
 #endif
+#if defined(SEEDLENS_API34_AOSP_HOST_RESEARCH) && !(defined(SEEDLENS_API34_HOST_RESEARCH) && defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH))
+#error AOSP target requires separate API34 single-thread host research.
+#endif
 
 typedef unsigned long size_type;
 extern char *getenv(const char *);
@@ -26,12 +29,18 @@ static const char symbol[] = "_ZN7android24GetCurrentCpuAcceleratorEv";
 static const char expected_exe[] =
     "/opt/seedlens-lab/sdk/emulator/qemu/linux-x86_64/qemu-system-aarch64-headless";
 #if defined(SEEDLENS_API34_HOST_RESEARCH)
+#if defined(SEEDLENS_API34_AOSP_HOST_RESEARCH)
+static const char expected_avd[] = "SeedLens_API34_AOSP_ARM64_Linux";
+static const char expected_port[] = "5590";
+static const char marker[] = "seedlens-api34-aosp-tcg-single-mapper-v1";
+#else
 static const char expected_avd[] = "SeedLens_API34_ARM64_Linux";
 static const char expected_port[] = "5588";
 #if defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH)
 static const char marker[] = "seedlens-api34-tcg-single-mapper-v1";
 #else
 static const char marker[] = "seedlens-api34-tcg-mapper-selection-v1";
+#endif
 #endif
 #else
 static const char expected_avd[] = "SeedLens_API31_ARM64_Linux";
@@ -127,7 +136,9 @@ int seedlens_software_cpu(void) {
     if (!__atomic_exchange_n(&logged, 1, __ATOMIC_RELAXED)) {
         static const char notice[] =
 #if defined(SEEDLENS_API34_HOST_RESEARCH)
-#if defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH)
+#if defined(SEEDLENS_API34_AOSP_HOST_RESEARCH)
+            "SEED_TCG_API34_AOSP_SINGLE_SOFTWARE_SELECTION_V1 qualified_host=0 android_qualification=0\n";
+#elif defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH)
             "SEED_TCG_API34_SINGLE_SOFTWARE_SELECTION_V1 qualified_host=0 android_qualification=0\n";
 #else
             "SEED_TCG_API34_SOFTWARE_SELECTION_V1 qualified_host=0 android_qualification=0\n";

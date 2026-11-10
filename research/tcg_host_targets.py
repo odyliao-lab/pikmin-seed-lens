@@ -29,6 +29,11 @@ TARGETS = {
         Path('/opt/seedlens-lab/host-helper-api34-single-v1/libseedlens-api34-tcg-single-selection-v1.so'),
         '0aa0e6e0f23048592ac113e14fdfb0f7c6673268e971af46e5ac1839b8f1122e',
         True),
+    'seedlens-api34-aosp-tcg-single-vector-v1': HostTarget(
+        b'SeedLens_API34_AOSP_ARM64_Linux', b'5590',
+        Path('/opt/seedlens-lab/host-helper-api34-aosp-single-v1/libseedlens-api34-aosp-tcg-single-selection-v1.so'),
+        'f4b738fdafbffdb3c8f0aec7c0e16e5da6234a33e9fd19ba978452f937ceab88',
+        True),
 }
 
 
