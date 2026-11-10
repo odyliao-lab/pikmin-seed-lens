@@ -27,14 +27,17 @@ final class PMCanary {
         String pid=args.getString("load_pid"),start=args.getString("load_start"),host=args.getString("load_host");
         String timeout=args.getString("timeout_test","false");
         int api=android.os.Build.VERSION.SDK_INT;
-        if((api!=31&&api!=35)||!Integer.toString(api).equals(args.getString("expected_api"))||Process.myUid()<10000||
+        String abi=android.os.Build.SUPPORTED_ABIS.length==0?"":android.os.Build.SUPPORTED_ABIS[0];
+        String backend=ProbePlatform.backend(args.getString("expected_api"),api,abi,Process.is64Bit(),android.system.Os.uname().machine);
+        boolean arm=backend.equals("arm64");
+        if(backend.isEmpty()||Process.myUid()<10000||
            !"dev.ody.seedlensrootprobe".equals(context.getPackageName())||
            pid==null||!pid.matches("[1-9][0-9]{0,9}")||start==null||!start.matches("[1-9][0-9]{0,19}")||
            host==null||!host.matches("/[A-Za-z0-9_+=~/.-]+")||
-           !(timeout.equals("false")||timeout.equals("true")))throw new IllegalArgumentException();
+           !(timeout.equals("false")||timeout.equals("true"))||(arm&&!timeout.equals("false")))throw new IllegalArgumentException();
         File runner=new File(context.getApplicationInfo().nativeLibraryDir,"libseed_probe_runner.so");
         if(!runner.getPath().equals(runner.getCanonicalPath())||!runner.canExecute()||
-           !runner.getPath().matches("/data/app/[A-Za-z0-9_+=~/.-]+/dev\\.ody\\.seedlensrootprobe-[A-Za-z0-9_+=~.-]+/lib/x86_64/libseed_probe_runner\\.so"))
+           !runner.getPath().matches("/data/app/[A-Za-z0-9_+=~/.-]+/dev\\.ody\\.seedlensrootprobe-[A-Za-z0-9_+=~.-]+/lib/"+(arm?"arm64":"x86_64")+"/libseed_probe_runner\\.so"))
             throw new IllegalStateException("PM executable path mismatch");
         String expected;
         try(InputStream input=context.getAssets().open("runner.sha256")){
@@ -46,7 +49,7 @@ final class PMCanary {
         File receipt=new File(context.getFilesDir(),"pm-"+Process.myPid()+"-"+SystemClock.elapsedRealtime()+".tsv");
         if(!receipt.createNewFile())throw new IllegalStateException();
         // All fields are restricted above; no quotes, spaces or shell expansion.
-        String command=runner.getPath()+" "+pid+" "+start+" "+api+" "+host+(timeout.equals("true")?" --timeout-test":"");
+        String command=runner.getPath()+" "+pid+" "+start+" "+(arm?host+" "+api:api+" "+host)+(timeout.equals("true")?" --timeout-test":"");
         try(FileOutputStream output=new FileOutputStream(receipt,true)){
             output.write(("APP_UID\t"+Process.myUid()+"\nRUNNER_SHA\t"+expected+"TARGET\t"+pid+"\t"+start+"\nONE_COMMAND_ONLY\n").getBytes(StandardCharsets.UTF_8));
             output.getFD().sync();

@@ -8,6 +8,8 @@ API34原kernel的自有V2基準實際5 pass／2 SIGSEGV fail；同V2配API34 map
 
 後續同配置V3c亦7/7及故意NULL-fatal／reap控制通過。第一輪完整Android則因找不到Conscrypt APEX內self-test路徑，自行要求`boringssl-self-check-failed`重啟；ADB一直offline，未請求Root／安裝APK。console正常關閉、inferior exit0不算Android成功。原件／18檔冷備份保留，下一輪加錯誤logcat定位，不跳過self-test或放寬守門。
 
+其後串列明確定位APEX的device-mapper等待失敗。私人ramdisk只增加官方APEX activation worker數1的設定，原SDK／kernel及安全界限保留；34個APEX掛載、Conscrypt self-test exit0，實際讀到Android14／API34／ARM64-only／NativeBridge0／Enforcing。暫用原廠adbd Root讀回該設定1後，已實際恢復UID2000。約24分42秒時雖出現system_server618，boot flag仍空，正常關閉；目前另輪獨立一小時安靜觀察，未安裝Magisk／APK。以上仍不是完整開機、普通App Root／JNI或三遊戲資格，詳見[同輪分層結果](API34_ARM_LINUX_RESEARCH.md)。
+
 ## 2026-11-10：同0.5.2／API35／157首輪及遊戲重啟
 
 156.1正常OFF後，以合法完整原簽章splits正常升級157.0/code1793360009，PM逐份SHA、同0.5.2 APK及原28份歷史再次核對。經正常設定切回繁體並重新進入本人帳號後，PID10899/start264686正常App新同意／完整journal，兩頁名稱、庫存完整紀念長字、兩頁真正離屏返回及OFF還原已觀察；中途OFF snapshot保留原時序，稍後ON_COMMITTED與ready／ON獨立核實，不重送載入。

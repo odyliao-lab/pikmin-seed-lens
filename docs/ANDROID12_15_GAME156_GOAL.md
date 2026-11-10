@@ -2,6 +2,8 @@
 
 使用者現指定依序完成API34、API31，再實作已選定的森林手帳UI，各階段分別commit／push，見[交付計畫](STAGED_DELIVERY_PLAN.md)。本輪已另授權新API34 ARM/Linux目標，官方映像與CPU對照完成部分證據，仍無Android完整開機或產品資格，見[獨立研究](API34_ARM_LINUX_RESEARCH.md)；下列產品／九組未通過狀態不變。
 
+API34 ARM/Linux其後已實讀API34／ARM64-only／Enforcing，私人單worker ramdisk完成APEX掛載及Conscrypt self-test；system_server出現仍無boot完成。原廠adbd Root診斷後實際恢復UID2000，未安裝Magisk／App，獨立一小時觀察另記。這些平台部分進展不改下方任何產品組合的未通過狀態。
+
 2026-11-10新版本驗收：0.5.1/code16在API35／156.1改善庫存長字，但探險短名截斷，正常OFF後已還原，故本版不通過。0.5.2/code17原簽章單APK已分開兩種layout的字型下限；最新分項如下，詳見[本版驗收](PRODUCT052_FONT_QUALIFICATION.md)。
 
 | 0.5.2實際組合 | 本版分項結果 | 尚未完成 |

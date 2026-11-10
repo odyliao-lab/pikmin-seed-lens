@@ -167,3 +167,12 @@ gdb2216／inferior2226。這輪只將開發者的完整開機觀察窗口設為3
 首次600秒後才讀單一boot flag，之後間隔180秒；串列輸出留在私人檔。
 沒有改guest時鐘、Watchdog、dm等待、產品15s／2s或版本守門。前輪未完成與失敗保留，
 此輪必須另取實際完整boot、身分及App證據，不以延長觀察視為通過；尚未安裝Magisk或APK。
+
+UTC04:03:11完成的一次唯讀篩選logcat，實際記到system_server495的Package Manager
+逐項掃描內建APK／overlay並收集certs；因此此刻有初始化進展，不能僅由boot flag空白推論死鎖。
+先前stack dump逾時及錯誤日誌仍保留，不把沒有Watchdog kill紀錄當完整健康。
+
+等待boot期間另準備[ARM普通App Root client0.0.6](../research/root-probe/README.md)：
+精確API／ABI／kernel guard、41項JVM檢查、Android Java／dex、原研究簽章與ARM-only封裝
+已驗，錯ABI建置實際在輸出／簽章前拒絕；沒有部署或Android執行。
+此研究包不增加產品版本、NativeBridge資格或使用者依賴。
