@@ -208,3 +208,33 @@ controls and independent official-tool decoding. It retains all verification,
 self-tests, security and time bounds. Prepared host bytes are not an applied
 property or boot success. Product0.5.2 and all nine qualification rows remain
 unchanged.
+
+## Worker1 plus no-animation run: actual partial progress
+
+The same authorized AVD started again at UTC10:56:04.394 with an explicit
+10800s bound chosen before launch, fixed candidate SHA7b5da5b6…31d4 and
+no-animation option.2vCPU/4GiB/display, official kernel/system/vendor and
+product15s/2s remain unchanged. All32 APEX mounted and the APEX BoringSSL
+self-test returned0; ADB became online. Actual UID2000/Enforcing/API34,
+ARM64-only/aarch64/NativeBridge0 and a new boot were read. No-animation
+property actually read1, and the animation service exited0. The protected
+APEX worker property was independently read1 using one stock-shell su0
+read-only child; afterward UID2000/Enforcing/the same boot were read again.
+This is configuration evidence, not ordinary-App Root.
+
+First server490 was killed at UTC11:02:48.386 after105s, now annotated during
+NetworkStackClient startup/implicit-access cache invalidation, beyond the
+earlier permission-phase waiting site. The second automatic server1124
+started more services but also died. A boot flag1 was observed at11:08:42,
+yet the first full PM/AM/server proof at11:09:12 actually failed: package and
+activity services were absent, whole query exit1. **Flag1 alone is not a
+completed/stable boot.** The failed read is retained. A diagnostic screen was
+black; no home/display acceptance was recorded, and power/sleep state was
+not established by that image alone.
+
+Read-only follow-up observation now continues after a boot flag instead of
+ending there. Each proof read retains its result; completion requires two
+consecutive successful API/ABI/fingerprint/PM/AM reads60s apart with the same
+boot and system_server PID/start/UID1000. A service-recovery gap resets that
+pair. No Root, APK or loader is started by these idempotent retries. Real
+home/display review and all later App/JNI/game gates remain separate.

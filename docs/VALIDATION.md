@@ -10,10 +10,15 @@ rev4／新 AVD／5590，官方大小／SHA1／SHA256、全新6GiB data 及獨立
 [AOSP分層證據](API34_AOSP_ARM_LINUX_RESEARCH.md)。產品0.5.2/code17與守門未變。
 
 該AOSP完整Android其後實讀API34／ARM64／Enforcing，原ramdisk32個APEX及self-test通過，
-但三個自動system_server均被stock Watchdog終止，未完整開機。實際PermissionController
+但第一輪六個自動system_server被stock Watchdog終止，未完整開機。實際PermissionController
 ART狀態只有verify後，另送出一次Android原生背景speed編譯快取研究；真compiler曾實讀存活，
 命令後續exit224／Broken pipe，結果保留且未重送。另次同boot普通shell實際回讀speed／
 cmdline快取；快取存在不改寫失敗RPC，也不是完整boot、Root、JNI、遊戲或相容資格。
+
+後續單獨關閉動畫輪在更早APEX裝置映射失敗、ADB offline，已正常關閉。新AOSP專用worker1
+私有ramdisk另經scope／覆寫負例、原Google候選byte-identical及獨立官方工具解包核對；
+實跑32 APEX／self-test0、API34／ARM64／Enforcing與兩個設定值1均實讀。但曾出現boot flag1
+時PM／AM及server核對失敗，未記完整boot或桌面通過；後續只讀穩定核對繼續，產品守門不變。
 
 ## 2026-11-10：API34 ARM/Linux 新授權目標與 CPU 對照
 
