@@ -1,5 +1,27 @@
 # 驗證分層
 
+## 2026-11-11：0.5.2／157獨立新OS boot後分項
+
+僅在新index5正常升級原簽章完整157.0/code1793360009，資料／登入保留；來源manifest、
+兩份憑證／APK SHA及IL2CPP／metadata／Unity SHA另核。產品仍同0.5.2原件，原36份歷史
+逐份不變。boot4ed／8472/start176032先從正常App新同意單次載入，實測兩頁名稱、三種
+庫存紀念長名完整縮字／整張卡離屏返回及OFF還原；語言設定的遊戲reload未換PID/start，
+不算程序重啟。原語言讀取器錯誤要求新PID及後續重綁拒絕均在Root／載入前停止，未重啟或重送。
+
+正常OFF／37份SHA／adbd UID2000後關閉，CLI實際Android及程序皆false才單次啟動。
+新boot7719af7b…7806、API35／x64-libnb／自身ELF machine62／原Permissive及顯示參數
+另核；相同產品／完整157 PM SHA、原37份歷史保留、control OFF、modules目錄不存在。
+正常launcher至2075/start4318／UID10067，登入與繁體保留；未確認／舊status最終拒絕，
+真正主畫面新兩項同意後才正常App單次載入。兩頁名稱、庫存三種長名完整縮字／整張卡
+離屏返回及普通App新鮮ready／ON另驗；正常OFF後兩頁原名／字型及原金苗截斷還原。
+
+兩輪first-loaded仍讀到OFF／舊程序status，原時序保留，不記成功或重送；後續真正畫面
+與新鮮同PID/start ready分開驗收。新增兩份七階段journal均原樣RETURNED_UNVERIFIED，
+各自載入／ON／OFF SHA不變；歷史UNKNOWN保留，總38份。最終174份thread TracerPid
+讀值0、adbd UID2000、ready／enable0／control OFF並回主畫面。未新增Root、模組或研究
+APK。探險只有三筆短名，長名縮字／本次OS後探險離屏、長時間及API31／34仍未通過；
+見[畫面分項與journal SHA](PRODUCT052_FONT_QUALIFICATION.md)。
+
 ## 2026-11-11：0.5.2／156.1獨立新OS boot後分項
 
 API34 scalar研究正常關閉後僅恢復新index5，原簽章完整156.1正常升級且資料／登入保留。

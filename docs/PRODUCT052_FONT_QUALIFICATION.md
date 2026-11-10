@@ -236,3 +236,56 @@ boot_completed1／1080×1920無override／density280／自身ELF machine62另核
 本輪補得同0.5.2／156.1的OS後兩頁名稱／OFF、庫存長名與真正庫存離屏返回分項。
 早先同版156.1其他樣本的探險離屏返回證據保留，但不轉記為本次OS後已驗；本次探險
 長名縮字／真正離屏、長時間、157本版OS及API31／34仍未完成，不記整組或九組完成。
+
+## 2026-11-11：157同樣本獨立OS重啟回歸
+
+僅在新index5由156.1正常install-multiple-r升級精確157.0/code1793360009，未清資料或
+複製登入session。合法完整base／ARM64 split原憑證944bda…f979、manifest及APK SHA，
+IL2CPP／metadata／Unity SHA逐份重核，安裝後完整PM SHA亦吻合既有157 intake。
+產品仍原0.5.2/code17／SHA9457ab…1b17；原36份attempt逐份不變，control OFF、adbd UID2000。
+
+### 重啟前：正常產品App與兩頁還原
+
+boot4ed5c704…61d2、8472/start176032／UID10067，登入保留。遊戲原用系統簡體設定，
+正常選繁體並接受遊戲reload後PID/start未變，不算程序重啟。私人讀取器原先誤要求
+reload必換PID而拒絕，後續bind也因已有identity拒絕，均未Root／重綁／載入；原件保留，
+沿用實際相同identity，未重啟或重送。12為繁體主畫面，14／15為兩頁OFF基準，25/80。
+
+16真正主畫面後，17未確認啟用、18舊status最終拒絕，19本次兩項同意後才正常產品App
+su-M單次載入。first-loaded中途仍control OFF與舊156.1 status；完整journal不替代效果，
+未重送。20庫存三種紀念金苗長名完整縮字，21三張卡圖示／字串完全離屏，22完整返回
+同名。23探險藍色葉子帽、紅色三葉、岩石三葉苗均完整；只有三筆短名／兩排，未驗
+長名縮字／真正探險離屏。24普通App重新讀到同PID/start／157／ready／enable1，
+on-ready另核control ON。25正常OFF後26探險原名／字型、27庫存原名／大字／金苗原
+截斷均還原，28回真正主畫面。13只是半高庫存，不替代14的全高基準。
+
+原36份歷史不變，第37份七階段journal SHA256
+`26066efcc68201d44b75c728d073dc40fa8a2103d25d002fb986407bbfd8ff55`。
+最終173份thread TracerPid讀值0、control OFF／ready／enable0、adbd實讀UID2000。
+
+### 正常關閉／啟動後：新boot及新程序
+
+原PID/start/UID、OFF、新37份SHA與TracerPid另核後正常關閉；CLI實際讀到Android與
+模擬器程序皆false，再單次啟動同index5。新boot
+`7719af7b-e925-40b1-86f2-199489067806`、API35／x64-libnb／自身ELF machine62／
+原Permissive／1080×1920無override／density280與boot_completed1另核。相同產品及
+完整157 PM SHA、原37份SHA均保留，control OFF，modules目錄不存在；未新增Root
+provider、研究APK、instrumentation或顯示模組。
+
+正常launcher至2075/start4318／同UID10067，03登入／繁體保留，04／05為兩頁OFF基準。
+06真正主畫面、07未確認啟用及08舊status最終拒絕，09新兩項同意後單次正常App載入。
+first-loaded仍OFF／舊8472 status，保留而不冒充ON或重送。10三種紀念庫存長名完整
+縮字，11整張卡圖示／字串完全離屏，12完整返回同名，13三筆探險細分名稱完整。
+14普通App新鮮同PID/start ready／enable1及on-ready的control ON另核。15正常OFF後，
+16探險原名／字型、17庫存原名／大字／原截斷均還原，18為真正主畫面。01／02為
+啟動／載入過渡，不記Home或顯示驗收。
+
+原37份歷史不變，第38份七階段journal SHA256
+`0579b514d10e3ed922520d72f6e5cbeae33247bee4fdef66458987b0e5057fdd`。
+兩份新journal結尾均原樣RETURNED_UNVERIFIED，first-loaded／ON／OFF各自SHA不變；
+不倒填native成功、不改歷史UNKNOWN。最終174份thread TracerPid讀值0（非原子snapshot）、
+control OFF／ready／enable0、adbd UID2000。私人visual-review逐圖核SHA，原始圖及收據不入Git。
+
+本版三個API35遊戲現在各有獨立OS後兩頁／OFF及庫存縮字／離屏分項。最新探險仍只有
+三筆短名，不轉記早先其他帳號的探險重用；探險更長名稱縮字、本次OS後探險真正離屏、
+長時間與API31／34仍未通過，三階段及九組目標均未完成。
