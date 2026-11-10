@@ -76,6 +76,24 @@ data packages, then began first-boot dexopt at UTC09:46:01. A preceding
 Watchdog WAITED_HALF warning did not yet become a kill; stock Android itself
 paused its main checker for dexopt. The research code did not change Watchdog.
 
+That dexopt resumed the stock checker at UTC09:52:56 and reached services
+ready, but at09:55:49 Watchdog killed system_server535 for a main-handler
+wait of101s. Its final annotated stack was `CompletableFuture.get` inside
+`PermissionPolicyService.grantOrUpgradeDefaultRuntimePermissionsIfNeeded`,
+called during user/boot-phase setup. PermissionController925 subsequently
+reported DeadSystemException after the server died. That consequence does
+not establish an earlier independent PermissionController crash or the root
+cause of its delayed callback. This is a **failed first framework attempt**,
+not a completed boot or permission initialization.
+
+The OS automatically created system_server1099 at UTC09:57:07 in the same
+guest boot. It reconciled179 app-data packages and passed its subsequent
+boot-after-mainline-update dexopt in about11s. First-boot compilation and
+cache state differ, so this is recovery progress, not a clean-boot benchmark.
+The single original QEMU/host deadline remains; no manual guest restart,
+timeout extension, permission-state bypass, extra package or Root operation
+was performed. The next check is actual boot completion and stable services.
+
 Full boot still requires flag1 plus two fresh same-boot/fingerprint/server
 PM/AM reads and actual visual display review. Conditional proof/capture tools
 are waiting on these real results; they do not start Root, App or game work.
