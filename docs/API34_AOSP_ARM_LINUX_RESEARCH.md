@@ -139,3 +139,12 @@ receipts remain. Preserve an uncertain/failed result instead of automatically
 resending. Actual command completion, ART `status=speed` readback and later
 boot/service/display results are separate pending checks. Even a completed
 cache experiment does not qualify ordinary-App Root, JNI or any game.
+
+Server1546 was subsequently killed at UTC10:08:37 (final annotation follows
+the same permission-initialization wait). At a later ordinary-shell process
+read, same boot/UID2000/Enforcing were verified and the one requested job was
+still real: shell cmd1868, artd1874 and its dex2oat64 child1892, with the exact
+PermissionController input path and `--compiler-filter=speed`. This is a
+verified live compiler after the third server failure, not a completed cache,
+successful command or boot. The original1200s compiler observation bound
+and10800s guest bound remain; no second request was sent.

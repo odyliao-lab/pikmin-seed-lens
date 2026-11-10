@@ -9,6 +9,11 @@ rev4／新 AVD／5590，官方大小／SHA1／SHA256、全新6GiB data 及獨立
 只代表CPU層，不承接成API34完整boot、普通App Root／JNI或三遊戲成功。見
 [AOSP分層證據](API34_AOSP_ARM_LINUX_RESEARCH.md)。產品0.5.2/code17與守門未變。
 
+該AOSP完整Android其後實讀API34／ARM64／Enforcing，原ramdisk32個APEX及self-test通過，
+但三個自動system_server均被stock Watchdog終止，未完整開機。實際PermissionController
+ART狀態只有verify後，另送出一次Android原生背景speed編譯快取研究；已讀到同boot下真實
+compiler仍存活，結果／快取回讀尚待。不是Root、JNI、遊戲或相容資格，失敗及原期限保留。
+
 ## 2026-11-10：API34 ARM/Linux 新授權目標與 CPU 對照
 
 使用者核准指定 WSL2／SeedLens_API34_ARM64_Linux／5588，新 index5 OFF／30份歷史可見／無 active loader、adbd恢復UID2000後正常關閉，原四台不動。官方API34 ARM64 rev14 archive大小／SHA1及23個解壓檔案SHA256已核，原映像不改，另建全新6GiB data。
