@@ -1,5 +1,17 @@
 # 驗證分層
 
+## 2026-11-11：API31同0.0.4的自有回復與失敗控制
+
+既有API31 x64新boot845ff2a1…bf12／libndk_translation／Enforcing／UID2000，同server516/
+start2038的兩次當前服務讀值相隔79.761秒後正常升級相同0.0.4。普通App UID10152/
+自身ELF62，六例各單次：無效模式拒絕、baseline返回、原UDF另核exit86、負marker
+無intent且另核exit89；正例native1/2/3/4／canary與Java返回，完整siginfo仍未證實。
+alarm另外核signal14，不單憑1/2收據宣稱timeout。原16份自有收據及16份Root研究attempt、
+產品0.4.1／原157完整SHA保留，無產品attempt，Game／Lens未啟動。正常關閉後host／
+埠消失、SDK四SHA及私人Root ramdisk SHA不變，index5仍關閉。三平台受限UDF回復分項
+現已獨立執行，未驗任意Game／事件／多執行緒回復、Root注入或原生ARM64，九組及UI
+三階段仍未完成。見[案例與比較](ARM_SIGNAL_CONTEXT_RESEARCH.md)。
+
 ## 2026-11-11：API34的0.0.4受限自有回復另驗
 
 既有API34 x64另次boot66966298…5693／libndk_translation／Enforcing／UID2000，同

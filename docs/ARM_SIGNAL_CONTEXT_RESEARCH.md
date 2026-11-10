@@ -309,3 +309,34 @@ hardware匹配與完整context仍false。alarm5518另由Zygote確認signal14，1
 一次後，另核host／5582及5583皆消失、原SDK四映像SHA不變、index5仍關閉。
 未在Game安裝handler、未模擬SEVL/WFE或改產品
 守門；這不是API31、原生ARM64或九組產品資格。API31相同0.0.4仍待獨立實跑。
+
+## API31／0.0.4獨立自有UDF回復（2026-11-11）
+
+API34正常關閉並核host／埠退出、index5雙false後，才啟動既有API31 x64／5580，原SDK
+四SHA與私人Magisk ramdisk5537a63d…eb20先核，2CPU／4GB／原data保留。新boot
+845ff2a1-8c32-42ae-b4f5-680c6b22bf12實讀API31／libndk_translation／Enforcing／UID2000，
+同server516/start2038及當前服務／display ON兩讀相隔79.761秒。相同0.0.4／原lab簽章
+正常升級0.0.3後，普通App UID10152實讀ELF62；原16份自有收據、原16份Root研究attempt、
+產品0.4.1與原157完整SHA逐次保留，產品attempt仍不存在，Game／Lens未啟動。
+
+六例各新程序／單次執行：無效模式native前拒絕、baseline4930返回；原UDF5156維持
+context-unproven，Zygote另核exit86。負marker5384的x19確為534d、其他受限守門吻合，
+無write intent，另核exit89。正例5613有native1/2/3/4／canary守門、Java RETURNED及
+instrumentation-1，已觀察這台的自有UDF回復；siginfo仍code=-6、address差12 bytes，
+hardware與完整context匹配仍false。alarm5855的1/2 parser仍armed-unconfirmed，
+另外由Zygote確認自身signal14終止。
+
+最後同boot／server、adbd UID2000／Enforcing、無Game／probe，原件與兩類歷史仍不變；
+指定console正常關閉一次後，另核host／5580與5581皆消失、原SDK四SHA及私人Magisk
+ramdisk SHA不變、index5仍關閉。不改Game、
+產品、SEVL／WFE或NativeBridge准入；不能由這組toy的已知PC／marker回復推論任意遊戲
+fault可安全回復、事件／多執行緒語意、Root注入或原生ARM64資格。
+
+| 同0.0.4普通App案例 | API31／libndk_translation | API34／libndk_translation | API35／libnb |
+|---|---|---|---|
+| 已知自有UDF＋單次public PC回復 | native／Java返回；完整siginfo仍未證實 | native／Java返回；完整siginfo仍未證實 | native／Java返回；完整siginfo仍未證實 |
+| 錯誤marker、未寫PC | 另核exit89 | 另核exit89 | 另核exit89 |
+| 原UDF觀察、未寫PC | 另核exit86 | 另核exit86 | 另核exit86 |
+| 刻意alarm | 另核signal14 | 另核signal14 | 另核signal14 |
+
+本表是分開實跑的自有能力／失敗收容控制，九組產品、原遊戲啟動、UI三階段仍未完成。

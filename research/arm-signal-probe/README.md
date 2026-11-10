@@ -205,3 +205,11 @@ the intentional alarm exited by signal14. Partial synthetic siginfo remains
 context-unproven. Prior sixteen own receipts and original game hashes were
 retained, product was absent, and no game handler or admission change was made.
 API31 0.0.4 remains pending.
+
+API31 subsequently independently completed the same six own-App cases:
+positive native/Java round trip, bad-marker refusal/exit89, original fail-stop
+UDF/exit86, invalid-mode refusal and intentional alarm/signal14. Sixteen prior
+own receipts, sixteen original Root research journals, product0.4.1 and game
+hashes were retained. Synthetic siginfo remains context-unproven. These three
+independent studies do not prove arbitrary game recovery, event/concurrency
+semantics, Root injection or native ARM64 capability.
