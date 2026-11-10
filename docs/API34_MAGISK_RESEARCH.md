@@ -5,6 +5,49 @@
 保持SDK原件、Enforcing、Zygisk OFF及無額外顯示模組，一次一台研究guest，原四台及台中
 不操作。Root安裝不能修復SEVL/WFE，也不是產品／九組或普通App Root通過。
 
+## 私人 override 與普通 App Root 實測（2026-11-11）
+
+下列是後續實跑結果；後文「尚未啟動／安裝」僅描述各歷史 checkpoint。
+同一獲准 AVD 單次以已核私人 ramdisk `4c45244a…1025` 啟動，未覆寫 SDK。
+官方 Magisk31.1 管理器正常安裝後，接受一次標準 additional setup，由 guest 自行重啟；
+未執行 avd_setup.sh、未重開 Windows、未另建 AVD。設定完成後的新 boot 為
+`d2306435-faad-4cae-8691-0e8acce92f11`，同 system_server525/start1162/UID1000
+的兩次完整服務與顯示讀值相隔114.817735秒。實讀 API34/x86_64、原
+libndk_translation.so、Enforcing、adbd UID2000；官方 core31100、Zygisk=0、modules空。
+
+普通研究 App0.0.10/UID10195 在此新 boot 的不帶 scope、附 load_pid 兩例仍在
+Root query 前拒絕，未新增收據。首次明確 Root-only 查詢實際 su exit13/
+Permission denied，沒有授權對話框，也沒有 policy，保留此失敗與 stock IOException。
+沒有換入口重試：在原管理器的 Grant Superuser 頁核對唯一研究套件／UID與 APK SHA，
+只選取 `dev.ody.seedlensrootprobe`；其後實讀 policy 唯一一筆為 UID10195，
+沒有授權遊戲、signal probe、Shell 或全域規則。未直接寫入猜測的 policy SQL。
+
+授權完成後以**另一個普通 App 程序** PID5403 執行新的、固定唯讀 Root-only 查詢：
+
+| 實讀項目 | 結果 |
+|---|---|
+| App/API/ELF/封裝 | UID10195、API34、ELF machine62、x86_64 |
+| Root 入口 | PATH `su -M`，exit0，無 debug_ramdisk fallback |
+| Root 身分 | UID0/root、`u:r:magisk:s0` |
+| self / PID1 mount namespace | 兩者皆 `mnt:[4026532358]` |
+| Root boot ID | 與上方新 boot 完全一致 |
+| App 及 instrumentation | durable PASS 與 code-1，兩者均核對 |
+
+本次 PASS 收據 SHA256 為
+`f66a53c300289508e8aa14565a2193aaad78c5233a1edbcd18956343047756db`。
+結束前獨立重讀三份 Root 收據（stock失敗、未授權失敗、新程序成功）及原26份 signal
+收據，逐份 SHA 保留；原157完整 base/split SHA不變，產品 APK與兩個 PM attempt目錄
+仍不存在。所有 adbd 診斷均恢復 UID2000。
+
+正常 console 關閉只發出一次；先前關機檢查時官方短暫的 `-kill … -sleep 20`
+helper仍在，沒有重送關機或殺除其他程序。後續實讀 SDK guest/helper程序及5582/5583
+listener皆消失，SDK四原映像與私人 ramdisk SHA不變，index5仍雙false；自有資料保留。
+
+**這次通過僅為普通 App Root 能力。** 固定指令未呼叫 PM runner、JNI、NativeBridge
+loader或遊戲。API34 PM backend仍拒絕，沒有放寬產品守門；既有三版原遊戲 SEVL
+啟動失敗保留，API34三組產品、API31與森林手帳 UI階段仍未完成。研究 APK／管理器
+不是新增的消費者產品依賴，產品仍為原0.5.2/code17且位元組未改。
+
 ## Host準備與冷備份（2026-11-11）
 
 最後0.0.4自有訊號研究已正常關閉API31／34及index5；新一輪host準備再次核SDK程序及

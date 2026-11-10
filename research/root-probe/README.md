@@ -5,6 +5,15 @@ Android, NativeBridge and exact game guards are unchanged.
 
 ## API34 Root-only0.0.10: host preparation
 
+Subsequent device evidence is now available in
+[API34 Root research](../../docs/API34_MAGISK_RESEARCH.md): the same signed
+0.0.10 passed the fixed ordinary-App PATH su-M query on the approved API34
+x64 private Magisk31.1 boot after granting only its own UID in the official
+manager. Stock IOException and ungranted exit13 remain separate failures;
+missing-scope/load_pid refusals remain effective. This proves read-only Root,
+not the PM runner, JNI, NativeBridge or game compatibility. The preparation
+statements below refer to the earlier checkpoint, not the current result.
+
 New0.0.10/code10 adds an explicit api34_root_only research scope for a fixed
 read-only su-M query from the ordinary App. It requires exact API34, x64
 primary/packaged ABI, real ELF machine62, 64-bit process and x86_64 uname.

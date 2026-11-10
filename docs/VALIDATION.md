@@ -1,5 +1,16 @@
 # 驗證分層
 
+## 2026-11-11：API34 私人 Root 的普通 App 分項通過
+
+既有獲准 API34 x64 AVD 以私人 Magisk31.1 ramdisk 冷啟動，官方管理器標準 setup
+自行重啟後，新 boot d2306435…2f11／同 server525/start1162 的完整服務讀值相隔
+114.817735秒。Enforcing、原 bridge、Zygisk0與空 modules均實讀；兩項 scope拒絕
+仍在 Root query前停止。首次未授權 su exit13失敗保留；管理器僅授權自有 UID10195，
+新普通 App PID5403的 PATH su-M 實際 exit0、UID0/magisk domain、self/PID1 mount
+namespace及同 boot核對通過。原26份 signal及三份 Root收據 SHA逐份保留。
+沒有 PM/native載入、Game或產品操作，API34 PM backend及產品守門仍拒絕，遊戲既有
+SEVL失敗／九組未完成不變。詳見[本次 Root 實測及界線](API34_MAGISK_RESEARCH.md)。
+
 ## 2026-11-11：API34 stock Root對照與private ramdisk
 
 API34另次stock boot2846db04…1c45、同server516/start1500兩次服務讀值相隔87.123秒，

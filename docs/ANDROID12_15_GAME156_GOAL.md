@@ -1,5 +1,11 @@
 # 驗收目標：Android12／14／15 × 遊戲156／156.1／157
 
+API34 x64另在私人 Magisk31.1 override及標準設定重啟後，取得普通研究 App 的 PATH
+su-M／UID0／magisk domain／PID1 mount namespace／同 boot實測通過。stock及未授權
+失敗均保留，僅授權自有 UID10195；原26份 signal、三份 Root收據及原157 SHA不變。
+這次沒有 PM/JNI/Game或產品操作，既有原遊戲 SEVL啟動失敗、API34 PM backend拒絕
+及下表產品未通過狀態不變，三階段仍未完成。見[普通 App Root分項](API34_MAGISK_RESEARCH.md)。
+
 API31其後也獨立完成同研究0.0.4的自有UDF native／Java回復、負marker exit89、原UDF
 exit86及alarm signal14；原16份自有收據、16份Root研究attempt、產品0.4.1／遊戲原件
 SHA保留並正常關閉。三平台只是受限toy能力分項，不證明任意Game回復或Root注入，
@@ -132,7 +138,7 @@ API31 x64原遊戲啟動與獨立指令probe已找到SEVL缺口。原先本機�
 
 2026-11-10後續Linux完整Android雖完成原廠data加密，host仍在ADB就緒前SIGSEGV；修正gdb後捕捉主ELF+0xd58f91的null read，與address-space ping來源對照一致但未證明完整根因。TCG單執行緒／no-chain均未修好自有序列；GLDirectMem選項比較另以同fixture先行，不能把CPU或debugger結果算為任何API31遊戲通過。詳見[完整Linux結果](API31_LINUX_HOST_RESEARCH.md)，本輪未安裝Root、研究App或產品。
 
-新增API34的官方來源、普通App ARM JNI基準與SEVL失敗、兩版原遊戲啟動及GPU比較另見[API34隔離研究](API34_ISOLATED_RESEARCH.md)。新AVD的Root與產品載入尚未進行；不能用歷史Libra ARM64或API35/libnb的結果替代。
+新增API34的官方來源、普通App ARM JNI基準與SEVL失敗、兩版原遊戲啟動及GPU比較另見[API34隔離研究](API34_ISOLATED_RESEARCH.md)。該歷史輪未安裝Root；後續同AVD的普通App Root已有[獨立通過分項](API34_MAGISK_RESEARCH.md)，但PM／產品載入與遊戲相容仍未通過。不能用歷史Libra ARM64或API35/libnb的結果替代。
 
 157原遊戲亦已分別在API31／34 x64實際於Unity+0x5e2760 SEVL SIGILL；不是由156.x跨版推論。API34本次首輪hostGL freeze的指定正常關閉逾時與精確host收容、後輪SwiftShader正常關閉均另記，見[157原遊戲獨立啟動](GAME157_PLATFORM_STARTUP.md)。
 
