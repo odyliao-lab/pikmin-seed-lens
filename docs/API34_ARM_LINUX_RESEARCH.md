@@ -185,3 +185,25 @@ Root查詢及PM command皆須匹配；44項JVM正負例、原研究簽章與ARM-
 官方Magisk31.1 ARM材料僅在Linux host備妥；另以同APK內standalone x64 magiskboot做
 host-only decompress／單檔extract，實際保留三段ramdisk的單worker property，私人輸入SHA不變。
 沒有執行Magisk daemon、patch ramdisk或向guest傳入Root檔案；完整boot及載入安全通過後才進Root。
+
+### 一小時上限輪的實際收尾：仍未完整開機
+
+此輪boot `2e864ece-9e3c-4955-ac67-79137f47e86e`；開機flag的低頻讀取皆exit0但空白，
+最後一筆單flag約55分22秒。Package Manager實際掃完258個system packages，記錄耗時
+869689ms／cached34；最後取得的PM進展是解壓系統Trichrome stub。後續唯讀stat找不到
+該暫時目的路徑，不能由此判定解壓完成、CPU死循環或完整阻塞根因。此輪沒有取得Watchdog
+kill證據，也不以無kill推論健康。
+
+因剩餘時間不足以保留原生測試及unroot窗口，本輪沒有請求Root、安裝APK或執行native／JNI。
+正常收尾前最後讀取exit0，約62.9秒取得UID2000／Enforcing／API34／arm64-v8a及同boot，
+system_server495仍在、boot flag仍空白。UTC04:37:12 console kill回OK，04:37:13 inferior
+及debugger皆exit0，`timedOut=false`／未送收容訊號；實際觀察約58分58秒，含正常收尾，
+不是「足60分鐘後逾時」或完整App／Root／遊戲資格。
+
+下一輪先保存此空白研究AVD的冷備份，再比較同一AVD已產生初始化快取後的冷開機；
+不清資料、不改SDK／kernel／clock／Watchdog或產品界限，也不把研究OS重啟記成產品重啟驗收。
+
+關閉後確認無存活QEMU，對此AVD的24檔做私人冷備份，每檔大小／SHA一致；原SDK四個
+kernel／ramdisk／system／vendor SHA再次吻合intake。檔案讀寫後Windows可用實體記憶體
+一度約0.6GiB，故沒有立即啟動下一台；先sync並只terminate指定專用WSL distro回收資源，
+不停止原四台、不改全域WSL或重開Windows。下一輪仍須重新核實可用實體記憶體與埠。
