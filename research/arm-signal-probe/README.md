@@ -130,3 +130,11 @@ SO SHA256:
 `ed0dc066e70b4b689d93d5aaa57c37a01540bdabad75be8e560f0b684cbaa767`.
 At this preparation checkpoint 0.0.3 has **not been installed or run**. These
 host checks do not prove WFE execution, timeout containment or product support.
+
+The subsequent API31 0.0.3 study independently executed WFE alone (own handler
+fault and Zygote exit86), and the intentional alarm control (native phases 1/2
+only, independently verified own Zygote signal14 termination). The parser still
+calls the latter armed-unconfirmed; its records alone never prove a timeout.
+All fifteen real 0.0.2 decoded results also stayed exactly identical under the
+extended parser. See the research page for fresh boot identity, retained
+receipts and qualification limits. API34/API35 0.0.3 cases remain pending.

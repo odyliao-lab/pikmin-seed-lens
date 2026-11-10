@@ -1,5 +1,15 @@
 # 驗證分層
 
+## 2026-11-11：API31獨立WFE與逾時控制實跑
+
+新研究0.0.3/code3在既有API31另次boot／同server兩次服務讀值後正常升級，保留原十份
+0.0.2自有收據、16份研究attempt、產品0.4.1及精確157原件SHA。無效模式在native前拒絕，
+baseline返回；WFE單獨進handler並由Zygote另核exit86，完整context仍未證實。刻意等待的
+alarm案例實際instrumentation3.391秒、native僅1/2，parser仍armed-unconfirmed；另由
+Zygote確認自身PID5130確因signal14終止，才記這次自有逾時退出控制通過。無PC／context
+修改、Game／Lens未啟動。正常關閉後host／埠消失、原SDK與私人ramdisk SHA不變；
+API34／35未執行新案例，產品資格與三階段仍未完成。見[研究分項](ARM_SIGNAL_CONTEXT_RESEARCH.md)。
+
 ## 2026-11-11：API31的同APK訊號對照與正常關閉
 
 API34關閉後才啟動既有API31 x64／5580，實際Google APIs rev12、私人Magisk ramdisk原SHA

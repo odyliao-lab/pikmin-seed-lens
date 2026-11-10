@@ -142,3 +142,31 @@ SHA c05f2b7e…db51另核，未以uname判斷ARM64。
 通過，反組譯另核自有WFE及其後restore／return；原0.0.2 APK／SO不覆寫。新APK
 SHA54265523…b886、SOed0dc066…a767，完整pin與操作方式見研究README。此節是host準備，
 **尚未在裝置安裝或執行0.0.3**，沒有新增平台或產品資格。
+
+## API31／0.0.3：WFE單獨故障與實際alarm退出（2026-11-11）
+
+先核0.0.3新parser回讀三平台共15份0.0.2真實native收據，其完整decoded結果逐份與
+原紀錄相同，沒有改寫未證實判讀。舊研究APK及產品0.5.2原SHA亦不變。然後在既有API31
+同隔離AVD另次單次冷啟動，實際boot`f16e455b-69a9-4bfe-8cf3-cd11b5f649c9`、API31／
+x64-libndk_translation／Enforcing／UID2000；同server560/start2179及當前服務／display ON
+相隔72.959秒另核，未以早期system_server尚不存在的拒絕讀值代替就緒。
+
+0.0.2正常升級為同lab簽章0.0.3，PM精確版本及完整SHA吻合，普通App UID10152實讀
+自身ELF62。原十個0.0.2自有bin／tsv逐份SHA、原16份研究attempt、產品0.4.1與精確157
+完整原件逐次保留；Game／Lens未啟動。第一個host檔名對照器使用錯誤路徑分隔符而拒絕，
+當時沒有發出install呼叫且已unroot2000；保留原拒絕收據，只修正host路徑讀取後才單次
+安裝，不是重送不確定安裝或載入。
+
+| 單次自有案例 | API31實際證據 |
+|---|---|
+| wfe-invalid | 在收據／native前IllegalArgumentException拒絕，沒有新檔 |
+| baseline，4701 | 共同setup返回；native1/2/4、Java RETURNED／instrumentation-1 |
+| WFE單獨，4916 | 獨立自有WFE進handler，native1/2/3、未正常返回；原parser仍context-unproven，Zygote另核clean exit86 |
+| alarm，5130 | 刻意等待三秒後，instrumentation實際耗時3.391秒，自身程序消失；native只有1/2，parser仍只列armed-unconfirmed；**獨立Zygote明確記錄signal14終止**才確認這次自有逾時退出 |
+
+WFE這輪獨立實測補上0.0.2組合尚未走到的指令；alarm這輪亦實際觸發，而非只成功設定。
+這不代表ARM WFE事件語意、完整context或遊戲啟動已相容，signal14也不是native成功返回。
+沒有PC／context修改、替換bridge、遊戲handler或產品守門變更。最後同boot／server、無
+Game／probe程序、adbd UID2000／Enforcing；指定console正常關閉一次後，另核host／埠
+消失、原SDK四映像及私人Magisk ramdisk SHA不變，index5仍關閉。API34／35尚未執行
+0.0.3，不能由API31跨平台推論。
