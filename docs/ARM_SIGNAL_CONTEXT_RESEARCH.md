@@ -170,3 +170,24 @@ WFE這輪獨立實測補上0.0.2組合尚未走到的指令；alarm這輪亦實�
 Game／probe程序、adbd UID2000／Enforcing；指定console正常關閉一次後，另核host／埠
 消失、原SDK四映像及私人Magisk ramdisk SHA不變，index5仍關閉。API34／35尚未執行
 0.0.3，不能由API31跨平台推論。
+
+## API34／0.0.3獨立WFE與alarm對照（2026-11-11）
+
+API31正常關閉後才啟動既有API34 x64／5582，沿用原SDK／data與同SwiftShader參數，
+無Root provider或其他平台變更。實際boot62dc3e1a-701e-4dde-be85-98bb6c6cd3fb／API34／
+libndk_translation／Enforcing／UID2000；同server546/start2030及當前Power／Window／
+display ON／committedState ON在相隔81.447秒的兩次讀取另核。正常將0.0.2升為相同
+0.0.3／原lab簽章／完整APK SHA，普通App UID10194實讀自身ELF62；原十份0.0.2 bin／tsv
+逐份SHA、產品不存在／原157完整SHA／attempt目錄不存在的狀態逐次保留。
+
+四例各新程序／單次執行且收據完整回收：wfe-invalid在native前拒絕；baseline PID4607
+正常1/2/4返回；**WFE單獨PID4809**進handler，已知PC／marker／SP分項吻合但code=-6、
+address在PC前12 bytes，原parser維持context-unproven，Zygote另核clean exit86。
+刻意alarm的PID5001實際instrumentation耗時3.406秒，native僅1/2、parser仍
+armed-unconfirmed；另由Zygote明確記錄自身signal14終止才確認本次自有逾時退出。
+
+未啟動Game或安裝產品、未改PC／context／bridge／產品守門。最後同boot／server、
+adbd UID2000／Enforcing、無Game或probe程序，指定console正常關閉一次後，另核host／
+5582與5583皆消失、原SDK四映像SHA不變，index5仍關閉。API35尚未實跑0.0.3，
+兩個libndk_translation平台的結果也不能代替
+libnb或原生ARM64的指令語意。九組及三階段未因此完成。

@@ -138,3 +138,9 @@ calls the latter armed-unconfirmed; its records alone never prove a timeout.
 All fifteen real 0.0.2 decoded results also stayed exactly identical under the
 extended parser. See the research page for fresh boot identity, retained
 receipts and qualification limits. API34/API35 0.0.3 cases remain pending.
+
+The independent API34 0.0.3 study subsequently reproduced the standalone WFE
+fault with own Zygote exit86, and separately verified the intentional alarm
+case's own signal14 termination. The original 0.0.2 receipts and game bytes
+were retained, product remained absent, and no context or bridge was changed.
+These are independent API34 results; API35 0.0.3 is still pending.

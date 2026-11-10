@@ -1,5 +1,16 @@
 # 驗證分層
 
+## 2026-11-11：API34獨立WFE與實際alarm退出控制
+
+API31正常關閉後，在既有API34 x64新boot62dc3e1a…d3fb、同server546/start2030的兩次
+當前服務／display讀值相隔81.447秒另核，才正常升級同0.0.3原lab簽章APK。普通App
+UID10194／自身ELF62，原十份0.0.2自有收據SHA、原157完整SHA及產品／attempt目錄
+不存在狀態保留。無效模式在native前拒絕，baseline返回；獨立WFE進handler後exit86，
+完整context未證實；刻意alarm案例3.406秒、native只有1/2，另由Zygote確認PID5001
+因signal14終止，不能單憑armed-unconfirmed parser結果宣稱通過。正常關閉後host／
+埠消失、SDK四SHA不變、index5仍關閉。產品與九組未升格，API35的0.0.3另驗。
+見[獨立結果與界線](ARM_SIGNAL_CONTEXT_RESEARCH.md)。
+
 ## 2026-11-11：API31獨立WFE與逾時控制實跑
 
 新研究0.0.3/code3在既有API31另次boot／同server兩次服務讀值後正常升級，保留原十份
