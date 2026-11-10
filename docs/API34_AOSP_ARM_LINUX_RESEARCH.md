@@ -238,3 +238,21 @@ consecutive successful API/ABI/fingerprint/PM/AM reads60s apart with the same
 boot and system_server PID/start/UID1000. A service-recovery gap resets that
 pair. No Root, APK or loader is started by these idempotent retries. Real
 home/display review and all later App/JNI/game gates remain separate.
+
+The read-only v2 pair later succeeded for server2941/start119702/UID1000 at
+UTC11:18:06 and11:19:27, confirming those PM/AM/process reads. It still did
+not establish current-service boot completion or a working home. The actual
+captured screen was black. A subsequent read during another recovery found
+PowerManager `mBootCompleted=false` while Awake, and WindowManager
+`mSystemBooted=false / mDisplayEnabled=false`; the global flag remained1.
+Therefore the pair is retained as **PM/AM evidence only**, not complete-boot
+acceptance. Its original bytes were moved to a named historical record;
+the full-proof gate was withdrawn. No native suite, APK or Magisk was started.
+
+The v3 read-only verifier additionally requires the **current** PowerManager
+boot-completed state and WindowManager system-booted/display-enabled state,
+then PM/AM plus unchanged server identity before/after. Two complete passes
+60s apart precede the full-proof artifact; actual home review still follows.
+The prepared own-native script now refuses without these stronger fields
+and the independent visual review. This corrects the evidence boundary;
+it does not change Android properties, flags, Watchdog or product timeouts.
