@@ -61,6 +61,25 @@ allowlist 不是裝置操作授權。兩者都是 Linux host 研究檔，不打�
 故意 NULL-fatal 診斷控制已通過，完整 Android 另驗。CPU 正例不代替實際 Android API 讀值或完整開機。
 沒有普通 App `su -M`、JNI、Root／產品或任何三遊戲資格，不更改九組矩陣的未通過狀態。
 
+### 第一輪完整 Android：APEX 內路徑缺失，未完成 boot
+
+原官方 ramdisk、同 mapper／vector-save、normal TB 的 gdb654／inferior664，
+2026-11-10 UTC02:27:09啟動，25分鐘上限。資料分割區加密、APEX解壓及系統服務啟動有實際進度，
+但ADB一直offline，沒有讀到實際Android API／boot完成，也沒有請求Root或安裝任何APK。
+
+guest約675秒，init明確記錄找不到 `/apex/com.android.conscrypt/bin/boringssl_self_test64`，
+無法啟動 `boringssl_self_test_apex64`；其後約691秒系統自行要求
+`reboot,boringssl-self-check-failed`。另有netd退出1、由onrestart帶動zygote及相關服務重啟。
+第二個guest boot中，vendor與system的非APEX BoringSSL self-test各自exit0。
+因此目前證據是APEX路徑／啟動失敗，不宣稱已證明密碼運算錯誤、OOM或完整根因。
+
+保留自動重啟與失敗原件後，以此新guest的console正常關閉，UTC02:40:50 inferior及debugger
+皆實際exit0，非逾時／未送收容訊號。正常host退出不是Android成功；未讀取到UID時不補記unroot。
+關閉後對此空白研究AVD的18個檔案做冷備份、逐檔SHA一致，SDK原映像保留。
+
+下一輪只增加[官方錯誤logcat輸出參數](https://developer.android.com/studio/run/emulator-commandline)，
+定位APEX啟動原因。此診斷不移除self-test、改SELinux／clock／Watchdog或產品界限。
+
 新 index5 關閉前，實際 OFF、30份歷史 attempt可見、無正在執行的 loader，讀取的遊戲
 thread tracer皆0；adbd實際恢復UID2000，再正常 shutdown。關機後 CLI 不再提供 adb_port，
 初稿因此在收尾解析報錯；重核名稱／created timestamp及關閉狀態完成確認，沒有重送 shutdown。
