@@ -104,4 +104,47 @@ class RecordsTest(unittest.TestCase):
                          'unexpected-return')
 
 
+    def test_own_resume_terminal_is_separate_from_hardware_siginfo_match(self):
+        fault=fixture(mode=7, flags=7, code=-6, fault_address=0xff4)
+        terminal=fixture(mode=7, terminal=4)[224:]
+        result=self.read(fault+terminal, mode='resume-udf')
+        self.assertEqual(result['outcome'], 'own-resume-native-roundtrip-observed')
+        self.assertTrue(result['contextModified'])
+        self.assertTrue(result['nativeCaseReturned'])
+        self.assertFalse(result['instructionReturned'])
+        self.assertFalse(result['ownFaultContextMatched'])
+        self.assertFalse(result['hardwareSignalCodeAndAddressMatched'])
+        self.assertFalse(result['gameOrPlatformQualified'])
+
+    def test_resume_intent_alone_remains_unknown_and_guard_refusal_is_no_write(self):
+        result=self.read(fixture(mode=7, flags=7), mode='resume-udf')
+        self.assertEqual(result['outcome'], 'own-resume-attempt-unconfirmed')
+        self.assertIsNone(result['contextModified'])
+        self.assertFalse(result['nativeCaseReturned'])
+        refused=self.read(fixture(mode=8, x19=0x534d), mode='resume-bad-marker')
+        self.assertEqual(refused['outcome'], 'own-resume-guard-refused')
+        self.assertFalse(refused['contextModified'])
+        self.assertFalse(refused['contextWriteRequested'])
+
+    def test_forged_resume_terminal_or_unsafe_write_intent_refuse(self):
+        terminal=fixture(mode=7, terminal=4)[224:]
+        for changes in ({'saved_pc':0x1004}, {'x19':0}, {'x20':0},
+                        {'saved_sp':0x8001}, {'flags':4}, {'signal':11}, {'code':128}):
+            with self.subTest(changes=changes), self.assertRaises(ValueError):
+                self.read(fixture(mode=7, **dict({'flags':7}, **changes))+terminal,
+                          mode='resume-udf')
+        with self.assertRaises(ValueError):
+            self.read(fixture(mode=7)+terminal, mode='resume-udf')
+        bad=fixture(mode=8)+fixture(mode=8, terminal=4)[224:]
+        with self.assertRaises(ValueError): self.read(bad, mode='resume-bad-marker')
+        with self.assertRaises(ValueError): self.read(fixture(flags=7))
+
+    def test_resume_without_fault_or_replayed_fault_cannot_supply_roundtrip(self):
+        result=self.read(fixture(mode=7, terminal=4), mode='resume-udf')
+        self.assertEqual(result['outcome'], 'unexpected-return')
+        fault=fixture(mode=7, flags=7)
+        for data in (fault+fault[224:], fault+fixture(mode=7, terminal=4)[224:]*2):
+            with self.assertRaises(ValueError): self.read(data, mode='resume-udf')
+
+
 if __name__ == '__main__': unittest.main()

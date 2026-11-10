@@ -243,3 +243,21 @@ Permissive、Game／probe不在、38份歷史不變且控制OFF；指定index5�
 
 這是三平台各自的普通App研究分項，不是原生ARM64、完整context或遊戲啟動修復資格；
 沒有新增消費者依賴或產品九組通過結論。
+
+## 0.0.4自有UDF受限回復：host準備
+
+既有觀察不能證明公共PC欄位寫入後會被translator採用，故另用新研究0.0.4/code4，只測
+自有UDF的已知位置與下一指令，不在遊戲安裝handler、略過SEVL/WFE或改產品准入。
+原七個觀察／alarm模式不改語意；兩個新模式共用精確own PC、siginfo/context、
+signal code、兩個GPR marker與aligned SP守門。負例故意改自身x19，預期在寫入前exit89；
+第二次handler一律exit88，不得迴圈重試；仍有三秒alarm與host有限觀察。
+
+正例先耐久記錄write intent，再僅將自身public PC設為已知UDF+4；landing的原生canary
+與phase4、Java RETURNED和實際terminal須另核。只有intent／中途收據仍UNKNOWN，
+不能把synthetic signal-code／address當完整context，或把UDF未執行而續跑當原指令成功。
+NDK公開欄位與前述kernel self-test提供原生介面依據，不保證NativeBridge round trip。
+
+16個host parser方法、94個ELF JVM檢查及24份真實舊收據的逐份完整decoded回歸通過，
+原lab簽章／Java／dex／ARM64／16KiB封裝通過；反組譯另核兩個UDF+4 canary及負例marker。
+新APK SHA66d3e87b…98b3、SOcf0b74cc…886e，原研究版本與產品0.5.2 SHA保留。
+這是host準備，**尚未安裝／實跑0.0.4**，沒有產品整合或新平台資格。

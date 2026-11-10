@@ -1,21 +1,24 @@
 # Own ARM64 signal-context observation
 
-This is a separate laboratory package, `dev.ody.seedlensarmsignalprobe` 0.0.3,
+This is a separate laboratory package, `dev.ody.seedlensarmsignalprobe` 0.0.4,
 not a product component or an update to `arm-hint-probe`. The original
 unhandled-SEVL baseline and all failed game starts remain unchanged.
 
 The question is whether the existing API31/API34 NativeBridge delivers an
 ordinary ARM64 App's SIGILL handler with public ARM64 ucontext fields matching
 that App's known instruction and callee-saved register markers. This is an
-experiment, not a presumed capability or a game-startup workaround.
+experiment, not a presumed capability or a game-startup workaround. Two explicit
+0.0.4 modes separately test one controlled own-UDF PC round trip.
 
 ## Scope and failure handling
 
 - No Root, network permission, ptrace, other-process access, bridge replacement,
   game loading, instruction rewriting or product gate changes.
-- Seven explicit modes: `baseline` (common signal/alarm setup), `raise` (synthetic
+- Original seven modes: `baseline` (common signal/alarm setup), `raise` (synthetic
   SIGILL control), `udf` (own undefined instruction), `sevl`, `pair` (SEVL/WFE),
   `wfe` (WFE alone), and `alarm` (intentional own-process timeout control).
+  New `resume-udf` and `resume-bad-marker` are separate controlled experiments;
+  no original observation mode is changed into a resume/emulation mode.
 - Each invocation needs a fresh own App process, exact expected API31/34/35 and
   ordinary App UID. Java also reads its own `/proc/self/exe` ELF header and
   requires explicit `expected_machine=62` (x64) or `183` (ARM64); uname/ABI labels
@@ -24,11 +27,11 @@ experiment, not a presumed capability or a game-startup workaround.
   endpoint or runner is packaged. Java writes fresh private durable phase receipts. Native
   refuses nonempty, non-0600, wrong-owner, linked or non-append record files,
   and a second call in the same process.
-- Native uses the NDK's `ucontext_t` fields, never guessed byte offsets. It does
-  not dereference saved PC, write context or resume after a signal. Lock-free
-  state, `write`, `fsync` and `_exit` are the only handler support operations.
-  A successful fault record deliberately exits the own process with 86; it
-  must not be reported as instruction return or game success.
+- Native uses the NDK's named context fields, never guessed byte offsets or a
+  dereferenced saved PC. Original observation modes never write context:
+  successful recording exits the own process86 and must not be reported as
+  instruction return or game success. Only the two new explicit modes may
+  write their own known UDF PC+4 under the guards documented below.
 - A three-second default SIGALRM bounds the own case. A host run must also use
   a finite observation deadline, preserve crash/partial evidence and never
   replay an uncertain invocation. A different process may be used for the next
@@ -44,7 +47,7 @@ After fresh target identity, ordinary shell UID and original platform/library
 hash verification on an already authorized isolated guest, run one mode:
 
 ```
-adb -s <exact-authorized-serial> shell am instrument -w -e expected_api <31-or-34-or-35> -e expected_machine <62-or-183> -e mode <baseline-or-raise-or-udf-or-sevl-or-pair-or-wfe-or-alarm> dev.ody.seedlensarmsignalprobe/.SignalInstrumentation
+adb -s <exact-authorized-serial> shell am instrument -w -e expected_api <31-or-34-or-35> -e expected_machine <62-or-183> -e mode <explicit-mode> dev.ody.seedlensarmsignalprobe/.SignalInstrumentation
 ```
 
 Read back only this App's private `.tsv` and `.bin` records after the own
@@ -152,3 +155,38 @@ All thirty-eight prior product/research journals, ten original 0.0.2 own
 receipts and product/game hashes were retained; game and product were not
 started, and the guest was normally shut down. The research page keeps all
 three platforms separate. No result grants native ARM64 or product support.
+
+## 0.0.4 controlled own-UDF round trip
+
+This is not a game handler, event-instruction emulator or product NativeBridge
+admission change. Only its own compiled UDF labels are eligible; no arbitrary
+target PC, opcode or process can be supplied.
+
+- Both resume modes share exact own fault PC, SIGILL/known signal code,
+  present siginfo/context, x19=0x534c, x20=0x1357 and nonzero aligned SP guards.
+  The bad-marker function instead sets x19=0x534d and must refuse before writing.
+- After a valid guard, flag value4 records **write intent** before changing
+  only the public PC field to the known UDF+4. No code, SP, GPR, pstate,
+  signal mask or siginfo is rewritten. Repeated handler exits88, guard
+  refusal89, record failure87 and invalid native landing90 bound failures.
+- The assembly landing emits canary0x5eed before restoring its saved registers.
+  Only the positive case returning that canary after one handler can append
+  phase4 and return to Java. The default three-second alarm and a finite
+  host observation deadline still bound each disposable own process.
+- Phases1/2/3 with intent remain attempt-unconfirmed: context modification is
+  unknown. Valid phases1/2/3/4 identify only an own native round trip; exact
+  Java return and process terminal must also be checked. UDF was not executed
+  normally. Hardware signal-code/address matching remains separately reported.
+  No partial bridge siginfo or parser outcome grants full context, game,
+  platform or product qualification.
+
+Host preparation passed sixteen parser methods, the same 94 ELF JVM checks,
+original lab signing/ARM64-only stored library/16KiB packaging, and exact
+re-decoding of all 24 real 0.0.2/0.0.3 records with unchanged results.
+Disassembly confirms both UDF labels immediately precede their canary landing,
+and the negative marker differs. APK SHA256:
+66d3e87b790f84f1752949a90cfcd9ce2ae6c9ce6a99bfd0f44b4d6751b798b3;
+SO SHA256:
+cf0b74cc51c4b22fa6488e0444575c040f5137e89568be284a39518a4872886e.
+Original versions and consumer0.5.2 bytes remain retained. **0.0.4 is host-only
+at this preparation checkpoint; no device round trip has been verified.**

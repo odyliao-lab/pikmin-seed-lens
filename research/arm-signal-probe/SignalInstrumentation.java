@@ -28,7 +28,8 @@ public final class SignalInstrumentation extends Instrumentation {
             int ownMachine=ProcessElf.currentMachine();
             int selected="baseline".equals(mode)?0:"raise".equals(mode)?1:"udf".equals(mode)?2:
                          "sevl".equals(mode)?3:"pair".equals(mode)?4:
-                         "wfe".equals(mode)?5:"alarm".equals(mode)?6:-1;
+                         "wfe".equals(mode)?5:"alarm".equals(mode)?6:
+                         "resume-udf".equals(mode)?7:"resume-bad-marker".equals(mode)?8:-1;
             if(Process.myUid()<10000||!(api==31||api==34||api==35)||
                !Integer.toString(api).equals(expected)||selected<0||
                (ownMachine!=ProcessElf.X86_64&&ownMachine!=ProcessElf.AARCH64)||

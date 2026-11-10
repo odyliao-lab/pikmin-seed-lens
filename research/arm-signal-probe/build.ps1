@@ -76,4 +76,4 @@ if($LASTEXITCODE -or !($badging -match "^package: name='dev.ody.seedlensarmsigna
  throw 'Final research version identity mismatch'
 }
 Get-FileHash -LiteralPath $apk,"$out/native/lib/arm64-v8a/libarmsignal.so"
-Write-Output 'RESEARCH_ONLY: own fault observation/exit, no context modification, Root, game or platform qualification'
+Write-Output 'RESEARCH_ONLY: original modes fail-stop; explicit own-UDF roundtrip modes may change own PC; no Root, game or platform qualification'
