@@ -39,3 +39,27 @@ b22877ed…ce84 bytes重用，但新scope不執行它。詳見[client介面與�
 後續須在已核新guest身分下先取得及核對私人patch輸出、原件保留、正常關閉後才改用
 私人override；Root配置完成後另核Enforcing／原bridge／Zygisk OFF／空modules及普通App
 實際su-M。完整PM loader、負例／timeout與新程序回歸需要獨立能力驗證，不由本scope授予。
+
+## Stock對照與私人patch輸出（2026-11-11）
+
+冷備份後單次啟動同stock AVD，新boot2846db04-cb88-49f8-8e4e-247f87fa1c45／API34／
+x86_64／libndk_translation／Enforcing／UID2000；同server516/start1500與兩次服務／display
+讀值相隔87.123秒。正常安裝原lab簽章0.0.10後UID10195：不帶scope、帶scope卻附
+load_pid兩例各在Root query前拒絕、無新Root receipt；明確scope的PATH su-M只得到
+IOException，保存失敗收據，普通App Root未證實。原26份signal收據、原157完整SHA及
+產品／attempt不存在狀態均保留，未以adbd Root代替App Root。
+
+因此才用研究adbd Root單次執行已核官方流程，工作只在本次私有guest目錄及ramdisk
+副本。取得私人ramdisk SHA4c45244a…1025，未覆寫共享SDK／API31映像；原Root query
+失敗收據亦保留。診斷後adbd UID2000／Enforcing、同server，無Game、Root client或
+Magisk daemon，管理器尚未安裝；正常關閉後host／5582、5583消失，SDK四原件SHA不變。
+
+host獨立解析私有gzip／CPIO及stock串接archive，核31個stock最終entry與39個private
+entry：除init，其餘stock mode／UID／GID／data不變；新增恰為八個官方backup／overlay
+entry。init／magisk.xz／init-ld.xz逐bytes吻合官方APK，init.xz備份解壓吻合stock原init，
+KEEPVERITY／KEEPFORCEENCRYPT皆true，PREINITDEVICE=metadata。首個parser對重複dev
+空目錄及壓縮備份名的拒絕保留；修正為只接受一致空目錄、辨識串接CPIO與init.xz後，
+v1／v2 audit分別保留，未重做patch或改image bytes。
+
+本checkpoint私人override尚未啟動，管理器及Root未完成安裝，App Root／loader／產品
+資格均未通過。後續只能以已驗私人image冷啟動同目標，另核Root設定與App實際行為。

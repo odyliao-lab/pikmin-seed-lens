@@ -1,5 +1,16 @@
 # 驗證分層
 
+## 2026-11-11：API34 stock Root對照與private ramdisk
+
+API34另次stock boot2846db04…1c45、同server516/start1500兩次服務讀值相隔87.123秒，
+普通App0.0.10／UID10195的缺scope與附load_pid負例在Root query前拒絕，明確僅讀scope
+的PATH su-M實際IOException，App Root未證實。原26份signal收據／原157 SHA與產品/
+attempt不存在狀態保留。官方流程單次patch私有副本，新image SHA4c45244a…1025；
+host另核CPIO／官方payload／原init壓縮備份及verity／encryption，除init其餘stock
+entry不變。原失敗與parser拒絕保留。正常關閉後host／埠消失、SDK四SHA不變；私人
+image尚未啟動，不把patch／安裝研究APK當Root／loader／產品通過。
+見[完整範圍](API34_MAGISK_RESEARCH.md)。
+
 ## 2026-11-11：API34私人Root的host前置準備
 
 既有獲准API34 AVD在guest關閉前後核對下完成11個自有設定／磁碟檔冷備份、來源／備份
