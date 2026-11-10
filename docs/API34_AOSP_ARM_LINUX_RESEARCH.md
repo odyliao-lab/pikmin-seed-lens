@@ -150,3 +150,13 @@ PermissionController input path and `--compiler-filter=speed`. This is a
 verified live compiler after the third server failure, not a completed cache,
 successful command or boot. The original1200s compiler observation bound
 and10800s guest bound remain; no second request was sent.
+
+The one compile command then returned at UTC10:12:53.952 after316.995s,
+**exit224 / Broken pipe** while calling the package service. Its script
+stopped and retained that failed RPC outcome; no compile request was resent.
+An independent ordinary-shell ART dump at10:14:51.760, with actual same-boot
+UID2000/API34/ARM64/Enforcing checked, reported `status=speed`,
+`reason=cmdline`, primary ABI, for the same original APK/cache path. Thus a
+full compiled cache exists despite the failed command response. Do not
+rewrite exit224 as successful or infer full boot from the cache. The fourth
+automatically created server2015 is the next actual boot observation.

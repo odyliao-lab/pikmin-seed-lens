@@ -11,8 +11,9 @@ rev4／新 AVD／5590，官方大小／SHA1／SHA256、全新6GiB data 及獨立
 
 該AOSP完整Android其後實讀API34／ARM64／Enforcing，原ramdisk32個APEX及self-test通過，
 但三個自動system_server均被stock Watchdog終止，未完整開機。實際PermissionController
-ART狀態只有verify後，另送出一次Android原生背景speed編譯快取研究；已讀到同boot下真實
-compiler仍存活，結果／快取回讀尚待。不是Root、JNI、遊戲或相容資格，失敗及原期限保留。
+ART狀態只有verify後，另送出一次Android原生背景speed編譯快取研究；真compiler曾實讀存活，
+命令後續exit224／Broken pipe，結果保留且未重送。另次同boot普通shell實際回讀speed／
+cmdline快取；快取存在不改寫失敗RPC，也不是完整boot、Root、JNI、遊戲或相容資格。
 
 ## 2026-11-10：API34 ARM/Linux 新授權目標與 CPU 對照
 
