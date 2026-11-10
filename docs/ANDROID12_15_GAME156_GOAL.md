@@ -1,5 +1,10 @@
 # 驗收目標：Android12／14／15 × 遊戲156／156.1／157
 
+最新同API34 AOSP目標另以獨立scalar host／2CPU實跑原V3c：7/7及NULL／reap控制通過，
+真inferior0、無外部收容；21項host測試及八個真GDB未啟動負例通過。完整Android另輪於
+UTC15:01:02啟動1800秒觀察，未取得本輪完整boot／互動Home／Root／JNI／遊戲資格。
+產品0.5.2與九組狀態不變，見[scalar對照](../research/tcg-scalar-host.md)。
+
 最新另獲准的 API34 **AOSP** ARM64／Linux 新 AVD 已完成官方 intake、獨立 CPU7/7 與
 NULL／回收控制；原始 ramdisk 的完整 Android 已實讀 API34／ARM64／Enforcing，完成32個
 APEX並進入首次dexopt，仍無完整boot／畫面／普通App Root／JNI／遊戲資格。這是API34

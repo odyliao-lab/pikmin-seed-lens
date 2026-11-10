@@ -1,5 +1,38 @@
 # API34 AOSP ARM64/Linux: actual research boundaries
 
+## Latest scalar-host CPU result and independent Android run
+
+UTC14:54:03.797–14:54:12.557: on this same approved AOSP target, a separately
+scoped scalar-TCG comparison passed the original V3c CPU fixture7/7 plus
+intentional NULL SIGSEGV/child-reaped control. The kernel reported two CPUs;
+actual inferior exit0, GDB0, normal power-off and no timeout/containment were
+independently recorded. The mapper remains the pinned AOSP single-thread
+helper; real AVX probe1/1 was changed to0/0 only in the newly started host
+process. No vector-save wrappers, SDK file changes or product gate changes.
+Twenty-one host Python methods and eight actual before-starti GDB refusal
+cases passed. The private test-reader exit-code assumption failure remains
+recorded separately. See [scope and exact limits](../research/tcg-scalar-host.md).
+
+The first full-Android launcher stopped before kernel startup due to an
+overlong diagnostic UNIX socket path, despite inferior/GDB0. It is not a
+platform success. After retaining those logs and shortening the private path,
+a separate run started UTC15:01:02.236 with fixed1800s bound/normal-close1660s,
+2vCPU/4GiB/1080×1920/420dpi, existing6GiB data, no-animation option and the
+previously pinned private worker1 ramdisk. All four original SDK image hashes
+were checked again; the new API35 instance was freshly verified stopped.
+
+At launch no current boot-completed, Home, ordinary-App Root, JNI or game
+proof existed. Strong current-service boot reads and actual Home/interaction
+remain prerequisites. No Root provider, research APK, game or product has
+been installed in this AOSP guest. Earlier vector, one-core and multi-thread
+results below remain historical; none supplies missing scalar-run evidence.
+
+The first ordinary-shell metadata completed UTC15:03:27.743, exit0 after22.0s:
+UID2000, Enforcing, actual API34, ARM64-only/aarch64, NativeBridge0, new boot
+37eb10f7…b4e9 and the exact AOSP fingerprint. No-animation property read1 and
+online CPUs0-1. Boot flag and system_server PID were both empty at this read;
+it establishes current platform identity only. No Root was requested.
+
 2026-11-10. This addresses **Android14/API34 native ARM64**, one part of the
 Android12/14/15 × game156.0/156.1/157.0 goal. It does not replace API31 or API35
 evidence. The owner approved the [fixed AOSP scope](API34_AOSP_ARM_LINUX_PROPOSAL.md).

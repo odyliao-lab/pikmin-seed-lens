@@ -49,6 +49,46 @@ TARGETS = {
 }
 
 
+# Scalar selection has its own marker namespace. A scalar marker must never
+# authorize the vector controller, including when both use the same mapper.
+SCALAR_TARGETS = {
+    'seedlens-api31-tcg-scalar-host-v1': HostTarget(
+        b'SeedLens_API31_ARM64_Linux', b'5586',
+        Path('/opt/seedlens-lab/host-helper-v1/libseedlens-tcg-selection-v1.so'),
+        'bc30eb3904692cd475cef5eda8d0127979b57b2451f451434542a39f28e1e795'),
+    'seedlens-api34-aosp-tcg-single-scalar-v1': HostTarget(
+        b'SeedLens_API34_AOSP_ARM64_Linux', b'5590',
+        Path('/opt/seedlens-lab/host-helper-api34-aosp-single-v1/libseedlens-api34-aosp-tcg-single-selection-v1.so'),
+        'f4b738fdafbffdb3c8f0aec7c0e16e5da6234a33e9fd19ba978452f937ceab88',
+        single_thread_tcg=True, required_guest_cores=2),
+}
+
+
+def select_scalar_target(marker):
+    try:
+        return SCALAR_TARGETS[marker]
+    except (KeyError, TypeError):
+        raise ValueError('explicit fixed scalar-target marker required') from None
+
+
+def validate_scalar_preload(preload, vector_marker, target):
+    if preload != str(target.mapper):
+        raise ValueError('scalar target requires only its pinned mapper preload')
+    if vector_marker is not None:
+        raise ValueError('scalar target refuses a vector-controller marker')
+
+
+def validate_scalar_argv(argv, target):
+    validate_target_argv(argv, target)
+    if b'-qemu' in argv:
+        if argv.count(b'-qemu') != 1:
+            raise ValueError('one scalar backend parser boundary required')
+        boundary = argv.index(b'-qemu')
+        for option in (b'-avd', b'-port', b'-no-accel'):
+            if argv.index(option) > boundary:
+                raise ValueError('scalar identity option in backend parser scope')
+
+
 def select_target(marker):
     try:
         return TARGETS[marker]

@@ -1,5 +1,26 @@
 # 驗證分層
 
+## 2026-11-10：API34 AOSP scalar-host獨立CPU對照
+
+新scalar marker僅限既有AOSP／5590／2CPU／單thread TCG，與vector namespace分開；
+只准原AOSP mapper preload並核SHA，拒絕vector marker／wrapper及錯誤parser scope。
+Windows／Linux各21個host Python methods通過；八個真GDB負例明確拒絕且inferior PID0。
+初次私人讀取器錯把附加PID輸出命令後的GDB0當失敗，原紀錄保留，修正後仍記實際0，
+不偽稱exit1。guard結果與debugger exit分開判定。
+
+原V3c fixture在API34 kernel實讀2CPU，UTC14:54:03.797–14:54:12.557七項全過、0 fail／skip，
+故意NULL SIGSEGV／child reap另過；真inferior0／power-off、無逾時收容。host AVX flags實讀
+1/1後改0/0，無vector-save wrappers。這仍只是自有CPU initramfs，不是Android／App資格。
+
+首個Android launcher因socket路徑過長在kernel前停止，inferior／GDB0不記成功；縮短私人
+路徑後，UTC15:01:02.236另輪1800秒完整Android觀察已啟動。原2CPU／4GB、worker1
+ramdisk／無動畫、Watchdog／SELinux／產品15s與2s不變。完整boot／互動Home及後續
+Root／JNI／三遊戲另驗；未將其他輪或API31證據轉記。本輪未改產品bytes，見
+[AOSP紀錄](API34_AOSP_ARM_LINUX_RESEARCH.md)及[scalar範圍](../research/tcg-scalar-host.md)。
+本輪首次普通shell metadata於UTC15:03:27 exit0：UID2000／Enforcing／API34／ARM64-only、
+新boot37eb10f7…b4e9、NativeBridge0／原AOSP fingerprint、no-animation1／CPU0-1；
+當時boot flag與system_server皆空，僅身分已驗，不是完整開機。
+
 ## 2026-11-10：0.5.2／156.0獨立新OS boot後回歸
 
 唯一新index5正常OFF／原33份SHA保留／adbd UID2000後正常關閉；CLI實核Android及

@@ -5,7 +5,7 @@ an Android module, product dependency, stock-emulator or physical ARM64 result.
 Never copy it into an APK, attach it to an existing process, or enable it
 globally. Authorization and fresh lab identity must be checked independently.
 
-The approved target remains `SeedLens_API31_ARM64_Linux`, software CPU, port5586,
+The original approved target is `SeedLens_API31_ARM64_Linux`, software CPU, port5586,
 under `/opt/seedlens-lab`. Use `tcg_scalar_host_gdb.py` only with `gdb --args`
 through the private launcher. Set only that child's
 `SEEDLENS_TCG_SCALAR_HOST_RESEARCH=seedlens-api31-tcg-scalar-host-v1`.
@@ -39,3 +39,48 @@ game UI, long-running behavior or physical hardware.
 Keep watchdog/pidfd containment outside the debugger. Pass host signals onward;
 record actual inferior exit separately from debugger exit. The full Android
 comparison must be recorded separately in [the Linux evidence](../docs/API31_LINUX_HOST_RESEARCH.md).
+
+## Separately scoped API34 AOSP comparison, 2026-11-10
+
+The existing owner-approved `SeedLens_API34_AOSP_ARM64_Linux` has a separate
+scalar marker, `seedlens-api34-aosp-tcg-single-scalar-v1`. It fixes port5590,
+two guest CPUs (`-cores 2` before `-qemu`, `-smp 2` after it), and the backend
+`-accel tcg,thread=single`. This does not authorize the Google-APIs AVD or
+transfer API31 results. The existing AOSP single-thread mapper is retained:
+SHA256 `f4b738fdafbffdb3c8f0aec7c0e16e5da6234a33e9fd19ba978452f937ceab88`.
+
+Scalar and vector markers have separate target namespaces. The scalar
+controller requires exactly its pinned mapper as `LD_PRELOAD`, verifies its
+hash, rejects any vector marker/preload, and checks frontend/backend parser
+scope. It requires the real AVX probe bytes to read1/1 before clearing0/0;
+no vector-save wrappers are registered. The legacy API31 tuple is retained,
+with the stronger preload/hash/probe checks; no new API31 run is inferred.
+
+Windows and dedicated-Linux target tests passed21 methods, including eight
+new scalar methods and cross-target, CPU-count, parser-scope and preload
+refusals. Eight actual GDB negative cases explicitly refused before `starti`,
+with inferior PID0. The initial private reader incorrectly expected a
+nonzero debugger exit despite a subsequent successful PID-report command;
+that reader failure remains recorded. Corrected checks retain actual GDB
+exit0 and require the explicit refusal, PID0 and absent comparison marker.
+Debugger status alone proves neither refusal nor guest success.
+
+After fresh target/resource/SDK-image checks and normal closure of the sole
+new API35 instance, the original V3c fixture ran at UTC14:54:03.797–14:54:12.557.
+The API34 AOSP kernel actually brought up two CPUs. All seven SEVL/vector/
+tagged-memory/adjacent-sequence cases passed, zero failed/skipped; the deliberate
+NULL SIGSEGV and child-reaped control passed. Guest power-off and actual
+inferior exit0 were recorded separately from GDB0, without timeout or
+containment. Existing SDK warnings remain. This is CPU-initramfs evidence,
+not Android boot, normal App Root, JNI or game qualification.
+
+The first Android launch stopped before the kernel because its private
+diagnostic UNIX socket path exceeded108 bytes; actual inferior/GDB exit0
+is **not** an Android pass. Logs remain unchanged. A shorter private run
+path fixed that launcher error. A separate full-Android run began at
+UTC15:01:02.236 with a fixed1800s bound and normal-close timer at1660s,
+2 CPUs/4GiB, existing data, no animation and the separately pinned AOSP
+worker1 ramdisk. At launch there was no completed-boot/Home/Root proof.
+Current Power/WMS boot state, PM/AM and unchanged server identity must pass
+twice60s apart, followed by actual Home/interaction, before later deployment.
+See [AOSP evidence](../docs/API34_AOSP_ARM_LINUX_RESEARCH.md).
