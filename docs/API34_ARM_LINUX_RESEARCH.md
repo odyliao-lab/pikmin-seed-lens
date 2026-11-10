@@ -132,3 +132,26 @@ loop重試次數、產品15s／2s界限，不停用self-test／Watchdog或修改
 錯API31來源、SDK內輸出、覆寫既有候選三個實際負例均拒絕，原件SHA保留。
 同新guest的明確private ramdisk override已開始獨立觀察；目前仍未讀回property或完整boot，
 不稱為原官方無修改ramdisk、Root、App或產品資格。所有原失敗與冷備份保留。
+
+### 私人候選的實際部分進展
+
+gdb1500／inferior1510，UTC03:10:11起以同kernel、mapper／vector、2vCPU／4GiB及私人
+ramdisk候選啟動，boot `7c3bd34b-36c9-421a-902b-a40418ff5617`。guest約117–131秒，
+34個APEX由同一activation worker依序掛載成功；Conscrypt、adbd、ART及resolv皆有獨立mount紀錄。
+APEX BoringSSL self-test實際exit0，沒有停用該測試。
+
+後續一般shell實際讀取exit0：Android14／API34、arm64-v8a（abilist亦只有ARM64）、
+uname aarch64、NativeBridge0、Enforcing、UID2000與上述boot；fingerprint為
+`google/sdk_gphone64_arm64/emu64a:14/UE1A.230829.050/12077443:userdebug/dev-keys`。
+但完整屬性讀取多次40秒逾時；獨立echo約17.4秒、單API約11.8秒、多項identity約58.5秒，
+屬於讀取延遲，不套用或放寬產品15s／2s限制。
+
+為讀取受限內部設定與framework狀態，僅暫用原廠adbd Root診斷：同boot／API34／Enforcing
+實際UID0後，讀回`apexd.config.boot_activation.threads=1`，確認此私人候選設定生效。
+當時zygote／bootanim running、沒有system_server，logcat有zygote預載class警告。
+沒有安裝Magisk、APK或執行原生載入。unroot初次回覆逾時不記成功；其後重新讀取同boot、
+UID2000及Enforcing才確認恢復。此診斷不是普通App Root或完整開機資格。
+
+當時主機i7-10700KF／8C16T總CPU實讀100%；只讀自身QEMU thread統計，主要CPU時間在兩個
+TCG thread。不能單憑CPU繁忙認定唯一根因。完整getprop觀察改為較低頻單boot flag，
+避免監測增加負載；保留原40秒逾時與未完成觀察，不把bootanim／API讀值當App可用。
