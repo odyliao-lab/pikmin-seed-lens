@@ -176,3 +176,12 @@ UTC04:03:11完成的一次唯讀篩選logcat，實際記到system_server495的Pa
 精確API／ABI／kernel guard、41項JVM檢查、Android Java／dex、原研究簽章與ARM-only封裝
 已驗，錯ABI建置實際在輸出／簽章前拒絕；沒有部署或Android執行。
 此研究包不增加產品版本、NativeBridge資格或使用者依賴。
+
+後續來源複查發現0.0.6尚缺「實際封裝ABI」與系統primary ABI的綁定；它未部署，原件SHA
+保留。另升[0.0.7/code7研究包](../research/root-probe/README.md)，APK asset固定runner ABI，
+Root查詢及PM command皆須匹配；44項JVM正負例、原研究簽章與ARM-only asset／runner封裝
+已驗，仍未安裝／執行Android，不追認0.0.6有此檢查。
+
+官方Magisk31.1 ARM材料僅在Linux host備妥；另以同APK內standalone x64 magiskboot做
+host-only decompress／單檔extract，實際保留三段ramdisk的單worker property，私人輸入SHA不變。
+沒有執行Magisk daemon、patch ramdisk或向guest傳入Root檔案；完整boot及載入安全通過後才進Root。

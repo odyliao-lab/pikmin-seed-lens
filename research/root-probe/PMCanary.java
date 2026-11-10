@@ -13,6 +13,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /** Normal App -> unchanged PATH su -M -> its own PM-installed self-probe PIE.
  * No general Root program/command argument, game target or automatic retry. */
 final class PMCanary {
+    static String packagedAbi(Context context)throws Exception{
+        try(InputStream input=context.getAssets().open("runner.abi")){
+            byte[] bytes=new byte[16];int n=input.read(bytes);
+            if(n<=0||input.read()!=-1)throw new IllegalStateException("Missing packaged ABI pin");
+            String text=new String(bytes,0,n,StandardCharsets.US_ASCII);
+            if(!text.matches("(arm64-v8a|x86_64)\\n"))throw new IllegalStateException("Invalid packaged ABI pin");
+            return text.substring(0,text.length()-1);
+        }
+    }
     private static String sha(File path)throws Exception{
         MessageDigest digest=MessageDigest.getInstance("SHA-256");
         try(InputStream input=new FileInputStream(path)){
@@ -28,7 +37,7 @@ final class PMCanary {
         String timeout=args.getString("timeout_test","false");
         int api=android.os.Build.VERSION.SDK_INT;
         String abi=android.os.Build.SUPPORTED_ABIS.length==0?"":android.os.Build.SUPPORTED_ABIS[0];
-        String backend=ProbePlatform.backend(args.getString("expected_api"),api,abi,Process.is64Bit(),android.system.Os.uname().machine);
+        String backend=ProbePlatform.backend(args.getString("expected_api"),api,abi,Process.is64Bit(),android.system.Os.uname().machine,packagedAbi(context));
         boolean arm=backend.equals("arm64");
         if(backend.isEmpty()||Process.myUid()<10000||
            !"dev.ody.seedlensrootprobe".equals(context.getPackageName())||

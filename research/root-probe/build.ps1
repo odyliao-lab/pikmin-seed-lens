@@ -30,6 +30,7 @@ if(Test-Path $out){throw 'Research version reserved; preserve artifacts and bump
 New-Item -ItemType Directory "$out/classes","$out/dex","$out/native/lib/$Abi","$out/assets" | Out-Null
 Copy-Item -LiteralPath $runner -Destination "$out/native/lib/$Abi/libseed_probe_runner.so"
 [IO.File]::WriteAllText("$out/assets/runner.sha256",$ExpectedRunnerSha256.ToLowerInvariant()+"`n",[Text.Encoding]::ASCII)
+[IO.File]::WriteAllText("$out/assets/runner.abi",$Abi+"`n",[Text.Encoding]::ASCII)
 $bt="$SdkPath/build-tools/35.0.0";$jar="$SdkPath/platforms/android-35/android.jar";$env:JAVA_HOME=$JavaHome
 New-Item -ItemType Directory "$out/platform-tests" | Out-Null
 & "$JavaHome/bin/javac.exe" --release 8 -d "$out/platform-tests" "$PSScriptRoot/ProbePlatform.java" "$PSScriptRoot/ProbePlatformTest.java"

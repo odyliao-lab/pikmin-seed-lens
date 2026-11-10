@@ -29,7 +29,7 @@ public final class RootInstrumentation extends Instrumentation {
             if(!"dev.ody.seedlensrootprobe".equals(getTargetContext().getPackageName())||Process.myUid()<10000||
                expectedBoot==null||!expectedBoot.matches("[0-9a-f-]{36}")||
                ProbePlatform.backend(expectedApi,android.os.Build.VERSION.SDK_INT,abi,Process.is64Bit(),
-                   android.system.Os.uname().machine).isEmpty())throw new IllegalStateException();
+                   android.system.Os.uname().machine,PMCanary.packagedAbi(getTargetContext())).isEmpty())throw new IllegalStateException();
             receipt=new File(getTargetContext().getFilesDir(),"root-"+Process.myPid()+"-"+SystemClock.elapsedRealtime()+".tsv");
             if(!receipt.createNewFile())throw new IllegalStateException();
             StringBuilder output=new StringBuilder();
