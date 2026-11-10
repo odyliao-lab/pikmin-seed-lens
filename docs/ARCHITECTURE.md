@@ -1,5 +1,13 @@
 # 架構
 
+## 森林手帳原生介面（驗收中）
+
+`MainActivity`只保有頁面與當次同意；`LensController`以程序級單一操作鎖持有執行，
+`LensOperations`承接既有Root／PM／native命令。`LensContext`綁boot/PID/start，
+`LensStatus`嚴格轉譯回報及UNKNOWN屏障，外觀偏好不能授權載入。`ToolCatalog`目前
+只有花苗名稱透視一項，行內直接開關；`ForestStyle`及離線`OfflineArtwork`負責呈現。
+APK原簽章與版本遞增；進度／未通過項目見[UI驗收](FOREST_UI_QUALIFICATION.md)。
+
 ## API34共用後端的unsigned來源準備
 
 已實測API34直接adapter的普通App Root／PM／JNI及收容後，新增獨立

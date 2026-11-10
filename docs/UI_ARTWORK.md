@@ -8,6 +8,8 @@
 - 1536×1024、RGBA，2,561,297 bytes；四角alpha皆0，761,994個全透明pixel，alpha範圍0–254。
 - 完整複製生成原檔並保留alpha，未覆寫使用者參考圖，沒有以Python改圖。
 - 僅為首頁品牌插畫；操作文字、同意、狀態及開關由原生介面獨立呈現。
+- 0.6.4起APK內採flat `assets/forest-lens-mascot-v1.png`；來源仍保留上述資料夾。
+  Windows巢狀entry反斜線問題與實機顯示結果見[本輪UI驗收](FOREST_UI_QUALIFICATION.md)。
 
 ## 生成提示詞（built-in 模式）
 

@@ -27,3 +27,37 @@ UNKNOWN／不完整啟用輸出保留重試屏障，OFF或一般讀取錯誤不�
 
 尚未完成320dp、大字、觸控／鍵盤、完整開關同意流程或本版遊戲兩頁回歸。
 0.5.2與其他平台證據不轉記成本版資格。插畫來源及完整提示詞見[插畫記錄](UI_ARTWORK.md)。
+
+## 0.6.1–0.6.4：封裝路徑定位與修正
+
+0.6.1/code19改用ImageDecoder仍FileNotFound；0.6.2/code20的自身APK固定entry也找不到，
+0.6.3/code21增加私人診斷後，Android Java ZipFile列出的原始entry為
+`assets/art\forest-lens-mascot-v1.png`，而非預期的斜線路徑。Windows Python ZipInfo.filename
+會將反斜線正規化，因此先前Python內容／SHA檢查未發現。這是**Windows封裝路徑問題**，
+不再把先前推測的ROM AssetManager問題當成原因。原件全部保留，不覆寫。
+
+| 版本 | APK SHA256 | 本輪結果 |
+|---|---|---|
+| 0.6.1/code19 | `804b8c99ecc5d27261a01c3203cca4637146d995c19d69ba77854a7bff7bed9f` | 圖片未顯示 |
+| 0.6.2/code20 | `f41a2064d4d32a5dda5e8483c1a7225452cfcedae2fce9d4aaeaf1d519bfe6b0` | 圖片未顯示，包含冷啟動 |
+| 0.6.3/code21 | `a9a17079094f6d009b8a1186e2fb150106e8725201fa22949fe20a79b977ccb5` | 私人診斷確認literal反斜線 |
+| 0.6.4/code22 | `8c535cf1ce79d00c42bc2cf0c29c8c36f106c4ca4575451a2709c27c4e60fcf3` | 首頁圖片實際正常顯示，UI其餘項目分驗 |
+
+0.6.4將圖片封裝為flat `assets/forest-lens-mascot-v1.png`，正常使用AssetManager，
+不採用ZIP workaround或ROM特例。解碼最多4MiB、sample2，原PNG／alpha／SHA保留。
+建置直接解析ZIP central directory，拒絕任何literal反斜線，並核對正式圖片entry／SHA。
+新增真ZIP斜線正例與反斜線負例（layout10例）；新版checker亦實際拒絕0.6.3原APK。
+全部既有JVM／封裝檢查及原簽章檢查通過，native可執行檔仍只編譯。
+
+同一index5／boot，逐版-r升級，未清除資料。0.6.4已實際驗：
+
+- 首頁透明插畫、暖色紙張、三分頁；工具只有一個Switch（76×56dp），沒有功能內頁。
+- 點Switch原頁展開兩個未勾選確認，送出disabled；只勾停止程序同意仍disabled。
+- 切換分頁、取消再開、離開App／返回，都清除兩項同意；沒有載入或自動啟用。
+- 遊戲尚未執行時，主畫面確認的只讀程序核對拒絕，兩項清除，送出仍disabled。
+- 專用guest暫設density540，1080px寬對應320dp；font_scale1及2皆實際檢查。
+  字級2可捲至開關、同意與送出／取消，未見水平溢出。這不是TalkBack實際朗讀驗收。
+
+窄版觀察到OFF開關把手與紙色對比不足，下一版修正後重驗；本版不稱完整UI通過。
+設定只暫改新guest，進行遊戲前必須核對還原原density280／font_scale1與旋轉偏好。
+尚待本版或後續版完整淺深色／橫向、鍵盤／TalkBack、busy／UNKNOWN呈現與真正遊戲回歸。

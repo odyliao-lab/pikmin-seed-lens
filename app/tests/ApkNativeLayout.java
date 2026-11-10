@@ -36,6 +36,7 @@ public final class ApkNativeLayout {
                 int n=u16(cd,pos+28),extra=u16(cd,pos+30),comment=u16(cd,pos+32),total=46+n+extra+comment;
                 require(n>0&&total<=cd.length-pos&&u16(cd,pos+34)==0,"ZIP central length/disk");
                 String name=new String(cd,pos+46,n,StandardCharsets.UTF_8);
+                require(name.indexOf('\\')<0,"Backslash APK path is not an Android asset path: "+name);
                 require(seen.add(name),"Duplicate APK entry");
                 if(name.endsWith(".so")){
                     int flags=u16(cd,pos+8);long length=u32(cd,pos+24),local=u32(cd,pos+42);
@@ -63,6 +64,7 @@ public final class ApkNativeLayout {
     public static void main(String[] args)throws Exception{
         require(args.length==1,"Pass exactly one APK");Path apk=Paths.get(args[0]);layout(apk,REQUIRED);
         try(ZipFile zip=new ZipFile(apk.toFile())){
+            require(digest(zip,"assets/forest-lens-mascot-v1.png").equals("63bf13f79dcbda0c3cb4c3293764034ae70ee9f5d161bb5c0941d38e8ea095a4"),"Offline artwork bytes differ");
             require(digest(zip,"assets/libseed_display.so").equals(digest(zip,"lib/arm64-v8a/libseed_display.so")),"Renderer copies differ");
             checkDigest(zip,"assets/seed-bridge-renderer.sha256","assets/libseed_display.so");
             checkDigest(zip,"assets/seed-bridge-x86_64.sha256","lib/x86_64/libseed_bridge.so");

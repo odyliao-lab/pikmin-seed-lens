@@ -116,8 +116,9 @@ foreach($abi in @('arm64-v8a','x86_64')){
 Copy-Item -LiteralPath "$dep/LICENSE" -Destination "$out/assets/AndKittyInjector-LICENSE.txt"
 Copy-Item -LiteralPath "$dep/KittyMemoryEx/LICENSE" -Destination "$out/assets/KittyMemoryEx-LICENSE.txt"
 Copy-Item -LiteralPath "$root/third_party/RENDERER_NOTICES.md" -Destination "$out/assets/Renderer-THIRD-PARTY-NOTICES.txt"
-New-Item -ItemType Directory "$out/assets/art" | Out-Null
-Copy-Item -LiteralPath "$PSScriptRoot/assets/art/forest-lens-mascot-v1.png" -Destination "$out/assets/art/forest-lens-mascot-v1.png"
+# Windows aapt2 writes nested asset separators as literal backslashes. Keep
+# this asset flat; the raw ZIP checker rejects backslash entries before signing.
+Copy-Item -LiteralPath "$PSScriptRoot/assets/art/forest-lens-mascot-v1.png" -Destination "$out/assets/forest-lens-mascot-v1.png"
 $bt="$SdkPath/build-tools/35.0.0";$jar="$SdkPath/platforms/android-35/android.jar";$env:JAVA_HOME=$JavaHome
 & "$bt/aapt2.exe" link -I $jar --manifest "$PSScriptRoot/AndroidManifest.xml" -A "$out/assets" -0 so -o "$out/unsigned.apk"
 if($LASTEXITCODE){throw 'Resource link failed'}

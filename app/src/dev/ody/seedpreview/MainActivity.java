@@ -7,7 +7,6 @@ import android.graphics.*;
 import android.os.*;
 import android.view.*;
 import android.widget.*;
-import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -44,8 +43,14 @@ public final class MainActivity extends Activity implements LensController.Obser
     void homeHeader(){
         style.add(page,style.heading("看看花苗，\n藏了什麼小驚喜。"),4);style.add(page,style.text("讓名字更清楚，發現每一株的裝飾。",14,style.muted,false),4);
         ImageView image=new ImageView(this);image.setScaleType(ImageView.ScaleType.FIT_CENTER);image.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
-        try{if(mascot==null)try(InputStream in=getAssets().open("art/forest-lens-mascot-v1.png")){mascot=BitmapFactory.decodeStream(in);}image.setImageBitmap(mascot);}catch(Exception ignored){}
-        page.addView(image,new LinearLayout.LayoutParams(-1,style.dp(190)));
+        try{
+            if(mascot==null)mascot=OfflineArtwork.mascot(this);
+            image.setImageBitmap(mascot);
+            page.addView(image,new LinearLayout.LayoutParams(-1,style.dp(190)));
+        }catch(Exception error){
+            android.util.Log.w("SeedLensArtwork","Offline mascot could not be decoded",error);
+            style.add(page,style.text("森林夥伴插畫暫時無法顯示。",12,style.muted,false),16);
+        }
     }
     Button action(LinearLayout box,String title,boolean primary,Runnable run){Button b=style.button(title,primary);b.setOnClickListener(v->run.run());style.add(box,b,10);operationButtons.add(b);return b;}
     void home(){
