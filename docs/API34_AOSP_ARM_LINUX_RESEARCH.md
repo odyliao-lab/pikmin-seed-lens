@@ -140,8 +140,10 @@ resending. Actual command completion, ART `status=speed` readback and later
 boot/service/display results are separate pending checks. Even a completed
 cache experiment does not qualify ordinary-App Root, JNI or any game.
 
-Server1546 was subsequently killed at UTC10:08:37 (final annotation follows
-the same permission-initialization wait). At a later ordinary-shell process
+Server1546's Watchdog kill announcement was UTC10:07:59.843; the same
+permission-initialization annotated stack printed10:08:31–39 and GOODBYE
+at10:08:39.691. These are distinct log events, not one inferred exit time.
+At a later ordinary-shell process
 read, same boot/UID2000/Enforcing were verified and the one requested job was
 still real: shell cmd1868, artd1874 and its dex2oat64 child1892, with the exact
 PermissionController input path and `--compiler-filter=speed`. This is a
