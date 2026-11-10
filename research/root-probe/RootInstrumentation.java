@@ -21,6 +21,9 @@ public final class RootInstrumentation extends Instrumentation {
             String expectedApi=arguments==null?null:arguments.getString("expected_api");
             String endpoint=arguments==null?null:arguments.getString("su_endpoint");
             String abi=android.os.Build.SUPPORTED_ABIS.length==0?"":android.os.Build.SUPPORTED_ABIS[0];
+            int processMachine=ProcessElf.currentMachine();
+            String kernel=android.system.Os.uname().machine;
+            String packagedAbi=PMCanary.packagedAbi(getTargetContext());
             String su=dev.ody.seedpreview.RootEndpoint.command(android.os.Build.VERSION.SDK_INT,abi,
                 new File("/debug_ramdisk/su").canExecute());
             if("debug_ramdisk".equals(endpoint)&&"31".equals(expectedApi))su="/debug_ramdisk/su";
@@ -29,7 +32,7 @@ public final class RootInstrumentation extends Instrumentation {
             if(!"dev.ody.seedlensrootprobe".equals(getTargetContext().getPackageName())||Process.myUid()<10000||
                expectedBoot==null||!expectedBoot.matches("[0-9a-f-]{36}")||
                ProbePlatform.backend(expectedApi,android.os.Build.VERSION.SDK_INT,abi,Process.is64Bit(),
-                   android.system.Os.uname().machine,PMCanary.packagedAbi(getTargetContext())).isEmpty())throw new IllegalStateException();
+                   kernel,packagedAbi,processMachine).isEmpty())throw new IllegalStateException();
             receipt=new File(getTargetContext().getFilesDir(),"root-"+Process.myPid()+"-"+SystemClock.elapsedRealtime()+".tsv");
             if(!receipt.createNewFile())throw new IllegalStateException();
             StringBuilder output=new StringBuilder();
@@ -56,6 +59,7 @@ public final class RootInstrumentation extends Instrumentation {
                 lines[2].matches("mnt:\\[[0-9]+\\]")&&lines[2].equals(lines[3])&&lines[4].equals(expectedBoot);
             try(FileOutputStream file=new FileOutputStream(receipt,true)){
                 String report="APP_UID\t"+Process.myUid()+"\nAPI\t"+android.os.Build.VERSION.SDK_INT+
+                    "\nPROCESS_ELF_MACHINE\t"+processMachine+"\nKERNEL_UNAME\t"+kernel+"\nPACKAGED_ABI\t"+packagedAbi+
                     "\nSU_ENDPOINT\t"+su+"\nSU_M_EXIT\t"+(ended?child.exitValue():-1)+"\n"+text+"\n"+
                     (root?"NORMAL_APP_SU_M_PASS_NOT_GAME_ACCEPTANCE":"ROOT_CAPABILITY_NOT_PROVEN")+"\n";
                 file.write(report.getBytes(StandardCharsets.UTF_8));file.getFD().sync();

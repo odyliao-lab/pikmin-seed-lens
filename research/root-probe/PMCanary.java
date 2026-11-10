@@ -37,7 +37,8 @@ final class PMCanary {
         String timeout=args.getString("timeout_test","false");
         int api=android.os.Build.VERSION.SDK_INT;
         String abi=android.os.Build.SUPPORTED_ABIS.length==0?"":android.os.Build.SUPPORTED_ABIS[0];
-        String backend=ProbePlatform.backend(args.getString("expected_api"),api,abi,Process.is64Bit(),android.system.Os.uname().machine,packagedAbi(context));
+        int processMachine=ProcessElf.currentMachine();
+        String backend=ProbePlatform.backend(args.getString("expected_api"),api,abi,Process.is64Bit(),android.system.Os.uname().machine,packagedAbi(context),processMachine);
         boolean arm=backend.equals("arm64");
         if(backend.isEmpty()||Process.myUid()<10000||
            !"dev.ody.seedlensrootprobe".equals(context.getPackageName())||
@@ -60,7 +61,7 @@ final class PMCanary {
         // All fields are restricted above; no quotes, spaces or shell expansion.
         String command=runner.getPath()+" "+pid+" "+start+" "+(arm?host+" "+api:api+" "+host)+(timeout.equals("true")?" --timeout-test":"");
         try(FileOutputStream output=new FileOutputStream(receipt,true)){
-            output.write(("APP_UID\t"+Process.myUid()+"\nRUNNER_SHA\t"+expected+"TARGET\t"+pid+"\t"+start+"\nONE_COMMAND_ONLY\n").getBytes(StandardCharsets.UTF_8));
+            output.write(("APP_UID\t"+Process.myUid()+"\nPROCESS_ELF_MACHINE\t"+processMachine+"\nRUNNER_SHA\t"+expected+"TARGET\t"+pid+"\t"+start+"\nONE_COMMAND_ONLY\n").getBytes(StandardCharsets.UTF_8));
             output.getFD().sync();
             java.lang.Process child=new ProcessBuilder("su","-M","-c",command).redirectErrorStream(true).start();
             AtomicBoolean failed=new AtomicBoolean(false);

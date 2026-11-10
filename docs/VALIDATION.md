@@ -1,5 +1,17 @@
 # 驗證分層
 
+## 2026-11-10：研究Root client0.0.8程序ELF核對，尚未部署
+
+新MuMu觀察到uname與實際ELF／PM ABI不同後，只修改研究工具：固定讀取自身
+`/proc/self/exe`的64-byte ELF header，與封裝runner ABI／primary ABI及精確API共同核對。
+Root與PM命令各自核對，收據保留process machine／uname／packaged ABI；沒有把uname
+當原生ARM證據。API34 x64、API32、ARM35、錯ELF／錯ABI／未知版本仍拒絕，產品守門未改。
+
+94 ELF與77平台JVM測試、Android Java／dex、原lab簽章、單x64 stored runner／ABI／SHA與
+16KiB對齊均通過。新研究包0.0.8/code8，SHA c5d6bc10…a38845；native runner沿用b22877ed…
+6ce84，舊0.0.5／0.0.7 APK SHA不變。尚未安裝／執行，不能繼承0.0.5普通App Root或JNI
+成功；登入期間不啟動foreground probe。詳見[研究包範圍](../research/root-probe/README.md)。
+
 ## 2026-11-10：既有 AOSP AVD 的1vCPU對照，僅CPU gate通過
 
 2vCPU輪仍無當前Power／Window完整開機與桌面資格，已核UID2000／Enforcing後正常關閉、

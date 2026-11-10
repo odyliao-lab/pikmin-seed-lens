@@ -3,18 +3,32 @@
 This separate lab APK is never a product dependency. The product's Root,
 Android, NativeBridge and exact game guards are unchanged.
 
-Version0.0.7/code7 adds a packaged-ABI pin to the native ARM research path while
-preserving earlier signed artifacts. `ProbePlatform` requires an exact
-expected/actual API, a64-bit process, matching packaged/primary ABI and kernel:
+Version0.0.8/code8 additionally reads the fixed `/proc/self/exe` ELF header
+from the ordinary Java process before a Root request. The observed API35 MuMu
+reports uname=aarch64 despite x64 system executables/PM ABI; uname alone must
+not classify it as native ARM or incorrectly refuse the existing x64 path.
+`ProbePlatform` requires exact expected/actual API, a64-bit process, matching
+packaged/primary ABI, supported uname and **matching process ELF machine**:
 
-| Research backend | Accepted tuple |
-|---|---|
-| ARM64 | API31 or34, arm64-v8a, aarch64 |
-| x64 | API31 or35, x86_64, x86_64 |
+| Research backend | API | Primary/packaged ABI | Process ELF64 machine | Reported uname |
+|---|---|---|---|---|
+| ARM64 |31 or34|arm64-v8a|EM_AARCH64|aarch64|
+| x64 |31 or35|x86_64|EM_X86_64|x86_64|
+| x64, observed MuMu case |35 only|x86_64|EM_X86_64|aarch64|
 
-API34 x64, API32, translated ARM on an x64 kernel, mismatches and malformed
-expected APIs refuse before the Root query. The build runs44 JVM checks; these
-are host admission tests, not Android execution. Normal Root verification still
+API34 x64, API32, ARM35, missing/unknown/mismatched ELF machines and malformed
+expected APIs refuse before the Root query. An x64 host executable cannot
+be admitted as ARM even with an ARM uname/ABI label. The existing API31 x64
+scope still requires uname=x86_64; no unobserved label exception was added.
+This research classifier does not establish NativeBridge or product admission.
+
+The bounded64-byte parser checks ELF magic/class/little-endian/version, executable
+type and header size, refuses truncation/unknown architecture and propagates I/O
+failure without a property fallback. It is architecture evidence from the running
+process, not a complete validator for arbitrary files or caller-supplied paths.
+The build runs94 ELF and77 platform JVM checks, including the observed same-uname
+architecture distinction, short reads, I/O failure and version/ABI refusal.
+These are host tests, not Android execution. Normal Root verification still
 uses the existing10s wait, `su -M`, ordinary App UID, actual UID0, exact boot and
 identical PID1/global mount namespace. A successful Root query alone does not
 prove JNI, game display or product compatibility.
@@ -45,7 +59,23 @@ pwsh -NoProfile -File research/root-probe/build.ps1 `
 Every version output directory is immutable. Different later bytes, including
 an x64 package, require another version/code. No key or APK belongs in Git.
 
-Current ARM-only0.0.7 APK SHA256:
+Current x64-only0.0.8 APK SHA256:
+`c5d6bc1072ec44b2b2f4efd42db99c1ce910c24064b81245a22a490b74a38845`.
+Original research certificate SHA256:
+`633286a6f46aae1d6b4bcf26ed2278e72c73bde5046cfa02b7f69fd347ac8870`.
+The unchanged API35 native runner SHA256 remains
+`b22877ed3f6224fc0d716540048e1c7a6837544f9a73880c964edd393ea6ce84`.
+Actual offline checks passed Android Java/dex, manifest0.0.8/code8, original
+certificate, stored x64-only runner/ABI/SHA assets, new ProcessElf class and16KB
+alignment. Old0.0.5 and0.0.7 APK hashes were independently unchanged. Root and PM
+receipts now include process-machine evidence; Root receipts also retain uname
+and packaged ABI. No native loader, game guard, Root endpoint or time bound changed.
+**Not installed or executed in Android**: actual App access to `/proc/self/exe`,
+Root and later PM/JNI behavior still require separate device evidence after the
+owner finishes the active game-login handoff. The existing0.0.5 Root pass is not
+transferred to0.0.8. This package never becomes a consumer dependency.
+
+Preserved ARM-only0.0.7 preparation SHA256:
 `d681d08e20c492a923a5853547b0973b30d0a0a039eb86da94df1933072c65d2`.
 Its runner is the preserved ARM JNI0.0.2 verifier:
 `1cb26b6a2a6a0fb9e2a579522abb8d3ffaca5275ec77eba12ee30a138613d460`.
@@ -54,7 +84,8 @@ certificate, stored ARM-only runner/digest and16KB ZIP alignment. An actual
 wrong-ABI invocation refused before output reservation or signing. The old
 0.0.5 and0.0.6 APK SHAs remained unchanged. This package has **not** been installed or
 run in Android at this checkpoint; full boot, platform safety and fresh device
-identity must precede its use.
+identity must precede its use. Its44 checks described the earlier uname-based
+classifier; that result does not establish the new ELF-based classifier on Android.
 
 The earlier0.0.6 preparation passed41 host checks but lacked the packaged-ABI
 binding. Code review caught this before deployment: a system's primary ABI
