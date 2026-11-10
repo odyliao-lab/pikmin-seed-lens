@@ -20,6 +20,8 @@ API34原kernel的自有V2基準實際5 pass／2 SIGSEGV fail；同V2配API34 map
 
 只讀Trichrome FD樣本另證實gzip及`.apk.new`輸出位置持續增加（輸入3.35→6.81MB／總58.7MB，輸出9.44→16.78MB），尚未完成正式APK。因而保留同一boot，以精確pidfd host guardian接手總7200秒觀察，原3600與handoff分開留存；原Root收尾時點及產品15s／2s不變。沒有改guest資源、映像或安全設定，boot／App／遊戲與最終關機仍待驗；見[同次開機觀察](API34_ARM_LINUX_RESEARCH.md)。
 
+上述同boot的7200秒上限輪實際約119分5秒正常收尾，QEMU／gdb exit0、無收容訊號；最後UID2000／Enforcing／API34／ARM64／同boot，boot flag仍空。Trichrome與Chrome已記正式package code path更新，WebView後進入資料準備，但未取得完整boot／PM／AM穩定證據。擬10800秒交接被安全時間窗拒絕，沒有實際接手；24檔冷備份與原SDK四SHA另核，低記憶體時只停止專用WSL。新排程、研究APK及owner viewer均僅準備，產品九組狀態不變。
+
 ## 2026-11-10：同0.5.2／API35／157首輪及遊戲重啟
 
 156.1正常OFF後，以合法完整原簽章splits正常升級157.0/code1793360009，PM逐份SHA、同0.5.2 APK及原28份歷史再次核對。經正常設定切回繁體並重新進入本人帳號後，PID10899/start264686正常App新同意／完整journal，兩頁名稱、庫存完整紀念長字、兩頁真正離屏返回及OFF還原已觀察；中途OFF snapshot保留原時序，稍後ON_COMMITTED與ready／ON獨立核實，不重送載入。

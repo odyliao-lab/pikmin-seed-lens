@@ -347,3 +347,26 @@ AtomicFile rename、PM驗證／安裝或boot已完成。
 其後PM於UTC07:32:22開始讀取新Trichrome package憑證，07:32:48實際記錄system package
 code path由Stub更新到剛解出的data路徑；下一秒開始Chrome stub解壓。這是Trichrome後續
 PM進展的直接證據，不再把它列為仍停在解壓起點；整體boot／所有stub／App仍未完成。
+
+### 本輪兩小時上限收尾與後續準備
+
+Chrome於UTC07:45:25亦記錄code path更新，接著處理WebView；關閉前的PM日誌已越過
+WebView解壓並進入app-data準備。沒有取得boot flag1或雙次PM／AM穩定核對，不將初始化
+進展當完整開機。原擬再延長總10800秒的接管，其實際execute在第一個會變更程序狀態的
+步驟之前，因已超過預定安全接管窗口而assert拒絕；**沒有三小時guardian接手**，有效上限
+仍7200，原監督繼續收尾。不能把先行提出的延長計畫記成已執行。
+
+最後metadata從UTC08:11:37開始，68.6秒後exit0：UID2000／Enforcing／API34／arm64-v8a／
+同boot，system_server570仍在、boot flag仍空。08:12:46 console正常關閉，實際觀察約
+119分5秒；QEMU／gdb均exit0、原supervisor恢復並記錄、無pidfd收容訊號、非逾時。原state
+的3600與handoff的7200分開保留。沒有Magisk、研究APK、JNI或遊戲安裝。
+
+關閉後24檔冷備份逐檔大小／SHA核對，全部原生fixture的UNKNOWN／Refused歷史和本輪初始化
+資料一起保存；原SDK四個映像SHA再次吻合。備份後Windows可用實體記憶體約0.69GiB，故先
+確認指定distro沒有存活QEMU並sync，只terminate專用`SeedLens-TCG-Linux`回收資源。
+不停止原四台、不改全域WSL或主機設定；回復足夠實體記憶體並重核兩埠後，才可啟動下一輪。
+
+另已備妥官方scrcpy5.0.1 Linux portable及發布SHA核對，`--version`／`--help`在主機通過，
+WSLg存在；尚未連線Android。它是owner登入用的開發端視窗準備，不是產品依賴或裝置驗收。
+新JNI probe0.0.3、Root client0.0.7及既有verifier亦只複製到Linux私人host目錄並核SHA，
+沒有安裝到guest。下一輪仍先核實平台能力，未通過前不整合或部署產品。
