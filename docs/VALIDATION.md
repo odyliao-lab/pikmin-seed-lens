@@ -4,7 +4,7 @@
 
 新index5／API35／x64-libnb／精確156.1，0.5.1/code16正常App完成單次載入。庫存最長三週年杯子蛋糕金苗已完整顯示，真正離屏返回仍完整；探險短名卻縮小並截斷，重開列表仍在，判為未通過。正常App OFF後兩頁原文／大字與庫存原截斷均已還原；原25份attempt SHA不變，新第26份完整journal保留，adbd回讀UID2000。沒有把waiting-cards或庫存單頁當整組通過，見[失敗紀錄](PRODUCT051_FONT_CANDIDATE.md)。
 
-接續0.5.2/code17依runtime card class保留庫存12點下限、探險／詳細頁恢復先前75%下限，精確守門未變。既有host policy與必要完整原簽章建置通過；只在正常OFF／退出遊戲後更新新index5，PM SHA及原26份歷史不變。本版兩頁及遊戲重啟另驗，尚未通過，見[本版驗收](PRODUCT052_FONT_QUALIFICATION.md)。
+接續0.5.2/code17依runtime card class保留庫存12點下限、探險／詳細頁恢復先前75%下限，精確守門未變。既有host policy與必要完整原簽章建置通過；只在正常OFF／退出遊戲後更新新index5，PM SHA及原26份歷史不變。本版在API35／156.1的PID6775/start192759與正常重開8789/start226079各自有兩頁名稱、庫存完整紀念長字及OFF原文／字型還原；兩頁真正離屏返回已取得對照，舊確認／status實際拒絕、新同意與各自完整journal另核。原26／27份歷史逐份不變，總28份；最後control OFF、enable0、thread TracerPid均0、adbd UID2000。首輪面板收合截圖不算探險返回，另以新程序末排公車苗往返補證；探險更長名稱縮字、OS／長時間及其他組合仍未通過，見[本版驗收](PRODUCT052_FONT_QUALIFICATION.md)。
 
 ## 2026-11-10：本人主機重開、Linux隔離CPU實跑
 

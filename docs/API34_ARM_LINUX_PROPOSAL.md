@@ -1,6 +1,6 @@
 # 待確認：API34 ARM/Linux隔離研究
 
-這是原API34 x64 AVD之外的新目標，目前只完成官方metadata查核及方案，**未下載映像、建立或操作新guest**。API31 Linux仍在獨立觀察完整boot；先前scalar輪有Watchdog失敗，vector-save目前只有CPU／故障控制正例，不能承諾這台或API34成功。既有API34 x64三個遊戲的SEVL失敗及產品拒絕維持不變。
+這是原API34 x64 AVD之外的新目標，目前只完成官方metadata查核及方案，**未下載映像、建立或操作新guest**。API31 Linux的vector-save完整boot獨立觀察於25分鐘仍未完成，已核UID2000／Enforcing後正常關閉；沒有普通App或遊戲資格。先前scalar輪有Watchdog失敗，不能承諾API34成功。既有API34 x64三個遊戲的SEVL失敗及產品拒絕維持不變。目前繼續已授權新index5的API35產品回歸，新增API34 ARM/Linux仍待本人確認，兩者不並行啟動guest。
 
 需要另確認的依據：[已核准Linux方案](API31_LINUX_HOST_PROPOSAL.md)第5項：「API34 ARM guest、新裝置、主機重開或本提案之外的主機變更另確認」。這次只請求下列具體新目標，既有API31工作仍可獨立繼續。
 
