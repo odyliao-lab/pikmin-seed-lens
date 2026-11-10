@@ -90,3 +90,9 @@ identity, forged fault-context matches and synthetic-signal misclassification;
 these generated fixtures are not device receipts. Disassembly confirms the
 three own fault labels, register markers, UDF, SEVL and SEVL/WFE bytes.
 Neither version has been installed at this preparation checkpoint.
+
+Subsequent API35 ordinary-App control results are recorded separately in
+[signal context research](../../docs/ARM_SIGNAL_CONTEXT_RESEARCH.md). That run
+installed only 0.0.2. Its UDF record matched own PC/register markers but not
+instruction signal code/address, and remains context-unproven. It grants no
+API31/API34 or product qualification.

@@ -1,5 +1,16 @@
 # 驗證分層
 
+## 2026-11-11：獨立ARM訊號probe的API35普通App對照
+
+157有界觀察及OFF結束後，才在同新index5正常安裝原lab簽章0.0.2/code2；PM SHA已核。
+三個參數負例在native前拒絕，普通App UID10062實讀自身ELF machine62。baseline共同
+sigaltstack／sigaction／alarm設定後返回，SEVL與SEVL/WFE亦正常返回。raise及UDF在
+自有handler記錄後終止，另以Zygote確認各自exit86，未把ADB0／instrumentation0算通過。
+UDF的own PC／兩個GPR marker／SP對齊吻合，但signal code與address不符，完整context
+仍未證實，parser未放寬。所有案例保留，未改PC／context／指令或遊戲；原38份歷史、
+產品／遊戲SHA及OFF不變，各次診斷回讀後adbd UID2000。API31／34本probe仍未執行，
+見[獨立對照](ARM_SIGNAL_CONTEXT_RESEARCH.md)，不是新增產品資格。
+
 ## 2026-11-11：0.5.2／157有界30分鐘觀察
 
 同新index5／boot771／2075/start4318正常App新同意，僅啟用既有核驗renderer，未新載入。
