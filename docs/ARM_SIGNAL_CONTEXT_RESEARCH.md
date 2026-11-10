@@ -91,8 +91,9 @@ API34本輪新增的是普通App訊號觀察／失敗退出證據，沒有原遊
 ## API31／x64-libndk_translation獨立對照（2026-11-11）
 
 API34正常關閉且host／埠消失後，才單次啟動既有獲准的`SeedLens_API31_x64`／5580，
-2CPU／4GB／原6GiB data，headless SwiftShader／Vulkan OFF／無snapshot。實際既有SDK
-為Google APIs **rev12**，不是目錄線上最新rev14；本輪沒有更新image。原SDK四映像SHA
+2CPU／4GB／原6GiB data，headless SwiftShader／Vulkan OFF／無snapshot。既有SDK的
+source.properties寫12，但package.xml／官方catalog為**revision14**；官方r14 ZIP的同檔
+也寫12，不能從該欄位推論這是舊套件（後續中繼檔核對見下）。本輪未更新image，四映像SHA
 先核，私人Magisk31.1 ramdisk override仍為已核`5537a63d…eb20`，沒有新Root安裝、模組、
 SELinux或主機設定變更。
 
@@ -191,3 +192,21 @@ adbd UID2000／Enforcing、無Game或probe程序，指定console正常關閉一�
 5582與5583皆消失、原SDK四映像SHA不變，index5仍關閉。API35尚未實跑0.0.3，
 兩個libndk_translation平台的結果也不能代替
 libnb或原生ARM64的指令語意。九組及三階段未因此完成。
+
+## API31套件revision與archive內部欄位核對
+
+先前只讀source.properties的12而稱其「不是最新rev14」並不精確，現已更正上述紀錄。
+Google官方[catalog](https://dl.google.com/android/repository/sys-img/google_apis/sys-img2-3.xml)
+的API31 google_apis/x86_64是revision14、archive x86_64-31_r14.zip／1,470,822,277 bytes；
+本機同套件package.xml的revision major也為14。
+
+另對[官方r14 archive](https://dl.google.com/android/repository/sys-img/google_apis/x86_64-31_r14.zip)
+只作有界HTTP206 range讀取中央目錄及兩個小檔，總3,322 bytes，ZIP解碼／CRC通過；
+沒有下載或解壓系統映像、更新SDK、新建AVD或操作另一台裝置。官方archive內的
+source.properties同樣寫Pkg.Revision=12，其SHA256為117fe498…be68；build.prop為API31／
+Android12、build SE1A.220826.008／incremental10564458，SHA67a0723b…46d。
+這兩個檔在本機SDK的完整SHA各自與上述內容相同。
+
+這項證據只釐清catalog／package revision與archive內部properties的差異，不是整個遠端
+archive digest或所有映像byte相同的驗證；不能把source.properties的12當成另有較新
+translator的證據，也不能把revision14當SEVL／WFE或產品相容通過。

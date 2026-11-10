@@ -48,3 +48,9 @@ probe不Root、不存取遊戲、不改PC／context／指令或translator。faul
 精確profile、NativeBridge准入、主畫面／同程序確認、持久UNKNOWN與15s／2s界限皆不改。
 即使自有handler得到吻合context，也未證明能安全處理遊戲啟動前的缺口，不能直接升格為
 產品修復或新增遊戲啟動前注入流程。
+
+API31套件版本另外核對：本機package.xml與官方catalog的revision均14，但官方r14 ZIP
+與本機source.properties都寫12，兩個properties／build.prop檔的SHA分別相同。僅讀
+3,322 bytes的官方archive中繼資料，沒有下載新映像或建立環境；不能以12欄位推論另有
+較新translator可用。見[核對範圍](ARM_SIGNAL_CONTEXT_RESEARCH.md)；非完整archive
+digest／新指令能力或產品資格。

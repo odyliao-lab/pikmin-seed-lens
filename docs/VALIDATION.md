@@ -23,7 +23,8 @@ API34／35未執行新案例，產品資格與三階段仍未完成。見[研究
 
 ## 2026-11-11：API31的同APK訊號對照與正常關閉
 
-API34關閉後才啟動既有API31 x64／5580，實際Google APIs rev12、私人Magisk ramdisk原SHA
+API34關閉後才啟動既有API31 x64／5580，Google APIs套件revision14（其source.properties
+與官方r14 ZIP內皆寫12，已另核中繼檔）、私人Magisk ramdisk原SHA
 不變，API31／libndk_translation／Enforcing／新boot96f23546…c924。相隔75.547秒的當前
 Power／Window／display ON與同server533/start2326另核，普通研究App UID10152實讀ELF62。
 同0.0.2 APK的三個參數負例在native前拒絕，baseline返回；raise／UDF／SEVL／pair各自
