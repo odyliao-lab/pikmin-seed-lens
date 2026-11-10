@@ -1,5 +1,14 @@
 # 驗證分層
 
+## 2026-11-10：ARM研究Root client0.0.9僅備妥
+
+研究client原0.0.8的自身ELF classifier另以新0.0.9/code9包裝ARM-only，原lab簽章633286…8870、
+原ARM verifier SHA1cb26…d460不變。94 ELF／77 platform JVM、Java／dex、version/code、
+原研究憑證、stored ARM64 PIE／ABI／SHA assets及16KB對齊通過；錯ABI實際在輸出保留／
+簽章前拒絕。舊0.0.7／0.0.8 APK SHA不變，新SHA7cb80bae…781a。未安裝或執行App／
+su-M／PM／JNI，不承接x64版Root8資格；當前API34 guest仍須完整穩定boot及可互動Home。
+產品仍0.5.2原件，研究App不加入使用者安裝條件，見[研究邊界](../research/root-probe/README.md)。
+
 ## 2026-11-10：API34 AOSP scalar-host獨立CPU對照
 
 新scalar marker僅限既有AOSP／5590／2CPU／單thread TCG，與vector namespace分開；

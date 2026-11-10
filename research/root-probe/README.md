@@ -3,6 +3,24 @@
 This separate lab APK is never a product dependency. The product's Root,
 Android, NativeBridge and exact game guards are unchanged.
 
+## ARM companion0.0.9: prepared, not installed
+
+Current source reserves0.0.9/code9 for an ARM-only package of the existing
+ELF-based classifier introduced in0.0.8. It retains the original research
+signer633286a6…8870 and unchanged ARM verifier1cb26b6a…d460; the consumer
+product remains0.5.2 with its separate original signer. This is not an APK
+requirement for product users or a newly observed Android Root result.
+
+The signed private artifact SHA256 is
+`7cb80bae3cc4d7bc4114154e2c97b49dc86a13d6aa0bf37d510584184d9b781a`.
+Build checks passed94 ELF and77 platform JVM cases, Android Java/dex,
+manifest0.0.9/code9, original research certificate, ARM64-only stored PIE,
+runner ABI/SHA assets and16KB ZIP alignment. A real wrong-ABI build refused
+before output reservation/signing. Old0.0.7 and0.0.8 APK SHAs independently
+remain unchanged. **No installation, instrumentation, normal-App Root,
+PM/JNI or game execution has occurred for0.0.9.** Full current boot, actual
+interactive Home, own native safety and fresh identity still precede deployment.
+
 Version0.0.8/code8 additionally reads the fixed `/proc/self/exe` ELF header
 from the ordinary Java process before a Root request. The observed API35 MuMu
 reports uname=aarch64 despite x64 system executables/PM ABI; uname alone must
