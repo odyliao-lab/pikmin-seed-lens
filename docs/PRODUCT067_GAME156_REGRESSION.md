@@ -40,7 +40,22 @@ adbd UID2000。未複製遊戲登入資料／憑證；乾淨安裝須由使用�
 後續UI新鮮READ已啟用及庫存實際效果另驗。最終OFF稽核為同PID/start的156.0 ready/control0、
 205個thread TracerPid0、adbd UID2000。原42筆SHA不變，新增正常程序一筆，總43筆；
 新journal SHA `63e732702a8d07cd70c5809fb5ac5afcf4f52d42a5c96f68eac859afe884bf46`，
-仍為RETURNED_UNVERIFIED，不改成功、不重送。遊戲重啟及156.1尚待接續，本組未記完成。
+仍為RETURNED_UNVERIFIED，不改成功、不重送。本組未記完成。
+
+### 156.0正常重啟：庫存分項
+
+OFF後正常停止舊程序，只啟動一次新程序PID26468/start603694/UID10068，同boot與帳號。
+實際回到主畫面，未遇強制更新；產品冷回前景仍保留舊UI屏障，Switch disabled，
+只讀核對新程序後才可重新同意。首次座標操作在disabled開關無作用、其後點到只讀；
+該輪未展開確認／未送出，不記為新同意。另以節點確認兩項新勾選後，真正只載入一次。
+
+357庫存的完整紀念長名縮小、首排真正離屏及返回均重驗；中間標為return的圖尚非頂端，
+以後續完整頂端畫面為準。直接Switch OFF，實際原金苗名稱／字級恢復，UI OFF回報另核。
+新程序載入後第一次稽核遇thread退出造成/proc讀取失敗，原件保留；重新只讀觀察通過，
+沒有重送載入。最後同PID/start的156.0 ready/control0、172個thread TracerPid0、adbd UID2000。
+原43筆SHA不變，新增一筆後44筆於ON至OFF期間SHA一致；新journal SHA為
+`cba455888cea9645a95213be7437bf59e7ea96437b918c62f54373440b65ebc1`，仍為RETURNED_UNVERIFIED。
+探險未領回花苗缺樣本，156.1本版回歸仍待接續；不記整組或UI階段完成。
 
 156.0登入主畫面後重新綁定boot/PID/start/UID，驗新UI兩頁、庫存長名／真離屏、
 OFF與遊戲重啟；之後正常升級精確156.1並獨立回歸。遇到強制更新保留現況，不繞過。
