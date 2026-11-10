@@ -180,3 +180,59 @@ SHA256 `e6b06c4ca0beb88f178ad62e03ca34e2aec1c827524980240446725316dd31a3`；完�
 階段至RETURNED_UNVERIFIED，ON／OFF兩次SHA相同，不改寫native結尾或歷史UNKNOWN。
 本輪完成本版156.0系統重啟後的兩頁名稱／OFF與庫存長名／真正離屏返回分項；探險
 長字／真正離屏、長時間及API31／34仍未通過，不稱整組或九組完成。
+
+## API35／156.1新樣本與本版OS重啟回歸
+
+2026-11-10晚至11-11凌晨，兩輪API34 scalar Android失敗並正常關閉後，僅恢復新index5。
+先核新boot5efaddbf…8727、API35／x64-libnb／原Permissive／1080×1920無override／
+density280與UID2000。舊host盤點器因uname=aarch64而拒絕，原失敗保留；另以自身程序
+ELF64/type3/machine62/header64及精確PM SHA核對，不由uname推論原生ARM，不改產品守門。
+
+156.1原簽章base／完整ARM64 split、version/code1793076318、ELF／metadata SHA重核後，
+正常install-multiple-r升級，未清資料或複製登入session，產品仍同0.5.2 APK。另一host讀取器
+誤要求split有非空versionName，在Root／安裝前拒絕，原件保留；原split本來為空，修正為
+base精確version＋split精確code/name／原憑證及binary SHA後，才執行唯一一次標準升級。
+原34份attempt逐份不變，control OFF、adbd UID2000；modules目錄不存在。
+
+### 重啟前：新帳號的156.1程序
+
+正常launcher至2463/start55603／UID10067，登入保留，12是真正主畫面。14未確認啟用、
+16舊status最終NO_FRESH_SAME_PID_START_STATUS拒絕；15只是核對中。18新兩項同意後
+才正常產品App su-M單次載入；first-loaded的ON／waiting-cards保留，不當顯示成功。
+
+22庫存三種紀念金苗長名完整縮字，23整張卡圖示／文字離屏，25完整返回同名；24為部分
+返回。27探險藍色葉子帽苗、紅色三葉花苗、岩石三葉花苗皆完整，只有三筆／兩排，尚無
+長字縮小或整張卡離屏返回證據。28是收合面板設定；29雖檔名含fixed-half，實際觸控使
+面板自動展開，**不是固定半高列表或真正重用證據**。未重跑解析度／滾輪／捲軸實驗。
+
+31正常App重新讀到同PID/start／156.1／ready／enable1，與30先前cached waiting-cards
+訊息分開。32普通App OFF後，33探險三筆原名／字型、34庫存原名／大字／金苗原截斷
+皆還原。35為跨日安全提醒、36為活動新聞，依本人授權以確定／X關閉，沒有領物品；
+37才是真正主畫面。最終ready／enable0／control OFF，186份TracerPid讀值0、adbd UID2000。
+原34份SHA不變，新增第35份journal `d63313721e94fd2c2d59d87f98e581fb8858c107cfbf4b80cf109dc3ce37b025`。
+
+### 真正OS關閉／啟動後
+
+正常OFF／歷史35份SHA／原PID/start/UID／TracerPid與adbd UID2000另核後正常關閉。
+CLI實際讀到Android與模擬器程序皆false，再單次啟動同index5，不以遊戲force-stop代替。
+新boot `4ed5c704-e318-4a07-94d7-2f6df59761d2`、API35／x64-libnb／原Permissive、
+boot_completed1／1080×1920無override／density280／自身ELF machine62另核。相同產品與
+完整156.1 PM SHA、原35份歷史均不變，control仍OFF、舊status不自動授權；modules目錄
+不存在。本輪沒有研究client/instrumentation、額外套件／模組或Root provider變更。
+
+正常launcher至2112/start12127／同UID10067，02確認登入保留，04／05為兩頁OFF基準。
+08未確認啟用、09舊status最終拒絕；10重新核真正主畫面，11兩項新同意後才單次正常App
+載入。first-loaded仍waiting-cards，12只有主畫面，不記效果通過。稍後14庫存三種紀念
+長名完整縮字，15整張卡圖示與名字完全離屏，16完整返回同名；17三筆探險細分名完整。
+18普通App新鮮ready／enable1另核，19正常OFF後20探險原名／字型、21庫存原名／大字／
+原截斷還原，22為真正主畫面。07是Lens啟動過渡，不作明確checkbox證據。
+
+最終同新PID/start／156.1／ready／enable0、control OFF；181份thread TracerPid讀值0
+（非原子snapshot），adbd實讀UID2000。原35份attempt逐份不變，新增第36份journal
+`4f04c97ae49497f521a73a65e702baee4dc112d7e5542514fb022801a3e47923`。兩份新journal均
+完整七階段至RETURNED_UNVERIFIED，ON／OFF讀到的SHA各自相同；renderer新鮮ready及
+真實畫面另驗，不把native結尾或UNKNOWN改寫成成功，也沒有重送不確定載入。
+
+本輪補得同0.5.2／156.1的OS後兩頁名稱／OFF、庫存長名與真正庫存離屏返回分項。
+早先同版156.1其他樣本的探險離屏返回證據保留，但不轉記為本次OS後已驗；本次探險
+長名縮字／真正離屏、長時間、157本版OS及API31／34仍未完成，不記整組或九組完成。

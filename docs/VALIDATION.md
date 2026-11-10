@@ -1,5 +1,27 @@
 # 驗證分層
 
+## 2026-11-11：0.5.2／156.1獨立新OS boot後分項
+
+API34 scalar研究正常關閉後僅恢復新index5，原簽章完整156.1正常升級且資料／登入保留。
+產品0.5.2原件不變、原34份attempt逐份不變。先在boot5ef／2463/start55603從普通App
+su-M單次載入，兩頁名稱、庫存三種紀念長名／真正離屏返回及OFF原名／字型另驗；
+正常OFF／35份SHA及adbd UID2000後關閉，CLI實讀Android／程序皆停止才單次啟動。
+
+新boot4ed5c704…61d2另核API35／x64-libnb／原Permissive／ELF machine62／原顯示參數，
+同產品／完整156.1 PM SHA不變、OFF／原35歷史保留、modules目錄不存在。正常launcher
+至2112/start12127／UID10067，登入仍保留；未確認／舊status實際最終拒絕，真主畫面
+新兩項同意後才單次正常App載入。waiting-cards中途值不當成功，另以ready／enable1
+與兩頁效果、三種庫存長名完整縮字／整張卡離屏返回驗收。正常OFF後兩頁原名／字型
+及金苗原截斷均還原。最終ready／enable0／control OFF、181份TracerPid讀值0、adbd UID2000。
+
+原34份與重啟前新增第35份SHA皆不變，總36份；兩個程序各新增一份七階段journal，
+結尾均原樣RETURNED_UNVERIFIED，不改寫
+native成功。舊uname盤點拒絕與split空versionName讀取錯誤原件保留，皆在Root／安裝前
+停止；另以自身ELF及原簽章完整來源核對後才執行唯一一次正常升級。未新增Root／模組／
+研究APK或呼叫instrumentation。28／29面板收合後觸控自動展開，不是探險重用；探險仍
+只有三筆短名。本版156.1 OS後分項已驗，長探險名、OS後探險離屏、長時間及API31／34
+仍未通過，見[分層紀錄與SHA](PRODUCT052_FONT_QUALIFICATION.md)。
+
 ## 2026-11-10：ARM研究Root client0.0.9僅備妥
 
 研究client原0.0.8的自身ELF classifier另以新0.0.9/code9包裝ARM-only，原lab簽章633286…8870、
