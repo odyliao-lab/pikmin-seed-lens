@@ -190,3 +190,11 @@ SO SHA256:
 cf0b74cc51c4b22fa6488e0444575c040f5137e89568be284a39518a4872886e.
 Original versions and consumer0.5.2 bytes remain retained. **0.0.4 is host-only
 at this preparation checkpoint; no device round trip has been verified.**
+
+Subsequent API35 0.0.4 device evidence separately verified the own positive
+native1/2/3/4 canary/Java return, bad-marker guard refusal with Zygote exit89,
+original UDF fail-stop exit86, invalid-mode refusal and actual alarm signal14.
+Hardware signal-code/address matching remains false; no game was started.
+All sixteen prior own receipts and thirty-eight journals were retained, then
+index5 was normally shut down and observed stopped. API34/API31 0.0.4 remain
+pending; the detailed research page records the independent scope and limits.

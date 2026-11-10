@@ -1,5 +1,16 @@
 # 驗證分層
 
+## 2026-11-11：API35的0.0.4受限自有回復實測
+
+新index5另次正常啟動，新boot1d2d9312…0437／API35／libnb／原Permissive，同server808/
+start625及兩次當前服務讀值相隔70.791秒。0.0.4在普通App UID10062實讀ELF62；六個新
+程序各單次：無效模式拒絕、baseline返回、原UDF仍fault後exit86；負marker的其餘守門
+吻合但無write intent，另核exit89。正例取得native1/2/3/4、canary守門與Java RETURNED；
+code0／signal address仍不符硬體context，完整context未證實。alarm另核signal14，不能
+從1/2收據猜通過。16份自有舊收據、38份attempt、產品／遊戲原件SHA逐次不變，未啟動
+Game／Lens。正常關閉後CLI實讀雙false，SDK guest／埠不在。這是自有UDF回復能力，
+API34／31與產品九組沒有升格。見[案例及界線](ARM_SIGNAL_CONTEXT_RESEARCH.md)。
+
 ## 2026-11-11：API35同0.0.3的獨立控制完成
 
 原新index5正常單次啟動，新boot803b1862…547c／API35／libnb／原Permissive／UID2000，

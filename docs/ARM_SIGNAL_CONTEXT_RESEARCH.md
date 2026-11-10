@@ -261,3 +261,30 @@ NDK公開欄位與前述kernel self-test提供原生介面依據，不保證Nati
 原lab簽章／Java／dex／ARM64／16KiB封裝通過；反組譯另核兩個UDF+4 canary及負例marker。
 新APK SHA66d3e87b…98b3、SOcf0b74cc…886e，原研究版本與產品0.5.2 SHA保留。
 這是host準備，**尚未安裝／實跑0.0.4**，沒有產品整合或新平台資格。
+
+## API35／0.0.4自有UDF回復與拒絕控制（2026-11-11）
+
+在index5原CLI身分、SDK／Linux無其他研究guest及可用RAM重核後，正常單次啟動同隔離機。
+新boot1d2d9312-8fab-40d0-8efd-3222293e0437／API35／x64-libnb／原Permissive／UID2000，
+同server808/start625及兩次當前服務／display ON／committed ON相隔70.791秒另核。原lab
+簽章0.0.3正常升級相同0.0.4／SHA66d3e87b…98b3，普通App UID10062實讀自身ELF62。
+原16份自有收據（0.0.2十份＋0.0.3六份）逐份SHA、38筆attempt及產品0.5.2／精確157
+完整原件逐次保留，控制OFF，Game／Lens未啟動。
+
+| 單次新程序案例 | API35實際結果 |
+|---|---|
+| resume-invalid | 在收據／native前拒絕，無新檔 |
+| baseline，2724 | 共同setup正常返回，native1/2/4、Java RETURNED |
+| 原UDF，2931 | 原觀察語意未改：fault記錄1/2/3、context未證實，Zygote另核exit86 |
+| resume-bad-marker，3146 | x19確為負例534d、x20與PC／signal／SP其餘守門吻合；無write intent、contextModified false，Zygote另核exit89 |
+| resume-udf，3357 | 先記intent、僅寫自身PC；native1/2/3/4及canary守門通過，Java RETURNED／instrumentation-1，自身PID消失；自有native回復已觀察 |
+| alarm，3565 | native1/2、parser仍armed-unconfirmed；Zygote另核signal14 |
+
+正例siginfo code仍0、address不等saved PC，原hardware匹配與完整context判讀仍false；
+回復結果不把UDF當已成功執行，也不賦予遊戲或跨平台資格。這是已知自有fault與marker
+的受限PC寫入，不是遊戲handler、SEVL／WFE模擬或NativeBridge准入放寬。
+
+全部六例只發一次，自身terminal後才下一例，未重送不確定載入。最後同boot／server、
+adbd UID2000／原Permissive、Game／probe皆無、38份歷史與控制OFF保留；正常指定index5
+shutdown一次後另核CLI Android／process兩者false、SDK guest／埠亦不在。原四台及台中
+未操作，原產品bytes未改。API34／31尚未執行0.0.4，須各自另驗。

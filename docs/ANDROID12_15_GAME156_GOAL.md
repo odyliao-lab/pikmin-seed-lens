@@ -1,5 +1,9 @@
 # 驗收目標：Android12／14／15 × 遊戲156／156.1／157
 
+API35另以研究0.0.4實跑受限自有UDF回復：原生canary／Java返回、負marker exit89、
+原UDF exit86及alarm signal14分開核對，16份自有舊收據及38份attempt保留。siginfo完整
+匹配仍未證實，這不是產品或跨平台資格，Game未啟動。API34／31的0.0.4另驗。
+
 2026-11-11的自有普通App訊號研究已將0.0.2在API31／34／35分開對照；API31／34的SEVL
 仍未返回、完整context未證實。API31另以新0.0.3實跑WFE單獨案例，亦進handler後exit86；
 刻意逾時程序則另由Zygote確認signal14，原16份研究歷史、產品／遊戲原件均保留。
