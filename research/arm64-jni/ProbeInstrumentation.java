@@ -36,8 +36,9 @@ public final class ProbeInstrumentation extends Instrumentation {
             if(nativeApi()!=api)throw new IllegalStateException("Native API mismatch");
             if(fixture(123)!=(123L^0x53454544L))throw new IllegalStateException();
             append("BASELINE_JNI_PASS");
+            append("RESEARCH_FIXTURE_WINDOW_SECONDS\t120");
             Thread thread=new Thread(ProbeInstrumentation::spin,"SeedLensProbe");thread.start();
-            for(int i=0;i<45;++i){Thread.sleep(1000);if(i%10==0)append("ALIVE\t"+i);}
+            for(int i=0;i<135;++i){Thread.sleep(1000);if(i%10==0)append("ALIVE\t"+i);}
             thread.join(1000);
             if(thread.isAlive()||fixture(456)!=(456L^0x53454544L))throw new IllegalStateException();
             append("ORIGINAL_THREAD_RETURNED_JNI_PASS");

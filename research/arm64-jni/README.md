@@ -9,8 +9,9 @@ by Java: the candidate root backend must load it and invoke its JNI entry.
 Build the APK with `build.ps1` and explicit SDK/JDK/NDK/external signing paths.
 Signing passwords use existing environment variables only. The output directory
 is unique and the existing certificate is checked. No product artifact changes.
-Version 0.0.2 reserves a version-specific output directory and refuses rebuilds
-over existing bytes. It retains this probe's original signing identity.
+Version 0.0.3 reserves a version-specific output directory and refuses rebuilds
+over existing bytes. It retains this probe's original signing identity; the
+earlier0.0.2 bytes and results remain separate.
 
 Configure app CMake in a **separate build directory**, ABI arm64-v8a, with
 `SEED_ARM64_PROBE_LIBRARY` naming this APK's exact `libcanary.so`, then build
@@ -95,3 +96,36 @@ Before using them, obtain a concrete authorized native ARM64 API31 target;
 verify fresh identity, ordinary-App Root, kernel/CPU restrictions and isolated
 fault containment. These prepared files do not resolve the existing API31 x64
 image's SEVL failure or qualify either game version.
+
+## 2026-11-10 bounded coordination window: 0.0.3 prepared, not deployed
+
+The original fixture's native thread lasts35 seconds, while actual shell
+identity reads during API34 TCG boot have taken20–50 seconds. Source inspection
+therefore identifies a coordination hazard before any normal-App/JNI execution
+on that guest; it is not a newly observed App failure.
+
+0.0.3/code3 keeps the same package, API/ABI/kernel gates, baseline JNI, canary,
+worker lifecycle requirements and original certificate. Its owned native test
+thread has a fixed120-second lifetime with clock checks batched after65536
+NOPs, rather than clock/yield on every iteration. The instrumentation records
+that research window, waits135 seconds, then still requires the original
+thread to have returned and a subsequent JNI call to be correct. There is no
+runtime lifetime override. **Only the disposable fixture's lifetime changed**;
+the loader15s supervisor,2s calls,25s verifier alarm, identity checks and
+UNKNOWN policy did not change. This never alters a game thread.
+
+Actual build preparation compiled native/Java/dex and checked original signing
+identity and signed ZIP16KiB alignment. No device deployment, baseline run,
+ordinary-App Root, JNI injection, framework boot or game acceptance follows.
+
+| Prepared0.0.3 artifact | SHA256 |
+|---|---|
+| Signed APK | `fc8f24b7e66242ee751b94d7b3fb6aab6ccd87293321885b4fe5592f04e9b793` |
+| Updated libfixture.so | `b2c811e8215142233b1a11e70f463ae7efb60fa23482e72fd2070f790bd35bdd` |
+| Unchanged libcanary.so | `ca754d78dc17eb9dd1d66f8ab03da8c22f043d69cbd3b5889b3fc15a9b551773` |
+
+The canary digest still matches the existing1cb26b… verifier's compiled pin;
+that verifier's bytes need not change. The normal-App Root client0.0.7 retains
+that same verifier. Actual installation must independently verify PM files,
+signature, fresh exact platform/process identity and all isolation gates.
+Do not transfer old0.0.2 evidence to this new fixture.

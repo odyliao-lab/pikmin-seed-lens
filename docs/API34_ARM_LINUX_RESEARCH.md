@@ -327,3 +327,10 @@ Enforcing；新guardian讀到實際cleanup後才接續普通shell的唯讀framew
 新獨立marker／helper與C23、Python8組、實際GDB拒絕及編譯／建置拒絕檢查完成，舊API31／
 API34 helper重建SHA仍吻合原件。**新排程未啟動guest**，原boot繼續；先自有CPU／故障控制，
 再考慮完整Android，不把主機計數或準備當作根因或相容證明。
+
+另備原簽章自有ARM JNI probe0.0.3/code3：固定研究thread窗口由35秒改120秒、批次NOP後才
+讀clock，instrumentation等135秒後仍要求原thread返回及後續JNI正確。原因是本輪20–50秒
+身分讀取可能用盡舊fixture的協調窗口，這是來源層風險，不冒稱已發生App失敗。產品15s／2s、
+verifier25s alarm及全部guard未改。新APK實際ARM64／stored／digest／16KiB／原簽章檢查
+通過，canary SHA不變、舊APK及verifier bytes不變；**未安裝或裝置執行**，見
+[新fixture與SHA](../research/arm64-jni/README.md)。

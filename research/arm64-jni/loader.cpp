@@ -29,7 +29,7 @@ int main(int argc,char** argv){
        stat(("/data/user/0/"+name).c_str(),&app)||app.st_uid<10000||app.st_uid>=100000||app.st_uid!=process.st_uid)return 4;
     if(!seed_root::installed_package_path(payload,"/lib/arm64/libcanary.so",name))return 5;
     // Match production PM policy: Android system/root ownership is trusted,
-    // foreign write permissions and symlinks are not. Exact APK digest pinned.
+    // foreign write permissions and symlinks are not. Exact canary digest pinned.
     char resolved[PATH_MAX]{};
     if(!realpath(payload.c_str(),resolved)||payload!=resolved)return 6;
     for(size_t at=1;at<=payload.size();++at)if(at==payload.size()||payload[at]=='/'){
