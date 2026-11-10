@@ -96,3 +96,25 @@ attach／snapshot、CALLING ACK、injector init、ELF entry／export call及收�
 缺 research-budget 開關或選 x64 ABI 的兩個獨立 CMake configure均實際拒絕。
 此 checkpoint 尚未在 Android 執行，不替代 ARM 原生、Root、JNI 或產品資格。
 詳見[獨立診斷契約](../research/arm64-product-budget.md)。
+
+## APEX 啟動診斷：實際 device-mapper 等待失敗
+
+同新guest的錯誤logcat首次與kernel console爭用stdio，SDK啟動即拒絕；stderr原件保留。
+該SDK路徑甚至以inferior／debugger exit0結束，證明不能單憑退出碼判成功。
+移除kernel console後的stdio-only logcat另輪沒有取得guest診斷，約6分33秒正常console關閉；
+不把沒有錯誤輸出當系統健康。兩輪皆無Root／APK安裝。
+
+其後使用SDK自帶`-logcat-output`檔案與`-shell-serial`私人Unix socket（非網路Root端口），
+在同AVD、原kernel／ramdisk上得到guest serial輸出。gdb933／inferior943的guest約129–135秒，
+實際記錄各APEX的`Failed waiting for dm device`／`Failed to create Apex Verity device`，
+最後24個套件失敗、0 activated；Conscrypt、adbd及resolv均在其中。這縮小了啟動失敗鏈，
+但仍不稱完整根因或修好。串列未取得shell prompt／實際API；沒有發出Root shell命令、
+請求adbd Root或安裝Magisk／任何APK。隨後正常console關閉，inferior exit0、非逾時／無收容訊號。
+
+對照[固定Android14 AOSP來源](https://android.googlesource.com/platform/system/apex/+/refs/tags/android-14.0.0_r1/apexd/apexd.cpp)，
+APEX預設可為每個套件建立一個並行worker；dm裝置等待預設1秒。官方
+[sysprop定義](https://android.googlesource.com/platform/system/apex/+/refs/tags/android-14.0.0_r1/apexd/sysprop/ApexProperties.sysprop)
+提供`apexd.config.boot_activation.threads`。這是來源對照，不冒稱SDK完整build manifest一致。
+下一個單獨比較只要求worker數1，以實際property／啟動紀錄確認是否生效；**不增加dm等待時間、
+loop重試次數、產品15s／2s界限，不停用self-test／Watchdog或修改SELinux／clock／API**。
+目前只是並行負載的假設，尚未取得有效設定或成功開機證據。
