@@ -334,3 +334,16 @@ API34 helper重建SHA仍吻合原件。**新排程未啟動guest**，原boot繼�
 verifier25s alarm及全部guard未改。新APK實際ARM64／stored／digest／16KiB／原簽章檢查
 通過，canary SHA不變、舊APK及verifier bytes不變；**未安裝或裝置執行**，見
 [新fixture與SHA](../research/arm64-jni/README.md)。
+
+後續另外核實原廠`/system/xbin/su 0`只供shell診斷的能力：外層adbd shell實讀UID2000；
+唯讀子程序實讀UID0／u:r:su:s0／Enforcing／同boot，返回後外層仍UID2000。沒有再送adb
+root/unroot、重啟adbd、裝Root provider或修改產品入口；這**不是普通App su-M資格**。
+只用此能力再次讀同system_server start81150的固定Trichrome FD，UTC07:30:38開始、約92.5秒
+完成的樣本取得輸入位置58435082／檔案總58715906bytes（約99.5%），輸出位置128601484，
+稍後dereference stat實際輸出大小129048576bytes。不同命令間會繼續寫入，兩個輸出值不是
+同一瞬間；同boot及外層UID2000再次核對。這證明後段仍有大量進展，並不證明gzip CRC、
+AtomicFile rename、PM驗證／安裝或boot已完成。
+
+其後PM於UTC07:32:22開始讀取新Trichrome package憑證，07:32:48實際記錄system package
+code path由Stub更新到剛解出的data路徑；下一秒開始Chrome stub解壓。這是Trichrome後續
+PM進展的直接證據，不再把它列為仍停在解壓起點；整體boot／所有stub／App仍未完成。
