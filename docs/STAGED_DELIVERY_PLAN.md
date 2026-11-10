@@ -19,6 +19,10 @@ remote 為 `https://github.com/odyliao-lab/pikmin-seed-lens.git`，起點工作�
 登入仍由使用者完成。單一產品 APK＋既有 Root，不將研究 helper／probe 變為使用者依賴。
 原四台、台中 Libra／Virgo、正式 scanner 與憑證不操作／不複製；不 force、合併 main 或公開發布。
 
+本機TCG尚未取得穩定平台資格時，另有[原生ARM雲端備案查核](ARM_CLOUD_RESEARCH_OPTION.md)。
+目前只查官方文件，未建立帳號／訂閱／付費裝置；須先取得可用帳號以只讀核對實際recipe、
+規格及費率，再提出新具體操作目標。這不是既有本機授權的延伸，也不改API34→API31→UI順序。
+
 ## 本輪新鮮盤點
 
 Windows 開機時間仍為本次已核准重開後的 2026-11-10 04:58:25，專用 WSL2

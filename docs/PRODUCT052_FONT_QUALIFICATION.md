@@ -59,3 +59,10 @@
 157正常OFF／兩頁還原後，重新核精確156.0/code1792142832的合法base／完整ARM64 split，aapt與兩份apksigner皆通過，game cert仍`944bda466eaf64be1c93896d5c8e9a454a07c8d8fcbc4adeeefb3545b335e979`。沿用先前已核准隔離機流程，標準force-stop／uninstall後乾淨安裝完整splits，不複製或備份帳號session，登入交本人。
 
 PM讀回兩份APK SHA各與intake一致，產品仍同0.5.2 SHA，原30份attempt逐份不變，control OFF、adbd實際回UID2000。本版156.0尚未登入／載入／兩頁實測；材料與安裝不列為相容通過，後續也不繞過可能的強制更新。
+
+後續API34 AOSP正常退出後，恢復此新index5、核新OS boot、同產品與156.0完整PM SHA。
+普通App唯讀su-M／global mount view新收據與原30份歷史SHA另核，control仍OFF、readback後
+adbd回UID2000。正常啟動精確156.0，依本人既有關閉提示授權選擇MuMu「不加速」，未開啟
+額外服務；現在停出生日期起始頁，已請本人登入樣本帳號。未代填生日或帳密、未啟用Lens，
+不是本版156.0兩頁或OS後產品相容通過。原始UIAutomator helper退出139而留下dump的失敗
+另存，未當成遊戲崩潰或默認操作成功；其後由新鮮畫面核對才選擇關閉該提示。

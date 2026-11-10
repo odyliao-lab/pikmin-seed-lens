@@ -39,3 +39,22 @@ native再核自身及carrier PM路徑、ancestor owner／mode、實際API、自�
 完整遊戲兩頁、名稱／縮字／捲動／OFF／重啟與原生ARM64仍未驗；普通App研究不能替代四組產品驗收。這不是OS重啟或長時間產品驗收。
 
 私人原件目錄：正常`.tools/lab/api35-run-53a88f7fe685437a84c9a1f2e8441de4/`、timeout `.tools/lab/api35-run-37a2346ca9664089a8839dd67b531c4d/`、新程序`.tools/lab/api35-run-79e26255914a4f6cad44f710be479474/`。不提交APK／原始診斷／截圖。
+
+## 2026-11-10新OS boot的唯讀Root回歸
+
+API34 AOSP正常關閉、確認無QEMU後，才重新啟動原核准的新index5。CLI name／created／
+實際端點、全新boot、API35／x64／libnb／原Permissive與同0.5.2／精確156.0 PM SHA另核。
+uname實報aarch64；獨立讀app_process64、linker64的ELF64 little-endian EM_X86_64與
+產品PM primaryCpuAbi=x86_64後，才分類這是既有x64環境，不將uname當原生ARM資格。
+初版host讀取器因錯誤假定uname=x86_64而拒絕，保留原件；產品守門未改。
+
+同boot ADB Shell的PATH su不可見，exit127，不能由此推論普通App Root失效。已安裝
+Root client0.0.5/code5的PM SHA仍1b57205d…ead6f2；adbd為UID2000時，只傳expected_api35、
+本次boot與PATH endpoint，**不傳任何load_pid／host／runner參數**，實際回報普通App su-M
+通過。其後才暫用adbd Root讀取該App自己建立的新收據與歷史，另核App UID、SU_M_EXIT0、
+uid0／ksu domain、兩個相同mnt namespace與同boot。完整回讀比instrumentation -1更強；
+不把adbd代替App執行Root。讀取後實際unroot回UID2000／同boot。
+
+透視鏡control OFF、原30份attempt逐份SHA不變，沒有產品load／ON／新attempt。這輪只驗
+新boot的普通App Root能力與資料保留，不承接為PM loader／JNI／遊戲、OS後兩頁或長時間
+通過。新client0.0.7僅為另一未部署準備物，沒有以其host建置替換這次0.0.5的真實結果。

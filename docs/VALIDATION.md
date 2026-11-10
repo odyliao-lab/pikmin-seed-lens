@@ -26,6 +26,31 @@ Root／JNI／遊戲仍分開驗證，不能把開機證據升格成產品相容�
 完整Android另於UTC12:21:27以固定1800秒啟動，仍待新的boot／桌面互動及普通App後續驗收；
 不是兩核效能勝出或API34產品通過。產品APK／守門不變，原四台及台中未操作。
 
+該多執行緒輪實際32個APEX／各self-test0；最初metadata讀取120秒逾時後，同QEMU仍存活且
+kernel持續進展，僅做有界唯讀重查。UTC12:31:28完整回讀新boot／UID2000／Enforcing／
+API34／ARM64-only／NativeBridge0／CPU0-1，boot flag仍空。首server511於12:37:16被stock
+Watchdog終止。原廠shell su0唯讀堆疊與外層UID2000另核，字型、ICU與權限各快照不等於
+永久deadlock原因；首讀取腳本括號錯誤exit2亦保留，不誤記成平台失敗。沒有普通App Root、
+native loader／JNI或遊戲資格；[原生ARM雲端備案](ARM_CLOUD_RESEARCH_OPTION.md)僅查文件，
+沒有建立或啟動付費裝置。
+
+第二server928於UTC12:46:55再被stock Watchdog終止；強proof於原界限無完整開機，capture
+因無proof拒絕。VM仍實際存活，未把查詢結束誤當VM退出。按原定正常關閉，最終UID2000／
+Enforcing／API34／ARM64／同boot且flag空白；12:49:40真inferior/gdb0、無逾時／收容，
+無QEMU殘留。未啟動新的ARM guest，API34產品仍未通過。
+
+## 2026-11-10：恢復既有新index5，僅新boot平台／Root核對
+
+AOSP正常退出後，才恢復唯一已核准的新API35 index5，未操作原四台／台中。新boot與
+精確0.5.2/code17、156.0/code1792142832完整PM APK SHA均核。MuMu的uname報aarch64，
+但app_process64與linker64實際ELF64/EM_X86_64、產品PM primaryCpuAbi=x86_64；保留
+原讀取器錯誤假定uname後的拒絕，不將此機誤記成原生ARM64。
+
+ADB Shell無PATH su（exit127），但已安裝同bytes Root client0.0.5從正常App實際su-M
+返回成功。之後獨立只讀回收據，確認App UID／Root exit0／ksu domain／同boot及global
+mount view；該readback結束adbd回UID2000。control實際OFF、原30份attempt SHA不變，
+沒有新增產品載入。這不是本版OS後遊戲兩頁回歸，156.0登入／產品效果仍待本人完成。
+
 ## 2026-11-10：API34 AOSP 新目標 CPU gate，尚無 Android／遊戲資格
 
 前輪 Google-APIs 單執行緒完整 Android 實際出現三次 stock Watchdog kill，boot flag 未完成；

@@ -53,3 +53,52 @@ The same current-service two-read proof and separate visual/interaction
 gates apply, with a fresh boot and actual CPU-online0-1 required. Android
 boot, ordinary-App Root, JNI, game and Lens acceptance remain unproven;
 the CPU test is not transferred to those layers. All stages are incomplete.
+
+## Actual multi-thread Android observation
+
+All32 APEX mounted and BoringSSL vendor/system/APEX self-tests returned0.
+The first full metadata query timed out at120s. Exact host QEMU/start still
+matched; both TCG threads were running, and kernel output progressed. This
+was an observation failure, not a terminal guest, and no restart was issued.
+A bounded read-only recovery retained the failure and first checked a small
+shell echo: exit0 in3.774s at UTC12:30:45.529. The subsequent exact metadata
+query returned0 in43.370s at12:31:28.899, reading a new boot, UID2000,
+Enforcing, API34, ARM64-only/aarch64, NativeBridge0, no-animation1 and actual
+CPU-online0-1. The boot flag was empty. No prior boot identity was reused.
+
+The first system_server511 entered at12:31:22.028. Stock Watchdog killed it
+at12:37:16.158, annotated during permission/AppOps work in the system-ready
+path; this was not a boot or product pass. A stock-shell su0 read-only trace
+reader initially exited2 on a missing closing test bracket, before reading
+traces; its outer shell actually returned UID2000. That script error is
+retained separately, not reported as a platform Root failure.
+
+The corrected separate reader completed: current-boot-time trace15 sampled
+server511 at local20:34:10 during font initialization/ART JNI transition;
+trace16 sampled it at20:36:20 Runnable in ICU locale data initialization.
+Together with the later Watchdog annotation, these changing snapshots do
+not establish one permanent lock or a complete root cause. The selected
+trace mtimes were after this boot's start. Read-only stock-su child context
+and return to outer UID2000 were checked; no adbd restart, Magisk install,
+normal-App Root, native loader suite, JNI probe or game deployment occurred.
+
+A second automatic server928 was observed while the global boot flag still
+remained empty. Strong boot/display/interaction gates remain required;
+the preselected30-minute supervisor and earlier normal-close deadline are
+unchanged. An [ARM cloud option](../docs/ARM_CLOUD_RESEARCH_OPTION.md) was
+researched from vendor documentation only: no account, subscription, paid
+device or new operation target has been created or authorized by this work.
+
+Second server928 was also killed by stock Watchdog at UTC12:46:55.740.
+The strong verifier reached its preselected observation bound without a
+complete current-service boot; the gated capture refused without proof.
+Neither is treated as the VM ending: the same exact QEMU remained live and
+the scheduled normal-close timer continued. Fresh console AVD name matched.
+
+Final metadata/sync read UID2000/Enforcing/API34/ARM64 and the same current
+boot, still with an empty global completion flag. Normal console-close0 was
+recorded at12:49:20.184; actual inferior/gdb0 at12:49:40.717, no timeout or
+containment signal, approximately28m13s observed. No QEMU remained afterward.
+No native loader suite, Magisk, ordinary-App Root/JNI or game was deployed
+on this run. Both Watchdog terminations, the timed-out metadata observation,
+the script-error refusal and successful read-only recovery remain separate.
