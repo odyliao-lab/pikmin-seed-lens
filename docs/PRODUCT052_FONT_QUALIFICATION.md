@@ -289,3 +289,30 @@ control OFF／ready／enable0、adbd UID2000。私人visual-review逐圖核SHA�
 本版三個API35遊戲現在各有獨立OS後兩頁／OFF及庫存縮字／離屏分項。最新探險仍只有
 三筆短名，不轉記早先其他帳號的探險重用；探險更長名稱縮字、本次OS後探險真正離屏、
 長時間與API31／34仍未通過，三階段及九組目標均未完成。
+
+## 2026-11-11：157有界30分鐘ON觀察
+
+同新index5／boot7719af7b…7806／2075/start4318／UID10067、精確157.0及原0.5.2。
+19真正主畫面／OFF與原38份SHA另核，20當次新同意後正常App啟用已核驗的既有renderer；
+extended-first-on確認ready／enable1、control ON。沒有新native載入或新增attempt。
+
+UTC17:00:36.804至17:30:37.116，自有host observer實際1800.312秒、61個30秒快照，
+最大間隔30.188秒。逐次實讀相同boot／API35／x64-libnb／原Permissive／adbd UID2000、
+PID/start/UID與control ON。observer只讀，沒有Root、input、重啟或載入動作；正常App
+su-M及下列畫面導航另記，不稱整個產品操作無Root。RSS快照區間1,465,064–1,535,428KiB
+只描述這輪觀察，沒有據此宣稱無memory leak或全天穩定。
+
+21早段庫存三種長紀念金苗完整；中段22整張卡離屏、23完整返回同名，24探險三筆細分名
+完整。25普通App重新讀到同程序新鮮ready／ON，再回遊戲。觀察結束後26探險、27庫存
+長名仍正確，28普通App新鮮ready／ON與extended-final-on另核；29正常OFF之後，30庫存
+原名／字型／原截斷、31探險原名／字型還原，32回真正主畫面，仍25/80。原始圖與
+逐圖SHA review皆在私人目錄，不入Git。
+
+最後control OFF／ready／enable0，182份thread TracerPid讀值0（非原子snapshot）、adbd
+UID2000。observer的61次TracerPid僅是process leader讀值，不冒充全thread連續監控。
+原38份attempt逐份SHA不變，原第38份RETURNED_UNVERIFIED及其SHA0579b514…57fdd
+保留；觀察期間未改Root provider、安裝研究APK／模組或變更產品bytes。
+
+這是157本組的**有界30分鐘**及前／中／後段UI證據，不代表未覆蓋的瞬時故障、全天、
+其他遊戲或Android通過。探險長名縮字／整張卡重用樣本仍不足，API31／34及三階段目標
+仍未完成。

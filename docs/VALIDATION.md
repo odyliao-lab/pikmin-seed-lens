@@ -1,5 +1,19 @@
 # 驗證分層
 
+## 2026-11-11：0.5.2／157有界30分鐘觀察
+
+同新index5／boot771／2075/start4318正常App新同意，僅啟用既有核驗renderer，未新載入。
+UTC17:00:36.804–17:30:37.116實際1800.312秒、61份30秒只讀快照，最大間隔30.188秒；
+相同boot/API/bridge/SELinux、adbd UID2000、PID/start/UID及control ON。前／中／後段
+實際UI確認庫存長紀念名完整、中段整張卡離屏返回、三筆探險細分名；普通App中段／
+結束各重新讀到新鮮ready／ON。正常OFF後兩頁原名／字型與原紀念截斷還原並回主畫面。
+
+原38份SHA逐份不變、無新attempt；最後182份thread TracerPid讀值0／adbd UID2000。
+61份observer的TracerPid只涵蓋leader，未當全thread連續監控；RSS快照只記本輪範圍，
+不當無leak證明。觀察期間沒有研究APK／Root模組／產品bytes變更。這是有界30分證據，
+不是全天或其他組合通過；探險長名／重用、API31／34仍未完成，見
+[本版分項](PRODUCT052_FONT_QUALIFICATION.md)與[平台路徑查核](PLATFORM_RESEARCH_ROUTE_20261111.md)。
+
 ## 2026-11-11：獨立ARM訊號觀察工具準備，尚未部署
 
 為研究API31／34原轉譯器是否交付可核對的自有App SIGILL context，新增獨立
