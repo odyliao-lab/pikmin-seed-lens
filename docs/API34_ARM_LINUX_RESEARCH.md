@@ -135,7 +135,7 @@ loop重試次數、產品15s／2s界限，不停用self-test／Watchdog或修改
 
 ### 私人候選的實際部分進展
 
-gdb1500／inferior1510，UTC03:10:11起以同kernel、mapper／vector、2vCPU／4GiB及私人
+gdb1500／inferior1510，UTC03:11:15起以同kernel、mapper／vector、2vCPU／4GiB及私人
 ramdisk候選啟動，boot `7c3bd34b-36c9-421a-902b-a40418ff5617`。guest約117–131秒，
 34個APEX由同一activation worker依序掛載成功；Conscrypt、adbd、ART及resolv皆有獨立mount紀錄。
 APEX BoringSSL self-test實際exit0，沒有停用該測試。
@@ -152,6 +152,18 @@ uname aarch64、NativeBridge0、Enforcing、UID2000與上述boot；fingerprint�
 沒有安裝Magisk、APK或執行原生載入。unroot初次回覆逾時不記成功；其後重新讀取同boot、
 UID2000及Enforcing才確認恢復。此診斷不是普通App Root或完整開機資格。
 
-當時主機i7-10700KF／8C16T總CPU實讀100%；只讀自身QEMU thread統計，主要CPU時間在兩個
-TCG thread。不能單憑CPU繁忙認定唯一根因。完整getprop觀察改為較低頻單boot flag，
+當時主機i7-10700KF／8C16T總CPU實讀100%；只讀自身QEMU thread統計，主要CPU時間集中在兩個
+thread，未以stack確認其全部用途。不能單憑CPU繁忙認定唯一根因。完整getprop觀察改為較低頻單boot flag，
 避免監測增加負載；保留原40秒逾時與未完成觀察，不把bootanim／API讀值當App可用。
+
+收尾前一般shell再次讀到同boot、UID2000與Enforcing，`system_server` PID618已出現，
+但`sys.boot_completed`仍空白。UTC03:35:56正常console關閉，03:35:57 inferior／debugger
+皆exit0，非逾時、未送收容訊號；此約24分42秒觀察仍記為「完整開機未完成」。
+
+### 獨立一小時安靜觀察
+
+同一新AVD／原kernel／私人單worker ramdisk／mapper及vector配置，另輪UTC03:38:15啟動，
+gdb2216／inferior2226。這輪只將開發者的完整開機觀察窗口設為3600秒，並減少ADB讀取：
+首次600秒後才讀單一boot flag，之後間隔180秒；串列輸出留在私人檔。
+沒有改guest時鐘、Watchdog、dm等待、產品15s／2s或版本守門。前輪未完成與失敗保留，
+此輪必須另取實際完整boot、身分及App證據，不以延長觀察視為通過；尚未安裝Magisk或APK。
