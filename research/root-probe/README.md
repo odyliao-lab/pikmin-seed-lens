@@ -70,10 +70,18 @@ certificate, stored x64-only runner/ABI/SHA assets, new ProcessElf class and16KB
 alignment. Old0.0.5 and0.0.7 APK hashes were independently unchanged. Root and PM
 receipts now include process-machine evidence; Root receipts also retain uname
 and packaged ABI. No native loader, game guard, Root endpoint or time bound changed.
-**Not installed or executed in Android**: actual App access to `/proc/self/exe`,
-Root and later PM/JNI behavior still require separate device evidence after the
-owner finishes the active game-login handoff. The existing0.0.5 Root pass is not
-transferred to0.0.8. This package never becomes a consumer dependency.
+After the owner completed login, the same authorized new API35 MuMu index5
+received0.0.8 with a normal same-signature update. With adbd actually UID2000,
+the ordinary App UID10052 read its own ELF machine62, uname=aarch64 and packaged
+ABI=x86_64, then completed `su -M` with exit0, actual UID0/ksu domain, the exact
+new boot and matching global mount namespaces. No load_pid/host/runner arguments
+were supplied. A separate read-only audit verified the new App receipt, unchanged
+old receipts and30 attempt hashes, product OFF and unchanged game PID/start/UID;
+adbd was restored to UID2000. The first host reader's CRLF comparison failure is
+preserved; only derived comparison text was normalized, without rerunning the
+instrumentation or rewriting the raw receipt. This verifies actual App ELF/Root
+behavior for0.0.8, **not its PM/JNI/game path**. The earlier0.0.5 native results
+are not transferred to0.0.8. This package never becomes a consumer dependency.
 
 Preserved ARM-only0.0.7 preparation SHA256:
 `d681d08e20c492a923a5853547b0973b30d0a0a039eb86da94df1933072c65d2`.

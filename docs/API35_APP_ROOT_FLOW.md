@@ -58,3 +58,17 @@ uid0／ksu domain、兩個相同mnt namespace與同boot。完整回讀比instrum
 透視鏡control OFF、原30份attempt逐份SHA不變，沒有產品load／ON／新attempt。這輪只驗
 新boot的普通App Root能力與資料保留，不承接為PM loader／JNI／遊戲、OS後兩頁或長時間
 通過。新client0.0.7僅為另一未部署準備物，沒有以其host建置替換這次0.0.5的真實結果。
+
+## 2026-11-10：0.0.8實際普通App ELF／Root唯讀核對
+
+本人完成156.0登入後，同新boot `7ffb85f6-02df-46d4-add2-6049f5761944`、新index5身份再核。
+研究client以原lab簽章正常更新至0.0.8/code8，PM APK SHA為c5d6bc10…a38845，產品0.5.2
+與完整156.0 splits不變。adbd實際UID2000時，普通App UID10052實讀自身ELF machine62、
+uname=aarch64及封裝x86_64，再以PATH su-M返回exit0／uid0／ksu domain／同boot與一致
+global mount namespace。不是用adbd代替普通App，沒有傳load_pid／host／runner參數。
+
+第一次host收據讀取因原始CRLF與literal LF比較失敗，保留該失敗及raw原件；後續只做
+唯讀重核，僅正規化比較文字，沒有重跑instrumentation／安裝。實核新App收據、舊Root
+收據與原30份attempt SHA不變、control OFF及遊戲3056/start65165／UID10067不變，最後
+adbd實讀回UID2000。這是0.0.8新增ELF分類與普通App Root的Android正例，沒有0.0.8的
+PM loader／JNI／遊戲資格，不承接舊0.0.5的native結果，也不增加產品依賴。

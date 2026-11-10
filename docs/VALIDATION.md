@@ -1,6 +1,6 @@
 # 驗證分層
 
-## 2026-11-10：研究Root client0.0.8程序ELF核對，尚未部署
+## 2026-11-10：研究Root client0.0.8程序ELF及普通App Root實核
 
 新MuMu觀察到uname與實際ELF／PM ABI不同後，只修改研究工具：固定讀取自身
 `/proc/self/exe`的64-byte ELF header，與封裝runner ABI／primary ABI及精確API共同核對。
@@ -9,8 +9,15 @@ Root與PM命令各自核對，收據保留process machine／uname／packaged ABI
 
 94 ELF與77平台JVM測試、Android Java／dex、原lab簽章、單x64 stored runner／ABI／SHA與
 16KiB對齊均通過。新研究包0.0.8/code8，SHA c5d6bc10…a38845；native runner沿用b22877ed…
-6ce84，舊0.0.5／0.0.7 APK SHA不變。尚未安裝／執行，不能繼承0.0.5普通App Root或JNI
-成功；登入期間不啟動foreground probe。詳見[研究包範圍](../research/root-probe/README.md)。
+6ce84，舊0.0.5／0.0.7 APK SHA不變。本人完成登入後才正常同簽章更新0.0.8；普通App
+UID10052實讀自身ELF62／uname aarch64／封裝x64，su-M exit0、uid0／ksu domain、同boot
+及global mount view另核。只讀Root、不傳native載入參數，原30份attempt／舊Root收據
+SHA不變、control OFF、遊戲PID/start/UID不變，adbd回UID2000。原host CRLF比較失敗
+保留，後續僅唯讀重核，沒有重跑instrumentation或改raw收據；不繼承0.0.5的PM／JNI。
+詳見[研究包範圍](../research/root-probe/README.md)與[實核](API35_APP_ROOT_FLOW.md)。
+
+使用者已決定先不使用雲端；[先前備案](ARM_CLOUD_RESEARCH_OPTION.md)保留為歷史，
+不進行帳號、訂閱或雲端裝置操作。API31／34本機資格仍未通過。
 
 ## 2026-11-10：既有 AOSP AVD 的1vCPU對照，僅CPU gate通過
 
