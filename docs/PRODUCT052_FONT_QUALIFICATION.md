@@ -144,3 +144,39 @@ RETURNED_UNVERIFIED；renderer ready與畫面另驗，不改寫native結尾或�
 
 本版156.0現有兩個樣本程序的兩頁名稱／OFF、庫存長名與真正庫存離屏返回分項；
 探險長字、真正探險整張卡離屏返回、OS／長時間仍未完成，不記整組或九組完成。
+
+## API35／156.0同版本APK的系統重啟回歸
+
+2026-11-10，唯一核准的新index5重新核CLI name／created timestamp／16544。正常OFF、
+原33份attempt SHA逐份不變、同15495/start499521／UID10067與thread TracerPid讀值0後，
+adbd回UID2000，才正常關閉該instance。CLI另核Android及模擬器程序皆停止後，單次啟動
+同一instance；不操作原四台／台中，不把遊戲force-stop當系統重啟。
+
+新boot為 `553dee59-d6dc-4f97-b901-8a2ae3898921`，與前輪不同；實讀API35／x86_64／
+libnb.so／原Permissive／boot_completed1／1080×1920無override／density280及adbd UID2000。
+同0.5.2/code17與精確156.0/code1792142832完整PM APK SHA均吻合，原33份歷史保留。
+control仍OFF、舊status仍指舊PID，沒有自動啟用。Root回讀modules目錄不存在；本輪未安裝
+任何套件／模組或更新Root，未啟動研究Root client/instrumentation，不增加產品依賴。
+
+正常launcher開啟156.0，登入保留，新PID2103/start9454／UID10067。01開場與02真正主畫面
+分開記錄；03庫存OFF基準為半高面板，04雖檔名含expedition，實際仍在庫存，**不當探險
+基準**。06／07分別為半高及展開的探險，08才是三筆花苗皆可見的OFF基準。09回到真正
+主畫面後，10未確認啟用與11舊status最終拒絕，不只截到核對中；12普通產品App經su-M
+確認新程序，13兩項同意後才單次啟用本程序。
+
+14回報ON_COMMITTED／waiting-cards，不單獨算畫面成功。first-loaded也保留原waiting
+時序；稍後first-on另實讀同新PID/start／156.0／ready／enable1與control ON。
+
+- 16／17庫存五週年零食及玩具珠寶長名完整縮字；17首排圖示與名稱皆可見，18這兩張
+  卡的圖示與名稱完全離屏，19返回仍完整同名。15只是滾到中段，不冒稱全卡長名驗收。
+- 20探險藍色葉子帽苗、紅色三葉花苗、岩石三葉花苗完整；21面板收合不能算真正重用，
+  22嘗試拖可見捲軸未產生內容位移，亦不計成功。沒有重跑解析度／滾輪實驗。
+- 23正常產品App OFF_COMMITTED後，24三筆探險原花苗名／字型、25庫存原名／大字及
+  紀念金苗原截斷皆還原，當次仍25/80；26仍在回主畫面的過渡，27才另核真正主畫面。
+
+最終同新boot／PID/start／156.0／ready／enable0、control OFF，183份thread TracerPid
+讀值0（非原子snapshot）、adbd實讀UID2000。原33份attempt逐份不變，總34份，新journal
+SHA256 `e6b06c4ca0beb88f178ad62e03ca34e2aec1c827524980240446725316dd31a3`；完整七
+階段至RETURNED_UNVERIFIED，ON／OFF兩次SHA相同，不改寫native結尾或歷史UNKNOWN。
+本輪完成本版156.0系統重啟後的兩頁名稱／OFF與庫存長名／真正離屏返回分項；探險
+長字／真正離屏、長時間及API31／34仍未通過，不稱整組或九組完成。

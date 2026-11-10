@@ -1,5 +1,23 @@
 # 驗證分層
 
+## 2026-11-10：0.5.2／156.0獨立新OS boot後回歸
+
+唯一新index5正常OFF／原33份SHA保留／adbd UID2000後正常關閉；CLI實核Android及
+模擬器程序皆停止，才啟動同機。新boot553dee59…8921、API35／x64-libnb／原Permissive
+另核，同0.5.2與精確156.0完整PM SHA不變；control仍OFF、舊status不自動授權，modules
+目錄不存在。本輪未啟動研究Root client，沒有新套件、Root／安全設定或產品bytes變更。
+
+正常launcher至2103/start9454／UID10067，登入保留；真主畫面、未確認啟用與舊status
+最終拒絕、新兩項同意另有實際畫面。從普通產品App su-M單次載入，waiting-cards中途
+結果保留，稍後同程序ready／ON與真正兩頁驗收分開。庫存紀念長名完整縮字、整張卡
+離屏返回同名；探險三筆細分名完整。正常OFF後兩頁原名／字型及原紀念截斷均還原。
+
+最終control OFF／enable0／ready，183份thread TracerPid讀值0、adbd UID2000。原33份
+attempt SHA逐份不變、新第34份七階段至RETURNED_UNVERIFIED，不改寫成native成功。
+03為半高庫存、04實際亦非探險；21面板收合與22捲軸未移動都不記離屏重用，原件保留。
+本版156.0的OS後分項已驗；探險長字／真正離屏、長時間及API31／34仍未通過，見
+[完整本版邊界](PRODUCT052_FONT_QUALIFICATION.md)。
+
 ## 2026-11-10：156.0新樣本兩頁與真正遊戲重啟
 
 本人完成新樣本帳號後，仍是9084/start359211，不能把換帳號當程序重啟。control OFF、
