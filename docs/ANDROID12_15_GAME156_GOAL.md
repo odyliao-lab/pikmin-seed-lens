@@ -5,6 +5,12 @@
 另已獨立實跑、57份自有原件SHA保留，並非原遊戲相容。見
 [最新順序](STAGED_DELIVERY_PLAN.md)及[共用來源結果](API34_PRODUCT_INTEGRATION.md)。
 
+森林手帳0.6.7/code25在新index5／API35／157.0另已實測偏好屏障遷移、App重啟及
+新遊戲程序重新核對／同意；兩頁ON／OFF、庫存完整長名縮小與真離屏返回有分項證據。
+原41筆不變，新增正常新程序一筆後42筆SHA於OFF後不變。探險長名／真離屏、同版本
+156.0／156.1及TalkBack仍待驗；下列舊0.5.x證據保留歷史，不轉記新UI資格，見
+[本版驗收](PRODUCT067_PREFERENCE_BARRIER.md)。API31／34仍未通過，九組未完成。
+
 API34 x64後續在獨立新boot另完成自有普通 App → su-M → PM runner → ARM JNI正常、
 故意timeout／UNKNOWN精確收容與另一新程序回歸，非單憑載入0。原26份signal與最終
 30份自有證據SHA保留，沒有Game／產品操作、沒有放寬產品守門；三版原遊戲SEVL
