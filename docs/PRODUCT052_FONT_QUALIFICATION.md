@@ -104,3 +104,43 @@ APK SHA再次吻合。原30份attempt逐份不變；首輪新journal後續SHA不
 成功。新鮮renderer ready、ON／OFF與真正畫面另核，歷史UNKNOWN不變、不重送載入。
 本輪只完成兩個程序的庫存分項，探險名稱／長字／捲動／OFF仍缺新樣本；也不算本版
 OS重啟或長時間驗收。API31／34與九組目標保持未完成，沒有修改或交付新產品bytes。
+
+## API35／156.0本人更換未領回花苗樣本
+
+本人回覆「156.0 花苗探險樣本就緒」後，CLI／新boot／精確PM SHA／PID/start/UID重新核。
+換帳號仍在同9084/start359211，透視鏡OFF且32份attempt SHA不變，並非另一遊戲程序。
+41確認本人新帳號主畫面；45庫存25/80，44探險OFF基準有藍色／紅色／灰色花苗及水果／
+禮品。未領取、派遣或修改任何物品，也不由切換帳號推論已重啟。
+
+47重新確認同一程序、48兩項同意後正常App啟用；49為ON_COMMITTED。已載入的已知
+ready程序只重新切換顯示，sample-account-on實核沒有新增attempt，不重送native載入。
+51與53探險完整顯示藍色葉子帽苗、紅色三葉花苗、岩石三葉花苗，未重現0.5.1的短名
+截斷。只有兩排／三筆花苗，尚不足以證明探險長字縮小或整張卡離屏重用。
+
+52面板收合不是離屏返回通過。為觀察短視窗，在同隔離機以Android原生wm暫設
+1080×1440；原無override、density280不改，PID/start／boot不變，54實際截圖保留。
+遊戲等比例縮放，仍不足以形成有效離屏證據；其後wm size reset實讀1080×1920且無
+override、density280。API35 input help確實支援mouse scroll，但55／56的滾輪與57觸控
+觀察沒有實際移動列表，不冒稱成功。沒有額外套件、主機／安全設定或產品bytes更動。
+
+60庫存羽翅五週年紀念零食、紫色五週年玩具珠寶與黃色三週年杯子蛋糕金苗皆完整縮字；
+61這些卡片圖示與名稱完全離屏，62返回完整同名。63正常App OFF後64庫存原名／大字／
+原截斷、66三筆探險原花苗名／字型均還原。65只見第一排，不代表末排也已驗，另以66
+補核。最後同PID/start／ready／enable0／control OFF，196份thread TracerPid讀值0，
+adbd實讀UID2000；原32份attempt及產品／完整splits SHA不變。
+
+隨後正常force-stop／launcher重開至15495/start499521／UID10067，沒有沿用舊ready或
+因觀察失敗重送載入。67開場、68仍載入素材、69真正主畫面分開保存。70未確認啟用與
+71舊status實際拒絕，72重新確認完成、73兩項同意後才開始新程序的單次正常App載入。
+74是ON_COMMITTED／waiting-cards，不單獨當效果通過。75庫存三種紀念長名完整縮字，
+76長名卡圖示及文字完全離屏、77返回完整同名；78三筆探險細分名亦完整。79正常App
+OFF後，80探險三筆原花苗名／大字、81庫存原名／字型與原截斷皆還原。
+
+sample-restart-on／off另核同15495/start499521／156.0／ready，enable1／0，最終control
+OFF；182份thread TracerPid讀值0（非原子snapshot）、adbd實讀UID2000。產品及兩份
+完整156.0 PM SHA不變，原32份attempt逐份不變，新增第33份journal SHA256
+`fc47a0a762a1b9956a51007dbc83577dca3a4c0b2c4c45000614307d603a5f97`，七階段至
+RETURNED_UNVERIFIED；renderer ready與畫面另驗，不改寫native結尾或歷史UNKNOWN。
+
+本版156.0現有兩個樣本程序的兩頁名稱／OFF、庫存長名與真正庫存離屏返回分項；
+探險長字、真正探險整張卡離屏返回、OS／長時間仍未完成，不記整組或九組完成。
