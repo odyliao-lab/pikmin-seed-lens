@@ -43,3 +43,41 @@ is chosen before launch. Actual new boot/API/ABI/CPU-online count/Enforcing,
 current Power+Window boot state, PM/AM and working home must be verified.
 There is no transfer of the CPU result into App Root, JNI, game or product
 qualification. The three delivery stages remain incomplete.
+
+## Actual full-Android follow-up, still not stable
+
+The one-core run started UTC11:37:10.441 with the same original images,
+private worker1 ramdisk and no-animation option, a preselected10800s bound.
+Actual UID2000/Enforcing/API34/ARM64/aarch64/NativeBridge0/new boot and
+CPU-online mask0 (one CPU) were read. The first proof reader stopped on a
+normal not-yet-completed boot flag because its inherited predicate assumed1;
+that failed read is retained. The read-only predicate was corrected to wait
+on an incomplete flag, preserving the actual identity and deployment guards.
+
+At UTC11:44:19.508 the first **current-service** Power/Window/PM/AM/server
+check passed for server496/start16743/UID1000. The next consecutive check did
+not pass: server496 died at11:44:46 with a ConnectivityModuleConnector
+`Lost network stack` fatal exception, and zygote then exited. This was not a
+Watchdog kill. The single passing read is not stable boot/display acceptance.
+
+A later events-buffer sample independently recorded a TetheringService
+execution ANR for the shared NetworkStack process, followed by a background
+ANR kill. This identifies a real startup failure to investigate; it does not
+prove the precise cause of the first disconnection. A subsequent server
+also had a stock Watchdog termination. Protections remain enabled.
+
+Fresh package/ART reads found original TetheringNext APK under the tethering
+APEX and NetworkStackNext under system/priv-app. Both were ARM64 `verify`;
+the dump explicitly showed Tethering code used by NetworkStack. One ordinary
+shell request was issued UTC11:54:36.971:
+
+```
+cmd package compile -m speed -p PRIORITY_BACKGROUND --primary-dex --include-dependencies com.android.networkstack
+```
+
+This is a bounded data-cache experiment on already installed SDK code, with
+no force/reset, package installation, permission bypass, Root, Watchdog or
+clock changes. There is no automatic resend of an uncertain request. Actual
+RPC outcome, independent cache state and later service stability must be
+recorded separately. No ordinary-App Root, JNI, game, Lens deployment or UI
+qualification follows from the request.
