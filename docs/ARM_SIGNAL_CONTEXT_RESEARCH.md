@@ -87,3 +87,45 @@ parser，也沒有改PC／context、略過指令或在遊戲安裝handler。每�
 
 API34本輪新增的是普通App訊號觀察／失敗退出證據，沒有原遊戲正常啟動或產品兩頁資格。
 下一步API31必須另做同APK對照；不得從這個image的code／address／PC分項交叉推論。
+
+## API31／x64-libndk_translation獨立對照（2026-11-11）
+
+API34正常關閉且host／埠消失後，才單次啟動既有獲准的`SeedLens_API31_x64`／5580，
+2CPU／4GB／原6GiB data，headless SwiftShader／Vulkan OFF／無snapshot。實際既有SDK
+為Google APIs **rev12**，不是目錄線上最新rev14；本輪沒有更新image。原SDK四映像SHA
+先核，私人Magisk31.1 ramdisk override仍為已核`5537a63d…eb20`，沒有新Root安裝、模組、
+SELinux或主機設定變更。
+
+新boot`96f23546-66e0-4485-a382-c71eb061c924`實讀API31／x86_64／libndk_translation／
+Enforcing／adbd UID2000。當前Power／Window boot、PM／AM、內建display state ON與
+同system_server533/start2326／UID1000，相隔75.547秒另核。API31該display dump沒有
+API34的committedState欄位，觀察器改讀這個ROM實際提供的state ON，沒有把早期boot
+未完成讀值當通過，也沒有因此授予互動Home／遊戲／產品資格。自身shell ELF62與原bridge
+SHA c05f2b7e…db51另核，未以uname判斷ARM64。
+
+與API34不同，這台原產品0.4.1/code14仍存在；原SHA815de868…1cce、精確157.0的base／
+完整split SHA及原16份研究attempt逐份SHA，每次診斷回讀均保留，產品attempt仍不存在。
+沒有啟動遊戲或透視鏡、不清資料／複製帳號；同研究APK0.0.2／SHA89755ce2…51bc9正常
+安裝後，實際普通App UID10152／自身ELF62，沒有把adbd Root算作普通App Root資格。
+
+| 單次新程序案例 | API31實際結果 |
+|---|---|
+| expected_api=32、031；expected_machine=183 | 各在自有收據／native前以IllegalArgumentException拒絕，instrumentation1且沒有新signal檔 |
+| baseline，5868 | 普通JNI／共同handler及alarm設定後正常返回；native1/2/4、Java RETURNED、instrumentation-1 |
+| raise，6086 | 合成SIGILL記錄1/2/3，獨立Zygote確認自身clean exit86 |
+| UDF，6268 | handler記錄後exit86；已知PC／兩個GPR marker／SP對齊吻合，但si_code=-6、si_addr在PC前12 bytes，完整context未證實 |
+| SEVL，6449 | 同樣有界記錄／exit86，指令未正常返回，context分項同上，維持未證實 |
+| SEVL/WFE，6630 | 第一條SEVL就進handler並exit86，WFE尚未執行；不能由這例推論單獨WFE的能力 |
+
+四個signal程序的exit86均另讀Zygote確認，不以ADB0／instrumentation0替代；三個指令fault
+仍由原parser判為`fault-observed-context-unproven`。沒有改PC／context／指令／translator，
+沒有在遊戲安裝handler，也未觸發三秒alarm，故不宣稱這輪實測了timeout控制。
+
+最後同boot／server、adbd UID2000／Enforcing，Game及probe都已不在；原產品、遊戲、16份
+歷史仍不變。指定AVD的正常console關閉只發一次；第一個host觀察尚有SDK正常關閉helper，
+保留讀值、等待退出，不把close command返回當terminal。後續另核SDK程序與5580／5581
+皆消失，四份SDK映像及私人ramdisk SHA不變，原資料保留，index5亦維持關閉。
+
+同APK的API31／34／35普通App對照現已各自執行，但API31／34原遊戲啟動缺口仍未解，
+沒有新增產品資格。下一個可分離的研究問題是**WFE單獨執行**與**實際逾時退出控制**；
+兩者在0.0.2尚無執行證據，不能由SEVL/WFE組合或alarm設定成功補推。

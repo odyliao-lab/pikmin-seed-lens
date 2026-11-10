@@ -1,5 +1,18 @@
 # 驗證分層
 
+## 2026-11-11：API31的同APK訊號對照與正常關閉
+
+API34關閉後才啟動既有API31 x64／5580，實際Google APIs rev12、私人Magisk ramdisk原SHA
+不變，API31／libndk_translation／Enforcing／新boot96f23546…c924。相隔75.547秒的當前
+Power／Window／display ON與同server533/start2326另核，普通研究App UID10152實讀ELF62。
+同0.0.2 APK的三個參數負例在native前拒絕，baseline返回；raise／UDF／SEVL／pair各自
+記錄後exit86，另由Zygote確認。UDF／SEVL／pair的PC／marker／SP分項吻合，但signal
+code／address不符，完整context仍未證實；pair停在SEVL，未驗WFE。三秒alarm未觸發。
+未啟動Game／Lens，原產品0.4.1、精確157原件、16份研究歷史SHA及產品attempt不存在狀態
+逐次不變。正常關閉後等待SDK helper退出，再核host／埠消失、SDK四SHA與私人ramdisk
+不變，index5仍關閉。見[完整對照及研究界線](ARM_SIGNAL_CONTEXT_RESEARCH.md)。
+這是平台研究分項；API31／34產品與九組矩陣仍未完成。
+
 ## 2026-11-11：既有API34 x64的自有訊號對照
 
 新index5正常關閉並實核雙false後，才單次啟動既有SeedLens_API34_x64／5582。原SDK／

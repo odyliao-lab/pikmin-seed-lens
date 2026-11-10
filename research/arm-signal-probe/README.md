@@ -103,3 +103,11 @@ verified exit86. Own PC/register-marker/aligned-SP observations matched; signal
 code/address did not, and remain context-unproven. Pair stopped at SEVL before
 WFE. The original game was never launched. The detailed research page records
 this separately from API35 and all product qualification. API31 is still pending.
+
+The same APK also completed the independent API31 x64 comparison: baseline
+returned, and raise/UDF/SEVL/pair recorded faults followed by independently
+verified own exit86. Instruction context remains unproven for the same failed
+signal-code/address checks; pair never reached WFE. Original product/game bytes
+and all sixteen research journals were retained, and the guest was normally
+closed. Neither WFE alone nor an actually triggered alarm timeout has yet been
+tested by 0.0.2. No product qualification follows from these results.
