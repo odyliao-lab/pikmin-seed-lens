@@ -35,3 +35,27 @@
 30正常App OFF後，31庫存原文／大字／紀念名原截斷、32探險原花苗名／大字均還原，當次33/80。最終同PID/start／156.1／ready／enable0、control OFF，讀到thread TracerPid均0、adbd回讀UID2000。原27份attempt SHA不變，新增第28份完整journal SHA256 `1f91781f1de3bec649b6863a04139938a0b4a721e1f7322a9c2d1662fc03109d`。
 
 本版API35／156.1已有兩頁名稱、庫存長字、兩頁真正離屏返回、OFF及新程序分項。探險更長名稱觸發縮字、OS／長時間及其他平台／遊戲版仍未驗，不記整組或九組完成。
+
+## API35／157.0首程序分項
+
+156.1正常OFF／退出後，正常install-multiple-r升級精確157.0/code1793360009，合法原簽章base／完整ARM64 split各自PM SHA再次吻合既有intake，產品仍同0.5.2 APK；沒有清資料或複製session。原28份attempt SHA不變。遊戲初次使用系統簡體設定，經正常設定切回繁體並接受其遊戲重啟，登入保留；沒有把語言切換算產品的載入後重啟回歸。
+
+同boot、PID10899/start264686／UID10066；私人157子目錄12／13為兩頁OFF基準，33/80。14未確認啟用與15舊status實際拒絕，16新確認後正常App單次載入；完整七階段journal另核。first-loaded中途snapshot仍control OFF／waiting-cards，保留其原時序；18稍後才實際ON_COMMITTED，first-on另核同程序157.0／ready／enable1，不重送載入、不倒填中途成功。
+
+19完整庫存紀念長名／短名，20兩張長名卡圖示及名稱完全離屏，21返回同名且完整。22探險金幣／廚師帽子／貼紙等完整；23末排藍色公車紙模型、冰色三葉等名稱，24回頂部時末排卡圖示與名稱完全離屏，25返回同名。26正常App OFF後27探險原花苗名／大字、28庫存原文／大字／原紀念截斷還原，當次33/80。
+
+最終同PID/start／157.0／ready／enable0／control OFF，175份thread TracerPid讀值均0（非原子snapshot）、adbd回讀UID2000。原28份attempt SHA不變，新增第29份完整journal SHA256 `39d75dfd595e5d518cad5989bafab2b1708902cbabaf6b5057299bf799e21e49`。正常遊戲重啟回歸進行中，探險更長名稱縮字、OS／長時間與其他組合仍未通過。
+
+## API35／157.0正常遊戲重啟
+
+正常OFF後標準force-stop／launcher至新PID13405/start314334／UID10066，繁體與登入保留。31未確認啟用及32舊status實際拒絕，33新同意後才載入本程序；34正常App實際ON_COMMITTED，完整七階段journal另核。沒有自動承接或重送載入。
+
+35庫存長紀念名／短名，36長名卡圖示及文字完全離屏，37返回完整同名；38探險末排公車紙模型苗等完整，39回頂部時末排圖示與名字完全離屏，40返回同名。41正常App OFF後，42探險原文／字型與43庫存原文／大字／原紀念截斷還原，當次33/80。
+
+最終同PID/start／157.0／ready／enable0、control OFF；165份thread TracerPid讀值皆0（非原子snapshot），adbd實際UID2000。原29份attempt SHA不變，新第30份完整journal SHA256 `4adab4babb015b953bab0e59c9dbcdec4d80414b22f37805d5026443f9feb9d1`。本版API35／156.1與157各有兩個程序的分項證據；探險更長名字縮字、OS／長時間及其他組合仍未通過，九組目標未達成。
+
+## API35／156.0接續準備
+
+157正常OFF／兩頁還原後，重新核精確156.0/code1792142832的合法base／完整ARM64 split，aapt與兩份apksigner皆通過，game cert仍`944bda466eaf64be1c93896d5c8e9a454a07c8d8fcbc4adeeefb3545b335e979`。沿用先前已核准隔離機流程，標準force-stop／uninstall後乾淨安裝完整splits，不複製或備份帳號session，登入交本人。
+
+PM讀回兩份APK SHA各與intake一致，產品仍同0.5.2 SHA，原30份attempt逐份不變，control OFF、adbd實際回UID2000。本版156.0尚未登入／載入／兩頁實測；材料與安裝不列為相容通過，後續也不繞過可能的強制更新。

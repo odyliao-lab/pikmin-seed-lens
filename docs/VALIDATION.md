@@ -1,5 +1,11 @@
 # 驗證分層
 
+## 2026-11-10：同0.5.2／API35／157首輪及遊戲重啟
+
+156.1正常OFF後，以合法完整原簽章splits正常升級157.0/code1793360009，PM逐份SHA、同0.5.2 APK及原28份歷史再次核對。經正常設定切回繁體並重新進入本人帳號後，PID10899/start264686正常App新同意／完整journal，兩頁名稱、庫存完整紀念長字、兩頁真正離屏返回及OFF還原已觀察；中途OFF snapshot保留原時序，稍後ON_COMMITTED與ready／ON獨立核實，不重送載入。
+
+正常遊戲重啟至13405/start314334，未確認及舊status實際拒絕後才新同意、載入，兩頁／庫存長字／離屏返回與OFF再次驗。各輪原28／29份attempt SHA不變，新完整journal保留，總30份；最終ready／enable0／control OFF，165份thread TracerPid讀值均0、adbd UID2000。同0.5.2的API35／156.1及157現都有新程序分項，156.0接續重驗；探險更長名字縮字、OS／長時間及API31／34仍未通過，見[本版紀錄](PRODUCT052_FONT_QUALIFICATION.md)。
+
 ## 2026-11-10：0.5.1探險字型回歸，另建0.5.2驗收
 
 新index5／API35／x64-libnb／精確156.1，0.5.1/code16正常App完成單次載入。庫存最長三週年杯子蛋糕金苗已完整顯示，真正離屏返回仍完整；探險短名卻縮小並截斷，重開列表仍在，判為未通過。正常App OFF後兩頁原文／大字與庫存原截斷均已還原；原25份attempt SHA不變，新第26份完整journal保留，adbd回讀UID2000。沒有把waiting-cards或庫存單頁當整組通過，見[失敗紀錄](PRODUCT051_FONT_CANDIDATE.md)。
