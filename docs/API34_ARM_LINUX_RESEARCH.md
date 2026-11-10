@@ -207,3 +207,61 @@ system_server495仍在、boot flag仍空白。UTC04:37:12 console kill回OK，04
 kernel／ramdisk／system／vendor SHA再次吻合intake。檔案讀寫後Windows可用實體記憶體
 一度約0.6GiB，故沒有立即啟動下一台；先sync並只terminate指定專用WSL distro回收資源，
 不停止原四台、不改全域WSL或重開Windows。下一輪仍須重新核實可用實體記憶體與埠。
+
+## 保留初始化資料後的獨立冷開機與堆疊診斷
+
+指定distro停止後Windows可用實體記憶體約13.5GiB，index5仍關閉，Windows／Linux目標埠
+無listener；四個原SDK SHA再次核對。原AVD資料保留，UTC04:44:26另啟gdb503／inferior513，
+沒有改image、CPU數、clock、Watchdog或產品時間界限。此輪34個APEX再次activated，
+加密data完成ext4 journal recovery；不把掛載前raw block的invalid ext4訊息誤記資料損毀。
+
+早期ADB未就緒的一次讀取在任何Root命令前拒絕，原收據保留；連線就緒後實讀boot
+`035e363f-02bd-45e6-a4e7-462f1438aa96`、API34／arm64-v8a／aarch64／NativeBridge0／
+Enforcing／UID2000。為讀前兩輪系統堆疊，兩次暫用原廠adbd Root，皆實讀同boot的UID0，
+最後各自實讀UID2000／Enforcing，沒有安裝Magisk或APK。這輪含有界唯讀Root診斷，
+**不是完全無干擾的quiet boot**，不單憑開機時間差推論快取改善。
+
+前輪ANR摘要只存等待狀態，完整Java／native堆疊另在trace檔。以trace header的system_server
+PID及block的sysTid核對後：
+
+- trace_01／11:54:39／PID495：當時main等待DisplayManager的SyncRoot；持鎖的Java thread16
+  正在display configuration的UnixFileSystem.normalize。後續確有PM掃描進展，所以這一張
+  不能代表最後Trichrome停滯或持續死鎖。
+- trace_00／11:32:12／PID618：當時main在IntentFirewall讀目錄／ART NewObjectArray的等待。
+  首次僅依名稱選出的另一個「main」實為sysTid645，**該選取作廢**；原收據保留，另存
+  按PID618選出的正確block。不以thread name代替身分。
+
+這些是不同時間點的初始化stack，不宣稱已證明crypto、GC或解壓根因，也沒有停用相關服務。
+
+另開始與framework資格分開的底層診斷準備：只對自有fork跑既有產品15s／2s界限，先收容
+suite，才正常ARM context／ELF；若需要時間標記，也只能新child／新attempt，不重用UNKNOWN。
+在開機負載下的結果另列，不替代完整boot／普通App Root／JNI或遊戲驗收，正式full-boot gate
+保留。首次嘗試尚未進suite：ADB Root切換host等待逾時，但後來實讀UID0；initial unroot在
+offline時未送達。隨後同boot再提出一次unroot（沒有重送Root），host等待仍逾時，最後實讀
+UID2000／Enforcing才確認恢復。沒有原生target、載入或新attempt，不把host exit1直接等同
+權限沒有改變；後續以實際UID／boot／Enforcing決定是否能進下一層。
+
+### 啟動負載下的實際底層結果
+
+後續以Root切換後的實讀UID0／同boot／API34／Enforcing准入，沒有重送Root。三個原生檔
+guest SHA逐一吻合後，supervisor產品界限suite實際10/10／exit0。ARM產品界限fixture則
+正常function及三種故意故障各達預期，mode4真ELF case仍UNKNOWN／target dead，整體exit1。
+另開全新child／attempt跑獨立diagnostic：manager initialize約1375–5807ms，CALLING ACK
+6197ms，卻沒有到`before-injector-init`，16631ms記supervisor收容完成，exit1。
+這縮小到injector初始化前的本機準備，不將兩份UNKNOWN改為成功或重送舊child。
+
+來源確認該區間包含`popen("getenforce")`；另備[唯讀直接查詢比較](../research/selinux-status.md)，
+保持同一位置與15s／2s，沒有改產品backend。新read-only helper的17項格式／錯檔拒絕與
+真Enforcing讀值已在Android實跑exit0；直接查詢的ELF／budget新artifact僅編譯，尚未執行。
+結束unroot雖host等待再次逾時，最後仍實讀UID2000／同boot／Enforcing；不只憑host退出碼。
+
+錯誤日誌另出現updatable adbd在boot前退出四次及APEX revert warning；本輪確有多次預期
+Root／unroot daemon restart，故不把它直接記成自發crash，也不忽略診斷對開機的干擾。
+後續合併一次Root會話、收尾才恢復UID2000，不停用APEX健康檢查；仍須另做無切換干擾的
+完整boot驗證。原本無Root的一小時上限輪未完成結果也保留，不用此觀察抹去它。
+
+此輪最後再次實讀UID2000／API34／ARM64／Enforcing與同boot，system_server564仍在、
+boot flag空白。UTC05:43:18 console正常關閉，05:43:20 inferior／debugger皆exit0，
+非逾時／無收容訊號，實際約58分54秒。自己的UNKNOWN及raw fixture保留，沒有安裝Magisk／
+研究APK／產品。直接SELinux比較另通過x64／缺budget的兩個真configure拒絕與預設不生成
+研究target檢查；產品兩個backend來源仍未整合該候選。

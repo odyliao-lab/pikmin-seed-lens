@@ -8,6 +8,12 @@
 #include <sys/prctl.h>
 #include <sys/syscall.h>
 #include <sstream>
+#ifdef SEED_ARM64_DIRECT_SELINUX_RESEARCH
+#ifndef SEED_ARM64_PRODUCT_BUDGET_FIXTURE
+#error Direct SELinux comparison is only for the separate product-budget research fixture.
+#endif
+#include "selinux_status.h"
+#endif
 using namespace seed_arm64;
 using Clock=std::chrono::steady_clock;
 #ifdef SEED_ARM64_LOAD_DIAGNOSTICS
@@ -162,8 +168,19 @@ static bool supervised(int mode){
             struct stat file{};
             if(lstat(path.c_str(),&file)||!S_ISREG(file.st_mode)||file.st_uid!=0||
                 (file.st_mode&077)!=0||file.st_size<4096||file.st_size>1048576)return 16;
+            SEED_LOAD_NOTE("before-config-sdk");
             inject_elf_config_t cfg{};cfg.sdk=KittyUtils::Android::getSDK();cfg.timeout=2000;
-            cfg.selinux_state=Utils::selinux_state();cfg.free=true;cfg.seize=true;
+            SEED_LOAD_NOTE("after-config-sdk");
+            SEED_LOAD_NOTE("before-config-selinux");
+#ifdef SEED_ARM64_DIRECT_SELINUX_RESEARCH
+            const auto state=seed_selinux_research::read();
+            if(state==seed_selinux_research::State::Unknown)return 26;
+            cfg.selinux_state=state==seed_selinux_research::State::Enforcing?SELinuxState::Enforcing:SELinuxState::Permissive;
+#else
+            cfg.selinux_state=Utils::selinux_state();
+#endif
+            SEED_LOAD_NOTE("after-config-selinux");
+            cfg.free=true;cfg.seize=true;
             bool called=false;
             cfg.afterEntryPoint=[&](inject_elf_info_t& loaded){
                 SEED_LOAD_NOTE("fixture-entry-returned");

@@ -12,6 +12,8 @@ API34原kernel的自有V2基準實際5 pass／2 SIGSEGV fail；同V2配API34 map
 
 該一小時上限輪其後實際掃完258個system packages，最後取得的PM進展是Trichrome解壓；約58分58秒時最後實讀UID2000／API34／ARM64／Enforcing及同boot，system_server495仍在但boot flag空白。正常console關閉、inferior／debugger exit0，非逾時／無收容訊號；未請求Root或安裝研究／產品APK。24檔冷備份及原SDK四個映像SHA另核。已準備原研究簽章Root client0.0.7／44項HOST檢查，但未部署，不將研究建置轉成普通App或產品資格。
 
+保留資料的另一冷開機輪含stock adbd Root診斷與啟動負載下自有fork測試：supervisor產品界限10/10實跑通過；ARM正常function與三種故障各達預期，真ELF仍UNKNOWN／target contained／whole exit1。新child診斷縮到injector init前的本機設定，尚未修好；唯讀SELinux候選僅17項getter／拒絕實跑通過，ELF比較未跑、產品未整合。多次預期adbd重啟與APEX退出次數警告並存，此輪不當clean boot。約58分54秒時仍無boot完成，實讀UID2000後正常關閉exit0；不是App／JNI／遊戲或API34整組資格。
+
 ## 2026-11-10：同0.5.2／API35／157首輪及遊戲重啟
 
 156.1正常OFF後，以合法完整原簽章splits正常升級157.0/code1793360009，PM逐份SHA、同0.5.2 APK及原28份歷史再次核對。經正常設定切回繁體並重新進入本人帳號後，PID10899/start264686正常App新同意／完整journal，兩頁名稱、庫存完整紀念長字、兩頁真正離屏返回及OFF還原已觀察；中途OFF snapshot保留原時序，稍後ON_COMMITTED與ready／ON獨立核實，不重送載入。
