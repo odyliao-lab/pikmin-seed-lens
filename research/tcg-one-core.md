@@ -81,3 +81,11 @@ clock changes. There is no automatic resend of an uncertain request. Actual
 RPC outcome, independent cache state and later service stability must be
 recorded separately. No ordinary-App Root, JNI, game, Lens deployment or UI
 qualification follows from the request.
+
+The single compile returned UTC11:56:03.853, exit0/Success after86.882s.
+At11:56:13.563 an independent ART dump confirmed NetworkStackNext ARM64
+`status=speed / reason=cmdline`. The subsequent Tethering dump returned224
+Broken pipe at11:56:22 during another service loss, so its cache state is
+still unknown; that failed read is retained. A new bounded reader waits for
+the package service and repeats only state queries. No compile resend or
+boot/game qualification follows from this result.
