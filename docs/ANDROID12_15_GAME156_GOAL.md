@@ -1,5 +1,10 @@
 # 驗收目標：Android12／14／15 × 遊戲156／156.1／157
 
+2026-11-11使用者明確改為先完成森林手帳UI；九組及API31/34的未通過項目均保留，
+不以UI／自有JNI替代。共用候選dispatcher的新boot正常／UNKNOWN收容／新程序回歸
+另已獨立實跑、57份自有原件SHA保留，並非原遊戲相容。見
+[最新順序](STAGED_DELIVERY_PLAN.md)及[共用來源結果](API34_PRODUCT_INTEGRATION.md)。
+
 API34 x64後續在獨立新boot另完成自有普通 App → su-M → PM runner → ARM JNI正常、
 故意timeout／UNKNOWN精確收容與另一新程序回歸，非單憑載入0。原26份signal與最終
 30份自有證據SHA保留，沒有Game／產品操作、沒有放寬產品守門；三版原遊戲SEVL

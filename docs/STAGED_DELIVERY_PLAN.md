@@ -1,10 +1,21 @@
-# Android 14 → Android 12 → 森林手帳 UI 分階段交付
+# 分階段交付：先森林手帳 UI，再續平台驗收
+
+## 最新順序（2026-11-11 使用者明確調整）
+
+使用者回覆「先完成森林手帳 UI（建議）」。先收尾當時已啟動的API34共用dispatcher
+隔離研究（正常／timeout／新程序回歸已完成並正常關閉），接著立即開發已選定的森林
+手帳UI、工具頁直接開關、原簽章新版本APK與回歸。Android12／14三版遊戲仍列未通過，
+繼續保留原必要目標與平台障礙，不以UI或自有JNI通過替代。
+
+此次只調整順序，不授權新裝置／雲端、不操作原四台或台中，也不放寬預設NativeBridge
+及精確遊戲守門。每階段commit／push私人分支、原簽章與新version/code要求不變。
+以下原API34→API31→UI順序是先前歷史，各階段驗收門檻仍全部適用。
 
 2026-11-10 使用者確認依此順序持續推進，每階段分別 commit／push 私人功能分支。
 工作分支 `codex/zhubei-android12-compat`；起點 `8b0624016c8d0d4f6446295f078b7d9cac54fdee`，
 remote 為 `https://github.com/odyliao-lab/pikmin-seed-lens.git`，起點工作區乾淨、遞迴 pins 正確。
 
-## 階段與完成門檻
+## 各階段完成門檻（原排列保留）
 
 1. **Android 14／API34**：先自有平台與失敗收容，原遊戲正常啟動，再普通 App Root／JNI／產品。
    156.0／156.1／157.0 分別驗兩頁名稱、長字、真離屏重用、OFF 與新遊戲程序。
@@ -21,7 +32,7 @@ remote 為 `https://github.com/odyliao-lab/pikmin-seed-lens.git`，起點工作�
 
 本機TCG尚未取得穩定平台資格時，另有[原生ARM雲端備案查核](ARM_CLOUD_RESEARCH_OPTION.md)。
 使用者後續明確決定「先不使用雲端」；先前官方文件查核保留為歷史，不進行帳號、目錄
-session、訂閱或雲端裝置操作。這不是既有本機授權的延伸，也不改API34→API31→UI順序。
+session、訂閱或雲端裝置操作。這不是既有本機授權的延伸；交付順序依上方最新指示。
 
 ## 本輪新鮮盤點
 

@@ -1,5 +1,15 @@
 # 驗證分層
 
+## 2026-11-11：共用候選dispatcher實跑及UI優先順序
+
+API34新boot57c7678f…b0e2／server526/start1526兩次完整讀值相隔68.445754秒，正常
+更新同lab signer的client13／carrier11。三個scope拒絕、新boot普通App Root後，普通
+UID10195自行發起PM命令，probe5966正常、6811故意UNKNOWN42精確收容、7634新程序
+回歸各有獨立JNI／Java／journal證據。原30份及最終57份自有收據、26份signal SHA
+逐份保留，正常關閉／SDK與私人映像不變。產品候選未安裝、Game未啟動，九組未升格。
+使用者其後明確選擇先完成森林手帳UI，原平台必要門檻不變。見
+[共用來源實跑](API34_PRODUCT_INTEGRATION.md)與[最新交付順序](STAGED_DELIVERY_PLAN.md)。
+
 ## 2026-11-11：API34共用來源與禁止安裝的候選
 
 新增明確unsigned API34來源，與API31可同APK；預設／signed的x64仍拒絕API34。四種實際

@@ -121,7 +121,7 @@ build-tools35.0.0、NDK r27d、CMake3.21+及Ninja。建置不安裝、不操作�
 
 ## 文件
 
-- [三階段交付：API34 → API31 → 森林手帳 UI](docs/STAGED_DELIVERY_PLAN.md)
+- [三階段交付：最新已調整為先森林手帳 UI](docs/STAGED_DELIVERY_PLAN.md)
 - [新 API34 ARM64／Linux 隔離研究](docs/API34_ARM_LINUX_RESEARCH.md)
 - [API34 AOSP ARM64／Linux 原始 ramdisk 分層研究](docs/API34_AOSP_ARM_LINUX_RESEARCH.md)
 - [UI／UX 改版提案與擴充結構](docs/UI_UX_REDESIGN.md)（設計階段，尚未套入 APK）

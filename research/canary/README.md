@@ -1,9 +1,10 @@
 # Isolated NativeBridge canary (not a product backend)
 
 New carrier0.0.11 uses the shared unsigned-candidate dispatcher with explicit
-API31/34 flags. Its own fresh-boot normal/timeout/new-process evidence remains
-pending; the earlier carrier0.0.10 direct-adapter result below is retained as
-that batch's evidence. See [candidate-source integration](../../docs/API34_PRODUCT_INTEGRATION.md).
+API31/34 flags. Its own fresh-boot normal/timeout/new-process evidence is now
+recorded independently; the earlier carrier0.0.10 direct-adapter result below
+remains that batch's evidence. No game qualification follows. See
+[candidate-source integration](../../docs/API34_PRODUCT_INTEGRATION.md).
 
 The separate API34 experiment now has a four-argument adapter, exact SDK/bridge
 admission, self-only PM runner and explicit ordinary-App research scope.
