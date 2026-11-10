@@ -1,5 +1,11 @@
 # 驗證分層
 
+## 2026-11-10：0.5.1探險字型回歸，另建0.5.2驗收
+
+新index5／API35／x64-libnb／精確156.1，0.5.1/code16正常App完成單次載入。庫存最長三週年杯子蛋糕金苗已完整顯示，真正離屏返回仍完整；探險短名卻縮小並截斷，重開列表仍在，判為未通過。正常App OFF後兩頁原文／大字與庫存原截斷均已還原；原25份attempt SHA不變，新第26份完整journal保留，adbd回讀UID2000。沒有把waiting-cards或庫存單頁當整組通過，見[失敗紀錄](PRODUCT051_FONT_CANDIDATE.md)。
+
+接續0.5.2/code17依runtime card class保留庫存12點下限、探險／詳細頁恢復先前75%下限，精確守門未變。既有host policy與必要完整原簽章建置通過；只在正常OFF／退出遊戲後更新新index5，PM SHA及原26份歷史不變。本版兩頁及遊戲重啟另驗，尚未通過，見[本版驗收](PRODUCT052_FONT_QUALIFICATION.md)。
+
 ## 2026-11-10：本人主機重開、Linux隔離CPU實跑
 
 Windows新boot實際04:58:25，WSL3.0.3／VMP已核；指定`SeedLens-TCG-Linux`以明確WSL2匯入exit0並實際Ubuntu24.04.5。官方SDK及同V2 fixture的14檔大小／SHA在Linux全數吻合。新ARM64 Linux AVD的預設TCG實際5 pass／2 SIGSEGV fail，父程序收容並繼續；單指令TB同原件實際7 pass／0 fail，兩輪正常power-off、host exit0。Linux沒有修好預設TCG的相鄰序列，CPU正例也不是Android API／App／產品通過。新index5關閉、原四台及台中未操作；完整Android及後續資格仍逐層另驗。見[本輪實跑](API31_LINUX_HOST_RESEARCH.md)。

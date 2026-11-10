@@ -121,12 +121,13 @@ bool metadata() {
         &&data_class&&item_class&&raw_class&&seed_getter&&key_getter&&name_getter&&treasure_getter&&font_getter&&font_setter;
     phase.store(metadata_ok?"ready":"metadata-mismatch");return metadata_ok;
 }
-struct Binding {void *title{},*type{},*provider{};int colour{},seed_type{},treasure{};uint64_t signature{};std::u16string id;};
+struct Binding {void *title{},*type{},*provider{};int colour{},seed_type{},treasure{};uint64_t signature{};std::u16string id;bool inventory{};};
 Binding binding(void *card) {
     Binding b;
     if(!card||!read<void*>(card,0x10))return b;
     void *seed=nullptr,*variation=nullptr;
     if(is(card,card_class)) {
+        b.inventory=true;
         b.title=read<void*>(card,0x40);
         // Incoming data, not the recycled card's previous contents, is authoritative.
         auto data=card==updating_card?updating_data:read<void*>(card,0x108);
@@ -202,7 +203,7 @@ void apply(Record &r,const Binding &b,const std::u16string &source,void *method,
             const int size=boxed?*static_cast<int*>(unbox(boxed)):0;
             r.font.capture(read<bool>(b.title,0x148),read<int>(b.title,0x14c),read<int>(b.title,0x150),size);
         }
-        if(r.font.saved) {write_ui(b.title,0x148,true);write_ui(b.title,0x14c,minimum_font_size(r.font.size));write_ui(b.title,0x150,r.font.size);}
+        if(r.font.saved) {write_ui(b.title,0x148,true);write_ui(b.title,0x14c,minimum_font_size(r.font.size,b.inventory));write_ui(b.title,0x150,r.font.size);}
     } else font_restore(r,b.title);
     r.source=source;r.last=display;r.id=b.id;r.method=method;r.has_source=true;
     in_setter=true;original_text.load()(b.title,managed,method);in_setter=false;
