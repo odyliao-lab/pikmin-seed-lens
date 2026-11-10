@@ -1,5 +1,13 @@
 # 驗證分層
 
+## 2026-11-11：森林手帳原生UI分項
+
+原簽章新0.6.5/code23僅在授權index5／API35隔離機實測；圖片Windows封裝反斜線問題
+已以flat asset及raw ZIP拒絕檢查修正，舊0.6.0–0.6.3失敗原件保留。淺深色、橫向、
+320dp／大字、原頁開關確認、取消／分頁／離開清除與鍵盤已有分項證據；TalkBack、
+完整busy／UNKNOWN呈現及本版遊戲回歸仍分開待驗。38筆舊歷史SHA已再核一致，
+Android12／14／九組矩陣未因此通過，詳見[本輪UI驗收](FOREST_UI_QUALIFICATION.md)。
+
 ## 2026-11-11：共用候選dispatcher實跑及UI優先順序
 
 API34新boot57c7678f…b0e2／server526/start1526兩次完整讀值相隔68.445754秒，正常

@@ -11,6 +11,10 @@
 及精確遊戲守門。每階段commit／push私人分支、原簽章與新version/code要求不變。
 以下原API34→API31→UI順序是先前歷史，各階段驗收門檻仍全部適用。
 
+森林手帳已實作至原簽章0.6.5/code23，原生版面／直接開關有分項實測，完整產品回歸
+進行中。圖片封裝修正與所有未通過項目見[UI驗收](FOREST_UI_QUALIFICATION.md)，不因來源
+已commit而標記整階段完成。
+
 2026-11-10 使用者確認依此順序持續推進，每階段分別 commit／push 私人功能分支。
 工作分支 `codex/zhubei-android12-compat`；起點 `8b0624016c8d0d4f6446295f078b7d9cac54fdee`，
 remote 為 `https://github.com/odyliao-lab/pikmin-seed-lens.git`，起點工作區乾淨、遞迴 pins 正確。

@@ -14,13 +14,13 @@ final class OfflineArtwork {
         // issue. Native assets and their security checks use their own paths.
         try (InputStream in = context.getAssets().open("forest-lens-mascot-v1.png")) {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                byte[] buffer = new byte[16384];
-                int count;
-                while ((count = in.read(buffer)) != -1) {
-                    if (bytes.size() + count > 4 * 1024 * 1024)
-                        throw new IOException("Oversized offline illustration");
-                    bytes.write(buffer, 0, count);
-                }
+            byte[] buffer = new byte[16384];
+            int count;
+            while ((count = in.read(buffer)) != -1) {
+                if (bytes.size() + count > 4 * 1024 * 1024)
+                    throw new IOException("Oversized offline illustration");
+                bytes.write(buffer, 0, count);
+            }
             byte[] png = bytes.toByteArray();
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inSampleSize = 2;
