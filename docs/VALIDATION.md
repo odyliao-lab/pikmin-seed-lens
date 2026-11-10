@@ -1,5 +1,16 @@
 # 驗證分層
 
+## 2026-11-11：API35同0.0.3的獨立控制完成
+
+原新index5正常單次啟動，新boot803b1862…547c／API35／libnb／原Permissive／UID2000，
+同server807/start585及兩次當前服務／display讀值相隔85.922秒。相同lab 0.0.3在普通App
+UID10062實讀ELF62；無效模式在native前拒絕，baseline與WFE單獨返回；刻意alarm的自身
+PID3138另由Zygote確認signal14，parser僅1/2仍不自稱timeout通過。十份舊研究收據、
+38份attempt、產品0.5.2與精確157完整SHA逐次保留，Game／Lens未啟動、控制OFF；無
+新增Root provider／模組／產品依賴。正常shutdown後CLI實讀雙false，SDK guest／埠
+亦不在。三平台WFE／alarm對照現已各自執行，九組產品與UI三階段仍未完成。
+見[結果與比較](ARM_SIGNAL_CONTEXT_RESEARCH.md)。
+
 ## 2026-11-11：API34獨立WFE與實際alarm退出控制
 
 API31正常關閉後，在既有API34 x64新boot62dc3e1a…d3fb、同server546/start2030的兩次

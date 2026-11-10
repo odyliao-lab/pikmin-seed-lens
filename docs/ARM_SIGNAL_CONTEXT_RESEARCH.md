@@ -210,3 +210,36 @@ Android12、build SE1A.220826.008／incremental10564458，SHA67a0723b…46d。
 這項證據只釐清catalog／package revision與archive內部properties的差異，不是整個遠端
 archive digest或所有映像byte相同的驗證；不能把source.properties的12當成另有較新
 translator的證據，也不能把revision14當SEVL／WFE或產品相容通過。
+
+## API35／0.0.3獨立WFE與alarm控制（2026-11-11）
+
+前輪SDK guest正常關閉後，重核無SDK emulator／5580-5583 listener、專用WSL無QEMU
+及可用RAM，才單次正常啟動原新index5（名稱與created timestamp另核）。CLI實讀端點
+127.0.0.1:16544，只連該端點、未重啟ADB server。新boot
+803b1862-af66-41e0-a372-59bf3dba547c／API35／x86_64／libnb／原Permissive／UID2000；
+同server807/start585／UID1000及當前Power／Window／內建display ON／committed ON，
+相隔85.922秒另核。API35 dump使用FLAG_ALLOWED_TO_BE_DEFAULT_DISPLAY；首個依舊flag
+過濾的唯讀拒絕保留，修正實際欄位後才繼續，未重啟guest或改產品守門。
+
+同0.0.3 APK／SHA54265523…b886正常升級0.0.2，普通App UID10062／自身ELF62。原十份
+自有0.0.2收據、38份產品／研究attempt逐份SHA、產品0.5.2及精確157完整原件逐次不變；
+控制OFF、Game／Lens未啟動，不清資料、不複製登入或憑證，各案例只發一次。
+
+| 自有案例 | API35實際結果 |
+|---|---|
+| wfe-invalid | 在收據／native前拒絕，無新檔 |
+| baseline，2750 | 共同setup正常1/2/4返回，Java RETURNED／instrumentation-1 |
+| 獨立WFE，2944 | 自有指令正常1/2/4返回，Java RETURNED／instrumentation-1，非完整事件語意或signal context資格 |
+| alarm，3138 | 刻意等待instrumentation3.828秒；native僅1/2、parser仍armed-unconfirmed，另由Zygote確認自身signal14終止 |
+
+沒有PC／context／bridge／產品變更或Game handler。最後同boot／server、UID2000／原
+Permissive、Game／probe不在、38份歷史不變且控制OFF；指定index5正常shutdown一次後，
+另核CLI Android／process兩者false，SDK guest與埠亦不在。原四台及台中不操作。
+
+| 相同0.0.3指令／控制 | API31／libndk_translation | API34／libndk_translation | API35／libnb |
+|---|---|---|---|
+| 獨立WFE | fault、exit86，context未證實 | fault、exit86，context未證實 | 自有指令返回 |
+| 刻意alarm | 另核自身signal14 | 另核自身signal14 | 另核自身signal14 |
+
+這是三平台各自的普通App研究分項，不是原生ARM64、完整context或遊戲啟動修復資格；
+沒有新增消費者依賴或產品九組通過結論。

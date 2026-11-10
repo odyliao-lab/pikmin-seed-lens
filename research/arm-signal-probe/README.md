@@ -144,3 +144,11 @@ fault with own Zygote exit86, and separately verified the intentional alarm
 case's own signal14 termination. The original 0.0.2 receipts and game bytes
 were retained, product remained absent, and no context or bridge was changed.
 These are independent API34 results; API35 0.0.3 is still pending.
+
+API35 subsequently completed the same 0.0.3 study on a new isolated boot:
+baseline/WFE returned, invalid mode refused before native, and the intentional
+alarm's exact own PID was independently confirmed terminated by signal14.
+All thirty-eight prior product/research journals, ten original 0.0.2 own
+receipts and product/game hashes were retained; game and product were not
+started, and the guest was normally shut down. The research page keeps all
+three platforms separate. No result grants native ARM64 or product support.
