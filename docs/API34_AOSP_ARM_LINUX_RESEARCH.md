@@ -160,3 +160,51 @@ UID2000/API34/ARM64/Enforcing checked, reported `status=speed`,
 full compiled cache exists despite the failed command response. Do not
 rewrite exit224 as successful or infer full boot from the cache. The fourth
 automatically created server2015 is the next actual boot observation.
+
+## First run closed; diagnostics and animation comparison
+
+The first run eventually logged six stock Watchdog kill announcements and
+no completed boot. The compiled PermissionController cache therefore did
+not resolve the framework problem. Two bounded stock-shell `su 0` children
+read existing ANR files only; each returned0 and the enclosing shell actually
+printed UID2000. No adbd restart, signal, permission override or Magisk setup
+was requested. A later ordinary-shell CPU read again verified the same boot,
+UID2000 and Enforcing. This is diagnostic privilege, **not App su-M proof**.
+
+One actual PermissionController1827 ANR, header time local18:07:39, captured
+main/sysTid1827 Runnable during ContentProvider/class initialization; Binder
+pool threads were then waiting normally. It predates completion of AOT and
+does not prove a permanent deadlock or explain the later post-cache failure.
+The CPU sample showed ongoing bootanimation/SurfaceFlinger/composer load,
+with about1.9GiB guest free RAM. The sampling `top` process itself consumed
+CPU; these snapshots are not an isolated performance benchmark.
+
+Final metadata/sync at UTC10:34:01 again read UID2000/Enforcing/API34/ARM64,
+the original boot/fingerprint and empty boot flag. Console normal-close0,
+actual inferior/gdb0 at10:34:02.659, no timeout/containment; approximately
+56m48s observed. A23-file cold backup matched all file sizes/hashes, and
+the four original SDK image hashes matched. No owner ever logged into this
+AVD. Backup cache pressure left Windows1.09GiB physical free; after verifying
+no QEMU and sync, only the dedicated WSL distro was terminated to reclaim it.
+
+The exact new index5 identity was freshly checked closed; Windows15.92GiB
+free, no Windows QEMU or occupied target ports, Linux target/resource/image
+checks passed before another run. SDK37.2.13's actual help documents
+`-no-boot-anim`. The new run UTC10:41:17.027–10:49:57.167 used the retained
+data and the same original AOSP ramdisk/1080×1920/420dpi/2vCPU/4GiB/helpers.
+Argument comparison found only that flag, apart from the unique log path.
+
+This run failed earlier: APEX device-mapper path waits left system libraries
+unmounted; netd lacked libnetd_updatable and zygote lacked libnativeloader,
+then repeatedly exited. ADB stayed offline, so no runtime API/ABI/property
+proof or Root/App test was obtained. Fresh host exe/start and console AVD
+identity preceded normal console-close0; actual inferior/gdb0, no external
+timeout/containment. Do not infer that animation caused the APEX failure or
+that its effect on later framework latency was tested.
+
+The next [AOSP-specific worker1 candidate](../research/api34-apex-single-ramdisk.md)
+has separate original-input and artifact hashes, explicit scope, real refusal
+controls and independent official-tool decoding. It retains all verification,
+self-tests, security and time bounds. Prepared host bytes are not an applied
+property or boot success. Product0.5.2 and all nine qualification rows remain
+unchanged.

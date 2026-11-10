@@ -13,6 +13,7 @@ from pathlib import Path
 import struct
 
 SDK_SHA256 = '5c4a40a87ea671396a683a30fde67a3e51c63a21d332a9c5a18ecf20c53e6185'
+AOSP_SDK_SHA256 = '91d2259c141607b5fda903afa4d0a6912389753f40e24015aed74db19fd6bd6c'
 MAGIC = bytes.fromhex('02214c18')
 NAME = 'system/etc/ramdisk/build.prop'
 PROPERTY = b'apexd.config.boot_activation.threads=1\n'
@@ -103,13 +104,14 @@ def encode_entry(name, fields, content):
     return bytes(result)
 
 
-def build(source, output):
+def build(source, output, *, aosp_research=False):
     source, output = source.resolve(strict=True), output.resolve()
     if output.is_relative_to(source.parent) or output.exists():
         raise ValueError('new output outside SDK image directory required')
     original = source.read_bytes()
-    if hashlib.sha256(original).hexdigest() != SDK_SHA256 or not original.startswith(MAGIC):
-        raise ValueError('official API34 ARM64 rev14 ramdisk pin mismatch')
+    expected_sha = AOSP_SDK_SHA256 if aosp_research else SDK_SHA256
+    if hashlib.sha256(original).hexdigest() != expected_sha or not original.startswith(MAGIC):
+        raise ValueError('explicit official API34 ARM64 image-family pin mismatch')
     lib = lz4_library()
     before = cpio_entries(decode_frames(original, lib))
     fields, content = before[NAME]
@@ -139,7 +141,8 @@ def build(source, output):
     output.parent.mkdir(parents=True, exist_ok=True)
     with output.open('xb') as stream:
         stream.write(result)
-    record = {'sdkRamdiskSha256': SDK_SHA256, 'privateRamdiskSha256': hashlib.sha256(result).hexdigest(),
+    record = {'sdkRamdiskSha256': expected_sha, 'privateRamdiskSha256': hashlib.sha256(result).hexdigest(),
+              'aospHostResearch': aosp_research,
               'originalCompressedPrefixUnchanged': True, 'effectiveEntries': len(after),
               'onlyChangedEntry': NAME, 'onlyAddedProperty': PROPERTY.decode().strip(),
               'guestPropertyObserved': False, 'androidQualified': False, 'rootInstalled': False}
@@ -152,5 +155,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--sdk-ramdisk', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--aosp-research', action='store_true',
+                        help='Select only the separately authorized official AOSP ARM64 rev4 pin')
     args = parser.parse_args()
-    print(json.dumps(build(args.sdk_ramdisk, args.output)))
+    print(json.dumps(build(args.sdk_ramdisk, args.output, aosp_research=args.aosp_research)))

@@ -2,7 +2,9 @@
 
 Linux host research only; not an APK, module, stock-image claim or end-user
 dependency. Independently verify authorization and the exact disposable guest.
-Only the separately approved `SeedLens_API34_ARM64_Linux` is in scope.
+Targets are the separately approved `SeedLens_API34_ARM64_Linux` and the
+owner-approved `SeedLens_API34_AOSP_ARM64_Linux`; each keeps its own exact
+image-family pin and candidate. This does not authorize other guests.
 
 Actual guest serial evidence showed24 APEX activation failures/0 activated,
 including Conscrypt/adbd/resolv, with device-mapper creation/path waits. The
@@ -43,3 +45,29 @@ API/ABI/kernel/SELinux and boot state before claiming it applied. A successful
 host build or valid archive alone is no boot, App, Root, JNI or game evidence.
 The comparison retains the existing dm wait, verification, Watchdog and
 product15s/2s budgets. No product/NativeBridge admission is modified.
+
+## Separately pinned AOSP rev4 candidate
+
+The later AOSP original-ramdisk/no-animation boot reproduced device-mapper
+path waits; netd and zygote then lacked their unmounted APEX libraries. ADB
+never became ready. That early failure prevents evaluating the animation
+change's effect on the later PermissionController/Watchdog problem.
+
+`--aosp-research` selects only original AOSP ARM64 rev4 ramdisk SHA256
+`91d2259c141607b5fda903afa4d0a6912389753f40e24015aed74db19fd6bd6c`.
+The default continues to select the original Google-APIs rev14 pin; neither
+flag accepts the other family's input. There is no caller-supplied hash or
+arbitrary property. Actual wrong-family/unscoped, SDK-directory-output and
+existing-output invocations refused. The default Google candidate rebuilt
+byte-identically to the earlier `ccba894e…3e072` artifact.
+
+The new AOSP-only candidate SHA256 is
+`7b5da5b6c43f3f53c11fcff19de299540b0ea502f2b98f2435b271232cde31d4`.
+The same entry/metadata/prefix checks passed. Independently, official31.1
+standalone magiskboot decoded it and reproduced both original init bytes
+and the original build.prop plus exactly the one worker property. This is
+host-only validation, not Magisk installation or actual property/boot proof.
+
+Use the separately pinned AOSP launch/proof guards, retain2vCPU/4GiB and
+1080×1920/420dpi, and verify runtime behavior. No other module, Root provider,
+permission-state bypass, API/fingerprint, clock or Watchdog change is included.
