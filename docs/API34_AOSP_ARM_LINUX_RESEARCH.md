@@ -52,7 +52,36 @@ power-off, actual inferior exit0 and gdb exit0, no timeout/containment.
 
 GLAsyncSwap/stop/protected-range-unmap SDK warnings remain in private logs.
 This uses a custom CPU initramfs, not Android framework, App or game success.
-The next Android run must initially use the original AOSP ramdisk, and verify
+The subsequent Android run must initially use the original AOSP ramdisk, and verify
 actual API34/ARM64/Enforcing, full boot, PM/AM/display and stability before
 Magisk or App tests. AOSP has no Google services; game login is a separate
 unproven gate. All three delivery stages and all API34 game rows remain open.
+
+## Independent full Android boot: in progress
+
+UTC09:37:14.662 started the new AOSP AVD's first full Android boot. Its10800s
+host bound was selected before launch, with a separate normal-close timer;
+there is no live deadline extension. The original AOSP ramdisk is used:
+**no APEX worker override, Magisk or other private ramdisk**. Both early and
+APEX BoringSSL self-tests actually returned0, and32 APEX packages mounted.
+
+The first ordinary-shell read returned actual UID2000/Enforcing/API34,
+ARM64-only/aarch64/NativeBridge0 and fresh boot identity. Official runtime
+fingerprint is
+`Android/sdk_phone64_arm64/emu64a:14/UE1A.230829.036.A1/11228894:userdebug/test-keys`.
+The whole read exited1 because its final `pidof system_server` was still
+empty; do not call that command a complete successful platform proof.
+System_server535 later entered normally. PackageManager reconciled179 app
+data packages, then began first-boot dexopt at UTC09:46:01. A preceding
+Watchdog WAITED_HALF warning did not yet become a kill; stock Android itself
+paused its main checker for dexopt. The research code did not change Watchdog.
+
+Full boot still requires flag1 plus two fresh same-boot/fingerprint/server
+PM/AM reads and actual visual display review. Conditional proof/capture tools
+are waiting on these real results; they do not start Root, App or game work.
+No platform or product row is promoted while first-boot compilation runs.
+
+Official31.1 standalone magiskboot also decoded this original AOSP ramdisk
+on the host and reproduced its build.prop bytes, with the input hash
+unchanged and no APEX worker property. This was read-only host preparation:
+no patch, guest file push, Root transition or provider installation occurred.

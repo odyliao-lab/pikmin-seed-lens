@@ -1,5 +1,11 @@
 # 驗收目標：Android12／14／15 × 遊戲156／156.1／157
 
+最新另獲准的 API34 **AOSP** ARM64／Linux 新 AVD 已完成官方 intake、獨立 CPU7/7 與
+NULL／回收控制；原始 ramdisk 的完整 Android 已實讀 API34／ARM64／Enforcing，完成32個
+APEX並進入首次dexopt，仍無完整boot／畫面／普通App Root／JNI／遊戲資格。這是API34
+研究環境，不能代替API31或API35；下方九組未通過狀態不變。見
+[AOSP實測界線](API34_AOSP_ARM_LINUX_RESEARCH.md)。
+
 使用者現指定依序完成API34、API31，再實作已選定的森林手帳UI，各階段分別commit／push，見[交付計畫](STAGED_DELIVERY_PLAN.md)。本輪已另授權新API34 ARM/Linux目標，官方映像與CPU對照完成部分證據，仍無Android完整開機或產品資格，見[獨立研究](API34_ARM_LINUX_RESEARCH.md)；下列產品／九組未通過狀態不變。
 
 API34 ARM/Linux其後已實讀API34／ARM64-only／Enforcing，私人單worker ramdisk完成APEX掛載及Conscrypt self-test；system_server出現仍無boot完成。原廠adbd Root診斷後實際恢復UID2000，未安裝Magisk／App，獨立一小時觀察另記。這些平台部分進展不改下方任何產品組合的未通過狀態。
