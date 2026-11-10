@@ -29,7 +29,9 @@
 #if defined(SEEDLENS_API34_AOSP_HOST_RESEARCH)
 #define TEST_VALID_AVD "SeedLens_API34_AOSP_ARM64_Linux"
 #define TEST_VALID_PORT "5590"
-#if defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH)
+#if defined(SEEDLENS_API34_AOSP_MULTI_RESEARCH)
+#define TEST_EXPECTED_MARKER "seedlens-api34-aosp-tcg-multi-mapper-v1"
+#elif defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH)
 #define TEST_EXPECTED_MARKER "seedlens-api34-aosp-tcg-onecore-mapper-v1"
 #else
 #define TEST_EXPECTED_MARKER "seedlens-api34-aosp-tcg-single-mapper-v1"
@@ -42,6 +44,18 @@
 #else
 #define TEST_EXPECTED_MARKER "seedlens-api34-tcg-mapper-selection-v1"
 #endif
+#endif
+
+#if defined(SEEDLENS_API34_AOSP_MULTI_RESEARCH)
+#define TEST_TCG_MODE "tcg,thread=multi"
+#define TEST_INVALID_TCG_MODE "tcg,thread=single"
+#define TEST_CORES "2"
+#define TEST_WRONG_CORES "1"
+#else
+#define TEST_TCG_MODE "tcg,thread=single"
+#define TEST_INVALID_TCG_MODE "tcg,thread=multi"
+#define TEST_CORES "1"
+#define TEST_WRONG_CORES "2"
 #endif
 
 static const char *fixture_marker = TEST_EXPECTED_MARKER;
@@ -104,14 +118,14 @@ static int run_case(const char *name, const char *const *argv, int expected) {
 int main(void) {
     const char *valid[] = {"qemu", "-avd", TEST_VALID_AVD,
                            "-port", TEST_VALID_PORT, "-no-accel",
-#if defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH)
-                           "-cores", "1",
+#if defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH) || defined(SEEDLENS_API34_AOSP_MULTI_RESEARCH)
+                           "-cores", TEST_CORES,
 #endif
-#if defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH)
-                           "-qemu", "-accel", "tcg,thread=single",
+#if defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH) || defined(SEEDLENS_API34_AOSP_MULTI_RESEARCH)
+                           "-qemu", "-accel", TEST_TCG_MODE,
 #endif
-#if defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH)
-                           "-smp", "1",
+#if defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH) || defined(SEEDLENS_API34_AOSP_MULTI_RESEARCH)
+                           "-smp", TEST_CORES,
 #endif
                            NULL};
     int failed = run_case("exact-new-target", valid, 0);
@@ -139,11 +153,11 @@ int main(void) {
     failed += run_case("conflicting-accelerator-refused", conflicting_accel, 1);
     const char *enable_kvm[] = {"qemu", "-avd", TEST_VALID_AVD, "-port", TEST_VALID_PORT, "-no-accel", "-enable-kvm", NULL};
     failed += run_case("enable-kvm-refused", enable_kvm, 1);
-#if defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH)
+#if defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH) || defined(SEEDLENS_API34_AOSP_MULTI_RESEARCH)
     fixture_marker = "seedlens-api34-tcg-mapper-selection-v1";
     failed += run_case("default-api34-marker-refused", valid, 1);
     fixture_marker = TEST_EXPECTED_MARKER;
-    const char *modes[] = {"tcg,thread=multi", "tcg", "off", "kvm", "tcg,thread=single,invalid=1"};
+    const char *modes[] = {TEST_INVALID_TCG_MODE, "tcg", "off", "kvm", "tcg,thread=single,invalid=1"};
     for (unsigned int index=0; index<sizeof(modes)/sizeof(modes[0]); ++index) {
         const char *wrong_mode[] = {"qemu", "-avd", TEST_VALID_AVD, "-port", TEST_VALID_PORT, "-no-accel", "-qemu", "-accel", modes[index], NULL};
         failed += run_case("non-exact-scheduling-refused", wrong_mode, 1);
@@ -164,7 +178,7 @@ int main(void) {
     failed += run_case("google-api-avd-refused", google_avd, 1);
     const char *google_port[] = {"qemu", "-avd", TEST_VALID_AVD, "-port", "5588", "-no-accel", "-qemu", "-accel", "tcg,thread=single", NULL};
     failed += run_case("google-api-port-refused", google_port, 1);
-#if defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH)
+#if defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH) || defined(SEEDLENS_API34_AOSP_MULTI_RESEARCH)
     fixture_marker = "seedlens-api34-aosp-tcg-single-mapper-v1";
     failed += run_case("two-core-aosp-marker-refused", valid, 1);
     fixture_marker = TEST_EXPECTED_MARKER;
@@ -180,20 +194,42 @@ int main(void) {
         if (scenario==0 || scenario==2) {
             size_t at=scenario==0?front:back;
             memmove(copy+at,copy+at+2,(count-at-1)*sizeof(*copy));
-        } else if (scenario==1) copy[front+1]="2";
-        else if (scenario==3) copy[back+1]="2";
+        } else if (scenario==1) copy[front+1]=TEST_WRONG_CORES;
+        else if (scenario==3) copy[back+1]=TEST_WRONG_CORES;
         else if (scenario==4) copy[back+1]="1,cores=2";
         else if (scenario==5 || scenario==6) {
             copy[count++]=scenario==5?"-cores":"-smp";
-            copy[count++]="1"; copy[count]=NULL;
+            copy[count++]=TEST_CORES; copy[count]=NULL;
         } else {
             copy[front]="-ignored";
-            copy[count++]="-cores";copy[count++]="1";copy[count]=NULL;
+            copy[count++]="-cores";copy[count++]=TEST_CORES;copy[count]=NULL;
         }
         failed += run_case("ambiguous-wrong-or-missing-core-count-refused",copy,1);
     }
 #endif
 #endif
+#endif
+#if defined(SEEDLENS_API34_AOSP_MULTI_RESEARCH)
+    /* Preserve valid CPU counts while varying scheduling, so refusal cannot
+       accidentally be explained by an unrelated missing-count predicate. */
+    const char *bad_modes[] = {"tcg,thread=single", "tcg", "off", "kvm", "tcg,thread=multi,invalid=1"};
+    for (size_t i=0; i<sizeof(bad_modes)/sizeof(bad_modes[0]); ++i) {
+        const char *copy[32]; size_t n=0;
+        while (valid[n]) { copy[n]=valid[n]; ++n; } copy[n]=NULL;
+        for (size_t j=0; j<n; ++j) if (!strcmp(copy[j],"-accel")) copy[j+1]=bad_modes[i];
+        failed += run_case("wrong-scheduling-with-valid-cpu-counts",copy,1);
+    }
+    fixture_marker="seedlens-api34-aosp-tcg-onecore-mapper-v1";
+    failed += run_case("onecore-marker-refused",valid,1);
+    fixture_marker=TEST_EXPECTED_MARKER;
+    for (unsigned i=0;i<2;++i) {
+        const char *copy[32];size_t n=0;
+        while(valid[n]){copy[n]=valid[n];++n;}
+        copy[n++]=i?"-accel":"-qemu";
+        if(i)copy[n++]=TEST_TCG_MODE;
+        copy[n]=NULL;
+        failed += run_case("duplicate-backend-with-valid-cpu-counts",copy,1);
+    }
 #endif
     const pid_t child = fork();
     if (child == 0) { fixture_has_original = 0; seedlens_software_cpu(); _Exit(99); }
@@ -202,7 +238,9 @@ int main(void) {
         !WIFEXITED(status) || WEXITSTATUS(status) != 86) ++failed;
     else puts("HOST_GUARD_PASS missing-original-exit86");
     printf("HOST_GUARD_SUMMARY cases=%d failed=%d android_qualification=0\n",
-#if defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH)
+#if defined(SEEDLENS_API34_AOSP_MULTI_RESEARCH)
+           43,
+#elif defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH)
            35,
 #elif defined(SEEDLENS_API34_AOSP_HOST_RESEARCH)
            26,

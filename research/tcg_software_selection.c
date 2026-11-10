@@ -11,8 +11,11 @@ _Static_assert(sizeof(void *) == 8 && sizeof(long) == 8, "Linux x64 ABI required
 #if defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH) && !defined(SEEDLENS_API34_HOST_RESEARCH)
 #error Single-thread scheduling research requires the separate API34 host target.
 #endif
-#if defined(SEEDLENS_API34_AOSP_HOST_RESEARCH) && !(defined(SEEDLENS_API34_HOST_RESEARCH) && defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH))
+#if defined(SEEDLENS_API34_AOSP_HOST_RESEARCH) && !(defined(SEEDLENS_API34_HOST_RESEARCH) && (defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH) || defined(SEEDLENS_API34_AOSP_MULTI_RESEARCH)))
 #error AOSP target requires separate API34 single-thread host research.
+#endif
+#if defined(SEEDLENS_API34_AOSP_MULTI_RESEARCH) && (!defined(SEEDLENS_API34_HOST_RESEARCH) || !defined(SEEDLENS_API34_AOSP_HOST_RESEARCH) || defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH) || defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH))
+#error Multi-thread research requires separate API34 AOSP scope and refuses single-thread or one-core scope.
 #endif
 #if defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH) && !defined(SEEDLENS_API34_AOSP_HOST_RESEARCH)
 #error One-core research requires the separately scoped AOSP host target.
@@ -35,7 +38,9 @@ static const char expected_exe[] =
 #if defined(SEEDLENS_API34_AOSP_HOST_RESEARCH)
 static const char expected_avd[] = "SeedLens_API34_AOSP_ARM64_Linux";
 static const char expected_port[] = "5590";
-#if defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH)
+#if defined(SEEDLENS_API34_AOSP_MULTI_RESEARCH)
+static const char marker[] = "seedlens-api34-aosp-tcg-multi-mapper-v1";
+#elif defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH)
 static const char marker[] = "seedlens-api34-aosp-tcg-onecore-mapper-v1";
 #else
 static const char marker[] = "seedlens-api34-aosp-tcg-single-mapper-v1";
@@ -76,9 +81,9 @@ static int approved_software_target(void) {
     int avd = 0, software = 0;
 #if defined(SEEDLENS_API34_HOST_RESEARCH)
     int port = 0, avd_options = 0, port_options = 0, software_options = 0;
-#if defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH)
+#if defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH) || defined(SEEDLENS_API34_AOSP_MULTI_RESEARCH)
     int qemu_options = 0, accel_options = 0, single = 0;
-#if defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH)
+#if defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH) || defined(SEEDLENS_API34_AOSP_MULTI_RESEARCH)
     int cores_options = 0, smp_options = 0, frontend_one = 0, backend_one = 0;
 #endif
 #endif
@@ -90,10 +95,10 @@ static int approved_software_target(void) {
         if (equal(argument, "-avd")) ++avd_options;
         if (equal(argument, "-port")) ++port_options;
         if (equal(argument, "-no-accel")) ++software_options;
-#if defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH)
+#if defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH) || defined(SEEDLENS_API34_AOSP_MULTI_RESEARCH)
         if (equal(argument, "-enable-kvm")) return 0;
         if (equal(argument, "-qemu")) ++qemu_options;
-#if defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH)
+#if defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH) || defined(SEEDLENS_API34_AOSP_MULTI_RESEARCH)
         if (equal(argument, "-cores")) {
             if (qemu_options) return 0;
             ++cores_options;
@@ -103,11 +108,19 @@ static int approved_software_target(void) {
             ++smp_options;
         }
         if (equal(prior, "-cores")) {
+#if defined(SEEDLENS_API34_AOSP_MULTI_RESEARCH)
+            if (!equal(argument, "2")) return 0;
+#else
             if (!equal(argument, "1")) return 0;
+#endif
             frontend_one = 1;
         }
         if (equal(prior, "-smp")) {
+#if defined(SEEDLENS_API34_AOSP_MULTI_RESEARCH)
+            if (!equal(argument, "2")) return 0;
+#else
             if (!equal(argument, "1")) return 0;
+#endif
             backend_one = 1;
         }
 #endif
@@ -116,7 +129,11 @@ static int approved_software_target(void) {
             if (!equal(prior, "-qemu") || qemu_options != 1) return 0;
         }
         if (equal(prior, "-accel")) {
+#if defined(SEEDLENS_API34_AOSP_MULTI_RESEARCH)
+            if (!equal(argument, "tcg,thread=multi")) return 0;
+#else
             if (!equal(argument, "tcg,thread=single")) return 0;
+#endif
             single = 1;
         }
 #else
@@ -133,9 +150,9 @@ static int approved_software_target(void) {
         ++offset;
     }
 #if defined(SEEDLENS_API34_HOST_RESEARCH)
-#if defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH)
+#if defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH) || defined(SEEDLENS_API34_AOSP_MULTI_RESEARCH)
     if (qemu_options != 1 || accel_options != 1 || !single) return 0;
-#if defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH)
+#if defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH) || defined(SEEDLENS_API34_AOSP_MULTI_RESEARCH)
     if (cores_options != 1 || smp_options != 1 || !frontend_one || !backend_one) return 0;
 #endif
 #endif
@@ -168,7 +185,9 @@ int seedlens_software_cpu(void) {
         static const char notice[] =
 #if defined(SEEDLENS_API34_HOST_RESEARCH)
 #if defined(SEEDLENS_API34_AOSP_HOST_RESEARCH)
-#if defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH)
+#if defined(SEEDLENS_API34_AOSP_MULTI_RESEARCH)
+            "SEED_TCG_API34_AOSP_MULTI_SOFTWARE_SELECTION_V1 qualified_host=0 android_qualification=0\n";
+#elif defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH)
             "SEED_TCG_API34_AOSP_ONECORE_SOFTWARE_SELECTION_V1 qualified_host=0 android_qualification=0\n";
 #else
             "SEED_TCG_API34_AOSP_SINGLE_SOFTWARE_SELECTION_V1 qualified_host=0 android_qualification=0\n";

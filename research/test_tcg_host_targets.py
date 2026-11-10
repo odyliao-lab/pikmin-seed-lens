@@ -120,5 +120,34 @@ class HostTargetTests(unittest.TestCase):
         with self.assertRaises(ValueError):validate_target_argv(misplaced,target)
 
 
+    def test_aosp_multi_requires_exact_two_cores_and_backend_mode(self):
+        target=select_target('seedlens-api34-aosp-tcg-multi-vector-v1')
+        valid=self.args(target)+[b'-cores',b'2',b'-qemu',b'-accel',b'tcg,thread=multi',b'-smp',b'2']
+        validate_target_argv(valid,target)
+        for option,values in [(b'-cores',[b'0',b'1',b'3',b'2,cores=1']),
+                              (b'-smp',[b'0',b'1',b'3',b'2,cores=1']),
+                              (b'-accel',[b'tcg',b'tcg,thread=single',b'kvm',b'off',b'tcg,thread=multi,invalid=1'])]:
+            for value in values:
+                argv=list(valid);argv[argv.index(option)+1]=value
+                with self.subTest(option=option,value=value),self.assertRaises(ValueError):validate_target_argv(argv,target)
+            argv=list(valid);at=argv.index(option);del argv[at:at+2]
+            with self.assertRaises(ValueError):validate_target_argv(argv,target)
+            with self.assertRaises(ValueError):validate_target_argv(valid+[option,b'2'],target)
+        for argv in [valid+[b'-qemu'],valid+[b'-enable-kvm'],self.args(target)+[b'-smp',b'2',b'-qemu',b'-accel',b'tcg,thread=multi',b'-cores',b'2']]:
+            with self.assertRaises(ValueError):validate_target_argv(argv,target)
+
+    def test_aosp_multi_never_reuses_single_or_other_target_scope(self):
+        target=select_target('seedlens-api34-aosp-tcg-multi-vector-v1')
+        valid=self.args(target)+[b'-cores',b'2',b'-qemu',b'-accel',b'tcg,thread=multi',b'-smp',b'2']
+        for marker in ['seedlens-api34-aosp-tcg-single-vector-v1','seedlens-api34-aosp-tcg-onecore-vector-v1','seedlens-api34-tcg-vector-save-v1','seedlens-api34-tcg-single-vector-v1']:
+            other=select_target(marker)
+            self.assertNotEqual(target.mapper,other.mapper)
+            self.assertNotEqual(target.mapper_sha256,other.mapper_sha256)
+            with self.assertRaises(ValueError):validate_target_argv(valid,other)
+        for option,value in [(b'-avd',b'SeedLens_API34_ARM64_Linux'),(b'-port',b'5588')]:
+            argv=list(valid);argv[argv.index(option)+1]=value
+            with self.assertRaises(ValueError):validate_target_argv(argv,target)
+
+
 if __name__=='__main__':
     unittest.main()

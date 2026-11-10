@@ -8,6 +8,24 @@ CPU數守門通過C35、Python11及真GDB拒絕，原四種helper重建SHA相同
 NULL／reap控制與真exit0，kernel確認1CPU。完整Android另輪驗證，不轉記Root／JNI／遊戲
 成功，見[對照來源與界線](../research/tcg-one-core.md)。產品0.5.2／守門未變。
 
+同單核心輪保留四次stock Watchdog與早期network失敗；兩個原廠網路套件各自一次背景ART
+編譯與獨立speed回讀完成後，後續server4779在UTC12:13:30／12:15:32通過同boot／同PID/start
+的當前Power／Window／PM／AM完整核對，並實際擷取Launcher畫面。桌面互動及後續普通App
+Root／JNI／遊戲仍分開驗證，不能把開機證據升格成產品相容。另有雙核心多執行緒研究的
+[獨立守門與host測試](../research/tcg-aosp-multi-thread.md)，尚未執行該CPU／Android配置；
+保留目前單核心guest繼續互動核對，不因準備另一配置而中斷正在進展的開機輪。
+
+後續互動前的身分核對發現4779已消失，因此在任何Settings啟動／input前停止。獨立錯誤log
+實記UTC12:16:35同server的Lost network stack fatal，不能把先前兩次開機讀值算成穩定桌面。
+12:19:05新鮮核對server6279／UID1000與原4779不存在後，舊proof原bytes保留為歷史、撤回
+部署gate；沒有建立桌面互動通過紀錄、未跑native／Magisk／App。正常關閉後真inferior/gdb0、
+無逾時或收容；四次Watchdog與兩次network fatal分開保留，不將後者誤記第五次Watchdog。
+
+在無存活QEMU／目標埠可用及原SDK四SHA核對後，同AVD冷態只恢復原核准的2vCPU，
+新的多執行緒配置實際V3c7/7、故意NULL／回收控制、kernel2CPU及真inferior/gdb0均通過。
+完整Android另於UTC12:21:27以固定1800秒啟動，仍待新的boot／桌面互動及普通App後續驗收；
+不是兩核效能勝出或API34產品通過。產品APK／守門不變，原四台及台中未操作。
+
 ## 2026-11-10：API34 AOSP 新目標 CPU gate，尚無 Android／遊戲資格
 
 前輪 Google-APIs 單執行緒完整 Android 實際出現三次 stock Watchdog kill，boot flag 未完成；

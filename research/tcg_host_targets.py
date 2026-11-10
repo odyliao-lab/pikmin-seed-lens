@@ -14,6 +14,7 @@ class HostTarget:
     mapper_sha256: str
     single_thread_tcg: bool = False
     required_guest_cores: int | None = None
+    multi_thread_tcg: bool = False
 
 
 TARGETS = {
@@ -40,6 +41,11 @@ TARGETS = {
         Path('/opt/seedlens-lab/host-helper-api34-aosp-onecore-v1/libseedlens-api34-aosp-tcg-onecore-selection-v1.so'),
         '59b63525581cbde87ce018bf65483e010441379a1f126b434bc4e50038f1643f',
         True, 1),
+    'seedlens-api34-aosp-tcg-multi-vector-v1': HostTarget(
+        b'SeedLens_API34_AOSP_ARM64_Linux', b'5590',
+        Path('/opt/seedlens-lab/host-helper-api34-aosp-multi-v1/libseedlens-api34-aosp-tcg-multi-selection-v1.so'),
+        'd329efe1dd2ea9ca086105240431136bc90362ef0569f20366e94bdf825b692a',
+        required_guest_cores=2, multi_thread_tcg=True),
 }
 
 
@@ -59,12 +65,15 @@ def validate_target_argv(argv, target):
             raise ValueError('wrong target')
     if argv.count(b'-no-accel') != 1 or b'-enable-kvm' in argv:
         raise ValueError('explicit software CPU required')
-    if target.single_thread_tcg:
+    if target.single_thread_tcg or target.multi_thread_tcg:
+        if target.single_thread_tcg and target.multi_thread_tcg:
+            raise ValueError('conflicting TCG scheduling scopes')
         if argv.count(b'-qemu') != 1 or argv.count(b'-accel') != 1:
             raise ValueError('one explicit backend scheduling option required')
         at=argv.index(b'-accel')
-        if at != argv.index(b'-qemu')+1 or at+1 >= len(argv) or argv[at+1] != b'tcg,thread=single':
-            raise ValueError('exact backend-only single-thread TCG required')
+        mode=b'tcg,thread=multi' if target.multi_thread_tcg else b'tcg,thread=single'
+        if at != argv.index(b'-qemu')+1 or at+1 >= len(argv) or argv[at+1] != mode:
+            raise ValueError('exact backend-only TCG scheduling required')
     elif b'-accel' in argv:
         raise ValueError('existing targets refuse accelerator overrides')
     if target.required_guest_cores is not None:

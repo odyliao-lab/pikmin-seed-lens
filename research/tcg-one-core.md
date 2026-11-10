@@ -86,6 +86,64 @@ The single compile returned UTC11:56:03.853, exit0/Success after86.882s.
 At11:56:13.563 an independent ART dump confirmed NetworkStackNext ARM64
 `status=speed / reason=cmdline`. The subsequent Tethering dump returned224
 Broken pipe at11:56:22 during another service loss, so its cache state is
-still unknown; that failed read is retained. A new bounded reader waits for
-the package service and repeats only state queries. No compile resend or
-boot/game qualification follows from this result.
+unknown at that time; that failed read is retained. A later bounded reader
+at11:58:40 confirmed Tethering remained `verify / first-boot`, while the
+NetworkStack dump at11:58:44 remained `speed / cmdline`. The include-dependencies
+request therefore did not establish speed compilation of this provider.
+
+After a fresh exact ordinary-shell identity read, one separate request for
+the still-uncompiled Tethering package was sent at UTC11:59:30.908:
+
+```
+cmd package compile -m speed -p PRIORITY_BACKGROUND --primary-dex com.android.networkstack.tethering
+```
+
+It returned exit0/Success at12:00:29.058 after58.149s. A separate ART dump at
+12:00:31.311 confirmed the same installed APEX TetheringNext ARM64 code was
+`speed / cmdline`. This was not a resend of NetworkStack or of an uncertain
+request. No force/reset, Root, package installation or protection changes
+were used. Both original RPC/read results remain in the private evidence.
+
+The current run still has not established stable boot/home. A third stock
+Watchdog kill occurred at12:01:13 for server3195, with the annotated main
+stack in logging during system-user startup. A single stack snapshot does
+not prove logging is the root cause. The next automatic server3863 remained
+under observation. A12:05 resource sample found about2.46GiB guest RAM free,
+no guest swap use and no measured WSL CPU/memory/I/O pressure; sampling
+itself consumed guest CPU. These are diagnostic snapshots, not an isolated
+performance benchmark or product acceptance. No compile resend, Root/App
+deployment or game qualification follows from these results.
+
+Server3863 also had a stock Watchdog kill at12:06:58.965, annotated in
+wallpaper-settings serialization. These changing snapshots do not establish
+a single deadlock or an ART-cache root cause. A stock-shell su0 read-only
+child later observed the original services.odex executable mapping in the
+next server; its parent returned UID2000. This is not ordinary-App Root.
+
+The next automatic server4779/start185191/UID1000 completed both strong
+current-service checks at UTC12:13:30.525 and12:15:32.770: PowerManager boot,
+WindowManager system/display, PM/AM and unchanged before/after identity all
+passed. The full proof records the actual current boot/fingerprint. A new
+1080x1920 capture at12:16:08 displayed Launcher icons/search instead of the
+earlier black frame. Actual Settings/home interaction is being checked
+separately; no stock native suite, Magisk, App Root, JNI, game or product
+qualification is claimed from the two reads or image alone. The same live
+guest is retained. A [multi-thread comparison](tcg-aosp-multi-thread.md) was
+prepared and host-tested only, without replacing this running guest.
+
+Subsequent identity checking at12:17:08 found server4779 absent and stopped
+the interaction script **before** Settings resolution/start or any input.
+The separate error log records another `Lost network stack` fatal exception
+in4779 at12:16:35.463, followed by zygote exit. This was not a fifth Watchdog
+kill. It occurred after both network packages had independently read speed;
+that cache improvement did not establish stable networking or boot. The
+underlying network-process failure remains unproven by this side-effect log.
+
+Fresh UID2000/Enforcing/API34/ARM64/same-boot checks at12:19:05 confirmed a
+different server6279/UID1000 and absence of4779. The two-read proof's original
+bytes/hash were retained under a historical filename and its deployment
+gate retired. No display-review acceptance was created; no native suite,
+Magisk or APK ran. After sync and exact console AVD identity, normal-close0
+completed at12:19:07.119 with actual inferior/gdb0, no timeout/containment.
+Thus the image and two reads remain useful partial evidence, not stable
+home interaction or product qualification.

@@ -6,6 +6,12 @@ APEX並進入首次dexopt，仍無完整boot／畫面／普通App Root／JNI／�
 研究環境，不能代替API31或API35；下方九組未通過狀態不變。見
 [AOSP實測界線](API34_AOSP_ARM_LINUX_RESEARCH.md)。
 
+後續AOSP單核心輪曾取得同server兩次完整開機讀值與Launcher圖，但互動前server再因
+network-stack fatal退出；保留歷史proof並撤回部署gate，未記穩定互動通過。正常關閉後，
+原核准2CPU的多執行緒對照實際自有CPU7/7及故障／回收通過，完整Android另輪觀察；
+仍無普通App Root／JNI／任何遊戲產品資格。見[單核界線](../research/tcg-one-core.md)及
+[多執行緒對照](../research/tcg-aosp-multi-thread.md)，九組狀態不變。
+
 使用者現指定依序完成API34、API31，再實作已選定的森林手帳UI，各階段分別commit／push，見[交付計畫](STAGED_DELIVERY_PLAN.md)。本輪已另授權新API34 ARM/Linux目標，官方映像與CPU對照完成部分證據，仍無Android完整開機或產品資格，見[獨立研究](API34_ARM_LINUX_RESEARCH.md)；下列產品／九組未通過狀態不變。
 
 API34 ARM/Linux其後已實讀API34／ARM64-only／Enforcing，私人單worker ramdisk完成APEX掛載及Conscrypt self-test；system_server出現仍無boot完成。原廠adbd Root診斷後實際恢復UID2000，未安裝Magisk／App，獨立一小時觀察另記。這些平台部分進展不改下方任何產品組合的未通過狀態。
