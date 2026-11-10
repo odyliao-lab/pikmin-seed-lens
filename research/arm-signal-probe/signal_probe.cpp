@@ -29,8 +29,8 @@ std::atomic<uint64_t> expectedPc{0}, ownPid{0}, ownUid{0};
 std::atomic<bool> used{false};
 alignas(16) unsigned char alternateStack[65536];
 
-extern "C" void own_udf(),own_sevl(),own_pair();
-extern "C" const char own_udf_fault[],own_sevl_fault[],own_pair_fault[];
+extern "C" void own_udf(),own_sevl(),own_pair(),own_wfe();
+extern "C" const char own_udf_fault[],own_sevl_fault[],own_pair_fault[],own_wfe_fault[];
 
 Record baseRecord(uint32_t phase) {
     Record r;
@@ -75,7 +75,7 @@ Java_dev_ody_seedlensarmsignalprobe_SignalInstrumentation_runCase(
     const int api=android_get_device_api_level();
     struct stat st{};
     const int flags=fcntl(fd,F_GETFL);
-    if(mode<0||mode>4||api!=expectedApi||(api!=31&&api!=34&&api!=35)||
+    if(mode<0||mode>6||api!=expectedApi||(api!=31&&api!=34&&api!=35)||
        getuid()<10000||getuid()!=geteuid()||fstat(fd,&st)||!S_ISREG(st.st_mode)||
        st.st_uid!=getuid()||st.st_nlink!=1||(st.st_mode&0777)!=0600||st.st_size!=0||
        flags<0||(flags&O_ACCMODE)!=O_WRONLY||!(flags&O_APPEND)||used.exchange(true))return -1;
@@ -83,7 +83,8 @@ Java_dev_ody_seedlensarmsignalprobe_SignalInstrumentation_runCase(
     ownPid.store(getpid()); ownUid.store(getuid());
     expectedPc.store(mode==2?reinterpret_cast<uintptr_t>(own_udf_fault):
                      mode==3?reinterpret_cast<uintptr_t>(own_sevl_fault):
-                     mode==4?reinterpret_cast<uintptr_t>(own_pair_fault):0);
+                     mode==4?reinterpret_cast<uintptr_t>(own_pair_fault):
+                     mode==5?reinterpret_cast<uintptr_t>(own_wfe_fault):0);
     if(!append(baseRecord(1)))return -2;
     struct sigaction action{},previous{};
     action.sa_sigaction=observeAndExit; action.sa_flags=SA_SIGINFO|SA_ONSTACK;
@@ -101,6 +102,10 @@ Java_dev_ody_seedlensarmsignalprobe_SignalInstrumentation_runCase(
     else if(mode==2)own_udf();
     else if(mode==3)own_sevl();
     else if(mode==4)own_pair();
+    else if(mode==5)own_wfe();
+    // Intentional timeout control in this own disposable process only. The
+    // default SIGALRM action must terminate it; never report a native return.
+    else if(mode==6)for(;;)pause();
     alarm(0);
     if(sigaction(SIGILL,&previous,nullptr)||sigaltstack(&oldStack,nullptr))return -6;
     if(!append(baseRecord(4)))return -7;

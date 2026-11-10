@@ -129,3 +129,16 @@ SHA c05f2b7e…db51另核，未以uname判斷ARM64。
 同APK的API31／34／35普通App對照現已各自執行，但API31／34原遊戲啟動缺口仍未解，
 沒有新增產品資格。下一個可分離的研究問題是**WFE單獨執行**與**實際逾時退出控制**；
 兩者在0.0.2尚無執行證據，不能由SEVL/WFE組合或alarm設定成功補推。
+
+## 0.0.3：獨立WFE與alarm控制的來源準備
+
+保留0.0.2原APK，研究套件另增0.0.3/code3，仍用原lab簽章；產品0.5.2及守門不變。
+只新增`wfe`的自有單指令函式，以及`alarm`在自有程序完成共同setup後等待三秒SIGALRM
+的負控制。後者預期由系統終止，parser只把1/2收據列為armed-unconfirmed，必須另核
+自身PID的實際signal14終止，不能以檔案缺尾段、instrumentation失敗或ADB返回猜成功。
+沒有新增context寫入／續跑、遊戲handler、Root能力或其他程序存取。
+
+12個host parser測試方法、94個ELF JVM檢查與原lab簽章／Java／dex／ARM64／16KiB封裝
+通過，反組譯另核自有WFE及其後restore／return；原0.0.2 APK／SO不覆寫。新APK
+SHA54265523…b886、SOed0dc066…a767，完整pin與操作方式見研究README。此節是host準備，
+**尚未在裝置安裝或執行0.0.3**，沒有新增平台或產品資格。

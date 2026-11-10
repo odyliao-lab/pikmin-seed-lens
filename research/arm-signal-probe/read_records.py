@@ -8,7 +8,8 @@ RECORD = struct.Struct('<7Ii10Q')
 FIELDS = ('magic', 'version', 'bytes', 'phase', 'mode', 'api', 'signal', 'code',
           'pid', 'uid', 'expected_pc', 'saved_pc', 'fault_address', 'saved_sp',
           'saved_pstate', 'x19', 'x20', 'flags')
-MODES = {'baseline': 0, 'raise': 1, 'udf': 2, 'sevl': 3, 'pair': 4}
+MODES = {'baseline': 0, 'raise': 1, 'udf': 2, 'sevl': 3, 'pair': 4,
+         'wfe': 5, 'alarm': 6}
 
 
 def inspect(data, *, api, mode, pid, uid):
@@ -27,7 +28,7 @@ def inspect(data, *, api, mode, pid, uid):
             raise ValueError('Record identity does not match this invocation')
         if r['flags'] & ~3:
             raise ValueError('Unknown observation flags')
-        if mode in ('baseline', 'raise'):
+        if mode in ('baseline', 'raise', 'alarm'):
             if r['expected_pc']:
                 raise ValueError('Synthetic/baseline mode has an instruction address')
         elif not r['expected_pc'] or r['expected_pc'] % 4:
@@ -42,13 +43,17 @@ def inspect(data, *, api, mode, pid, uid):
     result = {'phases': phases, 'records': records,
               'gameOrPlatformQualified': False, 'contextModified': False}
     if phases in ([1], [1, 2]):
-        return dict(result, outcome='incomplete', instructionReturned=False,
+        # No terminal record is proof of an actual timeout. An independently
+        # observed own process death by SIGALRM is required by the device study.
+        return dict(result, outcome=('timeout-control-armed-unconfirmed'
+                    if mode == 'alarm' and phases == [1, 2] else 'incomplete'),
+                    instructionReturned=False,
                     ownFaultContextMatched=False)
     if phases == [1, 2, 4]:
         outcome = ('baseline-returned' if mode == 'baseline' else
-                   'unexpected-return' if mode in ('raise', 'udf') else
+                   'unexpected-return' if mode in ('raise', 'udf', 'alarm') else
                    'own-instruction-returned')
-        return dict(result, outcome=outcome, instructionReturned=mode in ('sevl', 'pair'),
+        return dict(result, outcome=outcome, instructionReturned=mode in ('sevl', 'pair', 'wfe'),
                     ownFaultContextMatched=False)
     if phases != [1, 2, 3]:
         raise ValueError('Native phases are out of order or duplicated')
@@ -65,7 +70,7 @@ def inspect(data, *, api, mode, pid, uid):
     if mode == 'pair':
         expected_pcs.add(r['expected_pc'] + 4)
     checks = {
-        'instructionMode': mode in ('udf', 'sevl', 'pair'),
+        'instructionMode': mode in ('udf', 'sevl', 'pair', 'wfe'),
         'instructionSignalCode': r['code'] in (1, 2),
         'ownFaultPc': r['saved_pc'] in expected_pcs,
         'signalAddressMatchesPc': r['fault_address'] == r['saved_pc'],
@@ -89,5 +94,5 @@ if __name__ == '__main__':
     decoded = inspect(args.path.read_bytes(), api=args.api, mode=args.mode,
                       pid=args.pid, uid=args.uid)
     print(json.dumps(decoded, indent=2))
-    raise SystemExit(2 if decoded['outcome'] in ('incomplete', 'unexpected-return',
+    raise SystemExit(2 if decoded['outcome'] in ('incomplete', 'timeout-control-armed-unconfirmed', 'unexpected-return',
                      'fault-observation-unproven', 'fault-observed-context-unproven') else 0)

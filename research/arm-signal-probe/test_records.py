@@ -6,7 +6,7 @@ from read_records import RECORD, inspect
 def fixture(mode=2, terminal=3, **changes):
     fixed = dict(magic=0x534c5331, version=1, bytes=112, phase=1, mode=mode, api=34,
                  signal=0, code=0, pid=1234, uid=10123,
-                 expected_pc=0 if mode in (0, 1) else 0x1000,
+                 expected_pc=0 if mode in (0, 1, 6) else 0x1000,
                  saved_pc=0, fault_address=0, saved_sp=0, saved_pstate=0,
                  x19=0, x20=0, flags=0)
     rows = []
@@ -82,6 +82,26 @@ class RecordsTest(unittest.TestCase):
         good=fixture()
         for data in (good[112:224]+good[:112]+good[224:],fixture(flags=7)):
             with self.assertRaises(ValueError): self.read(data)
+
+
+    def test_wfe_is_independent_from_pair_and_has_one_fault_address(self):
+        result = self.read(fixture(mode=5, terminal=4), mode='wfe')
+        self.assertTrue(result['instructionReturned'])
+        self.assertFalse(result['gameOrPlatformQualified'])
+        self.assertTrue(self.read(fixture(mode=5), mode='wfe')['ownFaultContextMatched'])
+        self.assertFalse(self.read(fixture(mode=5, saved_pc=0x1004,
+                                          fault_address=0x1004),
+                                   mode='wfe')['ownFaultContextMatched'])
+
+    def test_armed_alarm_receipt_never_proves_timeout_or_a_native_return(self):
+        data=fixture(mode=6)
+        result=self.read(data[:224], mode='alarm')
+        self.assertEqual(result['outcome'], 'timeout-control-armed-unconfirmed')
+        self.assertFalse(result['instructionReturned'])
+        self.assertFalse(result['gameOrPlatformQualified'])
+        self.assertEqual(self.read(data[:112], mode='alarm')['outcome'], 'incomplete')
+        self.assertEqual(self.read(fixture(mode=6, terminal=4), mode='alarm')['outcome'],
+                         'unexpected-return')
 
 
 if __name__ == '__main__': unittest.main()

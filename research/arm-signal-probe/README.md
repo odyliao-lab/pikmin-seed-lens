@@ -1,6 +1,6 @@
 # Own ARM64 signal-context observation
 
-This is a separate laboratory package, `dev.ody.seedlensarmsignalprobe` 0.0.2,
+This is a separate laboratory package, `dev.ody.seedlensarmsignalprobe` 0.0.3,
 not a product component or an update to `arm-hint-probe`. The original
 unhandled-SEVL baseline and all failed game starts remain unchanged.
 
@@ -13,8 +13,9 @@ experiment, not a presumed capability or a game-startup workaround.
 
 - No Root, network permission, ptrace, other-process access, bridge replacement,
   game loading, instruction rewriting or product gate changes.
-- Five explicit modes: `baseline` (common signal/alarm setup), `raise` (synthetic
-  SIGILL control), `udf` (own undefined instruction), `sevl`, and `pair` (SEVL/WFE).
+- Seven explicit modes: `baseline` (common signal/alarm setup), `raise` (synthetic
+  SIGILL control), `udf` (own undefined instruction), `sevl`, `pair` (SEVL/WFE),
+  `wfe` (WFE alone), and `alarm` (intentional own-process timeout control).
 - Each invocation needs a fresh own App process, exact expected API31/34/35 and
   ordinary App UID. Java also reads its own `/proc/self/exe` ELF header and
   requires explicit `expected_machine=62` (x64) or `183` (ARM64); uname/ABI labels
@@ -43,7 +44,7 @@ After fresh target identity, ordinary shell UID and original platform/library
 hash verification on an already authorized isolated guest, run one mode:
 
 ```
-adb -s <exact-authorized-serial> shell am instrument -w -e expected_api <31-or-34-or-35> -e expected_machine <62-or-183> -e mode <baseline-or-raise-or-udf-or-sevl-or-pair> dev.ody.seedlensarmsignalprobe/.SignalInstrumentation
+adb -s <exact-authorized-serial> shell am instrument -w -e expected_api <31-or-34-or-35> -e expected_machine <62-or-183> -e mode <baseline-or-raise-or-udf-or-sevl-or-pair-or-wfe-or-alarm> dev.ody.seedlensarmsignalprobe/.SignalInstrumentation
 ```
 
 Read back only this App's private `.tsv` and `.bin` records after the own
@@ -54,7 +55,13 @@ signals cannot prove fault-context delivery. A fault match additionally needs
 known own PC, signal address, hardware instruction signal code, two register
 markers and stack alignment. A mismatch stays observed-but-unproven.
 No parser outcome grants a game/platform qualification or changes product
-admission. `sevl`/`pair` normal return proves only that own instruction case.
+admission. `sevl`/`pair`/`wfe` normal return proves only that own instruction case.
+The `alarm` control deliberately waits in its own process after arming the
+three-second default SIGALRM. Its two native phase records are merely
+`timeout-control-armed-unconfirmed`; the device study must independently verify
+the exact own PID's termination by SIGALRM. Missing records, instrumentation
+failure or an ADB return code cannot supply that evidence. No App signal handler
+is added for SIGALRM, and no PC/context is modified.
 
 ## Source basis and pending evidence
 
@@ -111,3 +118,15 @@ signal-code/address checks; pair never reached WFE. Original product/game bytes
 and all sixteen research journals were retained, and the guest was normally
 closed. Neither WFE alone nor an actually triggered alarm timeout has yet been
 tested by 0.0.2. No product qualification follows from these results.
+
+0.0.3/code3 adds only the independent WFE instruction and intentional alarm
+control; original 0.0.1/0.0.2 artifacts remain immutable. Its host build passed
+12 parser test methods and the same 94 ELF JVM checks, native/Java/dex/version,
+original lab signer and stored ARM64/16KiB packaging. Disassembly separately
+confirms `own_wfe_fault` contains WFE followed by the register restore/return.
+APK SHA256:
+`542655236bdf1661a30636a19add51eb49ef192b805e66aca9d4955a7160b886`.
+SO SHA256:
+`ed0dc066e70b4b689d93d5aaa57c37a01540bdabad75be8e560f0b684cbaa767`.
+At this preparation checkpoint 0.0.3 has **not been installed or run**. These
+host checks do not prove WFE execution, timeout containment or product support.
