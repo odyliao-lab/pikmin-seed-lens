@@ -1,8 +1,9 @@
 # Separate API34 host scheduling comparison
 
-Research preparation only. No guest has run this mode at this checkpoint.
-The active API34 boot continues with its original scheduling; this source
-change does not alter any running process, SDK file, Android image or APK.
+Research only. Initial host preparation did not change the then-active boot.
+After its confirmed normal close and cold backup, the actual CPU runs below
+used this separate mode. Full Android and product qualifications remain
+independent; no SDK file or APK changed for this experiment.
 
 During that boot, three host-only samples covered about40 seconds. GDB CPU
 counters stayed at88 user/21 system ticks (100Hz); the two QEMU vCPU threads
@@ -65,3 +66,38 @@ scheduling comparison. Keep failure/UNKNOWN attempts and actual inferior
 exit evidence. Do not transfer CPU or host results into ordinary-App Root,
 JNI, game, UI, OS restart or endurance qualifications. If the original mode
 becomes sufficient, this prepared mode need not be deployed.
+
+## Actual CPU runs after the preceding Android guest closed
+
+The preceding Android run closed normally at UTC08:12:46, with actual
+UID2000/Enforcing and no boot-completed flag. Its24-file cold backup matched
+per-file hashes and the original four SDK image hashes. After dedicated-WSL
+sync/termination reclaimed host memory from0.69GiB to about11.3GiB, the same
+AVD/ports were rechecked. No other instance was stopped or operated.
+
+| Own CPU fixture | Actual UTC interval | Result |
+|---|---|---|
+| V3c diagnostic, original SHA9f00a942…b957 | 08:24:36.989–08:24:45.037 | 7 pass /0 fail /0 skip; intentional NULL SIGSEGV and child-reaped control passed |
+| Original V2, SHA6233a95b…00c | 08:28:30.817–08:28:38.863 | 7 pass /0 fail /0 skip |
+
+Both requested read-only data,2 guest vCPUs/4GiB and normal translation blocks.
+The exact new mapper marker was observed;14 vector wrappers registered with
+real host AVX flags1/1 unchanged. Both normal guest power-off, actual inferior
+exit0, gdb exit0, `applied=true`, no external timeout or containment signal.
+The V3c kernel reported6.1.23-android14/aarch64. This is a custom CPU initramfs,
+not actual Android framework/App/JNI/game success.
+
+SDK diagnostics still included GLAsyncSwap/stop/protected-range-unmap warnings.
+V3c also logged no ADB daemon; the dedicated Linux ADB server was started
+before V2. These are retained, not silently converted into an Android pass.
+
+Following these CPU gates, the same AVD's retained data began an independent
+full-Android scheduling run at UTC08:36:17.551, with the private APEX worker1
+ramdisk unchanged. Its10800-second host bound was selected **before launch**;
+the15s/2s product limits remain unchanged. This is a new boot, not resumption
+of the old identity. Early progress reached system_server494 and scanned255
+system packages using258 parser-cache entries, then3 existing data packages.
+Total package scan was99.751s; earlier stub decompression was not repeated.
+Cache and scheduling both changed, so do not call this an isolated scheduling
+benchmark. Full boot requires separate same-boot/system_server PM/AM checks;
+ordinary-App Root, JNI and all three games remain unqualified at this point.

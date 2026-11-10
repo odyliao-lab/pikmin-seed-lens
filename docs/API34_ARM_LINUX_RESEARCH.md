@@ -370,3 +370,11 @@ WebView解壓並進入app-data準備。沒有取得boot flag1或雙次PM／AM穩
 WSLg存在；尚未連線Android。它是owner登入用的開發端視窗準備，不是產品依賴或裝置驗收。
 新JNI probe0.0.3、Root client0.0.7及既有verifier亦只複製到Linux私人host目錄並核SHA，
 沒有安裝到guest。下一輪仍先核實平台能力，未通過前不整合或部署產品。
+
+記憶體回收至約11.3GiB後，單thread TCG的原V2與V3c各自實際7/7；V3c另有故意NULL
+SIGSEGV／child-reaped控制。兩輪14個vector wrapper／AVX flags1/1未變，正常power-off、
+inferior與gdb exit0、無外部收容。原SDK警告另留，不當Android App通過。其後UTC08:36:17
+同AVD保留資料另冷開機，啟動前即選10800秒開發觀察上限，沒有對存活程序再做延長接管。
+新boot早期到system_server494，系統255項／parser cache258與data三項掃描合計99.751秒，
+沒有重做三個stub解壓；快取與排程同時改變，不據此單獨歸因效能。實際完整boot、普通App
+Root／JNI、三遊戲仍待各自核對，見[新排程結果](../research/tcg-single-thread.md)。

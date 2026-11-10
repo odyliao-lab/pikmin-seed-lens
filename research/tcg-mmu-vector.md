@@ -70,5 +70,6 @@ A separate, default-disabled [API34 scheduling comparison](tcg-single-thread.md)
 adds its own mapper/vector markers and SHA-pinned helper. It alone admits the
 exact backend-only `-accel tcg,thread=single` form; existing markers retain
 their refusal. This keeps2 guest vCPUs and is not single-instruction stepping.
-Host guards pass, but the new scheduling mode has not run a guest at this
-checkpoint. Its presence does not change any existing qualification.
+Host guards and subsequent V2/V3c CPU runs pass; full Android and product
+qualifications remain separate. See the linked scheduling record for actual
+timings and the retained warnings.
