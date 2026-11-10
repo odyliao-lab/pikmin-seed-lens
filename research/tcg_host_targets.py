@@ -61,6 +61,11 @@ SCALAR_TARGETS = {
         Path('/opt/seedlens-lab/host-helper-api34-aosp-single-v1/libseedlens-api34-aosp-tcg-single-selection-v1.so'),
         'f4b738fdafbffdb3c8f0aec7c0e16e5da6234a33e9fd19ba978452f937ceab88',
         single_thread_tcg=True, required_guest_cores=2),
+    'seedlens-api34-aosp-tcg-onecore-scalar-v1': HostTarget(
+        b'SeedLens_API34_AOSP_ARM64_Linux', b'5590',
+        Path('/opt/seedlens-lab/host-helper-api34-aosp-onecore-v1/libseedlens-api34-aosp-tcg-onecore-selection-v1.so'),
+        '59b63525581cbde87ce018bf65483e010441379a1f126b434bc4e50038f1643f',
+        single_thread_tcg=True, required_guest_cores=1),
 }
 
 

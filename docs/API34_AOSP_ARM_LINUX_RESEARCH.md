@@ -66,6 +66,26 @@ Magisk, ordinary-App Root, JNI or game/product run was accepted. All nine
 product rows and three delivery stages remain incomplete. This comparison
 rules out treating its CPU7/7 or flag1 as a usable Android platform.
 
+### Separate one-CPU scalar follow-up
+
+All24 AVD files were cold-backed up with matching sizes/SHA after this normal
+exit; four original SDK image hashes matched. Dedicated-distro-only cache
+reclamation restored Windows physical free memory before further work.
+Fresh no-QEMU/port/image/config checks preceded reducing only the existing
+AVD CPU config2→1. This keeps4GiB/display/data and the same authorized device.
+
+The new one-core scalar marker uses the existing pinned59b63525…643f mapper,
+with strict one-core frontend/backend scopes; it does not broaden the two-core
+or vector marker. Windows/Linux22 methods and twelve actual before-starti
+PID0 refusal cases passed. Original V3c at UTC15:22:51.089–15:22:59.105 actually
+reported one CPU, passed7/7 plus NULL/reap control, powered off normally with
+true inferior0 and no external containment. SDK ADB-daemon warning retained;
+Linux ADB was independently started before the separate full-Android run.
+
+That run began UTC15:23:54.925 with fixed1800s bound/normal-close1660s and the
+same worker1 ramdisk/no-animation. At launch no actual completed-boot/Home/
+Root/JNI/product proof existed. See [one-core scalar scope](../research/tcg-scalar-host.md).
+
 2026-11-10. This addresses **Android14/API34 native ARM64**, one part of the
 Android12/14/15 × game156.0/156.1/157.0 goal. It does not replace API31 or API35
 evidence. The owner approved the [fixed AOSP scope](API34_AOSP_ARM_LINUX_PROPOSAL.md).

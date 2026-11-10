@@ -122,6 +122,36 @@ class ScalarTargetTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_target_argv(args, self.target())
 
+    def test_onecore_requires_separate_mapper_and_cpu_counts(self):
+        one = select_scalar_target('seedlens-api34-aosp-tcg-onecore-scalar-v1')
+        two = self.target()
+        vector = select_target('seedlens-api34-aosp-tcg-onecore-vector-v1')
+        self.assertEqual(one.avd, two.avd)
+        self.assertEqual(one.port, two.port)
+        self.assertEqual(one.required_guest_cores, 1)
+        self.assertEqual(one.mapper, vector.mapper)
+        self.assertEqual(one.mapper_sha256, vector.mapper_sha256)
+        self.assertNotEqual(one.mapper, two.mapper)
+        args = self.args()
+        args[args.index(b'-cores')+1] = b'1'
+        args[args.index(b'-smp')+1] = b'1'
+        validate_target_argv(args, one)
+        validate_scalar_preload(str(one.mapper), None, one)
+        for target, rejected in ((one, self.args()), (two, args)):
+            with self.subTest(target=target), self.assertRaises(ValueError):
+                validate_target_argv(rejected, target)
+        for option in (b'-cores', b'-smp'):
+            for count in (b'0', b'2', b'3', b'1,cores=2'):
+                changed = args.copy()
+                changed[changed.index(option)+1] = count
+                with self.subTest(option=option, count=count), self.assertRaises(ValueError):
+                    validate_target_argv(changed, one)
+            with self.assertRaises(ValueError):
+                validate_target_argv(args + [option, b'1'], one)
+        for target, preload in ((one, str(two.mapper)), (two, str(one.mapper))):
+            with self.subTest(target=target), self.assertRaises(ValueError):
+                validate_scalar_preload(preload, None, target)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -6,6 +6,8 @@ UTC15:01:02啟動1800秒觀察，未取得本輪完整boot／互動Home／Root�
 產品0.5.2與九組狀態不變，見[scalar對照](../research/tcg-scalar-host.md)。
 本輪其後兩次原Watchdog終止system_server，flag1但current Power boot未完成，未進入
 Home／Root／JNI／產品；UTC15:18:17正常關閉，真inferior0、無逾時收容。CPU正例不改九組。
+同AVD後續一核scalar另實跑原V3c7/7及NULL／reap、真inferior0；host22方法及十二個真
+PID0拒絕通過。UTC15:23:54獨立完整Android觀察開始，尚無本輪完整服務／Home／產品資格。
 
 最新另獲准的 API34 **AOSP** ARM64／Linux 新 AVD 已完成官方 intake、獨立 CPU7/7 與
 NULL／回收控制；原始 ramdisk 的完整 Android 已實讀 API34／ARM64／Enforcing，完成32個

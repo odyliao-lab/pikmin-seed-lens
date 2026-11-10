@@ -91,3 +91,39 @@ Existing services/adservices OAT headers were read without Root/compilation;
 their presence is not a causal diagnosis. Normal console close after fresh
 UID2000/Enforcing/API34/boot/sync checks yielded actual inferior/GDB0 at
 15:18:17.336, no timeout/containment. Android success remains **unqualified**.
+
+## One-CPU scalar comparison on the same AOSP target
+
+After actual normal exit, all24 AVD files were cold-copied with independent
+source/target sizes and SHA checks; the four original SDK images matched.
+The dedicated distro alone was stopped after no-QEMU/sync checks to reclaim
+backup cache pressure. The new API35 instance remained freshly verified
+closed. No original device, host setting or other distro was changed.
+
+This tests the previously stated SMP/single-thread scheduling hypothesis
+with scalar generation, distinct from both two-CPU scalar and one-CPU vector
+results. Only the existing AVD's CPU config line is reduced2→1, with the
+preceding exact config saved in the cold backup;4GiB/display/data/security
+are retained. It is a research resource reduction, not a product requirement
+or a new qualified platform.
+
+The new marker `seedlens-api34-aosp-tcg-onecore-scalar-v1` fixes the existing
+AOSP/5590 tuple and one CPU on both sides of `-qemu`. It uses only the
+previously pinned one-core mapper59b63525…643f. Two-core and one-core scalar
+preloads/counts refuse each other; vector namespace and preload refusals
+remain. Host Python tests now pass22 methods on Windows/Linux; twelve real
+before-starti refusals record inferior PID0, including four new one-core
+scope cases. Actual debugger0 after the PID-report command remains literal.
+
+UTC15:22:51.089–15:22:59.105: the unchanged V3c fixture actually reported one
+CPU and passed7/7 plus intentional NULL SIGSEGV/child-reaped control. Real
+host AVX1/1→0/0, no vector-save wrappers, normal power-off/actual inferior0,
+no timeout/containment. The CPU-only SDK ADB-daemon warning is retained;
+the dedicated Linux ADB server was started separately before Android.
+This is not ordinary-App, Android-framework, JNI or game evidence.
+
+A separate full-Android run started UTC15:23:54.925 with the same worker1
+ramdisk/no-animation/data/display, preselected1800s upper bound and normal
+close1660s. Actual current API/ABI/boot/Enforcing/CPU-online, two strong
+current-service reads and independent interactive-Home review must pass
+before native/Root/App work. No earlier proof transfers into this run.
