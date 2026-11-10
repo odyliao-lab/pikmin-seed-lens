@@ -68,10 +68,10 @@ target_include_directories(seedprobe_api35_lab_host PRIVATE "${CMAKE_CURRENT_SOU
   "${CMAKE_CURRENT_SOURCE_DIR}/../../app" "${CMAKE_CURRENT_SOURCE_DIR}/../../native/renderer")
 target_compile_options(seedprobe_api35_lab_host PRIVATE -fvisibility=hidden)
 target_link_libraries(seedprobe_api35_lab_host dl)
-# API34 is a separate self-only experiment using the Android14 four-argument
-# interface. No product runtime selector or API35 adapter is widened.
+# API34 remains self-only, now exercising the exact shared candidate dispatcher.
+# Both experimental flags are explicit here; no default product admission changes.
 add_library(seedprobe_api34_lab_host SHARED host.cpp ${XDL})
-target_compile_definitions(seedprobe_api34_lab_host PRIVATE SEED_API34_LAB_CANARY SEED_CANARY_SHA="${CANARY_SHA}"
+target_compile_definitions(seedprobe_api34_lab_host PRIVATE SEED_API34_LAB_CANARY SEED_API31_CANDIDATE SEED_API34_CANDIDATE SEED_CANARY_SHA="${CANARY_SHA}"
   SEED_API31_PROBE_VERSION="${API31_VERSION}" SEED_API31_PROBE_CODE=${API31_CODE})
 target_include_directories(seedprobe_api34_lab_host PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../third_party/xdl/include"
   "${CMAKE_CURRENT_SOURCE_DIR}/../../app" "${CMAKE_CURRENT_SOURCE_DIR}/../../native/renderer")

@@ -18,7 +18,33 @@ int main(){
     for(const auto& c:cases){
         if(backend_for(c.api,c.bridge,false)!=c.normal||backend_for(c.api,c.bridge,true)!=c.candidate)return 1;
         checks+=2;
-        if(backend_for(c.api,c.bridge,api31Candidate)!=(api31Candidate?c.candidate:c.normal))return 2;++checks;
+        if(backend_for(c.api,c.bridge,api31Candidate)!=(api31Candidate?c.candidate:c.normal))return 2;
+        ++checks;
     }
-    printf("BRIDGE_POLICY_PASS %d; candidate=%d; NOT_DEVICE_QUALIFICATION\n",checks,api31Candidate);return 0;
+    constexpr auto yes34=Backend::Api34NdkTranslationCandidate;
+    struct CombinedCase {int api;std::string_view bridge;Backend expected[4];};
+    const CombinedCase combined[]={
+        {35,"libnb.so",{yes35,yes35,yes35,yes35}},
+        {31,"libndk_translation.so",{no,yes31,no,yes31}},
+        {34,"libndk_translation.so",{no,no,yes34,yes34}},
+        {32,"libndk_translation.so",{no,no,no,no}},
+        {34,"libnb.so",{no,no,no,no}},
+        {35,"libndk_translation.so",{no,no,no,no}},
+        {31,"libnb.so",{no,no,no,no}},
+        {34,"libzygisk.solibndk_translation.so",{no,no,no,no}},
+        {34,"libndk_translation.so ",{no,no,no,no}},
+        {34,"Libndk_translation.so",{no,no,no,no}},
+        {34,"",{no,no,no,no}},
+        {36,"libndk_translation.so",{no,no,no,no}}
+    };
+    for(const auto& c:combined){
+        for(int flags=0;flags<4;++flags){
+            if(backend_for(c.api,c.bridge,flags&1,flags&2)!=c.expected[flags])return 3;
+            ++checks;
+        }
+        auto compiled=(api31Candidate?1:0)|(api34Candidate?2:0);
+        if(backend_for(c.api,c.bridge,api31Candidate,api34Candidate)!=c.expected[compiled])return 4;
+        ++checks;
+    }
+    printf("BRIDGE_POLICY_PASS %d; api31=%d api34=%d; NOT_DEVICE_QUALIFICATION\n",checks,api31Candidate,api34Candidate);return 0;
 }

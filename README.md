@@ -6,6 +6,11 @@
 工作中[0.5.2/code17](docs/PRODUCT052_FONT_QUALIFICATION.md)分開庫存與探險字型下限，原簽章同APK在新index5／API35的156.1及157各有首輪、遊戲重啟的兩頁／OFF與離屏返回分項。156.0、156.1及157另各有獨立新OS boot後的兩頁名稱／OFF、庫存長名／真正離屏返回證據；三版最新樣本的探險只有三筆，OS後探險整張卡離屏仍缺有效證據。探險更長名字縮字、長時間及API31／34仍未通過。[0.5.1](docs/PRODUCT051_FONT_CANDIDATE.md)雖改善最長庫存名，實測探險短名截斷而未通過；原件與失敗證據保留，下面0.5.0證據不轉記新版本通過。
 目標是使用既有 Root，不另安裝控制中心、LSPosed 或花苗顯示模組。
 
+API34自有普通App PM／JNI、timeout收容及新程序回歸通過後，現另有
+[API34未簽名候選整合來源](docs/API34_PRODUCT_INTEGRATION.md)：Java/native旗標一致、
+預設仍拒絕API34，兩候選同APK亦只供禁止安裝的unsigned準備。共用dispatcher的新研究件
+另驗，不承接先前直接adapter結果；三版原遊戲SEVL障礙、API31／34產品與森林UI仍未完成。
+
 **目前仍是驗證原型，不是多版本正式版。** 竹北隔離驗收版 `0.5.0/code15`（新增157精確profile，分項實測）；先前交付基線保留`0.3.1/code12`，包名
 `dev.ody.seedpreview`，沿用原簽章。單一APK內含ARM64後端、x64 host及同批ARM renderer，
 不需要控制中心或額外顯示模組。PM路徑／SHA／stored ZIP／16KB對齊均在建置與執行時核對。

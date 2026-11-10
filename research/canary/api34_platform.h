@@ -1,5 +1,6 @@
 #pragma once
-// Separate self-only API34 experiment; never included by product targets.
+// Measured API34 prototype; excluded from every default product target.
+// Also shared by the explicit unsigned candidate, never a qualification claim.
 // Same four-argument opaque namespace interface as the API31 adapter, with
 // independent exact API34/SDK/bridge admission before ART lookup. No fallback.
 // Android14 source contract: platform/art android-14.0.0_r1,

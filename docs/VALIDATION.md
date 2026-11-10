@@ -1,5 +1,15 @@
 # 驗證分層
 
+## 2026-11-11：API34共用來源與禁止安裝的候選
+
+新增明確unsigned API34來源，與API31可同APK；預設／signed的x64仍拒絕API34。四種實際
+Java旗標變體各55項及反向旗標拒絕、native四種編譯變體各111項policy執行通過；四個
+建置模式真負例在工具／key／輸出前拒絕。預設及兩候選同開兩份完整unsigned APK的
+真正App constants、root/host編譯旗標、cache／adapter marker、SHA配對及16KiB封裝
+另核。兩者均未簽名／安裝／交付，原0.5.2 signed SHA不變。共用dispatcher carrier11／
+client13已準備，尚不承接直接adapter批次的裝置資格；遊戲SEVL／九組仍未完成。
+見[整合與待驗](API34_PRODUCT_INTEGRATION.md)。
+
 ## 2026-11-11：API34 普通 App PM／JNI 正常、timeout與新程序回歸
 
 同獲准 AVD的新boot1452fea3…f72d／server526/start1547兩次完整讀值相隔73.671874秒，

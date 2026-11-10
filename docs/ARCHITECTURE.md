@@ -1,5 +1,15 @@
 # 架構
 
+## API34共用後端的unsigned來源準備
+
+已實測API34直接adapter的普通App Root／PM／JNI及收容後，新增獨立
+`-Api34Candidate -Candidate -Unsigned`，可與API31候選同APK，沒有signed API34入口。
+`PlatformForRuntime`在ART前按精確runtime tuple及編譯旗標選擇，兩種四參數adapter與
+API35五參數型別分開、失敗不fallback。checked-in Java兩旗標皆false，native cache／
+編譯定義／封裝marker與Java生成副本同一選擇；預設及signed的x64資格仍只API35。
+新共用dispatcher研究件尚需獨立實跑，原遊戲啟動與產品驗收未因此通過。見
+[本次來源、建置與邊界](API34_PRODUCT_INTEGRATION.md)。
+
 最新隔離產品驗收增加明確`-Api31Qualification`：只接受原簽章的新version/code，與unsigned candidate模式互斥；Java／native仍同一開關，預設仍API35。API31／35 canary及普通App研究通過後，才以此變體進行真正遊戲驗收；不是直接宣告API31合格。來源、APK與實測限制見[0.4.1紀錄](PRODUCT041_QUALIFICATION.md)。以下unsigned-only描述為前一準備階段。
 
 ## API31 native候選來源整合（未交付）

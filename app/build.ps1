@@ -8,6 +8,7 @@ param(
  [switch]$Unsigned,
  [switch]$Candidate,
  [switch]$Api31Candidate,
+ [switch]$Api34Candidate,
  [switch]$Api31Qualification,
  [string]$SigningKey='',
  [string]$StorePassEnv='SEED_LENS_STORE_PASS',
@@ -16,8 +17,10 @@ param(
 $ErrorActionPreference='Stop'
 if($Candidate -and !$Unsigned){throw 'Candidate builds are unsigned and must not be installed or delivered'}
 if($Api31Candidate -and (!$Candidate -or !$Unsigned)){throw 'API31 integration requires -Candidate -Unsigned; no signed delivery before qualification'}
-if($Api31Qualification -and ($Unsigned -or $Candidate -or $Api31Candidate)){throw 'API31 device qualification requires a new signed product version; do not mix unsigned candidate modes'}
+if($Api34Candidate -and (!$Candidate -or !$Unsigned)){throw 'API34 integration requires -Candidate -Unsigned; no signed API34 delivery'}
+if($Api31Qualification -and ($Unsigned -or $Candidate -or $Api31Candidate -or $Api34Candidate)){throw 'API31 device qualification requires a new signed product version; do not mix unsigned candidate modes'}
 $api31Enabled=[bool]($Api31Candidate -or $Api31Qualification)
+$api34Enabled=[bool]$Api34Candidate
 $root=Split-Path $PSScriptRoot -Parent
 $dep="$root/third_party/AndKittyInjector"
 if(!$Unsigned){
@@ -52,12 +55,15 @@ $compatibilityText=[IO.File]::ReadAllText($checkedInCompatibility)
 $declaration='static final boolean API31_CANDIDATE=false;'
 if([regex]::Matches($compatibilityText,[regex]::Escape($declaration)).Count -ne 1){throw 'Compatibility default declaration changed; refuse an ambiguous candidate'}
 $javaFlag=if($api31Enabled){'true'}else{'false'}
+$declaration34='static final boolean API34_CANDIDATE=false;'
+if([regex]::Matches($compatibilityText,[regex]::Escape($declaration34)).Count -ne 1){throw 'Compatibility API34 default declaration changed; refuse an ambiguous candidate'}
+$javaFlag34=if($api34Enabled){'true'}else{'false'}
 New-Item -ItemType Directory "$out/generated"|Out-Null
 $compatibilitySource="$out/generated/Compatibility.java"
-[IO.File]::WriteAllText($compatibilitySource,$compatibilityText.Replace($declaration,"static final boolean API31_CANDIDATE=$javaFlag;"),[Text.UTF8Encoding]::new($false))
+[IO.File]::WriteAllText($compatibilitySource,$compatibilityText.Replace($declaration,"static final boolean API31_CANDIDATE=$javaFlag;").Replace($declaration34,"static final boolean API34_CANDIDATE=$javaFlag34;"),[Text.UTF8Encoding]::new($false))
 & "$JavaHome/bin/javac.exe" -encoding UTF-8 -d "$out/tests" $compatibilitySource "$PSScriptRoot/tests/CompatibilityTest.java" "$PSScriptRoot/src/dev/ody/seedpreview/InstalledNative.java" "$PSScriptRoot/tests/InstalledNativeTest.java"
 if($LASTEXITCODE){throw 'Compatibility test compile failed'}
-& "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.CompatibilityTest $javaFlag
+& "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.CompatibilityTest $javaFlag $javaFlag34
 if($LASTEXITCODE){throw 'Compatibility tests failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.InstalledNativeTest
 if($LASTEXITCODE){throw 'Installed native path/digest tests failed'}
@@ -70,14 +76,17 @@ if($LASTEXITCODE){throw 'APK layout checker compile failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.ApkNativeLayoutTest
 if($LASTEXITCODE){throw 'APK layout checker tests failed'}
 foreach($abi in @('arm64-v8a','x86_64')){
- $nativeBuild=if($api31Enabled){"$root/.tools/native-build/api31-candidate/$abi"}else{"$root/.tools/native-build/$abi"}
+ $variant=if($api31Enabled -and $api34Enabled){'api31-api34-candidate'}elseif($api34Enabled){'api34-candidate'}elseif($api31Enabled){'api31-candidate'}else{''}
+ $nativeBuild=if($variant){"$root/.tools/native-build/$variant/$abi"}else{"$root/.tools/native-build/$abi"}
  $api31Flag=if($api31Enabled){'ON'}else{'OFF'}
+ $api34Flag=if($api34Enabled){'ON'}else{'OFF'}
  # Build and copy ARM first. The bridge hashes THIS immutable build output,
  # never an earlier installed renderer or a stale CMake cache entry.
  $rendererPin=if($abi -eq 'x86_64'){"$out/assets/libseed_display.so"}else{''}
- & $CmakePath -G Ninja "-DCMAKE_MAKE_PROGRAM=$NinjaPath" "-DCMAKE_TOOLCHAIN_FILE=$NdkPath/build/cmake/android.toolchain.cmake" "-DANDROID_ABI=$abi" "-DSEED_BRIDGE_RENDERER=$rendererPin" "-DSEED_API31_CANDIDATE=$api31Flag" -DANDROID_PLATFORM=android-28 -DANDROID_STL=c++_static -DCMAKE_BUILD_TYPE=Release -S $PSScriptRoot -B $nativeBuild
+ & $CmakePath -G Ninja "-DCMAKE_MAKE_PROGRAM=$NinjaPath" "-DCMAKE_TOOLCHAIN_FILE=$NdkPath/build/cmake/android.toolchain.cmake" "-DANDROID_ABI=$abi" "-DSEED_BRIDGE_RENDERER=$rendererPin" "-DSEED_API31_CANDIDATE=$api31Flag" "-DSEED_API34_CANDIDATE=$api34Flag" -DANDROID_PLATFORM=android-28 -DANDROID_STL=c++_static -DCMAKE_BUILD_TYPE=Release -S $PSScriptRoot -B $nativeBuild
  if($LASTEXITCODE){throw 'Native configure failed'}
  if(!(Get-Content "$nativeBuild/CMakeCache.txt" -Raw).Contains("SEED_API31_CANDIDATE:BOOL=$api31Flag")){throw 'Native candidate setting mismatch'}
+ if(!(Get-Content "$nativeBuild/CMakeCache.txt" -Raw).Contains("SEED_API34_CANDIDATE:BOOL=$api34Flag")){throw 'Native API34 candidate setting mismatch'}
  & $CmakePath --build $nativeBuild --parallel 4
  if($LASTEXITCODE){throw 'Native build failed'}
  New-Item -ItemType Directory -Force "$out/native/lib/$abi"|Out-Null
@@ -91,6 +100,8 @@ foreach($abi in @('arm64-v8a','x86_64')){
   Copy-Item -LiteralPath "$nativeBuild/libseed_bridge.so" -Destination "$out/native/lib/$abi/libseed_bridge.so"
   $hasApi31Adapter=[Text.Encoding]::ASCII.GetString([IO.File]::ReadAllBytes("$out/native/lib/$abi/libseed_bridge.so")).Contains('API31_REQUIRED')
   if($hasApi31Adapter -ne $api31Enabled){throw 'Packaged bridge disagrees with Java candidate setting'}
+  $hasApi34Adapter=[Text.Encoding]::ASCII.GetString([IO.File]::ReadAllBytes("$out/native/lib/$abi/libseed_bridge.so")).Contains('API34_EXACT_RESEARCH_TUPLE_REQUIRED')
+  if($hasApi34Adapter -ne $api34Enabled){throw 'Packaged bridge disagrees with Java API34 candidate setting'}
   Copy-Item -LiteralPath "$nativeBuild/seed-bridge-renderer.sha256" -Destination "$out/assets/seed-bridge-renderer.sha256"
   $bridgeDigest=(Get-FileHash -Algorithm SHA256 "$nativeBuild/libseed_bridge.so").Hash.ToLowerInvariant()
   [IO.File]::WriteAllText("$out/assets/seed-bridge-x86_64.sha256",$bridgeDigest+"`n",[Text.Encoding]::ASCII)
@@ -132,5 +143,6 @@ if($LASTEXITCODE){throw 'Native APK layout/digest validation failed; artifact mu
 Get-FileHash $apk
 if($Candidate){Write-Output 'NOT_FOR_INSTALL_OR_DELIVERY: candidate retains development manifest only'}
 if($Api31Candidate){Write-Output 'API31_JAVA_AND_NATIVE_CANDIDATE: exact backend guards retained; product/game acceptance pending'}
+if($Api34Candidate){Write-Output 'API34_JAVA_AND_NATIVE_CANDIDATE: unsigned only; original game startup and product acceptance remain unproven'}
 if($Api31Qualification){Write-Output 'API31_SIGNED_ISOLATED_QUALIFICATION_ONLY: not a support claim or public release; nine-combination acceptance pending'}
 Write-Output "Build completed ($kind). Not evidence of root load, UI restoration or multi-version compatibility."

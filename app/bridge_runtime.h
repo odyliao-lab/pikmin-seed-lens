@@ -11,6 +11,6 @@ inline Backend runtime_backend(){
     // Exact text as well as native API: no atoi prefix, API32 or spoof fallback.
     if(std::string_view(sdk)!=std::to_string(api))return Backend::Unsupported;
     __system_property_get("ro.dalvik.vm.native.bridge",bridge);
-    return backend_for(api,bridge,api31Candidate);
+    return backend_for(api,bridge,api31Candidate,api34Candidate);
 }
 }

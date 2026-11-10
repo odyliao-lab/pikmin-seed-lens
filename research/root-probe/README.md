@@ -1,7 +1,15 @@
 # Ordinary-App Root research client
 
-This separate lab APK is never a product dependency. The product's Root,
+This separate lab APK is never a product dependency. The default product's Root,
 Android, NativeBridge and exact game guards are unchanged.
+
+## Shared API34 dispatcher0.0.13: prepared
+
+Client0.0.13 packages the new runner pinned to carrier0.0.11's shared
+PlatformForRuntime host. It retains the explicit self-only PM scope and lab
+signer, with higher version/code and immutable previous artifacts. This batch
+is not yet installed/run and does not inherit0.0.12's independent device result.
+See [shared-source preparation and gates](../../docs/API34_PRODUCT_INTEGRATION.md).
 
 ## API34 explicit PM experiment0.0.12: self-only device evidence
 

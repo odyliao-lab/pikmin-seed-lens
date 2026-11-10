@@ -4,6 +4,9 @@
 #ifdef SEED_API31_CANDIDATE
 #include "bridge_platform_api31.h"
 #endif
+#ifdef SEED_API34_CANDIDATE
+#include "bridge_platform_api34.h"
+#endif
 namespace seed_bridge {
 // Runtime selection precedes any ART lookup. Never call a different platform
 // ABI after failure, and never reinterpret the 4/5-argument trampoline types.
@@ -13,10 +16,16 @@ class PlatformForRuntime {
 #ifdef SEED_API31_CANDIDATE
     seed_bridge_api31::Platform api31_;
 #endif
+#ifdef SEED_API34_CANDIDATE
+    seed_bridge_api34::Platform api34_;
+#endif
     bool attempted_=false;
     template<class Fn> auto selected(Fn action){
 #ifdef SEED_API31_CANDIDATE
         if(backend_==Backend::Api31NdkTranslationCandidate)return action(api31_);
+#endif
+#ifdef SEED_API34_CANDIDATE
+        if(backend_==Backend::Api34NdkTranslationCandidate)return action(api34_);
 #endif
         return action(api35_);
     }

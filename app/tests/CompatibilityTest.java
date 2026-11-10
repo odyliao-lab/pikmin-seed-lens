@@ -3,11 +3,13 @@ public final class CompatibilityTest {
     static int checks;
     static void expect(boolean value){checks++;if(!value)throw new AssertionError("case "+checks);}
     public static void main(String[] args){
-        if(args.length>0)expect(args.length==1&&args[0].equals(Boolean.toString(Compatibility.API31_CANDIDATE)));
+        if(args.length>0)expect(args.length==2&&args[0].equals(Boolean.toString(Compatibility.API31_CANDIDATE))&&args[1].equals(Boolean.toString(Compatibility.API34_CANDIDATE)));
         for(int api=28;api<=35;api++)expect(Compatibility.blockReason(api,"arm64-v8a","156.1",1793076318L)==null);
         for(int api:new int[]{27,36})expect(Compatibility.blockReason(api,"arm64-v8a","156.1",1793076318L)!=null);
         expect(Compatibility.blockReason(35,"x86_64","156.1",1793076318L)==null);
-        for(int api:new int[]{28,32,34,36})expect(Compatibility.blockReason(api,"x86_64","156.1",1793076318L)!=null);
+        for(int api:new int[]{28,32,36})expect(Compatibility.blockReason(api,"x86_64","156.1",1793076318L)!=null);
+        expect((Compatibility.blockReason(34,"x86_64","156.1",1793076318L)==null)==Compatibility.API34_CANDIDATE);
+        expect((Compatibility.blockReason(34,"x86_64","156.0",1792142832L)==null)==Compatibility.API34_CANDIDATE);
         expect((Compatibility.blockReason(31,"x86_64","156.1",1793076318L)==null)==Compatibility.API31_CANDIDATE);
         expect((Compatibility.blockReason(31,"x86_64","156.0",1792142832L)==null)==Compatibility.API31_CANDIDATE);
         expect(Compatibility.blockReason(31,"x86_64","156.1",1793076317L)!=null);
@@ -25,10 +27,13 @@ public final class CompatibilityTest {
         expect(Compatibility.blockReason(35,"x86_64","157.0",1793360009L)==null);
         expect(Compatibility.blockReason(31,"arm64-v8a","157.0",1793360009L)==null);
         expect((Compatibility.blockReason(31,"x86_64","157.0",1793360009L)==null)==Compatibility.API31_CANDIDATE);
-        for(int api:new int[]{32,34,36})expect(Compatibility.blockReason(api,"x86_64","157.0",1793360009L)!=null);
+        for(int api:new int[]{32,36})expect(Compatibility.blockReason(api,"x86_64","157.0",1793360009L)!=null);
+        expect((Compatibility.blockReason(34,"x86_64","157.0",1793360009L)==null)==Compatibility.API34_CANDIDATE);
+        for(String version:new String[]{"156","156.2","157","157.1",null})expect(Compatibility.blockReason(34,"x86_64",version,1793360009L)!=null);
+        expect(Compatibility.blockReason(34,"x86_64","157.0",1793360008L)!=null);
         for(String version:new String[]{"157","157.1","158.0"})expect(Compatibility.blockReason(35,"arm64-v8a",version,1793360009L)!=null);
         for(long code:new long[]{1793360008L,1793360010L,1793076318L})expect(Compatibility.blockReason(35,"arm64-v8a","157.0",code)!=null);
         expect(Compatibility.blockReason(35,"x86_64","156.1",1793360009L)!=null);
-        System.out.println("CompatibilityTest: "+checks+" passed; API31 candidate="+Compatibility.API31_CANDIDATE+"; no device certification");
+        System.out.println("CompatibilityTest: "+checks+" passed; API31 candidate="+Compatibility.API31_CANDIDATE+"; API34 candidate="+Compatibility.API34_CANDIDATE+"; no device certification");
     }
 }
