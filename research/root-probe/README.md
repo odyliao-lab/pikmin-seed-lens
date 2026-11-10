@@ -3,9 +3,34 @@
 This separate lab APK is never a product dependency. The product's Root,
 Android, NativeBridge and exact game guards are unchanged.
 
+## API34 Root-only0.0.10: host preparation
+
+New0.0.10/code10 adds an explicit api34_root_only research scope for a fixed
+read-only su-M query from the ordinary App. It requires exact API34, x64
+primary/packaged ABI, real ELF machine62, 64-bit process and x86_64 uname.
+Any load_pid key, missing scope or unknown scope refuses before the Root
+query. The existing ProbePlatform backend still rejects API34 x64; no PM
+loader, JNI, NativeBridge or consumer admission was added.
+
+For this scope only, supply research_scope=api34_root_only and su_endpoint=path
+along with the exact current expected_api=34 and expected_boot. Do not supply
+load_pid. The only Root command reads UID/domain, self/PID1 mount namespaces
+and boot ID. The ordinary UID, bounded wait and exact namespace/boot checks
+remain required. A failed Root query is not retried through a different entry.
+
+The x64 host build passed94 ELF,77 unchanged platform and38 Root-only
+scope/refusal checks, original lab certificate633286a6…8870, Java/dex,
+stored x64 PIE/ABI/SHA assets and16KiB alignment. APK SHA256:
+5010db601bf4983a438856d8ca87e3695a58bbfb248fd8da2362b73d12615ac2.
+The retained x64 PM runner remains
+b22877ed3f6224fc0d716540048e1c7a6837544f9a73880c964edd393ea6ce84;
+it is never invoked by this new scope. Consumer0.5.2 bytes remain unchanged.
+At this preparation checkpoint0.0.10 has not been installed or run; no App
+Root or loader capability is inferred from signing/host checks.
+
 ## ARM companion0.0.9: prepared, not installed
 
-Current source reserves0.0.9/code9 for an ARM-only package of the existing
+Version0.0.9/code9 remains a retained ARM-only package of the existing
 ELF-based classifier introduced in0.0.8. It retains the original research
 signer633286a6…8870 and unchanged ARM verifier1cb26b6a…d460; the consumer
 product remains0.5.2 with its separate original signer. This is not an APK
@@ -34,7 +59,7 @@ packaged/primary ABI, supported uname and **matching process ELF machine**:
 | x64 |31 or35|x86_64|EM_X86_64|x86_64|
 | x64, observed MuMu case |35 only|x86_64|EM_X86_64|aarch64|
 
-API34 x64, API32, ARM35, missing/unknown/mismatched ELF machines and malformed
+In the existing backend path, API34 x64, API32, ARM35, mismatched ELF and malformed
 expected APIs refuse before the Root query. An x64 host executable cannot
 be admitted as ARM even with an ARM uname/ABI label. The existing API31 x64
 scope still requires uname=x86_64; no unobserved label exception was added.

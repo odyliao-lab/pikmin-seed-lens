@@ -1,5 +1,13 @@
 # 驗證分層
 
+## 2026-11-11：API34私人Root的host前置準備
+
+既有獲准API34 AVD在guest關閉前後核對下完成11個自有設定／磁碟檔冷備份、來源／備份
+SHA逐份吻合；官方Magisk31.1 APK／patch script與五個x64 binary已核，原SDK未改。
+研究client0.0.10新增明確API34僅讀Root scope，禁止load_pid；原PM backend仍拒絕API34，
+94／77／38 host檢查及原lab簽章／封裝通過。尚未push、patch、安裝Root或0.0.10；
+不算普通App Root、loader或產品通過。見[準備及界線](API34_MAGISK_RESEARCH.md)。
+
 ## 2026-11-11：API31同0.0.4的自有回復與失敗控制
 
 既有API31 x64新boot845ff2a1…bf12／libndk_translation／Enforcing／UID2000，同server516/

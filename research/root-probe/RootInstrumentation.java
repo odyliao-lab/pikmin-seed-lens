@@ -24,6 +24,12 @@ public final class RootInstrumentation extends Instrumentation {
             int processMachine=ProcessElf.currentMachine();
             String kernel=android.system.Os.uname().machine;
             String packagedAbi=PMCanary.packagedAbi(getTargetContext());
+            String scope=arguments.getString("research_scope");
+            boolean rootOnly="api34_root_only".equals(scope);
+            if(scope!=null&&!rootOnly)throw new IllegalArgumentException();
+            boolean rootOnlyAllowed=RootOnlyPlatform.api34(expectedApi,android.os.Build.VERSION.SDK_INT,
+                abi,Process.is64Bit(),kernel,packagedAbi,processMachine,rootOnly,
+                arguments.containsKey("load_pid"));
             String su=dev.ody.seedpreview.RootEndpoint.command(android.os.Build.VERSION.SDK_INT,abi,
                 new File("/debug_ramdisk/su").canExecute());
             if("debug_ramdisk".equals(endpoint)&&"31".equals(expectedApi))su="/debug_ramdisk/su";
@@ -31,8 +37,8 @@ public final class RootInstrumentation extends Instrumentation {
             else if(endpoint!=null&&!"auto".equals(endpoint))throw new IllegalArgumentException();
             if(!"dev.ody.seedlensrootprobe".equals(getTargetContext().getPackageName())||Process.myUid()<10000||
                expectedBoot==null||!expectedBoot.matches("[0-9a-f-]{36}")||
-               ProbePlatform.backend(expectedApi,android.os.Build.VERSION.SDK_INT,abi,Process.is64Bit(),
-                   kernel,packagedAbi,processMachine).isEmpty())throw new IllegalStateException();
+               (rootOnly?!rootOnlyAllowed:ProbePlatform.backend(expectedApi,android.os.Build.VERSION.SDK_INT,
+                   abi,Process.is64Bit(),kernel,packagedAbi,processMachine).isEmpty()))throw new IllegalStateException();
             receipt=new File(getTargetContext().getFilesDir(),"root-"+Process.myPid()+"-"+SystemClock.elapsedRealtime()+".tsv");
             if(!receipt.createNewFile())throw new IllegalStateException();
             StringBuilder output=new StringBuilder();
@@ -59,6 +65,7 @@ public final class RootInstrumentation extends Instrumentation {
                 lines[2].matches("mnt:\\[[0-9]+\\]")&&lines[2].equals(lines[3])&&lines[4].equals(expectedBoot);
             try(FileOutputStream file=new FileOutputStream(receipt,true)){
                 String report="APP_UID\t"+Process.myUid()+"\nAPI\t"+android.os.Build.VERSION.SDK_INT+
+                    "\nRESEARCH_SCOPE\t"+(rootOnly?"API34_ROOT_ONLY_NO_PM":"EXISTING_BACKEND")+
                     "\nPROCESS_ELF_MACHINE\t"+processMachine+"\nKERNEL_UNAME\t"+kernel+"\nPACKAGED_ABI\t"+packagedAbi+
                     "\nSU_ENDPOINT\t"+su+"\nSU_M_EXIT\t"+(ended?child.exitValue():-1)+"\n"+text+"\n"+
                     (root?"NORMAL_APP_SU_M_PASS_NOT_GAME_ACCEPTANCE":"ROOT_CAPABILITY_NOT_PROVEN")+"\n";
