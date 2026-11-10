@@ -95,7 +95,8 @@ public final class MainActivity extends Activity implements LensController.Obser
     @Override public void changed(){
         if(stateTitle==null)return;LensStatus s=controller.state;boolean busy=controller.busy();String unavailable=controller.operations.availability();String title,detail;int color=style.ink;
         if(busy){title="正在處理，請等候";detail=controller.progress;}
-        else if(s.phase==LensStatus.Phase.UNKNOWN||s.phase==LensStatus.Phase.UNCERTAIN){title=s.phase==LensStatus.Phase.UNKNOWN?"載入結果不明":"結果尚未確認";detail="已鎖住重新啟用。請先手動重開遊戲，再只讀核對新的程序；原紀錄會保留。";color=style.error;}
+        else if(s.phase==LensStatus.Phase.UNKNOWN||s.phase==LensStatus.Phase.UNCERTAIN){title=s.phase==LensStatus.Phase.UNKNOWN?"載入結果不明":"結果尚未確認";detail="這不代表顯示已關閉。已鎖住重新啟用；請先手動重開遊戲，再只讀核對。原紀錄會保留。";color=style.error;}
+        else if(s.phase==LensStatus.Phase.RESTART_REQUIRED){title="這次載入已停止";detail="原紀錄會保留。若要再次啟用，請先重開遊戲再核對；詳細原因可查看進階診斷。";color=style.gold;}
         else if(unavailable!=null){title="這個組合尚未支援";detail=unavailable;}
         else if(s.phase==LensStatus.Phase.ON){title="已啟用";detail="本次程序已有新的顯示回報。兩個遊戲頁面的效果仍請以實際畫面確認。";color=style.green;}
         else if(s.phase==LensStatus.Phase.WAITING){title="等待花苗卡片";detail="啟用要求已送出。請開啟花苗或未領回探險列表，回來後只讀核對。";color=style.gold;}

@@ -22,6 +22,33 @@ public final class LensStatusTest {
         expect(LensStatus.Phase.UNVERIFIED,parse(read,0,H+"NO_FRESH_SAME_PID_START_STATUS\n",true));
         if(!S.same(parse(read,0,H+"NO_FRESH_SAME_PID_START_STATUS\n",true).session))throw new AssertionError("new-process observation lost");++checks;
         expect(LensStatus.Phase.REFUSED,parse(on,13,"Permission denied\n",true));
+        expect(LensStatus.Phase.REFUSED,parse(on,6,H+"BLOCKED_STAGE_6\n",true));
+        expect(LensStatus.Phase.RESTART_REQUIRED,parse(on,26,H+"OTHER_RENDERER_REQUIRES_GAME_RESTART\nBLOCKED_STAGE_26\n",true));
+        expect(LensStatus.Phase.UNCERTAIN,parse(on,4,H+"BLOCKED_STAGE_4\n",true));
+        expect(LensStatus.Phase.UNCERTAIN,parse(on,6,H.replace("9876","9877")+"BLOCKED_STAGE_6\n",true));
+        expect(LensStatus.Phase.REFUSED,parse(on,28,H+"NATIVEBRIDGE_HOST_RETURNED_NOT_READY\nNO_FRESH_RENDERER_LEFT_OFF\nBLOCKED_STAGE_28\n",true));
+        for(int exit:new int[]{-1,137,139,143}){
+            LensStatus killed=parse(on,exit,H+"Killed\n",true);
+            expect(LensStatus.Phase.UNCERTAIN,killed);
+            if(!killed.blocksEnable()||!S.same(killed.session))throw new AssertionError("abnormal exit lost retry barrier");++checks;
+        }
+        expect(LensStatus.Phase.UNCERTAIN,parse(on,137,"Killed\n",true));
+        expect(LensStatus.Phase.UNCERTAIN,parse(on,137,H+ON+R,true));
+        expect(LensStatus.Phase.UNCERTAIN,parse(on,6,H+ON+R+"BLOCKED_STAGE_6\n",true));
+        expect(LensStatus.Phase.UNCERTAIN,parse(on,73,H+"Unexpected exit\n",true));
+        expect(LensStatus.Phase.REFUSED,parse(read,139,H+"Segmentation fault\n",true));
+        for(int exit:new int[]{9,11,40,41,44,45})expect(LensStatus.Phase.RESTART_REQUIRED,parse(on,exit,H+"BLOCKED_STAGE_"+exit+"\n",true));
+        for(int exit:new int[]{27,42,43})expect(LensStatus.Phase.UNKNOWN,parse(on,exit,H+"Missing final marker\n",true));
+        for(String marker:new String[]{"NATIVEBRIDGE_REFUSED_LEFT_OFF_NO_RETRY","ARM64_REFUSED_LEFT_OFF_NO_RETRY"}){
+            expect(LensStatus.Phase.RESTART_REQUIRED,parse(on,44,H+marker+"\n",true));
+            expect(LensStatus.Phase.RESTART_REQUIRED,parse(on,0,H+marker+"\n"+ON+R,true));
+            expect(LensStatus.Phase.RESTART_REQUIRED,parse(off,0,H+marker+"\n"+OFF,true));
+        }
+        if(LensStatus.savedBarrierPhase("RESTART_REQUIRED",false)!=LensStatus.Phase.RESTART_REQUIRED||
+            LensStatus.savedBarrierPhase("UNCERTAIN",false)!=LensStatus.Phase.UNCERTAIN||
+            LensStatus.savedBarrierPhase("UNKNOWN",true)!=LensStatus.Phase.UNKNOWN||
+            LensStatus.savedBarrierPhase(null,true)!=LensStatus.Phase.UNCERTAIN||
+            LensStatus.savedBarrierPhase("ON",false)!=LensStatus.Phase.UNKNOWN)throw new AssertionError("barrier preference migration");++checks;
         expect(LensStatus.Phase.UNCERTAIN,parse(on,0,H+R,true));
         expect(LensStatus.Phase.UNCERTAIN,parse(on,0,H+ON+R,false));
         expect(LensStatus.Phase.UNVERIFIED,parse(read,0,H+R,false));
@@ -44,8 +71,10 @@ public final class LensStatusTest {
         expect(LensStatus.Phase.UNCERTAIN,LensStatus.parse(on,0,H+ON+R,true,true,100000,"157.0",1793360009L,LensContext.parse("4321\t9999\t"+B+"\n")));
         expect(LensStatus.Phase.UNVERIFIED,parse(read,0,H.replace(B,"broken")+R,true));
         expect(LensStatus.Phase.UNCERTAIN,parse(on,0,H.replace(B,"11111111-2222-3333-4444-555555555556")+ON+R,true));
-        for(LensStatus.Phase barrier:new LensStatus.Phase[]{LensStatus.Phase.UNKNOWN,LensStatus.Phase.UNCERTAIN}){
+        for(LensStatus.Phase barrier:new LensStatus.Phase[]{LensStatus.Phase.UNKNOWN,LensStatus.Phase.UNCERTAIN,LensStatus.Phase.RESTART_REQUIRED}){
+            if(!new LensStatus(barrier,S,100000,false).blocksEnable())throw new AssertionError("retry barrier not blocking");++checks;
             expect(barrier,LensStatus.retainingBarrier(parse(off,0,H+OFF,true),S,barrier));
+            expect(barrier,LensStatus.retainingBarrier(parse(read,0,H+R,true),S,barrier));
             expect(barrier,LensStatus.retainingBarrier(LensStatus.unverified(),S,barrier));
             LensContext next=LensContext.parse("4321\t9876\t11111111-2222-3333-4444-555555555556\n");
             expect(LensStatus.Phase.UNVERIFIED,LensStatus.retainingBarrier(new LensStatus(LensStatus.Phase.UNVERIFIED,next,100000,false),S,barrier));

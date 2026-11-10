@@ -28,7 +28,7 @@ final class LensController {
     private LensController(Context context){
         operations=new LensOperations(context);preferences=context.getApplicationContext().getSharedPreferences("lens-interface",Context.MODE_PRIVATE);
         barrier=LensContext.parse(preferences.getString("retry-barrier",""));
-        if(preferences.getBoolean("ui-uncertain",false))barrierPhase=LensStatus.Phase.UNCERTAIN;
+        barrierPhase=LensStatus.savedBarrierPhase(preferences.getString("retry-barrier-phase",null),preferences.getBoolean("ui-uncertain",false));
         if(barrier!=null)state=new LensStatus(barrierPhase,barrier,0,false);
     }
     void attach(Observer value){observer=new WeakReference<>(value);notifyView();}
@@ -64,10 +64,10 @@ final class LensController {
             main.post(()->{
                 raw=result.blocked!=null?result.blocked:result.reply.output;
                 reason=result.blocked==null?"":result.blocked;
-                if(parsed.phase==LensStatus.Phase.UNKNOWN||parsed.phase==LensStatus.Phase.UNCERTAIN){
+                if(parsed.phase==LensStatus.Phase.UNKNOWN||parsed.phase==LensStatus.Phase.UNCERTAIN||parsed.phase==LensStatus.Phase.RESTART_REQUIRED){
                     if(parsed.session!=null){
                         barrier=parsed.session;barrierPhase=parsed.phase;
-                        preferences.edit().putString("retry-barrier",barrier.record()).putBoolean("ui-uncertain",barrierPhase==LensStatus.Phase.UNCERTAIN).apply();
+                        preferences.edit().putString("retry-barrier",barrier.record()).putString("retry-barrier-phase",barrierPhase.name()).putBoolean("ui-uncertain",barrierPhase!=LensStatus.Phase.UNKNOWN).apply();
                     }
                 }
                 // OFF and read errors never erase a barrier for the same
