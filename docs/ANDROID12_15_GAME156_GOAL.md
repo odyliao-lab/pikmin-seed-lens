@@ -1,5 +1,10 @@
 # 驗收目標：Android12／14／15 × 遊戲156／156.1／157
 
+API34 x64後續在獨立新boot另完成自有普通 App → su-M → PM runner → ARM JNI正常、
+故意timeout／UNKNOWN精確收容與另一新程序回歸，非單憑載入0。原26份signal與最終
+30份自有證據SHA保留，沒有Game／產品操作、沒有放寬產品守門；三版原遊戲SEVL
+啟動障礙仍未解，九組及三階段仍未完成。見[實跑與界線](API34_PM_FLOW_RESEARCH.md)。
+
 API34 x64另在私人 Magisk31.1 override及標準設定重啟後，取得普通研究 App 的 PATH
 su-M／UID0／magisk domain／PID1 mount namespace／同 boot實測通過。stock及未授權
 失敗均保留，僅授權自有 UID10195；原26份 signal、三份 Root收據及原157 SHA不變。

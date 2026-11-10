@@ -2,9 +2,10 @@
 
 The separate API34 experiment now has a four-argument adapter, exact SDK/bridge
 admission, self-only PM runner and explicit ordinary-App research scope.
-Carrier0.0.10 and Root client0.0.12 are signed preparation artifacts, not device
-or game qualifications. API31/35 hosts and PM runners passed a compile
-regression; their previous device evidence is not reassigned to API34.
+Carrier0.0.10 and Root client0.0.12 now have independent API34 ordinary-App
+normal PM/JNI, controlled timeout containment and fresh-process regression
+evidence; these are not game qualifications. API31/35 hosts and PM runners
+passed a compile regression; their previous evidence is not reassigned to API34.
 See [API34 sources, hashes and actual-execution gates](../../docs/API34_PM_FLOW_RESEARCH.md).
 
 Package `dev.ody.seedlensprobe` targets only itself with Android instrumentation.

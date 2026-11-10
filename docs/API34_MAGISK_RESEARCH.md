@@ -48,6 +48,10 @@ loader或遊戲。API34 PM backend仍拒絕，沒有放寬產品守門；既有�
 啟動失敗保留，API34三組產品、API31與森林手帳 UI階段仍未完成。研究 APK／管理器
 不是新增的消費者產品依賴，產品仍為原0.5.2/code17且位元組未改。
 
+其後已在另一新boot，以獨立新研究client／四參數adapter完成自有普通App PM／JNI、
+timeout收容及新程序回歸，詳見[後續獨立證據](API34_PM_FLOW_RESEARCH.md)。上述
+0.0.10本輪僅讀scope與原backend拒絕的界線保留，不把後續結果倒記本輪通過。
+
 ## Host準備與冷備份（2026-11-11）
 
 最後0.0.4自有訊號研究已正常關閉API31／34及index5；新一輪host準備再次核SDK程序及

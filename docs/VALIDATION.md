@@ -1,5 +1,15 @@
 # 驗證分層
 
+## 2026-11-11：API34 普通 App PM／JNI 正常、timeout與新程序回歸
+
+同獲准 AVD的新boot1452fea3…f72d／server526/start1547兩次完整讀值相隔73.671874秒，
+正常安裝原研究簽章client0.0.12／carrier0.0.10並保留UID與歷史。三項scope拒絕及新boot
+普通App Root先核；之後普通UID10195自行發起PM命令，自有probe5507正常、6241故意
+timeout42／UNKNOWN精確收容、6922新程序回歸各有獨立證據。兩正例含真namespace／JNI／
+單worker／七階段journal與90秒Java FINISH PASS／退出，非單憑loader0。原26份signal及
+最終30份自有收據逐份保留，UNKNOWN SHA不變；adbd診斷均回UID2000。未啟動Game／
+產品，原遊戲SEVL障礙與九組未通過不變。見[本次完整研究鏈](API34_PM_FLOW_RESEARCH.md)。
+
 ## 2026-11-11：API34 獨立 PM／JNI 研究準備
 
 固定 Android14 AOSP header核對後新增四參數 adapter與自有 PM runner，精確 SDK／
