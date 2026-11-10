@@ -1,5 +1,19 @@
 # 驗證分層
 
+## 2026-11-11：獨立ARM訊號觀察工具準備，尚未部署
+
+為研究API31／34原轉譯器是否交付可核對的自有App SIGILL context，新增獨立
+`dev.ody.seedlensarmsignalprobe`；原不攔截訊號的hint baseline及其失敗不改。
+工具只記錄公開NDK ucontext欄位、自己指令PC與暫存器marker，收到訊號即終止自身，
+不改context／指令／translator、不操作遊戲、不開放產品守門。
+
+0.0.1簽署原件及來源保留且未安裝；加入自身程序ELF判讀後另用0.0.2/code2及原lab簽章。
+94 ELF JVM檢查、10個host parser方法、ARM64 native／Java／dex、版本／原憑證、stored
+ARM64 SO與16KiB對齊通過。0.0.2 APK SHA89755ce2…51bc9，native SHA92612386…ad6fc，
+原hint0.0.3及產品0.5.2 APK SHA不變。這些只有host／封裝證據，尚未安裝或執行普通App。
+SIGILL收據／正常return／context吻合分開，不把預期自身exit86算遊戲成功；見
+[工具契約與來源](../research/arm-signal-probe/README.md)。API31／34產品資格仍未通過。
+
 ## 2026-11-11：0.5.2／157獨立新OS boot後分項
 
 僅在新index5正常升級原簽章完整157.0/code1793360009，資料／登入保留；來源manifest、

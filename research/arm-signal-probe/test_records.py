@@ -1,0 +1,87 @@
+"""Host parser checks only; generated records are not Android signal evidence."""
+import unittest
+from read_records import RECORD, inspect
+
+
+def fixture(mode=2, terminal=3, **changes):
+    fixed = dict(magic=0x534c5331, version=1, bytes=112, phase=1, mode=mode, api=34,
+                 signal=0, code=0, pid=1234, uid=10123,
+                 expected_pc=0 if mode in (0, 1) else 0x1000,
+                 saved_pc=0, fault_address=0, saved_sp=0, saved_pstate=0,
+                 x19=0, x20=0, flags=0)
+    rows = []
+    for phase in (1, 2, terminal):
+        r = dict(fixed, phase=phase)
+        if phase == 3:
+            r.update(signal=4, code=1, saved_pc=0x1000, fault_address=0x1000,
+                     saved_sp=0x8000, x19=0x534c, x20=0x1357, flags=3)
+            r.update(changes)
+        rows.append(RECORD.pack(*r.values()))
+    return b''.join(rows)
+
+
+class RecordsTest(unittest.TestCase):
+    def read(self, data, mode='udf', **identity):
+        return inspect(data, **dict(api=34, mode=mode, pid=1234, uid=10123, **identity))
+
+    def test_instruction_fault_is_observation_never_return_or_game_success(self):
+        r = self.read(fixture())
+        self.assertEqual(r['outcome'], 'own-fault-context-matched')
+        self.assertFalse(r['instructionReturned'])
+        self.assertFalse(r['gameOrPlatformQualified'])
+        self.assertFalse(r['contextModified'])
+
+    def test_return_only_proves_own_instruction_and_not_fault_context(self):
+        r = self.read(fixture(mode=3, terminal=4), mode='sevl')
+        self.assertEqual(r['outcome'], 'own-instruction-returned')
+        self.assertFalse(r['ownFaultContextMatched'])
+        self.assertFalse(r['gameOrPlatformQualified'])
+        self.assertEqual(self.read(fixture(mode=2, terminal=4))['outcome'], 'unexpected-return')
+
+    def test_synthetic_signal_never_proves_instruction_context(self):
+        r = self.read(fixture(mode=1, code=-6), mode='raise')
+        self.assertEqual(r['outcome'], 'synthetic-signal-observed')
+        self.assertFalse(r['ownFaultContextMatched'])
+
+    def test_fault_inside_raise_mode_does_not_prove_synthetic_delivery(self):
+        self.assertEqual(self.read(fixture(mode=1, code=1), mode='raise')['outcome'],
+                         'fault-observation-unproven')
+
+    def test_baseline_return_does_not_prove_instruction_or_context(self):
+        r=self.read(fixture(mode=0, terminal=4), mode='baseline')
+        self.assertEqual(r['outcome'], 'baseline-returned')
+        self.assertFalse(r['instructionReturned'])
+        self.assertFalse(r['ownFaultContextMatched'])
+
+    def test_wrong_pc_address_registers_stack_and_signal_code_are_not_proof(self):
+        for changes in ({'saved_pc':0x1004}, {'fault_address':0x2000}, {'x19':0},
+                        {'x20':0}, {'saved_sp':0}, {'saved_sp':0x8001}, {'code':128}):
+            with self.subTest(changes=changes):
+                self.assertFalse(self.read(fixture(**changes))['ownFaultContextMatched'])
+        self.assertEqual(self.read(fixture(flags=1))['outcome'], 'fault-observation-unproven')
+
+    def test_pair_can_identify_only_its_two_known_instruction_addresses(self):
+        self.assertTrue(self.read(fixture(mode=4, saved_pc=0x1004, fault_address=0x1004),
+                                  mode='pair')['ownFaultContextMatched'])
+        self.assertFalse(self.read(fixture(mode=4, saved_pc=0x1008, fault_address=0x1008),
+                                   mode='pair')['ownFaultContextMatched'])
+
+    def test_truncation_missing_terminal_and_schema_corruption(self):
+        for data in (b'', fixture()[:-1], b'\0'*112, fixture()+fixture()):
+            with self.subTest(length=len(data)), self.assertRaises(ValueError): self.read(data)
+        self.assertEqual(self.read(fixture()[:224])['outcome'], 'incomplete')
+
+    def test_cross_invocation_records_cannot_supply_a_terminal(self):
+        good=fixture(); wrong=bytearray(good); wrong[224+32:224+40]=(9999).to_bytes(8,'little')
+        with self.assertRaises(ValueError): self.read(wrong)
+        for field,value in (('api',31),('uid',10124),('pid',1235)):
+            args=dict(api=34,mode='udf',uid=10123,pid=1234);args[field]=value
+            with self.subTest(field=field), self.assertRaises(ValueError): inspect(good,**args)
+
+    def test_reordering_and_unknown_flags_refuse(self):
+        good=fixture()
+        for data in (good[112:224]+good[:112]+good[224:],fixture(flags=7)):
+            with self.assertRaises(ValueError): self.read(data)
+
+
+if __name__ == '__main__': unittest.main()
