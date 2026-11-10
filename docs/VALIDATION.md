@@ -1,5 +1,13 @@
 # 驗證分層
 
+## 2026-11-10：既有 AOSP AVD 的1vCPU對照，僅CPU gate通過
+
+2vCPU輪仍無當前Power／Window完整開機與桌面資格，已核UID2000／Enforcing後正常關閉、
+實際inferior/gdb0。原新AVD冷態僅將guest CPU由2降為1；新獨立marker／helper／明確前後端
+CPU數守門通過C35、Python11及真GDB拒絕，原四種helper重建SHA相同。自有V3c實際7/7、
+NULL／reap控制與真exit0，kernel確認1CPU。完整Android另輪驗證，不轉記Root／JNI／遊戲
+成功，見[對照來源與界線](../research/tcg-one-core.md)。產品0.5.2／守門未變。
+
 ## 2026-11-10：API34 AOSP 新目標 CPU gate，尚無 Android／遊戲資格
 
 前輪 Google-APIs 單執行緒完整 Android 實際出現三次 stock Watchdog kill，boot flag 未完成；

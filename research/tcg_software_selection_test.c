@@ -29,7 +29,11 @@
 #if defined(SEEDLENS_API34_AOSP_HOST_RESEARCH)
 #define TEST_VALID_AVD "SeedLens_API34_AOSP_ARM64_Linux"
 #define TEST_VALID_PORT "5590"
+#if defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH)
+#define TEST_EXPECTED_MARKER "seedlens-api34-aosp-tcg-onecore-mapper-v1"
+#else
 #define TEST_EXPECTED_MARKER "seedlens-api34-aosp-tcg-single-mapper-v1"
+#endif
 #else
 #define TEST_VALID_AVD "SeedLens_API34_ARM64_Linux"
 #define TEST_VALID_PORT "5588"
@@ -100,8 +104,14 @@ static int run_case(const char *name, const char *const *argv, int expected) {
 int main(void) {
     const char *valid[] = {"qemu", "-avd", TEST_VALID_AVD,
                            "-port", TEST_VALID_PORT, "-no-accel",
+#if defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH)
+                           "-cores", "1",
+#endif
 #if defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH)
                            "-qemu", "-accel", "tcg,thread=single",
+#endif
+#if defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH)
+                           "-smp", "1",
 #endif
                            NULL};
     int failed = run_case("exact-new-target", valid, 0);
@@ -154,6 +164,35 @@ int main(void) {
     failed += run_case("google-api-avd-refused", google_avd, 1);
     const char *google_port[] = {"qemu", "-avd", TEST_VALID_AVD, "-port", "5588", "-no-accel", "-qemu", "-accel", "tcg,thread=single", NULL};
     failed += run_case("google-api-port-refused", google_port, 1);
+#if defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH)
+    fixture_marker = "seedlens-api34-aosp-tcg-single-mapper-v1";
+    failed += run_case("two-core-aosp-marker-refused", valid, 1);
+    fixture_marker = TEST_EXPECTED_MARKER;
+    for (unsigned int scenario=0; scenario<8; ++scenario) {
+        const char *copy[32]; size_t count=0;
+        while (valid[count]) { copy[count]=valid[count]; ++count; }
+        copy[count]=NULL;
+        size_t front=0, back=0;
+        for (size_t i=0; i<count; ++i) {
+            if (!strcmp(copy[i],"-cores")) front=i;
+            if (!strcmp(copy[i],"-smp")) back=i;
+        }
+        if (scenario==0 || scenario==2) {
+            size_t at=scenario==0?front:back;
+            memmove(copy+at,copy+at+2,(count-at-1)*sizeof(*copy));
+        } else if (scenario==1) copy[front+1]="2";
+        else if (scenario==3) copy[back+1]="2";
+        else if (scenario==4) copy[back+1]="1,cores=2";
+        else if (scenario==5 || scenario==6) {
+            copy[count++]=scenario==5?"-cores":"-smp";
+            copy[count++]="1"; copy[count]=NULL;
+        } else {
+            copy[front]="-ignored";
+            copy[count++]="-cores";copy[count++]="1";copy[count]=NULL;
+        }
+        failed += run_case("ambiguous-wrong-or-missing-core-count-refused",copy,1);
+    }
+#endif
 #endif
 #endif
     const pid_t child = fork();
@@ -163,7 +202,9 @@ int main(void) {
         !WIFEXITED(status) || WEXITSTATUS(status) != 86) ++failed;
     else puts("HOST_GUARD_PASS missing-original-exit86");
     printf("HOST_GUARD_SUMMARY cases=%d failed=%d android_qualification=0\n",
-#if defined(SEEDLENS_API34_AOSP_HOST_RESEARCH)
+#if defined(SEEDLENS_API34_AOSP_ONE_CORE_RESEARCH)
+           35,
+#elif defined(SEEDLENS_API34_AOSP_HOST_RESEARCH)
            26,
 #elif defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH)
            23,

@@ -100,5 +100,25 @@ class HostTargetTests(unittest.TestCase):
                 validate_target_argv(argv,aosp)
 
 
+    def test_one_core_is_distinct_fixed_resource_profile(self):
+        old=select_target('seedlens-api34-aosp-tcg-single-vector-v1')
+        target=select_target('seedlens-api34-aosp-tcg-onecore-vector-v1')
+        self.assertEqual(target.required_guest_cores,1)
+        self.assertNotEqual(old.mapper,target.mapper)
+        self.assertNotEqual(old.mapper_sha256,target.mapper_sha256)
+        valid=self.args(target)+[b'-cores',b'1',b'-qemu',b'-accel',b'tcg,thread=single',b'-smp',b'1']
+        validate_target_argv(valid,target)
+        for option in (b'-cores',b'-smp'):
+            for value in (b'0',b'2',b'1,cores=2'):
+                argv=list(valid);argv[argv.index(option)+1]=value
+                with self.subTest(option=option,value=value),self.assertRaises(ValueError):
+                    validate_target_argv(argv,target)
+            argv=list(valid);at=argv.index(option);del argv[at:at+2]
+            with self.assertRaises(ValueError):validate_target_argv(argv,target)
+            with self.assertRaises(ValueError):validate_target_argv(valid+[option,b'1'],target)
+        misplaced=self.args(target)+[b'-smp',b'1',b'-qemu',b'-accel',b'tcg,thread=single',b'-cores',b'1']
+        with self.assertRaises(ValueError):validate_target_argv(misplaced,target)
+
+
 if __name__=='__main__':
     unittest.main()

@@ -13,6 +13,7 @@ class HostTarget:
     mapper: Path
     mapper_sha256: str
     single_thread_tcg: bool = False
+    required_guest_cores: int | None = None
 
 
 TARGETS = {
@@ -34,6 +35,11 @@ TARGETS = {
         Path('/opt/seedlens-lab/host-helper-api34-aosp-single-v1/libseedlens-api34-aosp-tcg-single-selection-v1.so'),
         'f4b738fdafbffdb3c8f0aec7c0e16e5da6234a33e9fd19ba978452f937ceab88',
         True),
+    'seedlens-api34-aosp-tcg-onecore-vector-v1': HostTarget(
+        b'SeedLens_API34_AOSP_ARM64_Linux', b'5590',
+        Path('/opt/seedlens-lab/host-helper-api34-aosp-onecore-v1/libseedlens-api34-aosp-tcg-onecore-selection-v1.so'),
+        '59b63525581cbde87ce018bf65483e010441379a1f126b434bc4e50038f1643f',
+        True, 1),
 }
 
 
@@ -61,3 +67,12 @@ def validate_target_argv(argv, target):
             raise ValueError('exact backend-only single-thread TCG required')
     elif b'-accel' in argv:
         raise ValueError('existing targets refuse accelerator overrides')
+    if target.required_guest_cores is not None:
+        for option in (b'-cores',b'-smp'):
+            if argv.count(option)!=1:
+                raise ValueError('one explicit frontend/backend CPU count required')
+            at=argv.index(option)
+            if at+1>=len(argv) or argv[at+1]!=str(target.required_guest_cores).encode():
+                raise ValueError('wrong guest CPU count')
+            if (option==b'-cores') != (at<argv.index(b'-qemu')):
+                raise ValueError('CPU count in wrong parser scope')
