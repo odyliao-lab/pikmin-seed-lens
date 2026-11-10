@@ -10,6 +10,14 @@
 #include <sstream>
 using namespace seed_arm64;
 using Clock=std::chrono::steady_clock;
+#ifdef SEED_ARM64_LOAD_DIAGNOSTICS
+#ifndef SEED_ARM64_PRODUCT_BUDGET_FIXTURE
+#error Load diagnostics are only for the separate product-budget research fixture.
+#endif
+#define SEED_LOAD_NOTE(stage) printf("ARM64_LOAD_DIAGNOSTIC mode=%d stage=%s elapsed_ms=%lld\n",mode,stage,static_cast<long long>(std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now()-diagnosticBegan).count()))
+#else
+#define SEED_LOAD_NOTE(stage) ((void)0)
+#endif
 static int admitted=-1;
 bool seed_game_trace_admitted(int pid){return pid>1&&pid==admitted;}
 struct Shared{std::atomic<unsigned> beat{0};std::atomic<bool> done{false},unexpected{false};};
@@ -101,6 +109,9 @@ static std::string startTicks(int pid){
     for(int i=3;i<=22;++i)if(!(fields>>value))return {};return value;
 }
 static bool supervised(int mode){
+#ifdef SEED_ARM64_LOAD_DIAGNOSTICS
+    const auto diagnosticBegan=Clock::now();
+#endif
     auto* shared=static_cast<Shared*>(mmap(nullptr,sizeof(Shared),PROT_READ|PROT_WRITE,MAP_SHARED|MAP_ANONYMOUS,-1,0));
     if(shared==MAP_FAILED)return false;new(shared)Shared;
     struct Unmap{Shared* p;~Unmap(){munmap(p,sizeof(Shared));}} unmap{shared};
@@ -121,19 +132,25 @@ static bool supervised(int mode){
     seed_root::LoadLease lease(directory,getuid());if(!lease.held())return false;
     auto boot="12345678-1234-1234-1234-123456789abc";
     seed_root::LoadAttempt attempt(lease,boot,child.pid,startTicks(child.pid),10001,getpid(),startTicks(getpid()),"arm64");
+    SEED_LOAD_NOTE("before-supervisor");
     auto result=seed_root::supervised_load(child.fd,attempt,[&](int socket){
         KittyMemoryMgr manager;
+        SEED_LOAD_NOTE("before-manager-initialize");
         if(mode==4&&!manager.initialize(child.pid,EK_MEM_OP_SYSCALL,true))return 8;
+        SEED_LOAD_NOTE("after-manager-initialize");
 #ifdef SEED_ARM64_PRODUCT_BUDGET_FIXTURE
         manager.trace=KittyTraceMgr(child.pid,0,true,2000,reinterpret_cast<uintptr_t>(&gadget));
 #else
         manager.trace=KittyTraceMgr(child.pid,0,true,mode==4?2000:100,reinterpret_cast<uintptr_t>(&gadget));
 #endif
         auto& trace=manager.trace;
+        SEED_LOAD_NOTE("before-seize-stop");
         if(!trace.seize(PTRACE_O_TRACESYSGOOD)||!trace.stop())return 9;
         Snapshot before;if(!before.capture(trace))return 10;
+        SEED_LOAD_NOTE("snapshot-before-captured");
         if(!seed_root::worker_phase(socket,'A')||!seed_root::worker_phase(socket,'C')||
            !trace.setOptions(PTRACE_O_TRACESYSGOOD|PTRACE_O_EXITKILL))return 11;
+        SEED_LOAD_NOTE("calling-acknowledged");
         admitted=child.pid;
         if(mode==1)trace.callFunction(reinterpret_cast<uintptr_t>(&spin));
         else if(mode==2)trace.callSyscall(SYS_ppoll,uintptr_t(0),uintptr_t(0),uintptr_t(0),uintptr_t(0),uintptr_t(0));
@@ -149,17 +166,24 @@ static bool supervised(int mode){
             cfg.selinux_state=Utils::selinux_state();cfg.free=true;cfg.seize=true;
             bool called=false;
             cfg.afterEntryPoint=[&](inject_elf_info_t& loaded){
+                SEED_LOAD_NOTE("fixture-entry-returned");
                 auto entry=loaded.elf.findSymbol("SeedArm64Fixture");
                 if(!entry)return;
+                SEED_LOAD_NOTE("before-fixture-export-call");
                 auto call=trace.callFunction(entry,uintptr_t(123));
                 called=call.status==KT_RP_CALL_SUCCESS&&call.result.val==(uintptr_t(123)^uintptr_t(0x53454544));
+                SEED_LOAD_NOTE("after-fixture-export-call");
             };
             KittyInjector injector;
+            SEED_LOAD_NOTE("before-injector-init");
             if(!injector.init(&manager,cfg))return 17;
+            SEED_LOAD_NOTE("before-inject");
             auto loaded=injector.inject(path);
+            SEED_LOAD_NOTE("after-inject");
             Snapshot after;
             if(!loaded.is_valid()||loaded.pJNI_OnLoad||loaded.pJvm||!called||
                 !after.capture(trace)||!before.same(after))return 18;
+            SEED_LOAD_NOTE("snapshot-after-matches");
             std::ifstream maps("/proc/"+std::to_string(child.pid)+"/maps");std::string line;
             while(std::getline(maps,line))if(line.find(path)!=line.npos)return 19;
             puts("ARM64_ACTUAL_INJECTOR_LOAD_CALL_UNLOAD_PASS_NO_JNI");
@@ -170,6 +194,7 @@ static bool supervised(int mode){
         }
         if(mode!=0&&mode!=4){shared->unexpected.store(true);return 13;}
         if(!seed_root::worker_phase(socket,'R')||!trace.detach()||!seed_root::worker_phase(socket,'D'))return 14;
+        SEED_LOAD_NOTE("returned-detached-acknowledged");
         return 0;
 #ifdef SEED_ARM64_PRODUCT_BUDGET_FIXTURE
     }); // Production default remains 15000ms; no product timeout changes.
@@ -179,6 +204,7 @@ static bool supervised(int mode){
     pollfd exited{child.fd,POLLIN,0};bool dead=poll(&exited,1,0)>0&&(exited.revents&POLLIN);
     bool good=(mode==0||mode==4)?result==seed_root::SupervisedResult::Returned&&!dead:
         result==seed_root::SupervisedResult::UnknownContained&&dead;
+    SEED_LOAD_NOTE("supervisor-finished");
     printf("ARM64_OVERLAY_SUPERVISED mode=%d result=%d target_dead=%d\n",mode,int(result),dead);
     if(!good||shared->unexpected.load())return false;
     if(mode==0||mode==4){auto count=shared->beat.load();until=Clock::now()+std::chrono::milliseconds(500);
@@ -198,8 +224,13 @@ int main(int argc,char**){
     // A separate executable. It does not replace or relabel the 100ms stress
     // suite. Same fork-only targets, snapshot checks and unknown containment.
     (void)&test;
+#ifdef SEED_ARM64_LOAD_DIAGNOSTICS
+    if(!supervised(4)){puts("ARM64_LOAD_DIAGNOSTIC_FAIL");return 1;}
+    puts("ARM64_LOAD_DIAGNOSTIC_PASS own-child ELF only; NOT App/JNI/game acceptance");
+#else
     for(int mode=0;mode<5;++mode)if(!supervised(mode)){puts("ARM64_PRODUCT_BUDGET_FAIL");return 1;}
     puts("ARM64_PRODUCT_BUDGET_PASS 5 own-child cases; NOT game acceptance");
+#endif
 #else
     // modes 1 and 2 intentionally repeat syscall timeout after fresh child state.
     for(int round=0;round<3;++round)for(int mode=0;mode<9;++mode)if(!test(mode)){

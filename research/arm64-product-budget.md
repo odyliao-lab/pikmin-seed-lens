@@ -35,3 +35,20 @@ fork targets, a new staging directory and append-only attempts. adbd was then
 unrooted and actually re-read as UID2000 on the same boot/API/ABI/Enforcing.
 These results do not qualify ordinary App Root, JNI, game or product UI.
 See [the full Linux evidence](../docs/API31_LINUX_HOST_RESEARCH.md).
+
+## Separate ELF-load diagnostics
+
+`SEED_ARM64_LOAD_DIAGNOSTICS=ON` additionally builds
+`arm64_load_diagnostic_test`; it requires ARM64 and the explicit product-budget
+research option. Default product builds do not create it. It takes no target
+arguments, creates a new own fork child and attempt, and runs only the ELF case.
+It retains the same15s supervisor,2s calls, snapshot, ACK and UNKNOWN policies.
+It adds elapsed-time markers around manager initialization, attach/snapshot,
+durable CALLING, injector initialization, ELF entry/export call and final state.
+Logging can affect timing; diagnostic results are not substituted for the
+unmodified acceptance fixture, and an old uncertain child is never reused.
+
+The initial diagnostic SHA256 is
+`842a7e6750e9e1159aeb8a675dbd03e4e5362ad8e44d859a4c8df241651fa508`.
+It was compiled, not executed in Android at this checkpoint. No APK, Root,
+game/profile gate or delivered artifact was changed by this research target.

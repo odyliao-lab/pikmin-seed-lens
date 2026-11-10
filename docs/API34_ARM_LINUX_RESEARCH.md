@@ -66,3 +66,14 @@ thread tracer皆0；adbd實際恢復UID2000，再正常 shutdown。關機後 CLI
 初稿因此在收尾解析報錯；重核名稱／created timestamp及關閉狀態完成確認，沒有重送 shutdown。
 專用 WSL distro 在無 QEMU 並 sync 後重啟以回收下載快取；不改全域 WSL／Windows設定或重開主機。
 啟動前 Windows 可用實體記憶體實讀約6.7GiB，Linux5588／5589可用。
+
+## 原生載入診斷準備（僅編譯）
+
+針對先前 API31 正常 ELF load 超出產品界限的未解問題，另建 fork-only
+`arm64_load_diagnostic_test`，不改15s／2s或既有正常驗收套件；輸出 manager initialize、
+attach／snapshot、CALLING ACK、injector init、ELF entry／export call及收尾的時間標記。
+沒有外部 target 參數，必須新 child／新 attempt，不能用來重送舊 UNKNOWN。
+四個新 build artifacts 皆核為 AArch64，正常 budget fixture 不含 diagnostic marker；
+缺 research-budget 開關或選 x64 ABI 的兩個獨立 CMake configure均實際拒絕。
+此 checkpoint 尚未在 Android 執行，不替代 ARM 原生、Root、JNI 或產品資格。
+詳見[獨立診斷契約](../research/arm64-product-budget.md)。
