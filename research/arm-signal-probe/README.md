@@ -96,3 +96,10 @@ Subsequent API35 ordinary-App control results are recorded separately in
 installed only 0.0.2. Its UDF record matched own PC/register markers but not
 instruction signal code/address, and remains context-unproven. It grants no
 API31/API34 or product qualification.
+
+The same 0.0.2 APK subsequently ran on the existing API34 x64 guest. Baseline
+returned, while UDF/SEVL/pair produced own handler records and independently
+verified exit86. Own PC/register-marker/aligned-SP observations matched; signal
+code/address did not, and remain context-unproven. Pair stopped at SEVL before
+WFE. The original game was never launched. The detailed research page records
+this separately from API35 and all product qualification. API31 is still pending.

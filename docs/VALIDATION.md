@@ -1,5 +1,21 @@
 # 驗證分層
 
+## 2026-11-11：既有API34 x64的自有訊號對照
+
+新index5正常關閉並實核雙false後，才單次啟動既有SeedLens_API34_x64／5582。原SDK／
+data保留，未新增環境或Root provider；實際API34／x64-libndk_translation／Enforcing，
+新boot83081800…0ad4。相隔99.678秒的當前Power／Window／display ON／PM／AM讀值與
+同server546/start2019另核，不以boot flag或讀取器拒絕推論產品結果。
+
+同lab簽章0.0.2／SHA89755ce2…51bc9在普通App UID10194實讀自身ELF62。三個參數負例
+在native前拒絕；baseline共同setup後返回；raise取得合成signal記錄。UDF、SEVL與pair
+皆進入自有handler後退出，Zygote各自獨立確認exit86；已知PC／marker／SP對齊吻合，
+但si_code=-6及address差12 bytes，完整context仍未證實。pair停於SEVL，WFE本身未驗。
+未改PC／指令／translator或產品守門，未在遊戲安裝handler；原遊戲157未啟動且SHA不變，
+產品與原attempt目錄皆未出現。各次回讀後adbd UID2000／Enforcing，最後正常關閉、host
+與埠消失、原SDK四SHA不變。見[各案例與界線](ARM_SIGNAL_CONTEXT_RESEARCH.md)，API34
+仍無產品相容資格，API31另驗。
+
 ## 2026-11-11：獨立ARM訊號probe的API35普通App對照
 
 157有界觀察及OFF結束後，才在同新index5正常安裝原lab簽章0.0.2/code2；PM SHA已核。
