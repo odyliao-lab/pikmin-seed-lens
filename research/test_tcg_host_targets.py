@@ -44,6 +44,40 @@ class HostTargetTests(unittest.TestCase):
             with self.subTest(args=args),self.assertRaises(ValueError):
                 validate_target_argv(args,target)
 
+    def test_single_thread_has_distinct_explicit_scope(self):
+        old=select_target('seedlens-api34-tcg-vector-save-v1')
+        new=select_target('seedlens-api34-tcg-single-vector-v1')
+        self.assertEqual(old.avd,new.avd)
+        self.assertEqual(old.port,new.port)
+        self.assertNotEqual(old.mapper,new.mapper)
+        self.assertNotEqual(old.mapper_sha256,new.mapper_sha256)
+        valid=self.args(new)+[b'-qemu',b'-accel',b'tcg,thread=single']
+        validate_target_argv(valid,new)
+        for argv,target in [(valid,old),(self.args(new),new),
+                            (self.args(new)+[b'-accel',b'tcg,thread=single',b'-qemu'],new)]:
+            with self.subTest(argv=argv),self.assertRaises(ValueError):
+                validate_target_argv(argv,target)
+
+    def test_single_thread_refuses_ambiguous_or_other_modes(self):
+        target=select_target('seedlens-api34-tcg-single-vector-v1')
+        prefix=self.args(target)+[b'-qemu',b'-accel']
+        invalid=[prefix,prefix+[b'off'],prefix+[b'kvm'],prefix+[b'tcg'],
+                 prefix+[b'tcg,thread=multi'],prefix+[b'tcg,thread=single,invalid=1'],
+                 prefix+[b'tcg,thread=single',b'-qemu'],
+                 prefix+[b'tcg,thread=single',b'-accel',b'tcg,thread=single'],
+                 prefix+[b'tcg,thread=single',b'-enable-kvm']]
+        for argv in invalid:
+            with self.subTest(argv=argv),self.assertRaises(ValueError):
+                validate_target_argv(argv,target)
+
+    def test_single_thread_still_refuses_other_avd_or_port(self):
+        target=select_target('seedlens-api34-tcg-single-vector-v1')
+        for option,value in [(b'-avd',b'SeedLens_API31_ARM64_Linux'),(b'-port',b'5586')]:
+            argv=self.args(target)+[b'-qemu',b'-accel',b'tcg,thread=single']
+            argv[argv.index(option)+1]=value
+            with self.subTest(option=option),self.assertRaises(ValueError):
+                validate_target_argv(argv,target)
+
 
 if __name__=='__main__':
     unittest.main()

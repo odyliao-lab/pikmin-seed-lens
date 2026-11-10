@@ -317,3 +317,13 @@ QEMU、gdb、原supervisor及原關閉計時器；實讀舊supervisor暫停及�
 這不改guest CPU／RAM、image、clock、Watchdog、SELinux或產品15s／2s；原單次Root會話
 仍在原2700秒點結束並實讀UID2000。新guardian的完整boot／PM／AM雙次核對與最終退出
 仍待實際回報；此時未提前宣稱正常收尾。
+
+原單次Root會話其後已完成：UTC06:59:09 unroot命令exit0，06:59:35實讀UID2000／同boot／
+Enforcing；新guardian讀到實際cleanup後才接續普通shell的唯讀framework log stream。
+尚無Magisk、研究APK、普通App su-M、JNI或遊戲安裝。
+
+主機側40秒取樣顯示GDB CPU計數不增，兩個vCPU thread各約每秒1.3萬次voluntary switch，
+因此另備[單執行緒TCG排程比較](../research/tcg-single-thread.md)，保留2 guest vCPU／4GiB。
+新獨立marker／helper與C23、Python8組、實際GDB拒絕及編譯／建置拒絕檢查完成，舊API31／
+API34 helper重建SHA仍吻合原件。**新排程未啟動guest**，原boot繼續；先自有CPU／故障控制，
+再考慮完整Android，不把主機計數或準備當作根因或相容證明。

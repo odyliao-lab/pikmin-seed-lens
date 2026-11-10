@@ -8,6 +8,9 @@
 #error This helper is for the Linux x64 research HOST only.
 #endif
 _Static_assert(sizeof(void *) == 8 && sizeof(long) == 8, "Linux x64 ABI required");
+#if defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH) && !defined(SEEDLENS_API34_HOST_RESEARCH)
+#error Single-thread scheduling research requires the separate API34 host target.
+#endif
 
 typedef unsigned long size_type;
 extern char *getenv(const char *);
@@ -25,7 +28,11 @@ static const char expected_exe[] =
 #if defined(SEEDLENS_API34_HOST_RESEARCH)
 static const char expected_avd[] = "SeedLens_API34_ARM64_Linux";
 static const char expected_port[] = "5588";
+#if defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH)
+static const char marker[] = "seedlens-api34-tcg-single-mapper-v1";
+#else
 static const char marker[] = "seedlens-api34-tcg-mapper-selection-v1";
+#endif
 #else
 static const char expected_avd[] = "SeedLens_API31_ARM64_Linux";
 static const char marker[] = "seedlens-tcg-mapper-selection-v1";
@@ -53,6 +60,9 @@ static int approved_software_target(void) {
     int avd = 0, software = 0;
 #if defined(SEEDLENS_API34_HOST_RESEARCH)
     int port = 0, avd_options = 0, port_options = 0, software_options = 0;
+#if defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH)
+    int qemu_options = 0, accel_options = 0, single = 0;
+#endif
 #endif
     const char *prior = "";
     for (long offset = 0; offset < count;) {
@@ -61,8 +71,21 @@ static int approved_software_target(void) {
         if (equal(argument, "-avd")) ++avd_options;
         if (equal(argument, "-port")) ++port_options;
         if (equal(argument, "-no-accel")) ++software_options;
-        /* The new target admits one explicit software form only. */
+#if defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH)
+        if (equal(argument, "-enable-kvm")) return 0;
+        if (equal(argument, "-qemu")) ++qemu_options;
+        if (equal(argument, "-accel")) {
+            ++accel_options;
+            if (!equal(prior, "-qemu") || qemu_options != 1) return 0;
+        }
+        if (equal(prior, "-accel")) {
+            if (!equal(argument, "tcg,thread=single")) return 0;
+            single = 1;
+        }
+#else
+        /* Existing API34 marker still refuses every accelerator override. */
         if (equal(argument, "-accel") || equal(argument, "-enable-kvm")) return 0;
+#endif
         if (equal(prior, "-port") && equal(argument, expected_port)) port = 1;
 #endif
         if (equal(prior, "-avd") && equal(argument, expected_avd)) avd = 1;
@@ -73,6 +96,9 @@ static int approved_software_target(void) {
         ++offset;
     }
 #if defined(SEEDLENS_API34_HOST_RESEARCH)
+#if defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH)
+    if (qemu_options != 1 || accel_options != 1 || !single) return 0;
+#endif
     return avd && software && port && avd_options == 1 &&
            port_options == 1 && software_options == 1;
 #else
@@ -101,7 +127,11 @@ int seedlens_software_cpu(void) {
     if (!__atomic_exchange_n(&logged, 1, __ATOMIC_RELAXED)) {
         static const char notice[] =
 #if defined(SEEDLENS_API34_HOST_RESEARCH)
+#if defined(SEEDLENS_API34_TCG_SINGLE_RESEARCH)
+            "SEED_TCG_API34_SINGLE_SOFTWARE_SELECTION_V1 qualified_host=0 android_qualification=0\n";
+#else
             "SEED_TCG_API34_SOFTWARE_SELECTION_V1 qualified_host=0 android_qualification=0\n";
+#endif
 #else
             "SEED_TCG_SOFTWARE_SELECTION_V1 qualified_host=0 android_qualification=0\n";
 #endif

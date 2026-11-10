@@ -12,6 +12,7 @@ class HostTarget:
     port: bytes
     mapper: Path
     mapper_sha256: str
+    single_thread_tcg: bool = False
 
 
 TARGETS = {
@@ -23,6 +24,11 @@ TARGETS = {
         b'SeedLens_API34_ARM64_Linux', b'5588',
         Path('/opt/seedlens-lab/host-helper-api34-v1/libseedlens-api34-tcg-selection-v1.so'),
         '1b702320855a24203f8fb6b081050965566617fae7630758998b6803e60125a7'),
+    'seedlens-api34-tcg-single-vector-v1': HostTarget(
+        b'SeedLens_API34_ARM64_Linux', b'5588',
+        Path('/opt/seedlens-lab/host-helper-api34-single-v1/libseedlens-api34-tcg-single-selection-v1.so'),
+        '0aa0e6e0f23048592ac113e14fdfb0f7c6673268e971af46e5ac1839b8f1122e',
+        True),
 }
 
 
@@ -40,5 +46,13 @@ def validate_target_argv(argv, target):
         at = argv.index(option)
         if at + 1 >= len(argv) or argv[at + 1] != expected:
             raise ValueError('wrong target')
-    if argv.count(b'-no-accel') != 1 or b'-accel' in argv or b'-enable-kvm' in argv:
+    if argv.count(b'-no-accel') != 1 or b'-enable-kvm' in argv:
         raise ValueError('explicit software CPU required')
+    if target.single_thread_tcg:
+        if argv.count(b'-qemu') != 1 or argv.count(b'-accel') != 1:
+            raise ValueError('one explicit backend scheduling option required')
+        at=argv.index(b'-accel')
+        if at != argv.index(b'-qemu')+1 or at+1 >= len(argv) or argv[at+1] != b'tcg,thread=single':
+            raise ValueError('exact backend-only single-thread TCG required')
+    elif b'-accel' in argv:
+        raise ValueError('existing targets refuse accelerator overrides')

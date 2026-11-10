@@ -1,5 +1,6 @@
-param([Parameter(Mandatory=$true)][string]$NdkPath,[switch]$Api34Research)
+param([Parameter(Mandatory=$true)][string]$NdkPath,[switch]$Api34Research,[switch]$Api34SingleThreadResearch)
 $ErrorActionPreference='Stop'
+if($Api34SingleThreadResearch -and !$Api34Research){throw 'Single-thread research requires explicit API34 research'}
 $root=Split-Path $PSScriptRoot -Parent
 $out=Join-Path $root ('.tools/research/tcg-software-selection-'+[Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory $out | Out-Null
@@ -7,6 +8,7 @@ $clang=Join-Path $NdkPath 'toolchains/llvm/prebuilt/windows-x86_64/bin/clang.exe
 $defines=@()
 $library='libseedlens-tcg-selection-v1.so'
 if($Api34Research){$defines=@('-DSEEDLENS_API34_HOST_RESEARCH=1');$library='libseedlens-api34-tcg-selection-v1.so'}
+if($Api34SingleThreadResearch){$defines+='-DSEEDLENS_API34_TCG_SINGLE_RESEARCH=1';$library='libseedlens-api34-tcg-single-selection-v1.so'}
 & $clang --target=x86_64-unknown-linux-gnu -fuse-ld=lld -std=c11 -O2 -Wall -Wextra -Werror `
     -fPIC -fvisibility=hidden -fno-stack-protector -nostdlib -shared `
     '-Wl,--build-id=sha1' "-Wl,-soname,$library" @defines `

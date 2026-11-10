@@ -65,3 +65,10 @@ The common target policy has5 passing test methods, and6 real gdb refusal
 cases covered missing/wrong markers, both targets' wrong executable and wrong
 preload before starti. This does not claim actual API34 CPU/Android acceptance;
 see [the API34 research](../docs/API34_ARM_LINUX_RESEARCH.md).
+
+A separate, default-disabled [API34 scheduling comparison](tcg-single-thread.md)
+adds its own mapper/vector markers and SHA-pinned helper. It alone admits the
+exact backend-only `-accel tcg,thread=single` form; existing markers retain
+their refusal. This keeps2 guest vCPUs and is not single-instruction stepping.
+Host guards pass, but the new scheduling mode has not run a guest at this
+checkpoint. Its presence does not change any existing qualification.
