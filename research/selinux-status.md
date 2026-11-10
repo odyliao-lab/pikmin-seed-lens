@@ -87,5 +87,30 @@ They do not establish ordinary-App su-M, ART/JNI, full Android boot, game,
 product integration or compatibility qualification. The one Root session's
 later actual unroot and guest shutdown must be recorded separately.
 
+### Later boot-load comparison: both ordinary suites failed
+
+A second, separately recorded comparison used two ordinary five-case suites
+with the same newly built paired fixture (`39d842…`), verified guest hashes,
+the existing Root session, and new own children/attempts. It ran direct-query
+first, then baseline, while PackageManager approached the end of system scans.
+No Root switch or additional diagnostic logging was added. The baseline plain
+executable SHA256 is
+`e9c18e6c7e78ab04b369eefe5a956cf1245a19e9a4e29a5724117b1265e7cfd5`.
+
+Both executions exited1. Both passed the normal-function case and three
+expected contained-fault cases. The direct-query ELF case actually printed
+load/call/unload success but its supervisor recorded all4 phases without a
+reaped worker before the original deadline (`uncertain=0`, Refused, target
+alive). That is **not** a complete successful transaction. The baseline ELF
+case recorded only2 phases and UNKNOWN/contained, target dead. The private
+journals remain separate; no failed or uncertain target was called again.
+
+Thus the early five-case pass is a bounded sample, not stable platform
+qualification. Direct querying alone did not make the later boot-load suite
+pass. Stop additional loader tests during this initialization phase; obtain
+full boot and assess isolated normal-App/JNI behavior under an identified
+load condition before considering product integration. No timeouts or
+worker-reaping requirements were relaxed.
+
 Actual CMake controls also refused x64 and missing-budget configurations;
 default ARM64 configuration contains none of these new research targets.

@@ -284,3 +284,11 @@ baseline的SELinux區間約7585ms，direct樣本13ms；整體diagnostic標記151
 [逐項比較與artifact SHA](../research/selinux-status.md)。產品backend尚未整合；framework仍在
 初始化，沒有普通App su-M、JNI、遊戲或完整API34資格。此單次Root會話的實際恢復UID2000及
 正常關機另待收尾核對，不提前宣告。
+
+同Root會話稍後以共用39d842… fixture、各自新child比較兩個無額外diagnostic標記的普通
+budget套件，順序direct再baseline，兩者皆exit1。direct的ELF雖載入／呼叫／卸載並達四階段，
+原期限內未確認worker reap，因此Refused／target alive；baseline僅兩階段，UNKNOWN且target
+已收容。正常function與三故障分項各達預期，不把整體失敗改記5/5。這進一步顯示直接getter
+本身不足以讓較後段boot負載穩定通過；先停止新增loader測試，沒有放寬期限或reap條件。
+PM同時於UTC06:42:05完成258個system packages（625310ms、cached258），發現前輪未完成的
+Trichrome目錄缺base APK，正常刪除無效目錄後開始新解壓。此記錄不是已有完整解壓或boot成功。

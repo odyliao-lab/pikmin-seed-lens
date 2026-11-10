@@ -16,6 +16,8 @@ API34原kernel的自有V2基準實際5 pass／2 SIGSEGV fail；同V2配API34 map
 
 同AVD另輪cold boot改為單次stock adbd Root會話，實讀API34／ARM64／Enforcing／同boot UID0後，原查詢baseline與直接查詢diagnostic均實際完成ELF載入／呼叫／卸載及snapshot／detach核對；直接查詢普通budget fixture亦5/5／exit0，含三項預期UNKNOWN且確認收容。baseline的SELinux樣本約7585ms，direct約13ms，但兩者皆通過且負載不同，不能當舊逾時根因證明。產品15s／2s未改、舊UNKNOWN保留；完整boot、普通App Root／JNI、遊戲與會話收尾仍分開待驗，見[比較紀錄](../research/selinux-status.md)。
 
+同Root會話後段的共用fixture普通budget比較兩者皆exit1：direct達完整ELF lifecycle及四階段但未於期限內確認worker reap，判Refused；baseline為兩階段UNKNOWN／已收容。前段成功不升格穩定資格；停止新增boot負載下loader測試。PM已掃完258項並重新解壓前輪未完成的Trichrome，完整boot仍待核對；詳見上述比較紀錄。
+
 ## 2026-11-10：同0.5.2／API35／157首輪及遊戲重啟
 
 156.1正常OFF後，以合法完整原簽章splits正常升級157.0/code1793360009，PM逐份SHA、同0.5.2 APK及原28份歷史再次核對。經正常設定切回繁體並重新進入本人帳號後，PID10899/start264686正常App新同意／完整journal，兩頁名稱、庫存完整紀念長字、兩頁真正離屏返回及OFF還原已觀察；中途OFF snapshot保留原時序，稍後ON_COMMITTED與ready／ON獨立核實，不重送載入。
