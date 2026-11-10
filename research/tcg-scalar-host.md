@@ -127,3 +127,20 @@ ramdisk/no-animation/data/display, preselected1800s upper bound and normal
 close1660s. Actual current API/ABI/boot/Enforcing/CPU-online, two strong
 current-service reads and independent interactive-Home review must pass
 before native/Root/App work. No earlier proof transfers into this run.
+
+The one-CPU Android run also failed. First actual ordinary-shell identity at
+UTC15:26:38.596 read UID2000/Enforcing/API34/ARM64-only, bootfda655d1…637b,
+NativeBridge0 and CPU-online0. Later flag1 never supplied a completed current
+PowerManager proof. Server473/start19044 was killed by stock Watchdog at
+15:38:05.497 after129s on main, annotated in biometric cleanup callbacks;
+Bluetooth separately aborted. These observations do not identify one shared
+cause with the preceding scalar/vector runs. No policy/clock/security change.
+
+Read-only diagnostic metadata succeeded, but screencap hit its90s observation
+timeout; no PNG/Home or interaction proof was accepted. No restart or load
+was sent in response. The automatic replacement server1531/start97979 still
+failed the current Power boot check at15:40:44.368. Fresh UID2000/Enforcing/
+API34/same-boot/flag1/sync and exact console AVD name preceded normal early
+close; actual inferior/GDB0 at15:41:08.151, no timeout/containment. The timer
+observed its own child gone. Own-native/Root/App/JNI/product work stayed gated;
+new Root client0.0.9 is host preparation only. The nine product rows remain open.

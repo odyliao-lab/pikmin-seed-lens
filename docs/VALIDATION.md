@@ -42,6 +42,12 @@ scalar cores／preload及vector scope；Windows／Linux22 methods、真GDB十二
 通過。UTC15:22:51–59原V3c實讀1CPU，7/7及NULL／reap通過、真inferior0無收容。
 SDK CPU輪ADB警告保留，Linux server另啟；UTC15:23:54另輪1800秒完整Android觀察
 才開始，仍須獨立核當前API／boot／Enforcing／完整服務及可互動Home，未授予產品資格。
+一核scalar輪其後也未通過：bootfda655d1…637b／實讀CPU0，server473/start19044多次
+flag1但current Power未完成；UTC15:38:05原Watchdog於main biometric cleanup註記終止，
+另有Bluetooth SIGABRT。診斷metadata成功、screencap90秒讀取逾時，沒有PNG／Home／
+互動驗收，也未因逾時重啟／載入。新server1531/start97979仍Power boot未完成。
+UID2000／Enforcing／同boot／sync與console AVD另核後正常提前關閉，UTC15:41:08真
+inferior／GDB0、無逾時收容，timer不再動作；native／Root9／JNI／遊戲／產品皆未執行。
 
 ## 2026-11-10：0.5.2／156.0獨立新OS boot後回歸
 

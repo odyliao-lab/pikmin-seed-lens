@@ -8,6 +8,9 @@ UTC15:01:02啟動1800秒觀察，未取得本輪完整boot／互動Home／Root�
 Home／Root／JNI／產品；UTC15:18:17正常關閉，真inferior0、無逾時收容。CPU正例不改九組。
 同AVD後續一核scalar另實跑原V3c7/7及NULL／reap、真inferior0；host22方法及十二個真
 PID0拒絕通過。UTC15:23:54獨立完整Android觀察開始，尚無本輪完整服務／Home／產品資格。
+該一核輪其後也因stock Watchdog終止server473，replacement1531仍current Power boot
+未完成；診斷截圖讀取逾時、無Home或Root／JNI／產品，UTC15:41:08正常關閉，真inferior0
+無外部收容。兩種scalar CPU正例都不代表Android完整可用，九組與三階段仍未完成。
 
 最新另獲准的 API34 **AOSP** ARM64／Linux 新 AVD 已完成官方 intake、獨立 CPU7/7 與
 NULL／回收控制；原始 ramdisk 的完整 Android 已實讀 API34／ARM64／Enforcing，完成32個

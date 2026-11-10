@@ -86,6 +86,24 @@ That run began UTC15:23:54.925 with fixed1800s bound/normal-close1660s and the
 same worker1 ramdisk/no-animation. At launch no actual completed-boot/Home/
 Root/JNI/product proof existed. See [one-core scalar scope](../research/tcg-scalar-host.md).
 
+This follow-up also failed full-platform acceptance. Actual ordinary-shell
+metadata at UTC15:26:38.596 confirmed new bootfda655d1…637b, UID2000/Enforcing/
+API34/ARM64-only/NativeBridge0/no-animation1/CPU-online0. Server473/start19044
+remained current for several failed Power boot checks despite flag1. Stock
+Watchdog killed it at15:38:05.497 after129s; annotated main was in biometric
+cleanup. Bluetooth separately SIGABRTed. Neither stack proves a common cause
+with earlier failures. Replacement server1531/start97979 also had current
+Power boot incomplete at15:40:44.368.
+
+A read-only diagnostic screencap timed out90s after successful metadata;
+there was no PNG or actual Home/interaction evidence. No UI input, Root,
+native suite, research/game/product APK installation or loader was performed.
+Fresh ordinary-shell UID2000/Enforcing/API34/same boot/flag1/sync and exact
+console AVD name preceded early normal close. Actual inferior/GDB0 at
+UTC15:41:08.151, no timeout/containment; timer took no extra action. This
+retains data/diagnostics and the unchanged original SDK, not a platform pass.
+Further repetitions of this same failed setup do not supply product evidence.
+
 2026-11-10. This addresses **Android14/API34 native ARM64**, one part of the
 Android12/14/15 × game156.0/156.1/157.0 goal. It does not replace API31 or API35
 evidence. The owner approved the [fixed AOSP scope](API34_AOSP_ARM_LINUX_PROPOSAL.md).
