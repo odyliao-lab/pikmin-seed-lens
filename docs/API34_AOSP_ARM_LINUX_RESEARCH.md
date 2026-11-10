@@ -33,6 +33,39 @@ UID2000, Enforcing, actual API34, ARM64-only/aarch64, NativeBridge0, new boot
 online CPUs0-1. Boot flag and system_server PID were both empty at this read;
 it establishes current platform identity only. No Root was requested.
 
+### Scalar Android result: two stock Watchdog kills, closed normally
+
+The events buffer and a separate system-buffer read recorded server485's
+Watchdog kill at UTC15:09:10.784 after122s on main, annotated in
+`Class.forName → startServiceFromJar → startApexServices`. The second automatic
+server1366/start60302 also failed current PowerManager boot checks despite
+global flag1, then was killed at15:16:35.305 after104s; its annotated stack
+waited in ServiceManager/TelephonyManager from Power Notifier. These are
+different observed stacks, not proof of one permanent deadlock or a specific
+root cause. The stock framework's own timeout-update log is retained; no
+research script changed its Watchdog setting.
+
+Ordinary-shell `oatdump --header-only` returned0 for the existing original
+services.odex (`prebuilt`, `speed-profile`) and service-adservices odex
+(`prebuilt`, `speed`). Help returned1 while explicitly documenting that
+option; it is not rewritten as0. These headers establish available compiled
+artifacts, not that every runtime method used AOT, nor a performance diagnosis.
+No `odrefresh`, force-compile, Root command or cache rewrite was requested.
+The enclosing shell was independently read UID2000/Enforcing/same boot after.
+
+After the two kills, the failed comparison ended early within its unchanged
+1800s upper bound. Fresh ordinary-shell metadata/sync read UID2000, Enforcing,
+API34/ARM64, the same boot and flag1; console normal-close0 followed. Actual
+QEMU/GDB exited0 at UTC15:18:17.336, no timeout or containment signal. The
+separate timer observed its exact child already gone and took no action.
+The read-only full-proof observer later refused the departed host identity;
+that observer exit1 is distinct from a new guest crash or load attempt.
+
+No full-proof artifact, actual Home/interaction, native suite, research APK,
+Magisk, ordinary-App Root, JNI or game/product run was accepted. All nine
+product rows and three delivery stages remain incomplete. This comparison
+rules out treating its CPU7/7 or flag1 as a usable Android platform.
+
 2026-11-10. This addresses **Android14/API34 native ARM64**, one part of the
 Android12/14/15 × game156.0/156.1/157.0 goal. It does not replace API31 or API35
 evidence. The owner approved the [fixed AOSP scope](API34_AOSP_ARM_LINUX_PROPOSAL.md).

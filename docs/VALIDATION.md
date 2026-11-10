@@ -20,6 +20,13 @@ Root／JNI／三遊戲另驗；未將其他輪或API31證據轉記。本輪未�
 本輪首次普通shell metadata於UTC15:03:27 exit0：UID2000／Enforcing／API34／ARM64-only、
 新boot37eb10f7…b4e9、NativeBridge0／原AOSP fingerprint、no-animation1／CPU0-1；
 當時boot flag與system_server皆空，僅身分已驗，不是完整開機。
+後續兩個server485／1366於UTC15:09:10／15:16:35遭原Watchdog終止，註記分別在APEX
+class loading與Power Notifier→Telephony／ServiceManager；不是同一固定卡點的根因證明。
+新server雖flag1，current Power boot仍false，無完整proof／Home。普通shell讀到兩份原OAT
+header（services speed-profile、adservices speed），未執行Root／重編譯，不以檔案存在推論
+實際每個method走AOT或效能原因。UID2000／Enforcing／同boot／sync後正常提前關閉，
+UTC15:18:17真inferior／GDB0、無逾時收容。timer無額外動作，observer因host已退出拒絕；
+未執行native套件／Root provider／研究APK／產品，九組與三階段均未完成。
 
 ## 2026-11-10：0.5.2／156.0獨立新OS boot後回歸
 

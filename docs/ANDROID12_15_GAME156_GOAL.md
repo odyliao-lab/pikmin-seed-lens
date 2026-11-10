@@ -4,6 +4,8 @@
 真inferior0、無外部收容；21項host測試及八個真GDB未啟動負例通過。完整Android另輪於
 UTC15:01:02啟動1800秒觀察，未取得本輪完整boot／互動Home／Root／JNI／遊戲資格。
 產品0.5.2與九組狀態不變，見[scalar對照](../research/tcg-scalar-host.md)。
+本輪其後兩次原Watchdog終止system_server，flag1但current Power boot未完成，未進入
+Home／Root／JNI／產品；UTC15:18:17正常關閉，真inferior0、無逾時收容。CPU正例不改九組。
 
 最新另獲准的 API34 **AOSP** ARM64／Linux 新 AVD 已完成官方 intake、獨立 CPU7/7 與
 NULL／回收控制；原始 ramdisk 的完整 Android 已實讀 API34／ARM64／Enforcing，完成32個

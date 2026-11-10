@@ -84,3 +84,10 @@ worker1 ramdisk. At launch there was no completed-boot/Home/Root proof.
 Current Power/WMS boot state, PM/AM and unchanged server identity must pass
 twice60s apart, followed by actual Home/interaction, before later deployment.
 See [AOSP evidence](../docs/API34_AOSP_ARM_LINUX_RESEARCH.md).
+
+The separate Android run subsequently failed: two stock Watchdog kills at
+UTC15:09:10.784 and15:16:35.305, no complete current-service/Home proof.
+Existing services/adservices OAT headers were read without Root/compilation;
+their presence is not a causal diagnosis. Normal console close after fresh
+UID2000/Enforcing/API34/boot/sync checks yielded actual inferior/GDB0 at
+15:18:17.336, no timeout/containment. Android success remains **unqualified**.
