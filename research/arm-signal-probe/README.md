@@ -198,3 +198,10 @@ Hardware signal-code/address matching remains false; no game was started.
 All sixteen prior own receipts and thirty-eight journals were retained, then
 index5 was normally shut down and observed stopped. API34/API31 0.0.4 remain
 pending; the detailed research page records the independent scope and limits.
+
+API34 subsequently independently observed the same own positive native/Java
+round trip and bad-marker exit89, while the original UDF still exited86 and
+the intentional alarm exited by signal14. Partial synthetic siginfo remains
+context-unproven. Prior sixteen own receipts and original game hashes were
+retained, product was absent, and no game handler or admission change was made.
+API31 0.0.4 remains pending.

@@ -288,3 +288,24 @@ NDK公開欄位與前述kernel self-test提供原生介面依據，不保證Nati
 adbd UID2000／原Permissive、Game／probe皆無、38份歷史與控制OFF保留；正常指定index5
 shutdown一次後另核CLI Android／process兩者false、SDK guest／埠亦不在。原四台及台中
 未操作，原產品bytes未改。API34／31尚未執行0.0.4，須各自另驗。
+
+## API34／0.0.4獨立自有UDF回復（2026-11-11）
+
+index5正常關閉及SDK／Linux無研究guest後，才單次啟動既有API34 x64／5582；SDK四原件
+與既有data保留，無新Root安裝。實際boot66966298-faea-4d8d-8319-0b360be65693／API34／
+libndk_translation／Enforcing／UID2000，同server540/start1757及當前Power／Window／
+display ON／committed ON兩次讀值相隔80.471秒。原lab簽章的相同0.0.4正常升級0.0.3，
+普通App UID10194實讀自身ELF62；原16份自有002/003收據逐份SHA、原157完整SHA與
+產品／attempt目錄不存在狀態逐次保留。Game未啟動，產品未安裝。
+
+六例各新程序／只發一次：resume-invalid在native前拒絕、baseline4706返回；原UDF4910
+仍context-unproven／exit86；負marker5114的x19確為534d、其餘受限守門吻合，沒有
+write intent，Zygote另核exit89。正例5315取得native1/2/3/4、canary守門與Java RETURNED/
+instrumentation-1，已觀察這台的自有UDF回復；siginfo仍code=-6／address在PC前12 bytes，
+hardware匹配與完整context仍false。alarm5518另由Zygote確認signal14，1/2 parser收據
+仍不自稱已證實timeout。
+
+最後同boot／server、adbd UID2000／Enforcing且Game／probe不在；指定console正常關閉
+一次後，另核host／5582及5583皆消失、原SDK四映像SHA不變、index5仍關閉。
+未在Game安裝handler、未模擬SEVL/WFE或改產品
+守門；這不是API31、原生ARM64或九組產品資格。API31相同0.0.4仍待獨立實跑。

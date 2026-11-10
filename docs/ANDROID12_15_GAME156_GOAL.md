@@ -1,5 +1,9 @@
 # 驗收目標：Android12／14／15 × 遊戲156／156.1／157
 
+API34後續也以相同研究0.0.4在獨立新boot取得自有UDF native／Java回復、負marker
+exit89／原UDF exit86／alarm signal14證據；原16份自有收據及遊戲SHA保留，產品未安裝。
+正常關閉、SDK四SHA不變。siginfo完整匹配、API31同版及產品驗收仍未因此通過。
+
 API35另以研究0.0.4實跑受限自有UDF回復：原生canary／Java返回、負marker exit89、
 原UDF exit86及alarm signal14分開核對，16份自有舊收據及38份attempt保留。siginfo完整
 匹配仍未證實，這不是產品或跨平台資格，Game未啟動。API34／31的0.0.4另驗。

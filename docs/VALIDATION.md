@@ -1,5 +1,16 @@
 # 驗證分層
 
+## 2026-11-11：API34的0.0.4受限自有回復另驗
+
+既有API34 x64另次boot66966298…5693／libndk_translation／Enforcing／UID2000，同
+server540/start1757的當前服務／display讀值相隔80.471秒才升級相同0.0.4。普通App
+UID10194實讀ELF62；無效模式拒絕、baseline返回、原UDF仍exit86；負marker在無write
+intent下另核exit89。正例有native1/2/3/4／canary守門及Java RETURNED，但code=-6與
+address差12 bytes，完整context仍未證實；alarm另核signal14。原16份自有收據、原157
+完整SHA及產品／attempt不存在狀態保留，Game未啟動。正常關閉後host／埠消失、SDK四
+SHA不變、index5仍關閉。這是API34自己的受限回復證據，不改API31或任何產品資格。
+見[案例及界線](ARM_SIGNAL_CONTEXT_RESEARCH.md)。
+
 ## 2026-11-11：API35的0.0.4受限自有回復實測
 
 新index5另次正常啟動，新boot1d2d9312…0437／API35／libnb／原Permissive，同server808/
