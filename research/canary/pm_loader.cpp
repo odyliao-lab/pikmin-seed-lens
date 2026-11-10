@@ -11,6 +11,10 @@
 #include <cstdlib>
 #include <fstream>
 #include <sys/stat.h>
+#ifdef SEED_API34_PM_RESEARCH
+#include <sys/system_properties.h>
+#include "api34_tuple.h"
+#endif
 #ifndef SEED_PROBE_HOST_NAME
 #define SEED_PROBE_HOST_NAME "libseedprobe_api31_host.so"
 #endif
@@ -43,6 +47,12 @@ int main(int argc,char** argv){
            "dev.ody.seedlensrootprobe")||!pmOwned(exe))return 14;
 #endif
     if(android_get_device_api_level()!=SEED_PROBE_API||std::string_view(argv[3])!=std::to_string(SEED_PROBE_API))return 3;
+#ifdef SEED_API34_PM_RESEARCH
+    char sdk[PROP_VALUE_MAX]{},bridge[PROP_VALUE_MAX]{};
+    __system_property_get("ro.build.version.sdk",sdk);
+    __system_property_get("ro.dalvik.vm.native.bridge",bridge);
+    if(!seed_probe_api34::platform(android_get_device_api_level(),sdk,bridge))return 3;
+#endif
     std::string raw=argv[1],start=argv[2],host=argv[4];
     if(!seed_root::start_ticks(raw)||raw.size()>10||!seed_root::start_ticks(start))return 4;
     auto number=strtoll(raw.c_str(),nullptr,10);if(number<=1||number>INT_MAX)return 4;

@@ -3,6 +3,16 @@
 This separate lab APK is never a product dependency. The product's Root,
 Android, NativeBridge and exact game guards are unchanged.
 
+## API34 explicit PM experiment0.0.12: prepared, not installed
+
+The separate `api34_pm_research` scope requires an explicit load target and
+the exact API34/x64/process-ELF/packaged-ABI tuple. It uses the new self-only
+API34 runner, not the retained0.0.10 runner. Missing scope still refuses API34
+PM, and `api34_root_only` still refuses every load_pid key. The product and
+default ProbePlatform are unchanged. New496 scope/ABI checks and the prior
+94/77/38 checks passed on the host; signing/building is not device validation.
+See [artifacts, interface sources and pending device gates](../../docs/API34_PM_FLOW_RESEARCH.md).
+
 ## API34 Root-only0.0.10: host preparation
 
 Subsequent device evidence is now available in

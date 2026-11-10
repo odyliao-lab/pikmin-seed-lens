@@ -68,6 +68,33 @@ target_include_directories(seedprobe_api35_lab_host PRIVATE "${CMAKE_CURRENT_SOU
   "${CMAKE_CURRENT_SOURCE_DIR}/../../app" "${CMAKE_CURRENT_SOURCE_DIR}/../../native/renderer")
 target_compile_options(seedprobe_api35_lab_host PRIVATE -fvisibility=hidden)
 target_link_libraries(seedprobe_api35_lab_host dl)
+# API34 is a separate self-only experiment using the Android14 four-argument
+# interface. No product runtime selector or API35 adapter is widened.
+add_library(seedprobe_api34_lab_host SHARED host.cpp ${XDL})
+target_compile_definitions(seedprobe_api34_lab_host PRIVATE SEED_API34_LAB_CANARY SEED_CANARY_SHA="${CANARY_SHA}"
+  SEED_API31_PROBE_VERSION="${API31_VERSION}" SEED_API31_PROBE_CODE=${API31_CODE})
+target_include_directories(seedprobe_api34_lab_host PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../third_party/xdl/include"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../../app" "${CMAKE_CURRENT_SOURCE_DIR}/../../native/renderer")
+target_compile_options(seedprobe_api34_lab_host PRIVATE -fvisibility=hidden)
+target_link_libraries(seedprobe_api34_lab_host dl)
+if(SEED_API34_LAB_HOST_LIBRARY)
+  if(NOT EXISTS "${SEED_API34_LAB_HOST_LIBRARY}")
+    message(FATAL_ERROR "SEED_API34_LAB_HOST_LIBRARY must be the immutable PM carrier host")
+  endif()
+  file(SHA256 "${SEED_API34_LAB_HOST_LIBRARY}" API34_LAB_HOST_SHA)
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${SEED_API34_LAB_HOST_LIBRARY}")
+  foreach(kind canary app)
+    add_executable(api34-${kind}-root pm_loader.cpp pm_backend.cpp ${KM} ${INJ} "${CMAKE_CURRENT_BINARY_DIR}/KittyTrace-bounded.cpp")
+    target_include_directories(api34-${kind}-root PRIVATE "${K}/AndKittyInjector/src" "${K}/KittyMemoryEx/KittyMemoryEx")
+    target_compile_definitions(api34-${kind}-root PRIVATE kNO_KEYSTONE NDEBUG SEED_GAME_TRACE
+      SEED_API34_PM_RESEARCH SEED_PROBE_API=34 SEED_PROBE_HOST_NAME="libseedprobe_api34_lab_host.so"
+      SEED_API31_HOST_SHA="${API34_LAB_HOST_SHA}")
+    if(kind STREQUAL "app")
+      target_compile_definitions(api34-${kind}-root PRIVATE SEED_PROBE_PM_CLIENT)
+    endif()
+    target_link_libraries(api34-${kind}-root log dl)
+  endforeach()
+endif()
 if(SEED_API35_LAB_HOST_LIBRARY)
   if(NOT EXISTS "${SEED_API35_LAB_HOST_LIBRARY}")
     message(FATAL_ERROR "SEED_API35_LAB_HOST_LIBRARY must be the immutable PM carrier host")

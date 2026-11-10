@@ -39,6 +39,9 @@ final class PMCanary {
         String abi=android.os.Build.SUPPORTED_ABIS.length==0?"":android.os.Build.SUPPORTED_ABIS[0];
         int processMachine=ProcessElf.currentMachine();
         String backend=ProbePlatform.backend(args.getString("expected_api"),api,abi,Process.is64Bit(),android.system.Os.uname().machine,packagedAbi(context),processMachine);
+        if(Api34PmResearch.allowed(args.getString("research_scope"),args.getString("expected_api"),api,
+                abi,Process.is64Bit(),android.system.Os.uname().machine,packagedAbi(context),processMachine,
+                args.containsKey("load_pid")))backend="x64";
         boolean arm=backend.equals("arm64");
         if(backend.isEmpty()||Process.myUid()<10000||
            !"dev.ody.seedlensrootprobe".equals(context.getPackageName())||

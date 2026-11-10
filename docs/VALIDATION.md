@@ -1,5 +1,14 @@
 # 驗證分層
 
+## 2026-11-11：API34 獨立 PM／JNI 研究準備
+
+固定 Android14 AOSP header核對後新增四參數 adapter與自有 PM runner，精確 SDK／
+bridge准入在 ART查詢之前，namespace候選與實際 bridged load確認分開；產品dispatcher
+及預設研究准入不改。原研究簽章新 carrier0.0.10／client0.0.12、runner／host SHA、
+stored ELF／16KiB封裝與 scope／ABI host檢查通過；API31／35研究 host及 PM runner
+另編譯回歸通過。本 checkpoint尚未安裝／執行新研究件，沒有 API34 PM／JNI或遊戲
+通過。見[新來源與待驗門檻](API34_PM_FLOW_RESEARCH.md)。
+
 ## 2026-11-11：API34 私人 Root 的普通 App 分項通過
 
 既有獲准 API34 x64 AVD 以私人 Magisk31.1 ramdisk 冷啟動，官方管理器標準 setup

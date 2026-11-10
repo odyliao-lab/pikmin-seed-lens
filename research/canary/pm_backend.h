@@ -5,6 +5,10 @@
 #ifndef SEED_PROBE_API
 #define SEED_PROBE_API 31
 #endif
+#ifdef SEED_API34_PM_RESEARCH
+static_assert(SEED_PROBE_API==34);
+#else
 static_assert(SEED_PROBE_API==31||SEED_PROBE_API==35);
+#endif
 int seed_probe_pm_load(int pid,const std::string& start,const std::string& host,
                       seed_root::LoadAttempt& attempt,bool timeoutTest);
