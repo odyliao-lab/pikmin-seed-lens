@@ -66,3 +66,41 @@ adbd回UID2000。正常啟動精確156.0，依本人既有關閉提示授權選�
 額外服務；現在停出生日期起始頁，已請本人登入樣本帳號。未代填生日或帳密、未啟用Lens，
 不是本版156.0兩頁或OS後產品相容通過。原始UIAutomator helper退出139而留下dump的失敗
 另存，未當成遊戲崩潰或默認操作成功；其後由新鮮畫面核對才選擇關閉該提示。
+
+## API35／156.0本次樣本：兩個程序的庫存分項
+
+本人完成登入後，實際庫存357/30；本次探險頁只有三筆已完成水果，沒有未領回花苗。
+本人表示稍後更換有花苗探險的樣本帳號。本輪不領取水果、不派遣，不把水果頁或舊帳號
+的證據當成本版156.0花苗探險通過。
+
+同新boot `7ffb85f6-02df-46d4-add2-6049f5761944`，首程序3056/start65165／UID10067。
+06是完整庫存OFF基準，08證實水果探險樣本不足；04／07屬畫面過渡，不能作基準。
+10未確認啟用與12舊status實際拒絕，14新程序確認完成、15兩項同意後才正常App單次
+載入。當時遊戲停在登入後的探險地圖收合面板，保留該上下文，不將其稱為主畫面截圖。
+17回報ON_COMMITTED／waiting-cards，仍不算顯示成功；另讀first-loaded control ON及
+持久journal，之後實際開庫存才驗效果。
+
+- 19「紅色五週年紀念玩具珠寶金苗」及照片鈕扣徽章金苗完整縮字，咖啡杯短名較大。
+- 21上述首排卡片的圖示與名稱皆完全離屏；22返回完整同名，真正庫存重用分項通過。
+- 23正常App OFF_COMMITTED後，24庫存原花苗名／大字及原有截斷均還原。
+- first-on與first-off另核同PID/start／156.0／ready，enable分別1／0；最終control OFF，
+  207份thread TracerPid讀值皆0（非原子snapshot），adbd實際回UID2000。
+
+OFF後正常force-stop／launcher至新PID9084/start359211，UID10067相同；25另驗真主畫面。
+26未確認啟用及27舊status最終拒絕，不只截到核對中；28新程序確認及29兩項同意後才
+載入新程序。31的waiting-cards不計畫面通過，34／35／36另有相同長名完整縮字、整張
+卡真正離屏及返回同名；37正常App OFF後38原文／大字／原截斷再次還原。
+
+restart-on／off實讀新PID/start／156.0／ready、enable1／0與最終control OFF；最後175份
+thread TracerPid皆0（非原子snapshot），adbd回UID2000。同產品APK與完整156.0兩份PM
+APK SHA再次吻合。原30份attempt逐份不變；首輪新journal後續SHA不變，新增兩份總32份：
+
+| 程序 | journal SHA256 |
+|---|---|
+|3056/start65165|`2fa12e364ca78f5cf90f8254c74d2f7837caad5e7e97759b0263cfd7bb0483d1`|
+|9084/start359211|`f94be0a75a355e09479159da431dc10fbffb470ea728ce943f82eefe3c95d39d`|
+
+兩份journal實際含PREPARED至DETACHED及RETURNED_UNVERIFIED；不改寫成native已驗證
+成功。新鮮renderer ready、ON／OFF與真正畫面另核，歷史UNKNOWN不變、不重送載入。
+本輪只完成兩個程序的庫存分項，探險名稱／長字／捲動／OFF仍缺新樣本；也不算本版
+OS重啟或長時間驗收。API31／34與九組目標保持未完成，沒有修改或交付新產品bytes。

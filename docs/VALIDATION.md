@@ -1,5 +1,19 @@
 # 驗證分層
 
+## 2026-11-10：0.5.2／API35／156.0庫存與新程序分項
+
+本人完成登入後，本次帳號庫存357/30、探險只有三筆完成水果，沒有花苗探險；本人將稍後
+換樣本。本輪不領取／派遣。精確156.0與同0.5.2 APK在PID3056/start65165及正常遊戲重開
+9084/start359211，各自從正常App新同意單次載入；未確認／舊status最終拒絕，waiting-cards
+不記成功，另核同程序ready與實際畫面。庫存五週年玩具珠寶長名完整縮字、整張卡離屏
+返回同名及OFF原文／大字／原截斷，兩個程序皆已驗。首輪啟用時是登入後探險地圖收合
+面板，保留此上下文；重開輪另有真正主畫面截圖。
+
+原30份attempt SHA逐份不變，新兩份持久journal含RETURNED_UNVERIFIED，不倒填native
+成功；renderer／畫面獨立驗收。總32份、最終control OFF／enable0，175份thread TracerPid
+讀值0、adbd UID2000；產品及完整splits PM SHA再核。花苗探險分項、OS／長時間及API31／34
+仍未通過，詳見[本版分項與樣本限制](PRODUCT052_FONT_QUALIFICATION.md)。
+
 ## 2026-11-10：研究Root client0.0.8程序ELF及普通App Root實核
 
 新MuMu觀察到uname與實際ELF／PM ABI不同後，只修改研究工具：固定讀取自身
