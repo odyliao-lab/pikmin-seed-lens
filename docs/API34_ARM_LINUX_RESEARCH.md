@@ -265,3 +265,22 @@ boot flag空白。UTC05:43:18 console正常關閉，05:43:20 inferior／debugger
 非逾時／無收容訊號，實際約58分54秒。自己的UNKNOWN及raw fixture保留，沒有安裝Magisk／
 研究APK／產品。直接SELinux比較另通過x64／缺budget的兩個真configure拒絕與預設不生成
 研究target檢查；產品兩個backend來源仍未整合該候選。
+
+### 單次 Root 會話的獨立 ELF 比較
+
+保存前輪24檔冷備份且逐檔SHA吻合、原SDK四個映像再次核對後，同一AVD於UTC06:13:41
+另啟新cold boot。實讀boot `0c076561-3d4b-44df-8895-80300b53ee8f`、API34／ARM64-only／
+aarch64／NativeBridge0／Enforcing及UID2000；只送一次原廠adbd Root，再實讀同boot的UID0。
+保持同一Root會話比較三個各自新fork，guest executable／paired fixture SHA皆核對。
+
+新增標記的原查詢baseline與唯讀直接查詢diagnostic均實際exit0，確認ELF載入、export呼叫、
+卸載、完整snapshot相等、returned／detached ACK與target仍活。普通direct-query budget fixture
+亦實際5/5／exit0：正常function、三個預期UNKNOWN且已收容的故障，以及正常ELF lifecycle。
+未放寬產品15s／2s，沒有重用或重送前輪UNKNOWN child／attempt。
+
+baseline的SELinux區間約7585ms，direct樣本13ms；整體diagnostic標記15121ms與7663ms包含
+產品operation以外的setup／teardown。這是先後兩筆、負載會改變的樣本；**baseline這輪也通過**，
+因此不能宣稱已證明shell查詢是舊逾時唯一根因或已修復所有負載條件。詳見
+[逐項比較與artifact SHA](../research/selinux-status.md)。產品backend尚未整合；framework仍在
+初始化，沒有普通App su-M、JNI、遊戲或完整API34資格。此單次Root會話的實際恢復UID2000及
+正常關機另待收尾核對，不提前宣告。

@@ -54,12 +54,38 @@ Initial separate build:
 | Expanded baseline diagnostic | `dafeb8b03a250fe929417173b298648ba77d2a95b419128037a39a6a32995a4c` |
 | Paired ELF fixture | `39d84232fdebf1b8eda3169c5818775fecf02c19c367022dfbdcc9a20fa74faf` |
 
-All five were compiled/checked as AArch64. Only the read-only status test has
-been executed in Android at this checkpoint: actual17 parser/negative checks,
-including a regular file containing1 on the wrong filesystem, and real
-Enforcing readback passed/exit0. No Root transition was requested for that
-test. The direct ELF/budget comparisons remain **compiled, not run**. No App,
-JNI, game, product integration or compatibility qualification follows.
+All five were compiled/checked as AArch64. The read-only status test actually
+passed17 parser/negative checks, including a regular file containing1 on the
+wrong filesystem, and real Enforcing readback/exit0. No Root transition was
+requested for that getter test.
+
+On a subsequent cold boot of the same authorized API34 guest, fresh actual
+API34/arm64-v8a/aarch64/NativeBridge0/Enforcing and UID2000 were read before
+one factory-adbd Root switch. Actual UID0 and the same boot were then verified;
+all executable and paired-library guest SHA256 values matched. Three separate
+own-child comparisons actually completed with exit0:
+
+| Comparison | Observed result |
+|---|---|
+| Expanded baseline diagnostic | ELF load/export call/unload, snapshot equality and returned/detached ACK passed; target alive |
+| Direct-query diagnostic | Same complete ELF lifecycle and snapshot/ACK checks passed; target alive |
+| Direct-query ordinary budget fixture | All5 cases passed: normal return, three intended UNKNOWN/contained faults, normal ELF lifecycle |
+
+The baseline SELinux query interval was2884–10469ms (7585ms); direct-query
+interval3208–3221ms (13ms). Diagnostic total elapsed values were15121ms and
+7663ms respectively; these include setup/teardown outside the unchanged15s
+supervisor operation window. They are individual sequential samples under
+changing boot load, not a benchmark or a causal isolation of the old timeout.
+**The baseline also passed.** The earlier UNKNOWNs remain failures of their
+own attempts; this comparison does not prove that the shell query alone
+caused them or that the candidate eliminates load-dependent timeouts.
+
+The five-case result deliberately includes three UNKNOWN outcomes with
+confirmed containment, rather than claiming those calls returned normally.
+These executions used factory-adbd UID0 while framework boot was incomplete.
+They do not establish ordinary-App su-M, ART/JNI, full Android boot, game,
+product integration or compatibility qualification. The one Root session's
+later actual unroot and guest shutdown must be recorded separately.
 
 Actual CMake controls also refused x64 and missing-budget configurations;
 default ARM64 configuration contains none of these new research targets.

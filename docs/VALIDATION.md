@@ -14,6 +14,8 @@ API34原kernel的自有V2基準實際5 pass／2 SIGSEGV fail；同V2配API34 map
 
 保留資料的另一冷開機輪含stock adbd Root診斷與啟動負載下自有fork測試：supervisor產品界限10/10實跑通過；ARM正常function與三種故障各達預期，真ELF仍UNKNOWN／target contained／whole exit1。新child診斷縮到injector init前的本機設定，尚未修好；唯讀SELinux候選僅17項getter／拒絕實跑通過，ELF比較未跑、產品未整合。多次預期adbd重啟與APEX退出次數警告並存，此輪不當clean boot。約58分54秒時仍無boot完成，實讀UID2000後正常關閉exit0；不是App／JNI／遊戲或API34整組資格。
 
+同AVD另輪cold boot改為單次stock adbd Root會話，實讀API34／ARM64／Enforcing／同boot UID0後，原查詢baseline與直接查詢diagnostic均實際完成ELF載入／呼叫／卸載及snapshot／detach核對；直接查詢普通budget fixture亦5/5／exit0，含三項預期UNKNOWN且確認收容。baseline的SELinux樣本約7585ms，direct約13ms，但兩者皆通過且負載不同，不能當舊逾時根因證明。產品15s／2s未改、舊UNKNOWN保留；完整boot、普通App Root／JNI、遊戲與會話收尾仍分開待驗，見[比較紀錄](../research/selinux-status.md)。
+
 ## 2026-11-10：同0.5.2／API35／157首輪及遊戲重啟
 
 156.1正常OFF後，以合法完整原簽章splits正常升級157.0/code1793360009，PM逐份SHA、同0.5.2 APK及原28份歷史再次核對。經正常設定切回繁體並重新進入本人帳號後，PID10899/start264686正常App新同意／完整journal，兩頁名稱、庫存完整紀念長字、兩頁真正離屏返回及OFF還原已觀察；中途OFF snapshot保留原時序，稍後ON_COMMITTED與ready／ON獨立核實，不重送載入。
