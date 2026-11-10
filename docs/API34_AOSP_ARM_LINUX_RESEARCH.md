@@ -97,9 +97,45 @@ was performed. The next check is actual boot completion and stable services.
 Full boot still requires flag1 plus two fresh same-boot/fingerprint/server
 PM/AM reads and actual visual display review. Conditional proof/capture tools
 are waiting on these real results; they do not start Root, App or game work.
-No platform or product row is promoted while first-boot compilation runs.
+No platform or product row is promoted before those gates pass.
 
 Official31.1 standalone magiskboot also decoded this original AOSP ramdisk
 on the host and reproduced its build.prop bytes, with the input hash
 unchanged and no APEX worker property. This was read-only host preparation:
 no patch, guest file push, Root transition or provider installation occurred.
+
+System_server1099 was also killed at UTC10:01:45 after a107s main-handler
+wait, with the same PermissionPolicyService/CompletableFuture annotation.
+The OS next created server1546 at10:03:11. This repeats the observed waiting
+site, but still does not prove whether callback execution, scheduling, code
+initialization or another dependency caused the delay.
+
+## Bounded standard ART-cache experiment: requested, not a fix claim
+
+After fresh UID2000/API34/ARM64/Enforcing/same-boot checks, the actual package
+CLI's own help showed `compile -m speed` and background priority support.
+The help returned255 despite printing the complete text; the strict reader
+stopped and the saved output was reviewed, rather than treating it as a
+successful mutation. Two earlier read-only path queries during server
+reconstruction correctly reported no package service and performed no work.
+
+At UTC10:06:45, `cmd package art dump com.android.permissioncontroller`
+actually reported ARM64 `status=verify`, `reason=first-boot`, for the original
+PermissionController APK in the official permission APEX. Android14's
+[ART Service](https://source.android.com/docs/core/runtime/configure/art-service)
+supports on-device AOT compilation; this suggests a cache experiment, not
+proof that interpretation caused the Watchdog failures.
+
+At UTC10:07:36.956 exactly one ordinary-shell request was issued:
+
+```
+cmd package compile -m speed -p PRIORITY_BACKGROUND --primary-dex com.android.permissioncontroller
+```
+
+This targets one system app's data-side compiled cache. It requests no force,
+profile reset, package install, permission flag override, Root, SDK/image edit,
+Watchdog/clock/SELinux change or product guard change. The original failure
+receipts remain. Preserve an uncertain/failed result instead of automatically
+resending. Actual command completion, ART `status=speed` readback and later
+boot/service/display results are separate pending checks. Even a completed
+cache experiment does not qualify ordinary-App Root, JNI or any game.
