@@ -50,3 +50,19 @@ separate CPU problem. Keep the single-instruction comparison explicit.
 Full Android boot, actual API/ABI, ordinary App Root, CPU context, JNI lifecycle,
 failure containment and game UI remain separate acceptance layers. See
 [the Linux evidence](../docs/API31_LINUX_HOST_RESEARCH.md).
+
+## Separately authorized API34 target
+
+`-Api34Research` creates `libseedlens-api34-tcg-selection-v1.so`, SHA256
+`1b702320855a24203f8fb6b081050965566617fae7630758998b6803e60125a7`.
+It admits only `SeedLens_API34_ARM64_Linux`, one `-port 5588`, one explicit
+`-no-accel`, and marker `seedlens-api34-tcg-mapper-selection-v1`; duplicate
+target options and competing accelerator options refuse selection. It first
+calls the original host probe just as the old helper does. The default build
+still reproduces the old API31 helper bytes; old artifacts remain immutable.
+
+The isolated `tcg_software_selection_test.c` fixture mocks only its own `/proc`
+reader, never the SDK or guest, and exercises13 production-guard cases. All13
+actually passed on the dedicated Linux host, including a forked exit86 case.
+This is a guard unit test, not a QEMU, Android, Root or game acceptance claim.
+Actual API34 source/platform evidence is tracked [separately](../docs/API34_ARM_LINUX_RESEARCH.md).

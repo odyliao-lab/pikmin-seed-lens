@@ -22,8 +22,14 @@ extern void _exit(int) __attribute__((noreturn));
 static const char symbol[] = "_ZN7android24GetCurrentCpuAcceleratorEv";
 static const char expected_exe[] =
     "/opt/seedlens-lab/sdk/emulator/qemu/linux-x86_64/qemu-system-aarch64-headless";
+#if defined(SEEDLENS_API34_HOST_RESEARCH)
+static const char expected_avd[] = "SeedLens_API34_ARM64_Linux";
+static const char expected_port[] = "5588";
+static const char marker[] = "seedlens-api34-tcg-mapper-selection-v1";
+#else
 static const char expected_avd[] = "SeedLens_API31_ARM64_Linux";
 static const char marker[] = "seedlens-tcg-mapper-selection-v1";
+#endif
 
 static int equal(const char *left, const char *right) {
     if (!left || !right) return 0;
@@ -45,9 +51,20 @@ static int approved_software_target(void) {
     close(fd);
     if (count <= 0 || (size_type)count >= sizeof(arguments) || arguments[count-1]) return 0;
     int avd = 0, software = 0;
+#if defined(SEEDLENS_API34_HOST_RESEARCH)
+    int port = 0, avd_options = 0, port_options = 0, software_options = 0;
+#endif
     const char *prior = "";
     for (long offset = 0; offset < count;) {
         const char *argument = arguments+offset;
+#if defined(SEEDLENS_API34_HOST_RESEARCH)
+        if (equal(argument, "-avd")) ++avd_options;
+        if (equal(argument, "-port")) ++port_options;
+        if (equal(argument, "-no-accel")) ++software_options;
+        /* The new target admits one explicit software form only. */
+        if (equal(argument, "-accel") || equal(argument, "-enable-kvm")) return 0;
+        if (equal(prior, "-port") && equal(argument, expected_port)) port = 1;
+#endif
         if (equal(prior, "-avd") && equal(argument, expected_avd)) avd = 1;
         if (equal(argument, "-no-accel") ||
             (equal(prior, "-accel") && equal(argument, "off"))) software = 1;
@@ -55,7 +72,12 @@ static int approved_software_target(void) {
         while (offset < count && arguments[offset]) ++offset;
         ++offset;
     }
+#if defined(SEEDLENS_API34_HOST_RESEARCH)
+    return avd && software && port && avd_options == 1 &&
+           port_options == 1 && software_options == 1;
+#else
     return avd && software;
+#endif
 }
 
 /* Public SDK C++ signature returns the CpuAccelerator enum (int).
@@ -78,7 +100,11 @@ int seedlens_software_cpu(void) {
     static int logged;
     if (!__atomic_exchange_n(&logged, 1, __ATOMIC_RELAXED)) {
         static const char notice[] =
+#if defined(SEEDLENS_API34_HOST_RESEARCH)
+            "SEED_TCG_API34_SOFTWARE_SELECTION_V1 qualified_host=0 android_qualification=0\n";
+#else
             "SEED_TCG_SOFTWARE_SELECTION_V1 qualified_host=0 android_qualification=0\n";
+#endif
         write(2, notice, sizeof(notice)-1);
     }
     return 0;

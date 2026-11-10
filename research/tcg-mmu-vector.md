@@ -4,8 +4,10 @@ This explicitly changes the disposable QEMU host process. It is never an
 Android library, Root/display module, APK or end-user dependency. Do not attach
 it to existing processes or enable it globally. Independently verify current
 authorization, AVD/image identity, original SDK hashes, ports and resources.
-The only approved target here is `SeedLens_API31_ARM64_Linux`/5586 with software
-CPU in `/opt/seedlens-lab`. It is not stock-emulator or physical ARM64 evidence.
+Fixed targets are `SeedLens_API31_ARM64_Linux`/5586 and the separately authorized
+`SeedLens_API34_ARM64_Linux`/5588 with software CPU in `/opt/seedlens-lab`.
+Each has its own marker and pinned mapper in `tcg_host_targets.py`; neither
+entry grants authorization. It is not stock-emulator or physical ARM64 evidence.
 
 The earlier scalar-host comparison avoided the observed MMU-helper XMM0
 clobber but did not complete framework startup or normal ELF loading. This
@@ -56,3 +58,10 @@ Wrong marker and wrong executable refused with exit1 before starting a guest.
 No Android framework, ordinary App Root, JNI or game success follows from
 these CPU results. Keep the external deadline/pidfd watchdog and record actual
 inferior exits separately from debugger exit. See [full evidence](../docs/API31_LINUX_HOST_RESEARCH.md).
+
+API34 additionally requires marker `seedlens-api34-tcg-vector-save-v1` and the
+API34 mapper's exact path/SHA/preload tuple; it cannot use an API31 AVD or port.
+The common target policy has5 passing test methods, and6 real gdb refusal
+cases covered missing/wrong markers, both targets' wrong executable and wrong
+preload before starti. This does not claim actual API34 CPU/Android acceptance;
+see [the API34 research](../docs/API34_ARM_LINUX_RESEARCH.md).

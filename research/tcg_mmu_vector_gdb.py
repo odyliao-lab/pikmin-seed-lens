@@ -1,19 +1,22 @@
 """Explicit process-local SDK MMU vector-save research, never an APK dependency.
 
-Only a newly launched, independently authorized/pinned API31 Linux AVD may use
+Only a newly launched, independently authorized/pinned Linux AVD may use
 this controller. It registers guarded host wrappers in this child's MMU tables;
 it does not patch SDK files, guest instructions, API, clocks or security policy.
 """
 import hashlib
 import json
 import os
+import sys
 from pathlib import Path
 
 import gdb
 
+sys.path.insert(0,str(Path(__file__).resolve().parent))
+from tcg_host_targets import select_target, validate_target_argv
+
 EXE = Path('/opt/seedlens-lab/sdk/emulator/qemu/linux-x86_64/qemu-system-aarch64-headless')
 SHA256 = 'e697effa1e3f5e0962dab1c8fdbca5787582e6081e2c22eabe74ff396fbd2436'
-MARKER = 'seedlens-api31-tcg-vector-save-v1'
 PROBE_END = 0xa905d5
 HOST_AVX_FLAGS = 0x18de1cc
 PROBE_BYTES = bytes.fromhex('803df0dbe40001')
@@ -24,12 +27,16 @@ def require(condition, message):
         raise gdb.GdbError('VECTOR_SAVE_REFUSED: ' + message)
 
 
-require(os.environ.get('SEEDLENS_TCG_VECTOR_SAVE_RESEARCH') == MARKER, 'explicit marker required')
+try:
+    target=select_target(os.environ.get('SEEDLENS_TCG_VECTOR_SAVE_RESEARCH'))
+except ValueError as error:
+    raise gdb.GdbError('VECTOR_SAVE_REFUSED: '+str(error)) from None
 require(Path(gdb.current_progspace().filename).resolve() == EXE, 'wrong executable')
 require(hashlib.sha256(EXE.read_bytes()).hexdigest() == SHA256, 'SDK hash mismatch')
 HELPER=Path('/opt/seedlens-lab/host-mmu-save-v1/libseed-tcg-mmu-save.so')
 require(hashlib.sha256(HELPER.read_bytes()).hexdigest()=='823f6e1826a353ad38a91e7652ec46132c69c349bf6bcc28d1399c512323508c','helper hash mismatch')
-require(set(os.environ.get('LD_PRELOAD','').split(':'))=={str(HELPER),'/opt/seedlens-lab/host-helper-v1/libseedlens-tcg-selection-v1.so'},'wrong preload scope')
+require(hashlib.sha256(target.mapper.read_bytes()).hexdigest()==target.mapper_sha256,'mapper hash mismatch')
+require(set(os.environ.get('LD_PRELOAD','').split(':'))=={str(HELPER),str(target.mapper)},'wrong preload scope')
 gdb.execute('set pagination off')
 gdb.execute('set confirm off')
 gdb.execute('set debuginfod enabled off')
@@ -43,12 +50,10 @@ inferior = gdb.selected_inferior()
 proc = Path('/proc') / str(inferior.pid)
 require(proc.joinpath('exe').resolve() == EXE, 'runtime executable changed')
 argv = proc.joinpath('cmdline').read_bytes().rstrip(b'\0').split(b'\0')
-for option, value in ((b'-avd', b'SeedLens_API31_ARM64_Linux'), (b'-port', b'5586')):
-    require(argv.count(option) == 1, 'ambiguous target option')
-    at = argv.index(option)
-    require(at + 1 < len(argv) and argv[at + 1] == value, 'wrong target')
-require(argv.count(b'-no-accel') == 1 and b'-accel' not in argv and b'-enable-kvm' not in argv,
-        'explicit software CPU required')
+try:
+    validate_target_argv(argv,target)
+except ValueError as error:
+    raise gdb.GdbError('VECTOR_SAVE_REFUSED: '+str(error)) from None
 maps = gdb.execute('info proc mappings', to_string=True)
 matches = [line for line in maps.splitlines()
            if str(EXE) in line and line.split()[3] == '0x0']

@@ -1,5 +1,11 @@
 # 驗證分層
 
+## 2026-11-10：API34 ARM/Linux 新授權目標與 CPU 對照
+
+使用者核准指定 WSL2／SeedLens_API34_ARM64_Linux／5588，新 index5 OFF／30份歷史可見／無 active loader、adbd恢復UID2000後正常關閉，原四台不動。官方API34 ARM64 rev14 archive大小／SHA1及23個解壓檔案SHA256已核，原映像不改，另建全新6GiB data。
+新API34 mapper與固定vector target policy已加入來源；13項HOST guard、5個policy測試方法、6項真gdb starti前拒絕及16項既有profile evidence通過。原API31 mapper重建SHA與舊原件一致。
+API34原kernel的自有V2基準實際5 pass／2 SIGSEGV fail；同V2配API34 mapper／vector-save的normal TB實際7/7，各自正常power-off／host exit0。這是CPU層，完整Android API／開機、普通App Root／JNI及三遊戲產品仍未通過，見[本輪研究](API34_ARM_LINUX_RESEARCH.md)。
+
 ## 2026-11-10：同0.5.2／API35／157首輪及遊戲重啟
 
 156.1正常OFF後，以合法完整原簽章splits正常升級157.0/code1793360009，PM逐份SHA、同0.5.2 APK及原28份歷史再次核對。經正常設定切回繁體並重新進入本人帳號後，PID10899/start264686正常App新同意／完整journal，兩頁名稱、庫存完整紀念長字、兩頁真正離屏返回及OFF還原已觀察；中途OFF snapshot保留原時序，稍後ON_COMMITTED與ready／ON獨立核實，不重送載入。

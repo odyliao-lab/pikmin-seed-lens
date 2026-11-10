@@ -116,6 +116,8 @@ build-tools35.0.0、NDK r27d、CMake3.21+及Ninja。建置不安裝、不操作�
 
 ## 文件
 
+- [三階段交付：API34 → API31 → 森林手帳 UI](docs/STAGED_DELIVERY_PLAN.md)
+- [新 API34 ARM64／Linux 隔離研究](docs/API34_ARM_LINUX_RESEARCH.md)
 - [UI／UX 改版提案與擴充結構](docs/UI_UX_REDESIGN.md)（設計階段，尚未套入 APK）
 - [竹北接手與 Android 12 必要開發範圍](docs/handoffs/2026-11-09-zhubei-takeover.md)
 - [竹北分階段接手提示詞](docs/ZHUBEI_PROMPTS.md)
