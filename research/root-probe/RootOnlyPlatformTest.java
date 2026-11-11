@@ -9,6 +9,18 @@ public final class RootOnlyPlatformTest {
         checks++;
     }
     public static void main(String[] args){
+        if(!RootOnlyPlatform.api32("32",32,"x86_64",true,"aarch64","x86_64",62,true,false))
+            throw new AssertionError("API32 self-only Root refusal");
+        for(int api:new int[]{31,33,34,35})
+            if(RootOnlyPlatform.api32(Integer.toString(api),api,"x86_64",true,"aarch64","x86_64",62,true,false))
+                throw new AssertionError("API32 cross-platform accepted");
+        if(RootOnlyPlatform.api32("32",32,"x86_64",true,"aarch64","x86_64",62,true,true)||
+           RootOnlyPlatform.api32("32",32,"x86_64",true,"aarch64","x86_64",183,true,false)||
+           RootOnlyPlatform.api32("32",32,"x86_64",true,"aarch64","x86_64",62,false,false)||
+           RootOnlyPlatform.api32("032",32,"x86_64",true,"aarch64","x86_64",62,true,false)||
+           !ProbePlatform.backend("32",32,"x86_64",true,"aarch64","x86_64",62).isEmpty())
+            throw new AssertionError("API32 Root-only scope escaped");
+        checks+=10;
         check(true,"34",34,"x86_64",true,"x86_64","x86_64",62,true,false);
         for(int api:new int[]{28,30,31,32,33,35,36})
             check(false,Integer.toString(api),api,"x86_64",true,"x86_64","x86_64",62,true,false);

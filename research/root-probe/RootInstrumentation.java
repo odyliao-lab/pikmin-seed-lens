@@ -25,10 +25,14 @@ public final class RootInstrumentation extends Instrumentation {
             String kernel=android.system.Os.uname().machine;
             String packagedAbi=PMCanary.packagedAbi(getTargetContext());
             String scope=arguments.getString("research_scope");
-            boolean rootOnly="api34_root_only".equals(scope);
+            boolean root32="api32_root_only".equals(scope);
+            boolean rootOnly="api34_root_only".equals(scope)||root32;
+            boolean api32Command=root32&&"path_api32_c".equals(endpoint);
             boolean pm34="api34_pm_research".equals(scope);
             if(scope!=null&&!rootOnly&&!pm34)throw new IllegalArgumentException();
-            boolean rootOnlyAllowed=RootOnlyPlatform.api34(expectedApi,android.os.Build.VERSION.SDK_INT,
+            boolean rootOnlyAllowed=root32?RootOnlyPlatform.api32(expectedApi,android.os.Build.VERSION.SDK_INT,
+                abi,Process.is64Bit(),kernel,packagedAbi,processMachine,true,
+                arguments.containsKey("load_pid")):RootOnlyPlatform.api34(expectedApi,android.os.Build.VERSION.SDK_INT,
                 abi,Process.is64Bit(),kernel,packagedAbi,processMachine,rootOnly,
                 arguments.containsKey("load_pid"));
             boolean pm34Allowed=Api34PmResearch.allowed(scope,expectedApi,android.os.Build.VERSION.SDK_INT,
@@ -36,7 +40,7 @@ public final class RootInstrumentation extends Instrumentation {
             String su=dev.ody.seedpreview.RootEndpoint.command(android.os.Build.VERSION.SDK_INT,abi,
                 new File("/debug_ramdisk/su").canExecute());
             if("debug_ramdisk".equals(endpoint)&&"31".equals(expectedApi))su="/debug_ramdisk/su";
-            else if("path".equals(endpoint))su="su";
+            else if("path".equals(endpoint)||api32Command)su="su";
             else if(endpoint!=null&&!"auto".equals(endpoint))throw new IllegalArgumentException();
             if(!"dev.ody.seedlensrootprobe".equals(getTargetContext().getPackageName())||Process.myUid()<10000||
                expectedBoot==null||!expectedBoot.matches("[0-9a-f-]{36}")||
@@ -46,9 +50,13 @@ public final class RootInstrumentation extends Instrumentation {
             if(!receipt.createNewFile())throw new IllegalStateException();
             StringBuilder output=new StringBuilder();
             AtomicBoolean readFailed=new AtomicBoolean(false);
-            java.lang.Process child=new ProcessBuilder(su,"-M","-c",
-                "id -u; id; readlink /proc/self/ns/mnt; readlink /proc/1/ns/mnt; cat /proc/sys/kernel/random/boot_id")
+            String query="id -u; id; readlink /proc/self/ns/mnt; readlink /proc/1/ns/mnt; cat /proc/sys/kernel/random/boot_id";
+            ProcessBuilder command=api32Command?new ProcessBuilder(su,"-c",query):new ProcessBuilder(su,"-M","-c",query);
+            java.lang.Process child=command
                 .redirectErrorStream(true).start();
+            // A read-only query sends no stdin. Close it so a provider waiting
+            // for EOF cannot turn an otherwise bounded query into a false hang.
+            child.getOutputStream().close();
             Thread reader=new Thread(()->{
                 try(InputStream input=child.getInputStream()){
                     byte[] bytes=new byte[1024];int n;
@@ -68,10 +76,11 @@ public final class RootInstrumentation extends Instrumentation {
                 lines[2].matches("mnt:\\[[0-9]+\\]")&&lines[2].equals(lines[3])&&lines[4].equals(expectedBoot);
             try(FileOutputStream file=new FileOutputStream(receipt,true)){
                 String report="APP_UID\t"+Process.myUid()+"\nAPI\t"+android.os.Build.VERSION.SDK_INT+
-                    "\nRESEARCH_SCOPE\t"+(rootOnly?"API34_ROOT_ONLY_NO_PM":pm34?"API34_PM_RESEARCH":"EXISTING_BACKEND")+
+                    "\nRESEARCH_SCOPE\t"+(root32?"API32_ROOT_ONLY_NO_PM":rootOnly?"API34_ROOT_ONLY_NO_PM":pm34?"API34_PM_RESEARCH":"EXISTING_BACKEND")+
                     "\nPROCESS_ELF_MACHINE\t"+processMachine+"\nKERNEL_UNAME\t"+kernel+"\nPACKAGED_ABI\t"+packagedAbi+
-                    "\nSU_ENDPOINT\t"+su+"\nSU_M_EXIT\t"+(ended?child.exitValue():-1)+"\n"+text+"\n"+
-                    (root?"NORMAL_APP_SU_M_PASS_NOT_GAME_ACCEPTANCE":"ROOT_CAPABILITY_NOT_PROVEN")+"\n";
+                    "\nSU_ENDPOINT\t"+su+"\nSU_MODE\t"+(api32Command?"API32_NATIVE_C":"M")+
+                    "\n"+(api32Command?"SU_C_EXIT":"SU_M_EXIT")+"\t"+(ended?child.exitValue():-1)+"\n"+text+"\n"+
+                    (root?(api32Command?"NORMAL_APP_SU_C_PASS_NOT_GAME_ACCEPTANCE":"NORMAL_APP_SU_M_PASS_NOT_GAME_ACCEPTANCE"):"ROOT_CAPABILITY_NOT_PROVEN")+"\n";
                 file.write(report.getBytes(StandardCharsets.UTF_8));file.getFD().sync();
             }
             if(root&&arguments.getString("load_pid")!=null){
@@ -82,7 +91,7 @@ public final class RootInstrumentation extends Instrumentation {
                 result.putString("root_probe","normal-app-pm-command-returned-not-game");
                 finish(-1,result);return;
             }
-            result.putString("root_probe",root?"normal-app-su-M-pass-not-game":"not-proven");finish(root?-1:1,result);
+            result.putString("root_probe",root?(api32Command?"normal-app-su-c-pass-not-game":"normal-app-su-M-pass-not-game"):"not-proven");finish(root?-1:1,result);
         }catch(Throwable error){
             if(receipt!=null)try(FileOutputStream file=new FileOutputStream(receipt,true)){
                 file.write(("FAIL\t"+error.getClass().getSimpleName()+"\n").getBytes(StandardCharsets.UTF_8));file.getFD().sync();

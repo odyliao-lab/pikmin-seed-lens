@@ -1,5 +1,14 @@
 # 驗證分層
 
+## 2026-11-11：API32開放前的普通App Root／平台匯出研究
+
+使用者授權確認後端、通過才開放。僅index4開啟內建Root並正常重啟；新boot實際API32／
+x64-libnb／原Permissive。自有普通App實際su-M exit2（不支援-M），獨立API32 root-only
+su-c與關閉stdin後的查詢均未在10秒內完成；無scope及帶load_pid兩負例實際拒絕。
+三份收據保留，沒有native attempt，adb root回讀後恢復UID2000。平台ELF另缺現有API35
+adapter使用的GetTrampoline2及IsNamespaceNativeBridged。因此資格尚未通過，產品0.7.0
+及守門不改，未假稱待種花苗ON／OFF成功；探險略過。見[API32研究](API32_MUMU_BACKEND_RESEARCH.md)。
+
 ## 2026-11-11：使用者另指定MuMu內建12＋157
 
 登入後已按使用者最新範圍**只檢查待種花苗、略過探險**：新boot／精確157及SHA

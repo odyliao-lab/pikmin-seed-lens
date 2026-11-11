@@ -174,3 +174,13 @@ binding. Code review caught this before deployment: a system's primary ABI
 does not establish which native variant the APK contains. Its preserved APK
 SHA is `fbe97d7e88a65a98205d22d1757fa9ba168acb6e74eecd5bfe9e199c086e30ea`;
 it was never installed or executed in Android and is superseded by0.0.7.
+## API32 self-only Root scope
+
+Version 0.0.16 adds `research_scope=api32_root_only` for the isolated MuMu API32
+x64 App (actual ELF machine62, kernel label aarch64). It rejects `load_pid` and
+does not admit API32 to `ProbePlatform` or the PM runner. `su_endpoint=path`
+measures the existing `su -M` contract; `path_api32_c` measures native `su -c`
+only in this explicit root-only scope. Read-only stdin is closed and a query
+timeout is contained. Neither a successful query nor host tests qualify game
+loading. Actual failures and product gates are recorded in
+`docs/API32_MUMU_BACKEND_RESEARCH.md`; prior research APK versions remain intact.
