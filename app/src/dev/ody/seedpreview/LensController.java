@@ -117,7 +117,13 @@ final class LensController {
                 active.set(false);
                 if(!failure.isEmpty()){reason=failure;operations.context.stopService(new android.content.Intent(operations.context,LensService.class));notifyView();return;}
                 if(unsupported!=null){reason=unsupported;notifyView();return;}
-                if(current==null){reason="已啟用，等待開啟遊戲。";notifyView();return;}
+                if(current==null){
+                    // Do not erase the last load failure when that game exits.
+                    if(state.phase!=LensStatus.Phase.REFUSED&&state.phase!=LensStatus.Phase.UNVERIFIED)
+                        reason="已啟用，等待開啟遊戲。";
+                    else if(reason.isEmpty())reason="已啟用，等待開啟遊戲。";
+                    notifyView();return;
+                }
                 bindUnscopedBarrier(current);
                 if(blockedFor(current)){reason="結果不明，請正常重開遊戲；不重送載入。";notifyView();return;}
                 if(!foreground||autoAttempt!=null&&autoAttempt.same(current))return;

@@ -45,7 +45,10 @@ public final class MainActivity extends Activity implements LensController.Obser
             expand.setOnClickListener(v->{boolean visible=detail.getVisibility()==View.VISIBLE;detail.setVisibility(visible?View.GONE:View.VISIBLE);expand.setText(visible?"說明 ▸":"說明 ▾");});
             style.add(card,expand,0);style.add(card,detail,0);style.add(page,card,10);
             toggle.setOnCheckedChangeListener((button,on)->{
-                if(suppress||controller.busy())return;
+                if(suppress)return;
+                // A periodic read can acquire the gate after the last redraw.
+                // Restore the durable value if this click could not be saved.
+                if(controller.busy()){changed();return;}
                 if(on&&!controller.armed()){
                     changed();consent(()->controller.setGroup(selected,true));
                 }else controller.setGroup(selected,on);
