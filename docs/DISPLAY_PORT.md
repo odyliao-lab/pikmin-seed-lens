@@ -85,6 +85,22 @@ index4 同 boot，正常關閉 Game／Lens、保存原 APK 與 Lens data 後原�
 
 MuMu API35 的 shell PATH 仍無 su；普通產品 App 能使用既有 su-M。ADB root 僅於產品操作完成後唯讀取證，立即恢復 UID2000，沒有代為執行 loader 或寫入成員。UIAutomator dump 再次 exit139，停止使用該工具，改由截圖核對；不安裝或開啟 TalkBack。
 
+同程序四組 OFF 後，花苗恢復原名與字型、成人已取得裝飾及花態副標消失、Kochi 地點復原、白精華對照恢復單獨花瓣 97。八個新控制／四個主意願確實 OFF、fresh control0，而舊 global 仍 ON，證明沒有靠舊 global 提供顯示。App 重開後四組意願保存；舊程序警告仍停留的 UI 問題另修於 0.9.5。
+
+### 0.9.5/code36：程序提示與 Root 負向測試界線
+
+原簽章 APK SHA256 `795fe4222820aabd885788c511aa861131102cfc7fcc07459bbceee31374dc8d`。新鮮核對到不同 boot／PID／start 時只退下舊程序的畫面警告，不刪除原 journal、保存的 barrier 或改變同程序禁止重送。15 個新增純 JVM 檢查涵蓋同程序、不同 PID、不同 boot、未核對與未定 scope；合計 LensStatus 117 個。升級保留既有四組 OFF，舊 global ON 未反向開啟；實際 App 已不再把另一程序的舊警告放在目前遊戲上。
+
+隔離 index5 的 `root_permission=false` 即時及關閉／啟動後，普通 App 仍能執行需要 UID0 的設定讀寫，因此不是有效的 Root 拒絕樣本，不能算負向通過；已恢復原 `true`。沒有為此安裝額外 Root manager／套件或更改其他 VM。Root 錯誤字串與非法／失敗不視為 OFF 的離線檢查通過，實際拒絕權限情境仍待可安全撤權的環境。
+
+恢復設定後 boot25c53776-83a4-4c21-8909-c6e0ded74775，0.9.5 App 先開保存四組 ON，再開 Game157 PID2454/start16276；花苗持育待、成人已取得裝飾／葉任、待派期限與 D02 實際畫面再次成立。正常關閉／開啟 App，四組保存且舊程序警告正確退下；回遊戲沿用同一 renderer。再只正常重開遊戲，PID4871/start40605 由產品服務自行載入一次，新 context 下四組實際畫面再觀察，包括重新開啟精華 selector 的對照；沒有主機注入。OFF 後原金色花苗名／字級、成人副標消失、Kochi 及花瓣原數字還原。
+
+0.9.5 四組說明逐一展開／收合，最後全部 OFF；foreground service 已停止。API35 接手時實存 43 份 attempt，0.9.4 一份、0.9.5 兩個新 PID 各一份，共 46；原 43 份及首個 0.9.5 journal SHA 全部不變。最後觀察到 180 個 thread 的 TracerPid 均 0，adbd2000，Root 設定恢復 true，正常關閉 index5。正常 journal 仍為 RETURNED_UNVERIFIED，沒有竄改成成功；畫面與 fresh status 另行證明各有界結果。
+
+同一 APK 最後回歸 index4 API32，boot1de6d198-b393-4ef1-ad38-93d41ec68801；由 0.9.3 原簽章升級，保留四組 OFF、登入及歷史。先讓原遊戲 PID2774/start1891 到主畫面；未開透視鏡前 maps 無自有 SO、TracerPid0。再由正常 App 開啟四組並回遊戲，自行載入一次，八個實體回報帶 0.9.5-code36。實際看到花苗長名／持育待、離屏往返、成人已取得萬聖節／巴厘島／禮物貼紙／奶嘴及葉任、待派期限、精華 173／164／78／20 與花瓣／容量／餘量；四組 OFF 後原名與字級、副標、Kochi 及原花瓣數均還原。八個控制／四個主意願 OFF、fresh control0；原 8 份 attempt SHA 不變，本輪新增一份，ON／OFF 後仍共 9 份不變。最後觀察到 175 個 thread 的 TracerPid0，adbd2000，停止自有服務並正常關閉 index4。
+
+此 0.9.5 API32 回歸是**遊戲先開**；沒有再次執行會遇既有音訊崩潰的遊戲單獨重啟。不能把這次成功改記為 API32 重啟或 0.9.5 App 先開通過。最新精簡矩陣、功能對照、私人安裝與截圖索引見 [DISPLAY_PORT_RESULTS.md](DISPLAY_PORT_RESULTS.md)。
+
 ## 私人安裝流程與限制
 
 1. 使用表列可用的既有 Root MuMu；安裝同一原簽章 APK，首次允許透視鏡 Root。
