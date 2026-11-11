@@ -23,12 +23,12 @@ public final class DiagnosticPolicyTest {
   rejected(()->new DiagnosticReport(f,Collections.emptyList(),"free text"));
   rejected(()->new DiagnosticReport("../outside",f,Collections.emptyList(),"other"));
   for(String endpoint:new String[]{"","http://reports.example.org/v1/reports","https://u:p@reports.example.org/v1/reports","https://localhost/v1/reports","https://127.0.0.1/v1/reports","https://reports.example.org/v1/reports?token=x","https://reports.example.org/other","https://reports.example.org:8443/v1/reports"})check(!DiagnosticEndpoint.allowed(endpoint));
-  check(DiagnosticEndpoint.allowed("https://reports.example.org/v1/reports"));check(!DiagnosticEndpoint.configured());
+  check(!DiagnosticEndpoint.allowed("https://reports.example.org/v1/reports"));check(DiagnosticEndpoint.allowed(DiagnosticEndpoint.URL));check(DiagnosticEndpoint.configured());
   check(DiagnosticReport.receipt("{\"status\":\"accepted\",\"report_id\":\""+report.id+"\"}",report.id));
   check(DiagnosticReport.receipt("{ \"report_id\": \""+report.id+"\", \"status\": \"accepted\" }",report.id));
   for(String body:new String[]{"{}","{\"status\":\"accepted\",\"report_id\":\"wrong\"}","{\"status\":\"accepted\",\"report_id\":\""+report.id+"\",\"extra\":1}","{\"status\":\"rejected\",\"status\":\"accepted\",\"report_id\":\""+report.id+"\"}"})check(!DiagnosticReport.receipt(body,report.id));
   try{DiagnosticUploader.send(report,false);throw new AssertionError("upload without consent");}catch(java.io.IOException expected){check(true);}
-  try{DiagnosticUploader.send(report,true);throw new AssertionError("upload without receiver");}catch(java.io.IOException expected){check(true);}
+  check(!DiagnosticEndpoint.allowed(DiagnosticEndpoint.URL+"?next=evil"));
   if(args.length>0)Files.write(Paths.get(args[0]),report.json.getBytes(StandardCharsets.UTF_8));
   System.out.println("DiagnosticPolicyTest: "+checks+" privacy/advice checks; fixture contains synthetic data only");
  }

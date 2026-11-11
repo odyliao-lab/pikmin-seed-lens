@@ -90,11 +90,13 @@ if($LASTEXITCODE){throw 'Display group protocol checks failed'}
 if($LASTEXITCODE){throw 'Display overview compile failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.DisplayOverviewTest
 if($LASTEXITCODE){throw 'Display overview checks failed'}
-$diagnosticSources=@('DiagnosticReport','DiagnosisPolicy','DiagnosticEndpoint','DiagnosticUploader','LensUpdateInfo','LensUpdateClient','LensUpdateArchive','UpdateInterlock') | ForEach-Object { "$PSScriptRoot/src/dev/ody/seedpreview/$_.java" }
-& "$JavaHome/bin/javac.exe" -encoding UTF-8 -classpath "$out/tests" -d "$out/tests" @diagnosticSources "$PSScriptRoot/tests/DiagnosticPolicyTest.java" "$PSScriptRoot/tests/LensUpdateTest.java"
+$diagnosticSources=@('DiagnosticReport','DiagnosisPolicy','DiagnosticEndpoint','DiagnosticSubmission','DiagnosticUploader','LensUpdateInfo','LensUpdateClient','LensUpdateArchive','UpdateInterlock') | ForEach-Object { "$PSScriptRoot/src/dev/ody/seedpreview/$_.java" }
+& "$JavaHome/bin/javac.exe" -encoding UTF-8 -classpath "$out/tests" -d "$out/tests" @diagnosticSources "$PSScriptRoot/tests/DiagnosticPolicyTest.java" "$PSScriptRoot/tests/DiagnosticUploadTest.java" "$PSScriptRoot/tests/LensUpdateTest.java"
 if($LASTEXITCODE){throw 'Diagnostic/update policy compile failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.DiagnosticPolicyTest
 if($LASTEXITCODE){throw 'Diagnostic privacy/advice checks failed'}
+& "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.DiagnosticUploadTest
+if($LASTEXITCODE){throw 'Diagnostics upload tests failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.LensUpdateTest "$root/updates/preview.properties"
 if($LASTEXITCODE){throw 'Update policy/interlock/archive checks failed'}
 $controllerSources=@(Get-ChildItem "$PSScriptRoot/tests/controller" -Recurse -Filter '*.java' | ForEach-Object FullName)

@@ -2,6 +2,8 @@
 
 ## 診斷與更新
 
+0.12.1/code45 候選以 APK 自有 HTTPS 直傳固定 Sites `/api/submit`，同意後才產生 `{report,email}` 信封，原報告／匯出不含 Email。原生 client header 選擇無瀏覽器 Origin 的公開協定，不提供管理權限；不得放寬錯誤 Origin／讀取授權。無重導向或自動重送，精確收據後才確認成功。[行為、Android 實測與限制](APP_DIRECT_UPLOAD.md)。
+
 Sites 版回報站使用 Vinext Worker＋D1，診斷與選填通知 Email 分表保存；上傳免登入，管理讀寫以 Sites 登入身分及 runtime ADMIN_EMAIL 守門。原 App schema 不變，Email 不放診斷下載。Sites 已開放公開入口，未改 APK 上傳端點。[原始碼與資料保存限制](../server/sites/README.md)。Python 版保留為既有本機接收端，不用它提供 Sites 能力。
 
 伺服器沿用封閉 JSON 接收端，新增同源上傳頁與私人管理後台；報告仍為不可覆寫 JSON，SQLite 只保存處理狀態。管理 session 保留記憶體，密碼雜湊從外部環境讀取；APK 未設定端點。[後台部署與驗收界線](../server/diagnostics/README.md)。
