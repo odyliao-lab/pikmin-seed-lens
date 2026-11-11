@@ -1,0 +1,74 @@
+# API35普通App自行載入研究（2026-11-09）
+
+在[Google套件安裝](API35_GOOGLE_INTAKE.md)後，於同一已授權新MuMu index5補齊普通App發起的PM loader研究。CLI現核名稱／created timestamp／端點，guest核API35、x86_64、libnb.so、原Permissive及boot `994efc10-e992-463c-9e3b-44c3c82908bb`。不是原四台或台中裝置。
+
+## 研究來源與不可替代的邊界
+
+新增獨立`api35-app-root`目標，沿用API35 adapter與相同PM loader／supervisor來源；編譯時固定API35、精確carrier host名稱及SHA，要求自身位於Root client的canonical PM executable位置。沒有把API31 runner放寬成任意平台或替換產品守門。
+
+Root client0.0.5/code5由普通App UID10052執行原`su -M`，Java先核實際API與明確expected_api（只允許31／35）、自身PM路徑及runner SHA；該批內嵌runner只接受35。API31先前結果仍使用原client0.0.4，不由此次API35結果推論。錯expected_api=31在API35實際拒絕，instrumentation1，未呼叫載入。
+
+native再核自身及carrier PM路徑、ancestor owner／mode、實際API、自有probe的精確UID／PID／start與host bytes。相同runner的tmp副本實際exit14，未進target檢查。普通App正常路徑的錯PM-host路徑／stale start各exit6／5後，才對當次新probe單次載入。沒有通用Root命令入口、遊戲目標或重送。
+
+研究client／carrier升新版本，沿用外部lab簽章；probe重用已交付0.0.7的同SHA原件。產品版本及原簽章不變，lab key未用於產品。
+
+| 本輪研究artifact | SHA256 |
+|---|---|
+| Root client0.0.5/code5 | `1b57205d8f095c3cdf565e6678ed40081414f0825227011568794db8deead6f2` |
+| api35-app-root | `b22877ed3f6224fc0d716540048e1c7a6837544f9a73880c964edd393ea6ce84` |
+| carrier0.0.7/code7 | `5b764e8fff15b662fc6dd92984f35d3b3c755fe83a26593c69c7ccedb799952d` |
+| carrier API35 host | `e4808e2c6972a71390216b148466c22c5533168c7a58ec19be5ca7d341df71bb` |
+| 同一probe0.0.7/code7 | `1d8d187188bcbf5822fbed6a75ea7fcedd71b503cd94fe7d5b7d07d337174110` |
+
+## 裝置分階段結果
+
+首次普通App正例：probe PID5840/start51959，載入client PID5976/UID10052，exit0。真App ClassLoader／namespace、ARM JNI四值、精確版本與錯套件／key／缺library／缺symbol負例、JNI OnLoad／thread singleton、完整journal與90秒FINISH均通過，probe實際退出。回傳exit0本身不當成JNI或遊戲成功。
+
+另一新probe PID6149/start62809，client PID6285/UID10052故意在durable CALLING後stall；實際exit42、END UNKNOWN，精確target退出且instrumentation結束。保留這筆UNKNOWN，不對同程序再載入。client不因等待逾時殺掉in-flight runner，native監督收容仍負責確定結果。
+
+後續新probe PID6401/start63967，client PID6542/UID10052再次exit0，完整JNI／負例／journal／90秒FINISH與程序退出通過。前四份attempt逐字SHA相同，新三份全部保留；沒有刪除舊UNKNOWN或重送。結束無probe程序，原libnb.so／Permissive不變，modules目錄不存在；adbd恢復UID2000後，普通App PATH su-M再次通過。只保留index5開啟供使用者登入，未檢查或操作登入內容。
+
+| 本機保存收據 | SHA256 |
+|---|---|
+| 首次normal namespace | `4e6eb467717d07cec7e6c8fbf2d8759ab593e33653e068538daf6fbeb8fd89ad` |
+| 首次normal baseline／FINISH | `ac02835e0f9e80dbceef1b0c72ce4acce4b2999ca9460cbea4ca31c0b13650f1` |
+| timeout journal／UNKNOWN | `097c94abd9a6636605a6b0f0b88661ef90365dab3ca4c194c97615b95cda1b08` |
+| 新程序normal namespace | `4e6eb467717d07cec7e6c8fbf2d8759ab593e33653e068538daf6fbeb8fd89ad` |
+| 新程序normal baseline／FINISH | `7bb59b09df5fcc6f22c0e5c140208a17fefafd5be381fe27839c513507185ab4` |
+
+完整遊戲兩頁、名稱／縮字／捲動／OFF／重啟與原生ARM64仍未驗；普通App研究不能替代四組產品驗收。這不是OS重啟或長時間產品驗收。
+
+私人原件目錄：正常`.tools/lab/api35-run-53a88f7fe685437a84c9a1f2e8441de4/`、timeout `.tools/lab/api35-run-37a2346ca9664089a8839dd67b531c4d/`、新程序`.tools/lab/api35-run-79e26255914a4f6cad44f710be479474/`。不提交APK／原始診斷／截圖。
+
+## 2026-11-10新OS boot的唯讀Root回歸
+
+API34 AOSP正常關閉、確認無QEMU後，才重新啟動原核准的新index5。CLI name／created／
+實際端點、全新boot、API35／x64／libnb／原Permissive與同0.5.2／精確156.0 PM SHA另核。
+uname實報aarch64；獨立讀app_process64、linker64的ELF64 little-endian EM_X86_64與
+產品PM primaryCpuAbi=x86_64後，才分類這是既有x64環境，不將uname當原生ARM資格。
+初版host讀取器因錯誤假定uname=x86_64而拒絕，保留原件；產品守門未改。
+
+同boot ADB Shell的PATH su不可見，exit127，不能由此推論普通App Root失效。已安裝
+Root client0.0.5/code5的PM SHA仍1b57205d…ead6f2；adbd為UID2000時，只傳expected_api35、
+本次boot與PATH endpoint，**不傳任何load_pid／host／runner參數**，實際回報普通App su-M
+通過。其後才暫用adbd Root讀取該App自己建立的新收據與歷史，另核App UID、SU_M_EXIT0、
+uid0／ksu domain、兩個相同mnt namespace與同boot。完整回讀比instrumentation -1更強；
+不把adbd代替App執行Root。讀取後實際unroot回UID2000／同boot。
+
+透視鏡control OFF、原30份attempt逐份SHA不變，沒有產品load／ON／新attempt。這輪只驗
+新boot的普通App Root能力與資料保留，不承接為PM loader／JNI／遊戲、OS後兩頁或長時間
+通過。新client0.0.7僅為另一未部署準備物，沒有以其host建置替換這次0.0.5的真實結果。
+
+## 2026-11-10：0.0.8實際普通App ELF／Root唯讀核對
+
+本人完成156.0登入後，同新boot `7ffb85f6-02df-46d4-add2-6049f5761944`、新index5身份再核。
+研究client以原lab簽章正常更新至0.0.8/code8，PM APK SHA為c5d6bc10…a38845，產品0.5.2
+與完整156.0 splits不變。adbd實際UID2000時，普通App UID10052實讀自身ELF machine62、
+uname=aarch64及封裝x86_64，再以PATH su-M返回exit0／uid0／ksu domain／同boot與一致
+global mount namespace。不是用adbd代替普通App，沒有傳load_pid／host／runner參數。
+
+第一次host收據讀取因原始CRLF與literal LF比較失敗，保留該失敗及raw原件；後續只做
+唯讀重核，僅正規化比較文字，沒有重跑instrumentation／安裝。實核新App收據、舊Root
+收據與原30份attempt SHA不變、control OFF及遊戲3056/start65165／UID10067不變，最後
+adbd實讀回UID2000。這是0.0.8新增ELF分類與普通App Root的Android正例，沒有0.0.8的
+PM loader／JNI／遊戲資格，不承接舊0.0.5的native結果，也不增加產品依賴。

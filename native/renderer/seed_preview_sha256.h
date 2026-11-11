@@ -1,4 +1,5 @@
 #pragma once
+#include "game_profiles.h"
 #include <algorithm>
 #include <array>
 #include <bit>
@@ -55,9 +56,9 @@ public:
         return out;
     }
 };
-inline bool verified_game_digest(const char *path) {
-    int fd=open(path,O_RDONLY|O_CLOEXEC|O_NOFOLLOW);if(fd<0)return false;
-    struct stat before{},after{};bool ok=!fstat(fd,&before)&&S_ISREG(before.st_mode)&&before.st_size==256384336;
+inline const GameProfile* verified_game_profile(const char *path) {
+    int fd=open(path,O_RDONLY|O_CLOEXEC|O_NOFOLLOW);if(fd<0)return nullptr;
+    struct stat before{},after{};bool ok=!fstat(fd,&before)&&S_ISREG(before.st_mode)&&known_game_size(before.st_size);
     Digest digest;std::array<unsigned char,65536> bytes{};off_t at=0;
     const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(30);
     while(ok&&at<before.st_size){
@@ -66,6 +67,7 @@ inline bool verified_game_digest(const char *path) {
         digest.update(bytes.data(),static_cast<size_t>(n));at+=n;
     }
     ok=ok&&!fstat(fd,&after)&&before.st_ino==after.st_ino&&before.st_dev==after.st_dev&&before.st_size==after.st_size;
-    close(fd);return ok&&digest.finish()=="97ef6650f73d99ca8c7ebbbdf2d059d0d41ea68c036fde05634003f6a052aefb";
+    close(fd);return ok?profile_for_digest(before.st_size,digest.finish()):nullptr;
 }
+inline bool verified_game_digest(const char *path){return verified_game_profile(path)!=nullptr;}
 }

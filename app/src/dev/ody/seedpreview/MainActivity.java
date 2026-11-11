@@ -1,76 +1,151 @@
 package dev.ody.seedpreview;
 
-import android.app.*;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.graphics.*;
 import android.os.*;
+import android.view.*;
 import android.widget.*;
-import android.content.pm.PackageInfo;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
+import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-/** Explicit post-login prototype. No silent startup, game launch, inventory or scanner writes. */
-public final class MainActivity extends Activity {
-    static final String ROOT="/data/local/tmp/pcc-seed-root-v1";
-    static final String CONTROL="/data/local/tmp/pikmin-seed-preview.txt";
-    static final AtomicBoolean operationActive=new AtomicBoolean();
-    final ExecutorService worker=Executors.newSingleThreadExecutor();
-    TextView status;Button enable,disable,refresh;CheckBox map;
-    public void onCreate(Bundle b){super.onCreate(b);
-        LinearLayout box=new LinearLayout(this);box.setOrientation(1);box.setPadding(32,32,32,32);
-        TextView title=new TextView(this);title.setText("花苗顯示 0.1.4（驗證原型）");title.setTextSize(23);box.addView(title);
-        TextView help=new TextView(this);help.setText("僅顯示名稱／縮字，不改物品。只需 Root，不安裝額外模組。\n目前遊戲設定檔：156.1。其他版本不套用。\n本原型須在登入主畫面後啟用；遊戲重開後請再次確認。\n關閉會還原已綁定卡片，載入的程式留到遊戲退出。請勿與控制中心預覽並用。");box.addView(help);
-        map=new CheckBox(this);map.setText("我已確認遊戲登入主畫面，其他操作已暫停");box.addView(map);
-        enable=new Button(this);enable.setText("啟用花苗顯示");box.addView(enable);
-        disable=new Button(this);disable.setText("關閉並還原顯示");box.addView(disable);
-        refresh=new Button(this);refresh.setText("重新核對狀態");box.addView(refresh);
-        status=new TextView(this);status.setTextIsSelectable(true);box.addView(status);setContentView(box);
-        enable.setOnClickListener(v->{if(!map.isChecked()){status.setText("先確認主畫面，避免登入期間載入。");return;}run(true,false);});
-        disable.setOnClickListener(v->run(false,false));refresh.setOnClickListener(v->run(false,true));
+/** Single-page controls; native operation ownership stays in LensController. */
+public final class MainActivity extends Activity implements LensController.Observer {
+    LensController controller;
+    ForestStyle style;
+    LinearLayout confirmation;
+    TextView stateTitle,stateDetail,note;
+    Switch feature;
+    CheckBox map,contain;
+    Button submit,off;
+    final ArrayList<Button> operationButtons=new ArrayList<>();
+    LensContext confirmed;
+    int generation;
+    boolean suppress,resumed,confirmationOpen;
+    String notice="";
+
+    @Override public void onCreate(Bundle saved){super.onCreate(saved);controller=LensController.get(this);build();}
+    @Override protected void onResume(){
+        super.onResume();resumed=true;controller.attach(this);
+        LensStatus old=controller.state;
+        if(!controller.busy()&&old.session!=null&&!old.blocksEnable()&&System.currentTimeMillis()-old.observedAt>5000)
+            controller.execute(LensStatus.Action.READ,null,false,null);
     }
-    void run(boolean on,boolean onlyRead){
-        if(!operationActive.compareAndSet(false,true)){status.setText("前一操作尚未結束，請勿重試；不會再次載入。");return;}
-        enable.setEnabled(false);disable.setEnabled(false);refresh.setEnabled(false);status.setText("核對中…");
-        worker.execute(()->{String answer;try{answer=perform(on,onlyRead);}catch(Exception e){answer="未完成："+e.getClass().getSimpleName()+"；不會自動重送載入。";}
-            operationActive.set(false);
-            final String a=answer;runOnUiThread(()->{status.setText(a);enable.setEnabled(true);disable.setEnabled(true);refresh.setEnabled(true);});});}
-    String shell(String script)throws Exception {
-        File f=File.createTempFile("operation-",".sh",getFilesDir());try(FileOutputStream out=new FileOutputStream(f)){out.write(script.getBytes(StandardCharsets.UTF_8));}
-        java.lang.Process p=new ProcessBuilder("su","-M","-c","sh "+f.getAbsolutePath()).redirectErrorStream(true).start();
-        // Drain concurrently; bound retained output. Do NOT kill a live injector on host timeout.
-        ByteArrayOutputStream bytes=new ByteArrayOutputStream();Thread t=new Thread(()->{try(InputStream in=p.getInputStream()){byte[] buf=new byte[1024];int n;while((n=in.read(buf))>=0){synchronized(bytes){if(bytes.size()<16384)bytes.write(buf,0,Math.min(n,16384-bytes.size()));}}}catch(IOException ignored){}});t.start();
-        if(!p.waitFor(90,TimeUnit.SECONDS)){
-            runOnUiThread(()->status.setText("操作仍未返回；已鎖住重試，等待原程序結束。不會強殺載入程序。"));
-            p.waitFor(); // Keep the single-operation gate held while the tracer exists.
-        }
-        f.delete(); // Only our completed, unique script; never an in-flight script.
-        t.join(2000);synchronized(bytes){String s=bytes.toString("UTF-8");return p.exitValue()==0?s:"拒絕／失敗 ("+p.exitValue()+")\n"+s;}
+    @Override protected void onPause(){
+        resumed=false;clearConfirmation();confirmationOpen=false;controller.detach(this);super.onPause();
     }
-    boolean installed(String name){try{getPackageManager().getPackageInfo(name,0);return true;}catch(Exception e){return false;}}
-    void extract(String name)throws Exception{File f=new File(getFilesDir(),name);try(InputStream in=getAssets().open(name);FileOutputStream out=new FileOutputStream(f)){byte[] b=new byte[65536];int n;while((n=in.read(b))!=-1)out.write(b,0,n);out.getFD().sync();}}
-    String hash(String name)throws Exception{MessageDigest d=MessageDigest.getInstance("SHA-256");try(InputStream in=new FileInputStream(new File(getFilesDir(),name))){byte[] b=new byte[65536];int n;while((n=in.read(b))!=-1)d.update(b,0,n);}StringBuilder s=new StringBuilder();for(byte b:d.digest())s.append(String.format("%02x",b&255));return s.toString();}
-    String perform(boolean on,boolean onlyRead)throws Exception{
-        if(installed("dev.ody.pikmincontrol")||installed("dev.ody.pikmincontrol.mumu"))return "已安裝控制中心，為避免雙重掛接，本原型不接管。";
-        String pid="p=$(pidof com.nianticlabs.pikmin); case \"$p\" in ''|*[!0-9]*) echo GAME_NOT_UNIQUE; exit 3;; esac\n";
-        String report="s=/data/user/0/com.nianticlabs.pikmin/files/seed_preview_status.tsv\nif [ -f \"$s\" ]; then awk -v p=\"$p\" -v now=\"$(date +%s)\" 'BEGIN{ok=0} $1==\"v1\" && $3==p && now*1000-$2>=-2000 && now*1000-$2<=5000 {print;ok=1} END{if(!ok)print \"NO_FRESH_SAME_PID_STATUS\"}' \"$s\"; else echo NOT_LOADED; fi\n";
-        if(onlyRead)return shell(pid+report);
-        if(!on)return shell("set -e\n[ -d "+ROOT+" ] && [ ! -L "+CONTROL+" ]\nprintf 'off\\n' > "+ROOT+"/control.new\nchmod 644 "+ROOT+"/control.new\nmv "+ROOT+"/control.new "+CONTROL+"\nsleep 2\n"+pid+report);
-        PackageInfo game=getPackageManager().getPackageInfo("com.nianticlabs.pikmin",0);
-        String abi=Build.SUPPORTED_ABIS[0];
-        String blocked=Compatibility.blockReason(Build.VERSION.SDK_INT,abi,game.versionName,game.getLongVersionCode());
-        if(blocked!=null)return blocked;
-        String loader="seed-root-"+abi;extract(loader);extract("libseed_display.so");
-        StringBuilder s=new StringBuilder("set -eu\n[ $(id -u) = 0 ]\n");
-        s.append("for m in pikmin_control_core pcc_seed_preview_canary; do [ ! -d /data/adb/modules/$m ] || { echo CONFLICTING_MODULE; exit 4; }; done\n");
-        s.append("[ ! -L "+ROOT+" ]\nmkdir -p "+ROOT+"\n[ $(stat -c %u "+ROOT+") = 0 ]\nchmod 755 "+ROOT+"\n");
-        for(String name:new String[]{loader,"libseed_display.so"}){
-            s.append("[ ! -L "+ROOT+"/"+name+" ]\ncp "+getFilesDir()+"/"+name+" "+ROOT+"/"+name+".new\n");
-            s.append("[ $(sha256sum "+ROOT+"/"+name+".new | cut -d' ' -f1) = "+hash(name)+" ]\nchmod 755 "+ROOT+"/"+name+".new\nmv "+ROOT+"/"+name+".new "+ROOT+"/"+name+"\n");
+    void clearConfirmation(){
+        generation++;confirmed=null;suppress=true;
+        if(map!=null)map.setChecked(false);if(contain!=null)contain.setChecked(false);suppress=false;
+    }
+    void build(){
+        boolean dark=(getResources().getConfiguration().uiMode&Configuration.UI_MODE_NIGHT_MASK)==Configuration.UI_MODE_NIGHT_YES;
+        style=new ForestStyle(this,dark);
+        LinearLayout root=style.column();root.setBackgroundColor(style.paper);
+        if(Build.VERSION.SDK_INT>=30)getWindow().setDecorFitsSystemWindows(false);
+        getWindow().setStatusBarColor(Color.TRANSPARENT);getWindow().setNavigationBarColor(style.paper);
+        getWindow().getDecorView().setSystemUiVisibility(dark?0:View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR|View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+        root.setOnApplyWindowInsetsListener((v,insets)->{
+            if(Build.VERSION.SDK_INT>=30){Insets bars=insets.getInsets(WindowInsets.Type.systemBars());v.setPadding(bars.left,bars.top,bars.right,bars.bottom);}
+            else v.setPadding(insets.getSystemWindowInsetLeft(),insets.getSystemWindowInsetTop(),insets.getSystemWindowInsetRight(),insets.getSystemWindowInsetBottom());
+            return insets;
+        });
+        ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);
+        LinearLayout page=style.column();page.setPadding(style.dp(20),style.dp(24),style.dp(20),style.dp(20));
+        scroll.addView(page,new ScrollView.LayoutParams(-1,-2));root.addView(scroll,new LinearLayout.LayoutParams(-1,-1));
+        ImageView image=new ImageView(this);image.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        image.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        try{image.setImageBitmap(OfflineArtwork.mascot(this));page.addView(image,new LinearLayout.LayoutParams(-1,style.dp(136)));}
+        catch(Exception error){android.util.Log.w("SeedLensArtwork","Offline mascot could not be decoded",error);}
+        TextView title=style.text("皮克敏花苗透視鏡",23,style.ink,true);title.setGravity(Gravity.CENTER);style.add(page,title,24);
+        LinearLayout card=style.card();
+        LinearLayout row=new LinearLayout(this);row.setGravity(Gravity.CENTER_VERTICAL);
+        TextView name=style.text(ToolCatalog.SEED_NAMES.title,18,style.ink,true);
+        row.addView(name,new LinearLayout.LayoutParams(0,-2,1));
+        feature=new Switch(this);feature.setShowText(false);feature.setMinHeight(style.dp(56));feature.setMinWidth(style.dp(72));
+        feature.setContentDescription("花苗名稱透視開關");
+        feature.setThumbTintList(new android.content.res.ColorStateList(new int[][]{new int[]{android.R.attr.state_checked},new int[]{}},new int[]{style.surface,style.muted}));
+        feature.setTrackTintList(new android.content.res.ColorStateList(new int[][]{new int[]{android.R.attr.state_checked},new int[]{}},new int[]{style.green,style.muted}));
+        row.addView(feature,new LinearLayout.LayoutParams(style.dp(76),-2));style.add(card,row,2);
+        style.add(card,style.text("顯示花苗裝飾名稱，長字自動縮小。",14,style.muted,false),16);
+        stateTitle=style.text("",16,style.ink,true);stateDetail=style.text("",13,style.muted,false);
+        style.add(card,stateTitle,4);style.add(card,stateDetail,12);
+        confirmation=style.column();
+        map=style.check("遊戲已在主畫面，其他操作已暫停");
+        contain=style.check("結果不明或逾時時，允許停止本次遊戲；不自動重送。");
+        style.add(confirmation,map,2);style.add(confirmation,contain,4);
+        note=style.text("",13,style.muted,false);style.add(confirmation,note,6);
+        submit=action(confirmation,"啟用",true,()->submit());
+        action(confirmation,"取消",false,()->{clearConfirmation();confirmationOpen=false;notice="";changed();});
+        style.add(card,confirmation,0);
+        action(card,"核對狀態",false,()->{clearConfirmation();confirmationOpen=false;controller.execute(LensStatus.Action.READ,null,false,null);});
+        off=action(card,"關閉顯示",false,()->{clearConfirmation();confirmationOpen=false;controller.execute(LensStatus.Action.OFF,null,false,null);});
+        style.add(page,card,20);
+        String version="未知";
+        try{android.content.pm.PackageInfo info=getPackageManager().getPackageInfo(getPackageName(),0);version=info.versionName;}
+        catch(Exception ignored){}
+        TextView footer=style.text("v"+version+"  ·  開發者 odyliao-lab",12,style.muted,false);
+        footer.setGravity(Gravity.CENTER);style.add(page,footer,0);
+        feature.setOnCheckedChangeListener((button,checked)->{
+            if(suppress||controller.busy())return;
+            if(!checked&&controller.state.controlOn){clearConfirmation();confirmationOpen=false;controller.execute(LensStatus.Action.OFF,null,false,null);}
+            else{clearConfirmation();confirmationOpen=checked;notice="";changed();}
+        });
+        map.setOnCheckedChangeListener((button,checked)->{
+            if(suppress)return;confirmed=null;final int current=++generation;
+            if(checked)controller.confirm((found,blocked)->{
+                if(current!=generation||!resumed||!map.isChecked())return;
+                if(found==null||blocked){clearConfirmation();notice=blocked?"請重開遊戲後再核對。":"請先開啟遊戲主畫面。";}
+                else{confirmed=found;notice="本次遊戲已核對。";}changed();
+            });changed();
+        });
+        contain.setOnCheckedChangeListener((button,checked)->{if(!suppress)changed();});
+        setContentView(root);root.requestApplyInsets();changed();
+    }
+    Button action(LinearLayout box,String text,boolean primary,Runnable run){
+        Button button=style.button(text,primary);button.setStateListAnimator(null);button.setElevation(0);
+        button.setOnClickListener(v->run.run());style.add(box,button,6);operationButtons.add(button);return button;
+    }
+    void submit(){
+        if(controller.busy()||confirmed==null||!map.isChecked()||!contain.isChecked())return;
+        LensContext consent=confirmed;clearConfirmation();confirmationOpen=false;notice="";
+        controller.execute(LensStatus.Action.ENABLE,consent,true,()->{
+            FutureTask<Boolean> task=new FutureTask<>(()->{
+                if(!resumed||isFinishing()||isDestroyed()||!hasWindowFocus())return false;
+                Intent intent=getPackageManager().getLaunchIntentForPackage("com.nianticlabs.pikmin");
+                if(intent==null)return false;
+                try{startActivity(intent);return true;}catch(RuntimeException error){return false;}
+            });
+            runOnUiThread(task);try{return task.get(5,TimeUnit.SECONDS);}finally{task.cancel(false);}
+        });
+    }
+    @Override public void changed(){
+        if(stateTitle==null)return;
+        LensStatus s=controller.state;boolean busy=controller.busy();String unavailable=controller.operations.availability();
+        String title,detail="";int color=style.ink;
+        if(busy){title="處理中…";detail=controller.progress;}
+        else if(s.phase==LensStatus.Phase.UNKNOWN||s.phase==LensStatus.Phase.UNCERTAIN){
+            title="結果不明，請勿重試";color=style.error;
+            detail=controller.unscopedBarrier?"請先核對，再重開遊戲後重新核對。紀錄保留。":"不代表已關閉。請重開遊戲後核對；紀錄保留。";
         }
-        s.append(pid).append("[ ! -L "+CONTROL+" ]\nprintf 'off\\n' > "+ROOT+"/control.new\nchmod 644 "+ROOT+"/control.new\nmv "+ROOT+"/control.new "+CONTROL+"\n");
-        s.append("if ! grep -q '/libseed_display.so' /proc/$p/maps; then\nt=$(sed 's/.*) //' /proc/$p/stat | awk '{print $20}')\n"+ROOT+"/"+loader+" \"$p\" \"$t\" > "+ROOT+"/load.log 2>&1 || { code=$?; echo LOAD_FAILED_STAGE_$code; exit 5; }\nfi\n");
-        s.append("[ \"$(pidof com.nianticlabs.pikmin)\" = \"$p\" ] || exit 6\nprintf 'on\\n' > "+ROOT+"/control.new\nchmod 644 "+ROOT+"/control.new\nmv "+ROOT+"/control.new "+CONTROL+"\nsleep 4\n").append(report);
-        return shell(s.toString());
+        else if(s.phase==LensStatus.Phase.RESTART_REQUIRED){title="請重新核對";detail="先核對目前程序；若仍受限，請重開遊戲再核對。";color=style.gold;}
+        else if(unavailable!=null){title="暫不支援";detail=unavailable;color=style.error;}
+        else if(s.phase==LensStatus.Phase.ON){title="已啟用";color=style.green;}
+        else if(s.phase==LensStatus.Phase.WAITING){title="等待花苗列表";detail="請開啟花苗或探險列表。";color=style.gold;}
+        else if(s.phase==LensStatus.Phase.OFF){title="已關閉";}
+        else if(s.phase==LensStatus.Phase.REFUSED){title="操作未完成";detail="請檢查 Root 與遊戲主畫面。不自動重送。";color=style.error;}
+        else{title="尚未核對";detail="請先開啟遊戲主畫面，再啟用。";}
+        if(!controller.reason.isEmpty()&&!s.blocksEnable()&&!busy)detail=controller.reason;
+        stateTitle.setText(title);stateTitle.setTextColor(color);stateDetail.setText(detail);
+        stateDetail.setVisibility(detail.isEmpty()?View.GONE:View.VISIBLE);
+        for(Button button:operationButtons){button.setEnabled(!busy);button.setAlpha(busy?0.55f:1f);}
+        suppress=true;feature.setChecked(s.controlOn);feature.setEnabled(!busy&&unavailable==null&&!s.blocksEnable());
+        feature.setAlpha(feature.isEnabled()?1f:0.45f);if(Build.VERSION.SDK_INT>=30)feature.setStateDescription(title);suppress=false;
+        off.setVisibility(s.controlOn||s.phase==LensStatus.Phase.OFF?View.GONE:View.VISIBLE);
+        confirmation.setVisibility(confirmationOpen?View.VISIBLE:View.GONE);map.setEnabled(!busy);contain.setEnabled(!busy);
+        note.setText(notice);note.setVisibility(notice.isEmpty()?View.GONE:View.VISIBLE);
+        submit.setEnabled(!busy&&unavailable==null&&confirmed!=null&&map.isChecked()&&contain.isChecked()&&!controller.blockedFor(confirmed));
+        submit.setAlpha(submit.isEnabled()?1f:0.55f);
     }
 }

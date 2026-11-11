@@ -49,7 +49,13 @@ inline std::u16string decorate(std::u16string_view source,int seed_type,int colo
     const auto suffix=seed_type==4?u"金苗":(treasure==25||treasure==26?u"花苗":u"苗");
     return std::u16string(colours[colour])+kind+suffix;
 }
-inline int minimum_font_size(int original) { return std::max(12,(original*3+3)/4); }
+// Inventory catalog names need the 12-point floor to fit anniversary labels.
+// Expedition titles have different layout constraints: keep their prior 75%
+// floor after the 12-point range produced truncated short labels in API35/156.1.
+// These are bounds for the game's AutoSize, not a fixed font size.
+inline int minimum_font_size(int original,bool inventory) {
+    return std::min(original,inventory?12:std::max(12,original*3/4));
+}
 struct FontState {
     bool saved{},automatic{};
     int minimum{},maximum{},size{};

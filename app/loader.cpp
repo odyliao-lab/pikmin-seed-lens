@@ -1,10 +1,19 @@
 #include "Injector/KittyInjector.hpp"
 #include "seed_preview_sha256.h"
 #include "identity_policy.h"
+#include "payload_policy.h"
+#include "load_journal.h"
+#include "control_transaction.h"
 #include <fstream>
 #include <sstream>
 #include <sys/file.h>
 #include <sys/system_properties.h>
+#if defined(__x86_64__)
+#include "x64_backend.h"
+#include "bridge_runtime.h"
+#else
+#include "arm64_backend.h"
+#endif
 
 static constexpr const char *package="com.nianticlabs.pikmin";
 static constexpr const char *base="/data/local/tmp/pcc-seed-root-v1";
@@ -28,74 +37,131 @@ static bool secure(const std::string &path,bool dir=false) {
     struct stat st{};return !lstat(path.c_str(),&st)&&st.st_uid==0&&!(st.st_mode&0022)
         && (dir?S_ISDIR(st.st_mode):S_ISREG(st.st_mode));
 }
-int main(int argc,char **argv) {
-    if(getuid()!=0||argc!=3)return fail(2);
+static bool installed_file(const std::string &path,bool executable=false) {
+    bool payloadPath=seed_root::installed_payload_path(path);
 #if defined(__x86_64__)
-    // Virgo 2026-11-08: no exported namespace; remote syscall path also waited
-    // without its configured timeout. Keep this backend OFF until isolated fixes
-    // and a verified real namespace are available. Never guess namespace pointer 1.
-    puts("NATIVEBRIDGE_BACKEND_NOT_QUALIFIED");return fail(22);
+    payloadPath=seed_root::installed_native_path(path,"/lib/x86_64/libseed_bridge.so");
 #endif
-    char *end=nullptr;long n=strtol(argv[1],&end,10);
-    if(!end||*end||n<=1||n>INT_MAX)return 2;int pid=static_cast<int>(n);
-    std::string start=argv[2],dir=base,payload=dir+"/libseed_display.so";
-    if(!secure(dir,true)||!secure(payload)||!identity(pid,start))return fail(3);
-    int lock=open((dir+"/load.lock").c_str(),O_CREAT|O_RDWR|O_CLOEXEC|O_NOFOLLOW,0600);
-    if(lock<0||flock(lock,LOCK_EX|LOCK_NB))return 4;
+    if(executable?!seed_root::installed_loader_path(path):!payloadPath)return false;
+    char resolved[PATH_MAX]{};
+    if(!realpath(path.c_str(),resolved)||path!=resolved)return false;
+    // Package-manager files, not shell_data_file. Never relabel or disable SELinux.
+    for(size_t i=1;i<=path.size();++i)if(i==path.size()||path[i]=='/'){
+        struct stat st{};auto part=path.substr(0,i);
+        if(lstat(part.c_str(),&st)||(st.st_uid!=0&&st.st_uid!=1000)||(st.st_mode&0002)
+           ||((st.st_mode&0020)&&st.st_gid!=0&&st.st_gid!=1000)
+           ||(i==path.size()?!S_ISREG(st.st_mode):!S_ISDIR(st.st_mode)))return false;
+    }
+    return !executable||access(path.c_str(),X_OK)==0;
+}
+static const seed_preview::GameProfile* game_profile(int pid,const std::string& start){
+    if(!identity(pid,start))return nullptr;
+    std::istringstream lines(read("/proc/"+std::to_string(pid)+"/maps"));std::string line,game;
+    while(std::getline(lines,line))if(line.ends_with("/libil2cpp.so")){
+        auto at=line.find('/');if(at==std::string::npos)return nullptr;
+        auto found=line.substr(at);if(!game.empty()&&game!=found)return nullptr;game=found;
+    }
+    auto profile=game.empty()?nullptr:seed_preview::verified_game_profile(game.c_str());
+    return identity(pid,start)?profile:nullptr;
+}
+static int inject_game(int pid,const std::string& start,const std::string& payload,const seed_root::LoadLease& lease,const seed_preview::GameProfile* expected) {
+    if(!lease.held()||!installed_file(payload)||!identity(pid,start))return fail(3);
     auto maps=read("/proc/"+std::to_string(pid)+"/maps");
-    for(auto bad:{"libseed_display", "pikmin-control", "pcc_seed_preview", "libseed_preview", "libpikmin_automation"})
+    for(auto bad:{"libseed_display", "libseed_bridge", "pikmin-control", "pcc_seed_preview", "libseed_preview", "libpikmin_automation"})
         if(maps.find(bad)!=std::string::npos)return 5;
     // Reject incompatible game BEFORE ptrace, then renderer repeats SHA/prologue/metadata checks.
-    std::istringstream lines(maps);std::string line,game;
-    while(std::getline(lines,line))if(line.ends_with("/libil2cpp.so")) {
-        auto at=line.find('/');if(at!=std::string::npos)game=line.substr(at);
-    }
-    if(game.empty()||!seed_preview::verified_game_digest(game.c_str()))return fail(6);
+    if(!expected||game_profile(pid,start)!=expected)return fail(6);
     char sdk[PROP_VALUE_MAX]{};__system_property_get("ro.build.version.sdk",sdk);
     int api=atoi(sdk);if(api<28||api>35)return 7;
+#if defined(__x86_64__)
+    if(seed_bridge::runtime_backend()==seed_bridge::Backend::Unsupported)return fail(22);
+#endif
     // Persistent intent prevents automatic retries after ambiguous injection or app death.
     // Boot ID + start ticks also protects against PID reuse across reboots.
     auto boot=read("/proc/sys/kernel/random/boot_id");
-    if(boot.size()<36)return 8;boot.resize(36);
-    auto intent=dir+"/attempt-"+boot+"-"+std::to_string(pid)+"-"+start;
-    int attempt=open(intent.c_str(),O_CREAT|O_EXCL|O_WRONLY|O_CLOEXEC|O_NOFOLLOW,0600);
-    if(attempt<0)return fail(9);
-    if(write(attempt,"attempted\n",10)!=10||fsync(attempt)){close(attempt);return 10;}close(attempt);
-    if(!identity(pid,start))return 11;
-    inject_elf_config_t cfg{};cfg.sdk=api;cfg.timeout=5000;
-    cfg.selinux_state=Utils::selinux_state();cfg.package=package;
-    // No memfd/hiding, namespace/SELinux policy changes, launch, watch or unload flags.
-    KittyMemoryMgr mgr{};mgr.trace=KittyTraceMgr(pid,0,true,5000);
-    cfg.seize=mgr.trace.seize(PTRACE_O_TRACESYSGOOD);
-    if(!cfg.seize||!mgr.trace.stop()){mgr.trace.detach();return 12;}
-    struct Detach {KittyTraceMgr &trace;~Detach(){trace.detach();}} detach{mgr.trace};
-    if(!identity(pid,start)||!mgr.initialize(pid,EK_MEM_OP_SYSCALL,true))return 13;
-    mgr.trace.setRemoteCallTimeout(5000);
-    KittyInjector injector;
-    if(!injector.init(&mgr,cfg))return 14;
+    if(boot.size()==37&&boot.back()=='\n')boot.pop_back();
+    struct stat app{};if(!seed_root::boot_id(boot)||stat("/data/user/0/com.nianticlabs.pikmin",&app))return 8;
 #if defined(__x86_64__)
-    // Upstream falls back to a guessed namespace pointer when exports are absent.
-    // Never use that fallback in the game: require a real exported namespace.
-    mgr.nbScanner.init();
-    auto nb=mgr.nbScanner.nbItfData();
-    if(nb.version<3||!nb.loadLibraryExt||!nb.getExportedNamespace)return 17;
-    auto scratch=injector._rsyscall.rmmap(0,4096,PROT_READ|PROT_WRITE,MAP_PRIVATE|MAP_ANONYMOUS,-1,0);
-    if(!scratch)return fail(18);
-    struct Scratch {KittyRemoteSys &sys;uintptr_t p;~Scratch(){if(p)sys.rmunmap(p,4096);}} scratch_owner{injector._rsyscall,scratch};
-    bool namespace_found=false;
-    for(auto name:{"default","classloader-namespace","classloader-namespace-shared"}) {
-        if(!mgr.writeMemStr(scratch,name))return fail(18);
-        auto ns=mgr.trace.callFunction(reinterpret_cast<uintptr_t>(nb.getExportedNamespace),scratch);
-        if(ns.status!=KT_RP_CALL_SUCCESS)return 19;
-        if(ns.result.ptr){namespace_found=true;break;}
-    }
-    if(!namespace_found){puts("NO_EXPORTED_NATIVEBRIDGE_NAMESPACE");return 20;}
-    if(!injector._rsyscall.rmunmap(scratch,4096))return 21;
-    scratch_owner.p=0;
+    constexpr const char* backend="nativebridge";
+#else
+    constexpr const char* backend="arm64";
 #endif
-    auto result=injector.inject(payload);
-    // dlopen != renderer ready. UI must read new same-PID status after detach.
-    if(!result.is_valid()||!result.pJNI_OnLoad||!result.pJvm)return 15;
-    if(!mgr.trace.detach())return 16;
-    puts("LOAD_RETURNED_REQUIRES_STATUS");return 0;
+    seed_root::LoadAttempt attempt(lease,boot,pid,start,app.st_uid,getpid(),ticks(getpid()),backend);
+    if(!attempt.ready())return fail(9);
+    if(!identity(pid,start))return 11;
+#if defined(__x86_64__)
+    return seed_x64_load(pid,start,payload,attempt);
+#else
+    return seed_arm64_load(pid,start,payload,api,attempt);
+#endif
+}
+
+static bool renderer_status(int pid,const std::string& start,std::string& status,const seed_preview::GameProfile* profile){
+    if(!profile)return false;
+    status.clear();int fd=open("/data/user/0/com.nianticlabs.pikmin/files/seed_preview_status.tsv",O_RDONLY|O_CLOEXEC|O_NOFOLLOW|O_NONBLOCK);
+    if(fd<0)return false;struct stat st{},app{};char bytes[513]{};ssize_t n=-1;
+    if(!fstat(fd,&st)&&S_ISREG(st.st_mode)&&st.st_size>0&&st.st_size<=512&&st.st_nlink==1
+       &&!(st.st_mode&0022)&&!stat("/data/user/0/com.nianticlabs.pikmin",&app)&&st.st_uid==app.st_uid)n=::read(fd,bytes,sizeof(bytes));
+    close(fd);if(n<=0||n>512)return false;status.assign(bytes,static_cast<size_t>(n));
+    auto now=std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    return identity(pid,start)&&seed_root::fresh_renderer_status(status,pid,start,now,profile->version);
+}
+static bool completed_attempt(const seed_root::LoadLease& lease,int pid,const std::string& start){
+    auto boot=read("/proc/sys/kernel/random/boot_id");if(boot.size()==37&&boot.back()=='\n')boot.pop_back();
+    if(!seed_root::boot_id(boot))return false;
+    auto name="attempt-"+boot+"-"+std::to_string(pid)+"-"+start;
+    int fd=openat(lease.directory(),name.c_str(),O_RDONLY|O_CLOEXEC|O_NOFOLLOW|O_NONBLOCK);
+    if(fd<0)return false;char bytes[2049]{};ssize_t n=seed_root::owned_file(fd,0)?::read(fd,bytes,sizeof(bytes)):-1;close(fd);
+    if(n<=0||n>2048)return false;std::string text(bytes,n);
+    // Only our full, durable sequence can authorize re-enabling an existing
+    // renderer. Unknown/partial/legacy attempts never become successful here.
+    struct stat app{};if(stat("/data/user/0/com.nianticlabs.pikmin",&app))return false;
+    return seed_root::completed_load_record(text,boot,pid,start,app.st_uid);
+}
+int main(int argc,char**argv){
+    if(getuid()!=0)return fail(2);
+    char exe[PATH_MAX]{};auto length=readlink("/proc/self/exe",exe,sizeof(exe)-1);
+    if(length<=0||length>=static_cast<ssize_t>(sizeof(exe)-1)||!installed_file(exe,true))return fail(23);
+    if(argc==2&&!strcmp(argv[1],"--self-check")){
+#if defined(__aarch64__)
+        puts("INSTALLED_LOADER_SELF_CHECK arm64-v8a; EXPLICIT_CONTAINMENT_REQUIRED; NOT GAME_ACCEPTANCE");
+#else
+        puts("INSTALLED_LOADER_SELF_CHECK x86_64; EXPLICIT_CONTAINMENT_REQUIRED; NOT GAME_ACCEPTANCE");
+#endif
+        return 0;
+    }
+    bool contained=argc==5&&!strcmp(argv[1],"--enable-contained");
+    bool on=(argc==5&&!strcmp(argv[1],"--enable"))||contained,off=argc==4&&!strcmp(argv[1],"--off"),statusOnly=argc==4&&!strcmp(argv[1],"--status");
+    if(!on&&!off&&!statusOnly)return fail(2);
+    char* end=nullptr;long n=strtol(argv[2],&end,10);
+    if(!end||*end||n<=1||n>INT_MAX||!seed_root::start_ticks(argv[3]))return fail(2);
+    int pid=static_cast<int>(n);std::string start=argv[3],status;
+    if(!identity(pid,start))return fail(3);
+    const auto* profile=(on||statusOnly)?game_profile(pid,start):nullptr;
+    if(statusOnly){if(renderer_status(pid,start,status,profile))printf("%s",status.c_str());else puts("NO_FRESH_SAME_PID_START_STATUS");return 0;}
+    if(on&&!profile)return fail(6);
+    if(on&&!contained){puts("EXPLICIT_FAIL_STOP_CONSENT_REQUIRED");return fail(22);}
+    if(mkdir(base,0755)&&errno!=EEXIST)return fail(24);
+    if(!secure(base,true))return fail(24);
+    seed_root::LoadLease lease(base);if(!lease.held())return fail(4);
+    int parent=open("/data/local/tmp",O_RDONLY|O_DIRECTORY|O_CLOEXEC|O_NOFOLLOW);
+    struct Close{int fd;~Close(){if(fd>=0)close(fd);}} parentOwner{parent};
+    if(parent<0||!identity(pid,start))return fail(3);
+    if(!seed_root::commit_control(lease,parent,"pikmin-seed-preview.txt",false,pid,start))return fail(25);
+    if(off){puts("OFF_COMMITTED_REQUIRES_UI_RESTORE");return 0;}
+    std::string payload=argv[4];if(!installed_file(payload))return fail(3);
+    auto maps=read("/proc/"+std::to_string(pid)+"/maps");
+    const char* marker=
+#if defined(__x86_64__)
+        "libseed_bridge.so";
+#else
+        "libseed_display.so";
+#endif
+    if(maps.find(marker)==maps.npos){int result=inject_game(pid,start,payload,lease,profile);if(result)return result;}
+    else if(maps.find(payload)==maps.npos){puts("OTHER_RENDERER_REQUIRES_GAME_RESTART");return fail(26);}
+    if(!completed_attempt(lease,pid,start)){puts("UNKNOWN_ATTEMPT_PRESERVED");return fail(27);}
+    bool ready=false;for(int i=0;i<160&&identity(pid,start);++i){if(renderer_status(pid,start,status,profile)){ready=true;break;}usleep(250000);}
+    if(!ready){puts("NO_FRESH_RENDERER_LEFT_OFF");return fail(28);}
+    if(!identity(pid,start)||!seed_root::commit_control(lease,parent,"pikmin-seed-preview.txt",true,pid,start))return fail(25);
+    puts("ON_COMMITTED_REQUIRES_UI_ACCEPTANCE");printf("%s",status.c_str());return 0;
 }
