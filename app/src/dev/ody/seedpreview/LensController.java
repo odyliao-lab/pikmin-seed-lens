@@ -180,7 +180,7 @@ final class LensController {
                 bindUnscopedBarrier(current);
                 if(blockedFor(current)){reason="結果不明，請正常重開遊戲；不重送載入。";notifyView();return;}
                 if(!foreground||autoAttempt!=null&&autoAttempt.same(current)){notifyView();return;}
-                reportContext=current;reportRaw=null;autoAttempt=current;reason="";
+                reportContext=current;reportRaw=null;reason="";
                 execute(LensStatus.Action.ENABLE,current,true,()->operations.gameForeground());
             });
         });
@@ -208,7 +208,7 @@ final class LensController {
         final UpdateInterlock.Lease updateLease=action==LensStatus.Action.ENABLE?UpdateInterlock.beginLoad(operations.context.getFilesDir(),LensUpdater.installed(operations.context)):null;
         if(action==LensStatus.Action.ENABLE&&updateLease==null){reason="更新準備中或前一操作尚未結束，請先完成／取消更新。";active.set(false);notifyView();return;}
         reason="";progress=action==LensStatus.Action.ENABLE?"正在回到遊戲並準備顯示…":action==LensStatus.Action.OFF?"正在關閉顯示…":"只讀核對中…";notifyView();
-        if(action==LensStatus.Action.ENABLE)DiagnosticStore.record(operations.context,"ENABLE_BEGIN");
+        if(action==LensStatus.Action.ENABLE){autoAttempt=consent;DiagnosticStore.record(operations.context,"ENABLE_BEGIN");}
         worker.execute(()->{
             LensOperations.Result result;
             try{result=operations.execute(action,consent,foreground,()->main.post(()->{progress="原操作仍未返回，已鎖住重試，請等候。";notifyView();}));}
