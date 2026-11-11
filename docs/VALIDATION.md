@@ -1,5 +1,14 @@
 # 驗證分層
 
+## 2026-11-11：使用者另指定MuMu內建12＋157
+
+只啟動既有新index4／SeedLens-Isolated-A12，實際API32／x64／libnb.so。
+精確157.0原簽章完整splits安裝後SHA吻合，原遊戲已到出生日期頁；未登入，
+本輪未重現官方API31的SEVL崩潰。原簽章0.7.0實際顯示NativeBridge暫不支援、
+Switch停用，沒有Root／native載入或新attempt；維持原Root未開及SELinux，正常關機。
+因此僅遊戲啟動分項成立，產品功能未通過，也不能算API31通過。
+詳見[MuMu12獨立結果](MUMU12_GAME157_VALIDATION.md)。
+
 ## 2026-11-11：Android12／API31＋157再次實測
 
 既有授權API31 x64隔離機重新冷開機，精確157.0/code1793360009及完整原簽章
