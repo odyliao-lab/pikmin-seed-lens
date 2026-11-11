@@ -1,5 +1,7 @@
 # 四組唯讀顯示移植
 
+2026-11-11 後續授權：使用者要求合併 main 並更新 README；repo 保持私人、APK 未發布。下文保留各開發階段的原始範圍與驗證紀錄；最新摘要見 [驗收矩陣](DISPLAY_PORT_RESULTS.md)。
+
 ## 接手與範圍
 
 2026-11-11，目標 remote `odyliao-lab/pikmin-seed-lens`，乾淨 `main@0773bca` 起始；工作分支 `codex/standalone-display-groups`。使用者後續縮減本輪開發／裝置驗收為 MuMu，沒有可用 ARM64 手機；不得宣稱手機通過。不得合併 main 或發布。
