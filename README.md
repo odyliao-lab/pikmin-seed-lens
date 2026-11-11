@@ -59,6 +59,8 @@ pwsh -NoProfile -File app/build.ps1 `
 
 未簽章產物僅供建置驗證。簽章使用 repo 外的 keystore 與環境變數密碼；新交付 APK 須升版並保留原簽章。
 
-[架構](docs/ARCHITECTURE.md) · [精確遊戲設定檔](docs/GAME_PROFILES.md) · [來源與第三方授權](docs/PROVENANCE.md)
+[架構](docs/ARCHITECTURE.md) · [精確遊戲設定檔](docs/GAME_PROFILES.md) · [來源與第三方授權](docs/PROVENANCE.md) · [安全回報](SECURITY.md)
+
+提交變更請勿包含金鑰、帳號資料或遊戲檔案；[repo 安全設定與公開前待辦](docs/REPOSITORY_SECURITY.md)。
 
 專案開源授權尚待選定；第三方元件依各自授權使用。
