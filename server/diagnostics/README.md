@@ -1,6 +1,6 @@
 # 私人診斷接收端（尚未部署）
 
-Python 3.10+、標準函式庫；只在 `127.0.0.1:8109` 接收 `POST /v1/reports`。由獨立 HTTPS 反向代理對外服務，沒有報告查詢／下載／管理 API。App 的 `DiagnosticEndpoint.URL` 預設空白，尚不會上傳。
+Linux 部署參考，Python 3.10+、標準函式庫；Windows 僅完成本機測試，NTFS ACL 尚未納入正式部署驗收。只在 `127.0.0.1:8109` 接收 `POST /v1/reports`。由獨立 HTTPS 反向代理對外服務，沒有報告查詢／下載／管理 API。App 的 `DiagnosticEndpoint.URL` 預設空白，尚不會上傳。
 
 ## 資料與界線
 
@@ -24,12 +24,16 @@ Python 3.10+、標準函式庫；只在 `127.0.0.1:8109` 接收 `POST /v1/report
 reports.example.org {
     @reports path /v1/reports
     handle @reports {
-        request_body { max_size 16KB }
+        request_body {
+            max_size 16KB
+        }
         reverse_proxy 127.0.0.1:8109 {
             header_up X-Real-IP {remote_host}
         }
     }
-    handle { respond 404 }
+    handle {
+        respond 404
+    }
 }
 ```
 

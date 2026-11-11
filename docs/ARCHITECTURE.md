@@ -1,5 +1,9 @@
 # 架構
 
+## 診斷與更新
+
+0.11.2 新增獨立診斷程序、封閉回報 schema 與同意匯出；Root 檢查只讀，不經遊戲載入器。新增 INTERNET 僅供使用者允許的版本檢查／下載及日後同意的回報，接收端目前未設定。更新安裝使用 Android PackageInstaller 與 App 私人載入 interlock；不引入核心／模組或 Root 安裝。[本輪設計與驗收界線](DIAGNOSTICS_UPDATES.md)。
+
 ## 執行狀態與關閉全部
 
 0.10.3 新增只讀狀態彙整與前景定期核對；關閉全部使用 App 持久 pending-OFF，加上既有原生 lease／原子 writer，同步四主意願及八成員。載入、版本與 UNKNOWN 守門不變。[行為與驗證](STATUS_ALL_OFF.md)。
@@ -108,7 +112,7 @@ OS重啟、詳細頁及第二遊戲版本尚未完成。
 遊戲 version/code、ELF size/SHA、prologue、runtime metadata 必須全部對應。
 編譯出某 ABI 不表示該裝置可載入；不放寬守門來宣稱多版本。
 
-APK 內嵌兩個 loader build targets 及 ARM64 renderer。沒有 Magisk 模組、服務、
+APK 內嵌兩個 loader build targets 及 ARM64 renderer。0.1.x 當時沒有 Magisk 模組、服務、
 INTERNET 權限、開機自啟、掃描器控制或遊戲 RPC。
 0.1.5 將 renderer 同時打包到 `lib/arm64-v8a/`，以 `extractNativeLibs=true`
 由 Package Manager 安裝，從 `ApplicationInfo.nativeLibraryDir` 取得載入路徑。

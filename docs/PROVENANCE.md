@@ -29,3 +29,7 @@
 2026-11-11 使用者授權公開 repo，並指定程式碼採 [MIT License](../LICENSE)。第三方元件保留各自原授權；程式碼的 MIT 授權不授予皮克敏角色或參考圖片的權利。
 
 Game157 四組顯示另依固定來源 `a02b58f35295948cbd29e467ce5ccd7ffe33161a` 選擇性移植；來源與契約見 [DISPLAY_SOURCE_CONTRACTS](DISPLAY_SOURCE_CONTRACTS.json)，獨立整合與驗證見 [DISPLAY_PORT_RESULTS](DISPLAY_PORT_RESULTS.md)。
+
+## 診斷與更新來源
+
+診斷 schema、接收端、同意／匯出與私人更新 interlock 為本 repo 實作。`LensUpdateInfo`／`LensUpdateClient` 選擇性改寫自使用者授權唯讀來源的 `UpdateInfo.java`／`UpdateClient.java`（來源 HEAD `89569e047ee3ad590d4092e6d44eea3a9f5c04cb`）；安裝流程只參考 Android PackageInstaller 使用者確認方式，不移植核心、GPS、排程或自動化流程，也未修改來源 repo。
