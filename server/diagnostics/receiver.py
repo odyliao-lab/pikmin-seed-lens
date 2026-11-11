@@ -1,6 +1,4 @@
-"""Private Seed Lens report ingress. Loopback only; put a TLS reverse proxy in front.
-No read/admin API, shell execution, credentials, access logs or third-party SDK.
-"""
+"""Seed Lens report ingress. Loopback only; put a TLS reverse proxy in front."""
 import argparse
 import hashlib
 import ipaddress
@@ -143,13 +141,14 @@ class Store:
             return 201, 'accepted', report['report_id']
 
 
-def handler(store, trust_proxy=False):
+def handler(store, trust_proxy=False, web=None):
     class Receiver(BaseHTTPRequestHandler):
         server_version = 'SeedLensReceiver'
         sys_version = ''
         def setup(self):
             super().setup()
             self.connection.settimeout(5)
+            self.seedlens_trust_proxy = trust_proxy
         def log_message(self, *_):
             pass
         def reply(self, status, payload):
@@ -158,11 +157,16 @@ def handler(store, trust_proxy=False):
             self.send_header('Content-Type','application/json')
             self.send_header('Content-Length',str(len(body)))
             self.send_header('Cache-Control','no-store')
+            self.send_header('X-Content-Type-Options','nosniff')
             self.end_headers()
             self.wfile.write(body)
         def do_GET(self):
+            if web and web.dispatch(self):
+                return
             self.reply(404, {'status':'rejected','code':'not_found'})
         def do_POST(self):
+            if web and web.dispatch(self):
+                return
             if self.path != '/v1/reports':
                 self.reply(404, {'status':'rejected','code':'not_found'}); return
             if self.headers.get('X-Seed-Lens-Consent') != 'preview-v1':
@@ -196,16 +200,26 @@ def main():
     parser.add_argument('--data-dir', required=True)
     parser.add_argument('--port', type=int, default=8109)
     parser.add_argument('--trust-loopback-proxy', action='store_true')
+    parser.add_argument('--public-origin', help='Enable upload/admin website, e.g. https://reports.example.org')
+    parser.add_argument('--local-http', action='store_true', help='Loopback preview only; never production')
     args = parser.parse_args()
     if hasattr(os, 'getuid') and os.getuid() == 0:
         parser.error('Run as an unprivileged dedicated service account, never root')
     store = Store(args.data_dir)
-    server = HTTPServer(('127.0.0.1', args.port), handler(store, args.trust_loopback_proxy))
+    web = None
+    if args.public_origin:
+        from web import Web
+        web = Web(store, args.public_origin, os.environ.get('SEEDLENS_ADMIN_HASH', ''), args.local_http)
+    elif args.local_http:
+        parser.error('--local-http requires --public-origin')
+    server = HTTPServer(('127.0.0.1', args.port), handler(store, args.trust_loopback_proxy, web))
     server.timeout = 3600
     try:
         while True:
             server.handle_request()
             store.purge()
+            if web:
+                web.reports()  # Expire associated triage metadata even without admin visits.
     finally:
         server.server_close()
 

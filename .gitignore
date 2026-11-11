@@ -28,3 +28,10 @@ server/diagnostics/*
 !server/diagnostics/receiver.py
 !server/diagnostics/test_receiver.py
 !server/diagnostics/README.md
+!server/diagnostics/web.py
+!server/diagnostics/test_web.py
+!server/diagnostics/web/
+server/diagnostics/web/*
+!server/diagnostics/web/*.html
+!server/diagnostics/web/*.css
+!server/diagnostics/web/*.js
