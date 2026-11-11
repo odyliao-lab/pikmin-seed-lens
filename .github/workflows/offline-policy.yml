@@ -1,0 +1,25 @@
+name: Offline policy
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  policy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Run native display policy tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          for source in native/tests/*_test.cpp; do
+            output="$RUNNER_TEMP/$(basename "$source" .cpp)"
+            g++ -std=c++20 -Wall -Wextra -Werror "$source" -o "$output"
+            "$output"
+          done
+      - name: Check patch whitespace
+        run: git show --format= --check HEAD

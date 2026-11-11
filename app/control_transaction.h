@@ -6,6 +6,7 @@
 #include <charconv>
 #include <chrono>
 #include "game_profiles.h"
+#include "display_contract.h"
 
 namespace seed_root {
 inline bool write_all_sync(int fd,std::string_view bytes){

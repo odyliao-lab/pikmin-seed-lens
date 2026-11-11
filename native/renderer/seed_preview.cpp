@@ -1,4 +1,5 @@
 #include "seed_preview.h"
+#include "display_contract.h"
 #include "seed_preview_policy.h"
 #include "seed_preview_sha256.h"
 #include "managed_gc.h"
@@ -23,7 +24,7 @@ using pikmin::GcHandle;
 using pikmin::GcHandleNew;
 using pikmin::GcHandleFree;
 constexpr size_t max_cards=128;
-constexpr const char *control="/data/local/tmp/pikmin-seed-preview.txt";
+constexpr const char *control=seed_lens::seed_control;
 using Unary=void(*)(void*,void*);
 using Binary=void(*)(void*,void*,void*);
 struct IndexedData { int index; void *data; };
@@ -333,14 +334,14 @@ void worker(std::string directory) {
         &&hook(base,profile->expedition.rva,reinterpret_cast<void*>(expedition_hook),original_expedition)
         &&hook(base,profile->detail.rva,reinterpret_cast<void*>(detail_hook),original_detail);}
     phase.store(valid?"waiting-cards":"incompatible");hooks_ready.store(valid);
-    const auto path=directory+"/files/seed_preview_status.tsv",tmp=path+".tmp";
+    const auto path=directory+"/files/"+seed_lens::seed_report_leaf,tmp=path+".tmp";
     for(;;){
         wanted.store(valid&&control_on());
         auto now=std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         FILE *f=fopen(tmp.c_str(),"w");if(f){bool ok=fprintf(f,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t%u\t%u\t%u\t%s\n",
             static_cast<long long>(now),getpid(),profile?profile->version:"unsupported",phase.load(),(!strcmp(phase.load(),"ready")?rendered_enabled.load():wanted.load())?1:0,bound_count.load(),decorated_mask.load(),applied.load(),restored.load(),start.c_str())>0;
             if(fclose(f))ok=false;if(ok){chmod(tmp.c_str(),0644);rename(tmp.c_str(),path.c_str());}}
-        FILE *diag=fopen((directory+"/files/seed_preview_diagnostic.tsv").c_str(),"w");
+        FILE *diag=fopen((directory+"/files/seed_lens_seed_preview_diagnostic.tsv").c_str(),"w");
         if(diag){fprintf(diag,"%u\t%u\t%u\t%u\t%u\t%d\t%d\t%d\n",seed_calls.load(),text_calls.load(),canvas_calls.load(),tracked.load(),text_matches.load(),ui_tid.load(),text_tid.load(),canvas_tid.load());fclose(diag);}
         sleep(1);
     }

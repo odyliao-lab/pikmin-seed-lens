@@ -98,7 +98,7 @@ static int inject_game(int pid,const std::string& start,const std::string& paylo
 
 static bool renderer_status(int pid,const std::string& start,std::string& status,const seed_preview::GameProfile* profile){
     if(!profile)return false;
-    status.clear();int fd=open("/data/user/0/com.nianticlabs.pikmin/files/seed_preview_status.tsv",O_RDONLY|O_CLOEXEC|O_NOFOLLOW|O_NONBLOCK);
+    status.clear();int fd=open(seed_lens::seed_report,O_RDONLY|O_CLOEXEC|O_NOFOLLOW|O_NONBLOCK);
     if(fd<0)return false;struct stat st{},app{};char bytes[513]{};ssize_t n=-1;
     if(!fstat(fd,&st)&&S_ISREG(st.st_mode)&&st.st_size>0&&st.st_size<=512&&st.st_nlink==1
        &&!(st.st_mode&0022)&&!stat("/data/user/0/com.nianticlabs.pikmin",&app)&&st.st_uid==app.st_uid)n=::read(fd,bytes,sizeof(bytes));
@@ -147,7 +147,7 @@ int main(int argc,char**argv){
     int parent=open("/data/local/tmp",O_RDONLY|O_DIRECTORY|O_CLOEXEC|O_NOFOLLOW);
     struct Close{int fd;~Close(){if(fd>=0)close(fd);}} parentOwner{parent};
     if(parent<0||!identity(pid,start))return fail(3);
-    if(!seed_root::commit_control(lease,parent,"pikmin-seed-preview.txt",false,pid,start))return fail(25);
+    if(!seed_root::commit_control(lease,parent,seed_lens::seed_control_leaf,false,pid,start))return fail(25);
     if(off){puts("OFF_COMMITTED_REQUIRES_UI_RESTORE");return 0;}
     std::string payload=argv[4];if(!installed_file(payload))return fail(3);
     auto maps=read("/proc/"+std::to_string(pid)+"/maps");
@@ -162,6 +162,6 @@ int main(int argc,char**argv){
     if(!completed_attempt(lease,pid,start)){puts("UNKNOWN_ATTEMPT_PRESERVED");return fail(27);}
     bool ready=false;for(int i=0;i<160&&identity(pid,start);++i){if(renderer_status(pid,start,status,profile)){ready=true;break;}usleep(250000);}
     if(!ready){puts("NO_FRESH_RENDERER_LEFT_OFF");return fail(28);}
-    if(!identity(pid,start)||!seed_root::commit_control(lease,parent,"pikmin-seed-preview.txt",true,pid,start))return fail(25);
+    if(!identity(pid,start)||!seed_root::commit_control(lease,parent,seed_lens::seed_control_leaf,true,pid,start))return fail(25);
     puts("ON_COMMITTED_REQUIRES_UI_ACCEPTANCE");printf("%s",status.c_str());return 0;
 }
