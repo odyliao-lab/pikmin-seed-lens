@@ -22,6 +22,7 @@ final class LensUpdateCard {
  void render(){
   status.setText("目前 "+LensUpdater.installedVersion(activity)+"（"+LensUpdater.installed(activity)+"）"+"\n"+LensUpdater.status(activity));boolean busy=LensUpdater.busy(),pending=LensUpdateInstaller.pending(activity);LensUpdateInfo info=LensUpdater.latest(activity);
   check.setEnabled(!busy&&!pending);download.setEnabled(!busy&&!pending&&info!=null&&info.newerThan(LensUpdater.installed(activity))&&info.minSdk<=android.os.Build.VERSION.SDK_INT);install.setEnabled(!busy&&!pending&&LensUpdater.ready(activity));cancel.setEnabled(LensUpdater.downloading||pending);
+  for(Button b:new Button[]{check,download,install,cancel})b.setAlpha(b.isEnabled()?1f:0.45f);
   summary.setText(info==null?"更新來源僅限透視鏡官方索引。":info.version+"\n"+info.summary+"\n"+info.compatibility);
  }
 }

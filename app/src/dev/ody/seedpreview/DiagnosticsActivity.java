@@ -23,7 +23,12 @@ public final class DiagnosticsActivity extends Activity {
  void build(){
   boolean dark=(getResources().getConfiguration().uiMode&Configuration.UI_MODE_NIGHT_MASK)==Configuration.UI_MODE_NIGHT_YES;style=new ForestStyle(this,dark);
   getWindow().setStatusBarColor(style.paper);getWindow().setNavigationBarColor(style.paper);getWindow().getDecorView().setSystemUiVisibility(dark?0:View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR|View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
-  ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);scroll.setBackgroundColor(style.paper);LinearLayout page=style.column();page.setPadding(style.dp(20),style.dp(18),style.dp(20),style.dp(20));scroll.addView(page);setContentView(scroll);
+  ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);scroll.setBackgroundColor(style.paper);
+  if(Build.VERSION.SDK_INT>=30)getWindow().setDecorFitsSystemWindows(false);
+  scroll.setOnApplyWindowInsetsListener((v,insets)->{
+   if(Build.VERSION.SDK_INT>=30){android.graphics.Insets bars=insets.getInsets(WindowInsets.Type.systemBars());v.setPadding(bars.left,bars.top,bars.right,bars.bottom);}
+   else v.setPadding(insets.getSystemWindowInsetLeft(),insets.getSystemWindowInsetTop(),insets.getSystemWindowInsetRight(),insets.getSystemWindowInsetBottom());return insets;
+  });LinearLayout page=style.column();page.setPadding(style.dp(20),style.dp(18),style.dp(20),style.dp(20));scroll.addView(page);setContentView(scroll);
   LensTabs.add(this,style,page,true);style.add(page,style.text("自我診斷",24,style.ink,true),12);
   style.add(page,style.text("先檢查基本條件。診斷不啟用遊戲功能、不修改系統。",14,style.muted,false),12);
   notice=style.text("讀取環境中…",14,style.muted,false);style.add(page,notice,12);
@@ -49,7 +54,7 @@ public final class DiagnosticsActivity extends Activity {
    else if(previous!=null)for(String k:new String[]{"root","bridge","selinux"})found.put(k,previous.get(k));
    final Map<String,String> value=found;runOnUiThread(()->{if(isDestroyed())return;facts=value;busy=false;buttons();render();});});
  }
- void buttons(){basic.setEnabled(!busy);root.setEnabled(!busy);preview.setEnabled(!busy&&facts!=null);}
+ void buttons(){basic.setEnabled(!busy);root.setEnabled(!busy);preview.setEnabled(!busy&&facts!=null);for(Button b:new Button[]{basic,root,preview})b.setAlpha(b.isEnabled()?1f:0.45f);}
  void render(){
   results.removeAllViews();notice.setText("Android "+facts.get("android_release")+"／API"+facts.get("android_api")+" · "+facts.get("abi")+"\n遊戲 "+facts.get("game_version")+"／"+facts.get("game_code")+"\nRoot："+rootLabel(facts.get("root")));
   for(String text:DiagnosisPolicy.advice(facts)){LinearLayout card=style.card();style.add(card,style.text(text,14,style.ink,false),0);style.add(results,card,10);}
@@ -63,7 +68,7 @@ public final class DiagnosticsActivity extends Activity {
   }).show();
  }
  void showReport(DiagnosticReport report){
-  LinearLayout box=style.column();box.setPadding(style.dp(18),style.dp(8),style.dp(18),0);
+  LinearLayout box=style.column();box.setBackgroundColor(style.paper);box.setPadding(style.dp(18),style.dp(8),style.dp(18),0);
   style.add(box,style.text("以下是實際提供的全部資料。本機編號不是送出成功收據。",13,style.muted,false),8);
   TextView body=style.text(report.json,11,style.ink,false);body.setTypeface(Typeface.MONOSPACE);body.setTextIsSelectable(true);ScrollView view=new ScrollView(this);view.addView(body);box.addView(view,new LinearLayout.LayoutParams(-1,style.dp(230)));
   CheckBox consent=style.check("我已檢視並同意提供此份診斷");style.add(box,consent,0);
