@@ -42,4 +42,10 @@ App新程序初始「尚未核對」保持真實狀態，按只讀核對後顯�
 只附原簽章APK、SHA256清單及去敏建置來源版本資訊；不附私人來源、研究APK或憑證。
 發布後另核遠端metadata與匿名下載SHA。
 
+實際已於2026-11-11T02:28:26Z發布，Release id441167378；draft=false、prerelease=true、
+immutable=true。APK 21,857,845 bytes，GitHub資產digest與上述SHA一致。
+匿名下載因速度較慢採分段回收，完整重組21,857,845 bytes後SHA與原APK完全一致；
+未使用GitHub登入token下載，確認公開下載可用。
+實作來源commit `afbb83a` 已推送私人功能分支；控制中心latest及發布庫main保持原值。
+
 [下載頁](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.7.3)
