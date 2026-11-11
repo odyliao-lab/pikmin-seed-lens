@@ -74,6 +74,6 @@ pwsh -NoProfile -File app/build.ps1 `
 
 [架構](docs/ARCHITECTURE.md) · [精確遊戲設定檔](docs/GAME_PROFILES.md) · [來源與第三方授權](docs/PROVENANCE.md) · [安全回報](SECURITY.md)
 
-提交變更請勿包含金鑰、帳號資料或遊戲檔案；[repo 安全設定與公開前待辦](docs/REPOSITORY_SECURITY.md)。
+提交變更請勿包含金鑰、帳號資料或遊戲檔案；[repo 安全設定](docs/REPOSITORY_SECURITY.md)。
 
 程式碼採 [MIT License](LICENSE)；第三方元件保留各自授權，角色與圖片不包含在程式碼授權範圍內。
