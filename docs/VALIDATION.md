@@ -1,5 +1,22 @@
 # 驗證分層
 
+## 2026-11-11：0.7.2／API32＋157待種花苗通過
+
+後續已定位前次su-c逾時為內建Root授權自動拒絕；普通App取得授權後，隔離CPU15例、
+正常PM-JNI／timeout收容／新程序回歸均實跑通過，才整合產品。原簽章0.7.2/code28
+只安裝新index4；三個研究APK事先移除，使用內建Root＋單一產品APK。
+
+| 本版／平台／遊戲 | 待種花苗名稱／縮字 | OFF還原／再ON | 其他 |
+|---|---|---|---|
+| 0.7.2／MuMu API32 x64-libnb／157.0 code1793360009 | 實測通過；首輪需重開花苗頁刷新舊卡片 | 實測通過；同PID沿用renderer、無第二次載入 | 探險略過；捲動／重啟／長時間未驗 |
+| 0.7.2／API31、API34或其他遊戲 | 未通過／未驗 | 未通過／未驗 | 不承接其他APK或自有JNI資格 |
+
+精確PID14218/start280512/UID10041，357庫存不變；一筆產品journal於ON／OFF／再ON
+SHA一致，仍RETURNED_UNVERIFIED，成功依畫面與fresh status分層判斷。原六筆研究歷史
+及UNKNOWN保留；最終173個thread TracerPid0。最終依使用者要求留ON。
+[完整版本、artifact、研究及實機證據](PRODUCT072_API32_STOCK.md)。
+API32不是必要API31，九組目標仍未完成。下列尚未通過的API32描述為先前階段歷史。
+
 ## 2026-11-11：API32開放前的普通App Root／平台匯出研究
 
 使用者授權確認後端、通過才開放。僅index4開啟內建Root並正常重啟；新boot實際API32／

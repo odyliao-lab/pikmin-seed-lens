@@ -69,6 +69,10 @@ if($LASTEXITCODE){throw 'Compatibility tests failed'}
 if($LASTEXITCODE){throw 'Installed native path/digest tests failed'}
 & "$JavaHome/bin/javac.exe" -encoding UTF-8 -d "$out/tests" "$PSScriptRoot/src/dev/ody/seedpreview/GameSession.java" "$PSScriptRoot/tests/GameSessionTest.java"
 if($LASTEXITCODE){throw 'Game session test compile failed'}
+& "$JavaHome/bin/javac.exe" -encoding UTF-8 -d "$out/tests" "$PSScriptRoot/src/dev/ody/seedpreview/RootCommand.java" "$PSScriptRoot/tests/RootCommandTest.java"
+if($LASTEXITCODE){throw 'Root command test compile failed'}
+& "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.RootCommandTest
+if($LASTEXITCODE){throw 'Root command selection tests failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.GameSessionTest
 if($LASTEXITCODE){throw 'Game session tests failed'}
 & "$JavaHome/bin/javac.exe" -encoding UTF-8 -classpath "$out/tests" -d "$out/tests" "$PSScriptRoot/src/dev/ody/seedpreview/LensContext.java" "$PSScriptRoot/src/dev/ody/seedpreview/LensStatus.java" "$PSScriptRoot/tests/LensStatusTest.java" "$PSScriptRoot/tests/LensContextTest.java"

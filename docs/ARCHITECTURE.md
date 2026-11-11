@@ -1,5 +1,21 @@
 # 架構
 
+## 0.7.2：已實測的MuMu API32獨立後端
+
+在隔離普通App Root／CPU／正常PM-JNI／timeout收容／新程序研究通過後，才開放
+API32＋libnb.so的獨立四參數adapter及Java/native一致准入。API35仍使用既有五參數
+adapter，選定後不fallback。精確SDK文字與native API、bridge、遊戲及程序guard保留。
+API31／34候選旗標仍false；下方舊階段「僅API35／拒絕API32」不代表本版政策。
+
+`RootCommand`僅API32 x86_64事先選定內建su-c；前綴驗UID0、非空且相同PID1 mount
+namespace，關閉stdin。其他tuple仍su-M，不在失敗或UNKNOWN後換命令重試。
+原context的orig_rax=-1路徑保留；額外負標記僅API32/libnb啟用，需停止task的syscall-info
+arch/IP/SP吻合、非restart，初始只接受NONE；自己完成且恢復的remote syscall後才允許EXIT。
+CPU研究與產品共用這段受限判別，沒有跳過進行中syscall。
+
+產品仍是同一APK自帶loader／host／配對renderer，不依賴已移除的三個研究App。
+單頁介面與UNKNOWN禁止重送保持；[本版實機與界線](PRODUCT072_API32_STOCK.md)。
+
 0.7.0/code26依使用者最新要求改為單頁精簡介面，移除分頁／外觀選單／常駐技術區。
 `MainActivity`仍只持有當次同意，`LensController`／`LensOperations`及native守門保持原樣；
 只讀核對、直接OFF與UNKNOWN禁止重送保留。外觀跟隨系統，舊外觀偏好保留但不再作為入口。

@@ -1,6 +1,7 @@
 #pragma once
 #include "bridge_runtime.h"
 #include "bridge_platform.h"
+#include "bridge_platform_api32.h"
 #ifdef SEED_API31_CANDIDATE
 #include "bridge_platform_api31.h"
 #endif
@@ -13,6 +14,7 @@ namespace seed_bridge {
 class PlatformForRuntime {
     Backend backend_=Backend::Unsupported;
     Platform api35_;
+    seed_bridge_api32::Platform api32_;
 #ifdef SEED_API31_CANDIDATE
     seed_bridge_api31::Platform api31_;
 #endif
@@ -21,6 +23,7 @@ class PlatformForRuntime {
 #endif
     bool attempted_=false;
     template<class Fn> auto selected(Fn action){
+        if(backend_==Backend::Api32Libnb)return action(api32_);
 #ifdef SEED_API31_CANDIDATE
         if(backend_==Backend::Api31NdkTranslationCandidate)return action(api31_);
 #endif

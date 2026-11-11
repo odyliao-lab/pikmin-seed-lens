@@ -1,7 +1,7 @@
 #pragma once
 #include <sys/user.h>
 #include <cstdint>
-#ifdef SEED_API32_CONTEXT_RESEARCH
+#ifdef SEED_API32_NATIVE_CONTEXT
 #include <android/api-level.h>
 #include <sys/system_properties.h>
 #include <cstring>
@@ -10,13 +10,13 @@
 namespace seed_research {
 // API32 MuMu reports multiple negative no-syscall markers on native busy loops.
 // Corroborate using the stopped task syscall-info arch/IP/SP. Positive syscalls and
-// Linux restart results still refuse. Research flag is absent in product.
+// Linux restart results still refuse. Only the qualified API32 targets enable this branch.
 inline bool user_context_registers(const user_regs_struct& regs,int tid,bool completedRemoteSyscall=false){
-#ifndef SEED_API32_CONTEXT_RESEARCH
+#ifndef SEED_API32_NATIVE_CONTEXT
     (void)tid;(void)completedRemoteSyscall;
 #endif
     if(static_cast<int64_t>(regs.orig_rax)==-1)return true;
-#ifdef SEED_API32_CONTEXT_RESEARCH
+#ifdef SEED_API32_NATIVE_CONTEXT
     char sdk[PROP_VALUE_MAX]{},bridge[PROP_VALUE_MAX]{};
     __system_property_get("ro.build.version.sdk",sdk);
     __system_property_get("ro.dalvik.vm.native.bridge",bridge);

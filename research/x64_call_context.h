@@ -33,7 +33,7 @@ class X64CallContext {
         bool stack=user&&original_.rsp>=redzone_.size();
         bool state=stack&&xread(trace_.pid(),xstate_);
         bool red=state&&trace_.peekMem(original_.rsp-redzone_.size(),redzone_.data(),redzone_.size())==redzone_.size();
-#ifdef SEED_API32_CONTEXT_RESEARCH
+#ifdef SEED_API32_NATIVE_CONTEXT
         if(!red)printf("API32_CONTEXT_CAPTURE_REFUSED regs=%d orig=%lld rax=%lld stack=%d xstate=%d redzone=%d\n",regs,(long long)original_.orig_rax,(long long)original_.rax,stack,state,red);
 #endif
         return red;

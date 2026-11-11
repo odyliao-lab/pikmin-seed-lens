@@ -1,4 +1,5 @@
 #include "x64_backend.h"
+#include "../research/api32_user_context.h"
 #include "entry_context.h"
 #include "identity_policy.h"
 #include "supervised_load.h"
@@ -41,7 +42,7 @@ int run(int pid,const std::string& start,const std::string& host,int socket,int 
                 int sig=info.si_signo;ptrace(PTRACE_DETACH,tid,nullptr,reinterpret_cast<void*>(static_cast<intptr_t>(sig)));
                 return 14;
             }
-            if(mgr.trace.getRegs(&regs)&&static_cast<int64_t>(regs.orig_rax)==-1&&seed_root::thread_owner(tid,pid,ts)){
+            if(mgr.trace.getRegs(&regs)&&seed_research::user_context_registers(regs,tid)&&seed_root::thread_owner(tid,pid,ts)){
                 gamePid=pid;gameStart=start;traceTid=tid;threadStart=ts;acquired=true;break;
             }
             if(!mgr.trace.detach())return 15;

@@ -55,8 +55,9 @@ final class LensOperations {
         File file=File.createTempFile("operation-",".sh",context.getFilesDir());
         java.lang.Process process=null;boolean ended=false;boolean interrupted=false;
         try{
-            try(FileOutputStream out=new FileOutputStream(file)){out.write(script.getBytes(StandardCharsets.UTF_8));}
-            process=new ProcessBuilder("su","-M","-c","sh "+file.getAbsolutePath()).redirectErrorStream(true).start();
+            try(FileOutputStream out=new FileOutputStream(file)){out.write((RootCommand.prefix(Build.VERSION.SDK_INT,Build.SUPPORTED_ABIS[0])+script).getBytes(StandardCharsets.UTF_8));}
+            process=new ProcessBuilder(RootCommand.arguments(Build.VERSION.SDK_INT,Build.SUPPORTED_ABIS[0],"sh "+file.getAbsolutePath())).redirectErrorStream(true).start();
+            process.getOutputStream().close();
             final java.lang.Process child=process;ByteArrayOutputStream bytes=new ByteArrayOutputStream();
             AtomicBoolean incomplete=new AtomicBoolean(false);
             Thread reader=new Thread(()->{
