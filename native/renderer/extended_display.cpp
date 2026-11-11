@@ -687,58 +687,58 @@ void worker(std::string directory) {
         planter_display_wanted.store(valid&&display_game.planted_detail.rva&&control_on("/data/local/tmp/seed-lens-planter-display.txt"));
         expedition_display_wanted.store(valid&&display_game.adult.rva&&control_on("/data/local/tmp/seed-lens-expedition-display.txt"));
         auto now=std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-        FILE *f=fopen(tmp.c_str(),"w");if(f){bool ok=fprintf(f,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t%u\t%u\t%u\t%s\n",
-            static_cast<long long>(now),getpid(),display_game.version,phase.load(),(!strcmp(phase.load(),"ready")?rendered_enabled.load():wanted.load())?1:0,bound_count.load(),decorated_mask.load(),applied.load(),restored.load(),start.c_str())>0;
+        FILE *f=fopen(tmp.c_str(),"w");if(f){bool ok=fprintf(f,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t%u\t%u\t%u\t%s\t%s\n",
+            static_cast<long long>(now),getpid(),display_game.version,phase.load(),(!strcmp(phase.load(),"ready")?rendered_enabled.load():wanted.load())?1:0,bound_count.load(),decorated_mask.load(),applied.load(),restored.load(),start.c_str(),seed_lens::display_build)>0;
             if(fclose(f))ok=false;if(ok){chmod(tmp.c_str(),0644);rename(tmp.c_str(),path.c_str());}}
         FILE *diag=fopen((directory+"/files/seed_lens_seed_preview_diagnostic.tsv").c_str(),"w");
         if(diag){fprintf(diag,"%u\t%u\t%u\t%u\t%u\t%d\t%d\t%d\n",seed_calls.load(),text_calls.load(),canvas_calls.load(),tracked.load(),text_matches.load(),ui_tid.load(),text_tid.load(),canvas_tid.load());fclose(diag);}
         const auto collection_path=directory+"/files/seed_lens_seed_collection_status.tsv",collection_tmp=collection_path+".tmp";
         if(FILE *out=fopen(collection_tmp.c_str(),"w")) {
-            bool ok=fprintf(out,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t0\t0\t0\t%s\n",
+            bool ok=fprintf(out,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t0\t0\t0\t%s\t%s\n",
                 static_cast<long long>(now),getpid(),display_game.version,valid?collection_phase.load():"incompatible",
-                collection_rendered.load()?1:0,bound_count.load(),start.c_str())>0;
+                collection_rendered.load()?1:0,bound_count.load(),start.c_str(),seed_lens::display_build)>0;
             if(fclose(out))ok=false;if(ok){chmod(collection_tmp.c_str(),0644);rename(collection_tmp.c_str(),collection_path.c_str());}
         }
         const auto stock_path=directory+"/files/seed_lens_nectar_stock_preview_status.tsv",stock_tmp=stock_path+".tmp";
         if(FILE *out=fopen(stock_tmp.c_str(),"w")) {
-            bool ok=fprintf(out,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t0\t0\t0\t%s\n",
+            bool ok=fprintf(out,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t0\t0\t0\t%s\t%s\n",
                 static_cast<long long>(now),getpid(),display_game.version,valid?stock_phase.load():"incompatible",
-                stock_rendered.load()?1:0,bound_count.load(),start.c_str())>0;
+                stock_rendered.load()?1:0,bound_count.load(),start.c_str(),seed_lens::display_build)>0;
             if(fclose(out))ok=false;if(ok){chmod(stock_tmp.c_str(),0644);rename(stock_tmp.c_str(),stock_path.c_str());}
         }
         const auto adult_path=directory+"/files/seed_lens_adult_state_preview_status.tsv",adult_tmp=adult_path+".tmp";
         if(FILE *out=fopen(adult_tmp.c_str(),"w")) {
-            bool ok=fprintf(out,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t0\t0\t0\t%s\n",
+            bool ok=fprintf(out,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t0\t0\t0\t%s\t%s\n",
                 static_cast<long long>(now),getpid(),display_game.version,valid?adult_phase.load():"incompatible",
-                adult_rendered.load()?1:0,bound_count.load(),start.c_str())>0;
+                adult_rendered.load()?1:0,bound_count.load(),start.c_str(),seed_lens::display_build)>0;
             if(fclose(out))ok=false;if(ok){chmod(adult_tmp.c_str(),0644);rename(adult_tmp.c_str(),adult_path.c_str());}
         }
         const auto decoration_path=directory+"/files/seed_lens_adult_decoration_preview_status.tsv",decoration_tmp=decoration_path+".tmp";
         if(FILE *out=fopen(decoration_tmp.c_str(),"w")) {
-            bool ok=fprintf(out,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t0\t0\t0\t%s\n",
+            bool ok=fprintf(out,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t0\t0\t0\t%s\t%s\n",
                 static_cast<long long>(now),getpid(),display_game.version,valid&&display_game.adult.rva?decoration_phase.load():"incompatible",
-                decoration_rendered.load()?1:0,bound_count.load(),start.c_str())>0;
+                decoration_rendered.load()?1:0,bound_count.load(),start.c_str(),seed_lens::display_build)>0;
             if(fclose(out))ok=false;if(ok){chmod(decoration_tmp.c_str(),0644);rename(decoration_tmp.c_str(),decoration_path.c_str());}
         }
         const auto gift_path=directory+"/files/seed_lens_gift_preview_status.tsv",gift_tmp=gift_path+".tmp";
         if(FILE *out=fopen(gift_tmp.c_str(),"w")) {
-            bool ok=fprintf(out,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t0\t0\t0\t%s\n",
+            bool ok=fprintf(out,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t0\t0\t0\t%s\t%s\n",
                 static_cast<long long>(now),getpid(),display_game.version,valid&&display_game.adult.rva?gift_phase.load():"incompatible",
-                gift_rendered.load()?1:0,bound_count.load(),start.c_str())>0;
+                gift_rendered.load()?1:0,bound_count.load(),start.c_str(),seed_lens::display_build)>0;
             if(fclose(out))ok=false;if(ok){chmod(gift_tmp.c_str(),0644);rename(gift_tmp.c_str(),gift_path.c_str());}
         }
         const auto planter_path=directory+"/files/seed_lens_planter_display_status.tsv",planter_tmp=planter_path+".tmp";
         if(FILE *out=fopen(planter_tmp.c_str(),"w")) {
-            bool ok=fprintf(out,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t0\t0\t0\t%s\n",
+            bool ok=fprintf(out,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t0\t0\t0\t%s\t%s\n",
                 static_cast<long long>(now),getpid(),display_game.version,valid&&display_game.planted_detail.rva?planter_display_phase.load():"incompatible",
-                planter_display_rendered.load()?1:0,bound_count.load(),start.c_str())>0;
+                planter_display_rendered.load()?1:0,bound_count.load(),start.c_str(),seed_lens::display_build)>0;
             if(fclose(out))ok=false;if(ok){chmod(planter_tmp.c_str(),0644);rename(planter_tmp.c_str(),planter_path.c_str());}
         }
         const auto expedition_path=directory+"/files/seed_lens_expedition_display_status.tsv",expedition_tmp=expedition_path+".tmp";
         if(FILE *out=fopen(expedition_tmp.c_str(),"w")) {
-            bool ok=fprintf(out,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t0\t0\t0\t%s\n",
+            bool ok=fprintf(out,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t0\t0\t0\t%s\t%s\n",
                 static_cast<long long>(now),getpid(),display_game.version,valid&&display_game.adult.rva?expedition_display_phase.load():"incompatible",
-                expedition_display_rendered.load()?1:0,bound_count.load(),start.c_str())>0;
+                expedition_display_rendered.load()?1:0,bound_count.load(),start.c_str(),seed_lens::display_build)>0;
             if(fclose(out))ok=false;if(ok){chmod(expedition_tmp.c_str(),0644);rename(expedition_tmp.c_str(),expedition_path.c_str());}
         }
         const auto diagnostic_path=directory+"/files/seed_lens_display_inventory_read_status.tsv",diagnostic_tmp=diagnostic_path+".tmp";

@@ -69,7 +69,7 @@ final class LensController {
             Boolean[] found=new Boolean[4];String error="";
             for(int i=0;i<4;i++)try{
                 LensOperations.Reply r=operations.displayGroup(i,null);found[i]=DisplayGroups.setting(i,r.exit,r.complete,r.output);
-                if(found[i]==null){error="Root 或設定核對失敗（"+r.exit+"）；點此重試，不會當成已關閉。";break;}
+                if(found[i]==null){error=DisplayGroups.failure(r.exit,r.output);break;}
             }catch(Exception e){error="Root 或設定讀取失敗；點此重試。";break;}
             final String problem=error;
             main.post(()->{
@@ -85,7 +85,7 @@ final class LensController {
         worker.execute(()->{
             Boolean saved=null;String error="";
             try{LensOperations.Reply r=operations.displayGroup(group,enabled);saved=DisplayGroups.setting(group,r.exit,r.complete,r.output);
-                if(saved==null)error="設定未完整同步（"+r.exit+"），點此依已保存意願重試。";
+                if(saved==null)error=DisplayGroups.failure(r.exit,r.output);
             }catch(Exception e){error="Root 或設定保存失敗；不推定開關已改變。";}
             final Boolean value=saved;final String problem=error;
             main.post(()->{
@@ -155,6 +155,8 @@ final class LensController {
             main.post(()->{
                 raw=result.blocked!=null?result.blocked:result.reply.output;
                 reason=result.blocked==null?"":result.blocked;
+                if(result.blocked==null&&(parsed.phase==LensStatus.Phase.REFUSED||parsed.phase==LensStatus.Phase.UNVERIFIED))
+                    reason=DisplayGroups.failure(result.reply.exit,result.reply.output);
                 bindUnscopedBarrier(parsed.session);
                 if(parsed.phase==LensStatus.Phase.UNKNOWN||parsed.phase==LensStatus.Phase.UNCERTAIN||parsed.phase==LensStatus.Phase.RESTART_REQUIRED){
                     if(parsed.session!=null){

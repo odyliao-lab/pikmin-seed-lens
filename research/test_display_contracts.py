@@ -40,4 +40,11 @@ class DisplayContracts(unittest.TestCase):
         for guard in ['PlayerId','get_PlayerInfo','inventoryManager','original_logout','expected_account','epoch','revision']:
             self.assertIn(guard,context)
 
+    def test_exact_standalone_build_binding(self):
+        loader=(ROOT/'app/loader.cpp').read_text()
+        renderer=(ROOT/'native/renderer/extended_display.cpp').read_text()
+        self.assertIn('seed_root::fresh_display_status',loader)
+        self.assertEqual(renderer.count('seed_lens::display_build'),8)
+        self.assertIn('SEED_DISPLAY_BUILD_ID=$displayBuildId',(ROOT/'app/build.ps1').read_text())
+
 if __name__=='__main__':unittest.main()

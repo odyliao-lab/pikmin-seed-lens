@@ -70,4 +70,13 @@ inline bool fresh_renderer_status(std::string_view text,int pid,std::string_view
     for(size_t i=5;i<=9;++i){uint64_t value=0;if(!decimal(fields[i],value)||(i==5&&value>1))return false;}
     return true;
 }
+// Game157's four-group status must come from this exact APK build. A previous
+// standalone renderer can share filenames/PID but cannot authorize new features.
+inline bool fresh_display_status(std::string_view text,int pid,std::string_view start,int64_t now,std::string_view version){
+    if(version!="157.0")return fresh_renderer_status(text,pid,start,now,version);
+    const auto suffix=std::string("\t")+seed_lens::display_build+"\n";
+    if(!text.ends_with(suffix))return false;
+    auto canonical=std::string(text.substr(0,text.size()-suffix.size()))+"\n";
+    return fresh_renderer_status(canonical,pid,start,now,version);
+}
 }

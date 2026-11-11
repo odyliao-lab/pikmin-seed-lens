@@ -106,7 +106,9 @@ static bool renderer_status(int pid,const std::string& start,std::string& status
        &&!(st.st_mode&0022)&&!stat("/data/user/0/com.nianticlabs.pikmin",&app)&&st.st_uid==app.st_uid)n=::read(fd,bytes,sizeof(bytes));
     close(fd);if(n<=0||n>512)return false;status.assign(bytes,static_cast<size_t>(n));
     auto now=std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-    return identity(pid,start)&&seed_root::fresh_renderer_status(status,pid,start,now,profile->version);
+    if(!identity(pid,start)||!seed_root::fresh_display_status(status,pid,start,now,profile->version))return false;
+    if(std::string_view(profile->version)=="157.0")status=status.substr(0,status.rfind('\t'))+"\n";
+    return true;
 }
 static bool completed_attempt(const seed_root::LoadLease& lease,int pid,const std::string& start){
     auto boot=read("/proc/sys/kernel/random/boot_id");if(boot.size()==37&&boot.back()=='\n')boot.pop_back();
@@ -171,8 +173,10 @@ int main(int argc,char**argv){
     int parent=open("/data/local/tmp",O_RDONLY|O_DIRECTORY|O_CLOEXEC|O_NOFOLLOW);
     struct Close{int fd;~Close(){if(fd>=0)close(fd);}} parentOwner{parent};
     if(parent<0||!identity(pid,start))return fail(3);
-    if(!seed_root::commit_control(lease,parent,seed_lens::seed_control_leaf,false,pid,start))return fail(25);
-    if(off){puts("OFF_COMMITTED_REQUIRES_UI_RESTORE");return 0;}
+    if(off){
+        if(!seed_root::commit_control(lease,parent,seed_lens::seed_control_leaf,false,pid,start))return fail(25);
+        puts("OFF_COMMITTED_REQUIRES_UI_RESTORE");return 0;
+    }
     std::string payload=argv[4];if(!installed_file(payload))return fail(3);
     auto maps=read("/proc/"+std::to_string(pid)+"/maps");
     const char* marker=
@@ -181,10 +185,18 @@ int main(int argc,char**argv){
 #else
         "libseed_display.so";
 #endif
-    if(maps.find(marker)==maps.npos){int result=inject_game(pid,start,payload,lease,profile);if(result)return result;}
-    else if(maps.find(payload)==maps.npos){puts("OTHER_RENDERER_REQUIRES_GAME_RESTART");return fail(26);}
-    if(!completed_attempt(lease,pid,start)){puts("UNKNOWN_ATTEMPT_PRESERVED");return fail(27);}
-    bool ready=false;for(int i=0;i<160&&identity(pid,start);++i){if(renderer_status(pid,start,status,profile)){ready=true;break;}usleep(250000);}
+    const bool reuse=maps.find(marker)!=maps.npos;
+    if(reuse){
+        if(!completed_attempt(lease,pid,start)){puts("UNKNOWN_ATTEMPT_PRESERVED");return fail(27);}
+        if(maps.find(payload)==maps.npos||!renderer_status(pid,start,status,profile)){
+            puts("OTHER_RENDERER_REQUIRES_GAME_RESTART");return fail(26);
+        }
+    }else{
+        if(!seed_root::commit_control(lease,parent,seed_lens::seed_control_leaf,false,pid,start))return fail(25);
+        int result=inject_game(pid,start,payload,lease,profile);if(result)return result;
+        if(!completed_attempt(lease,pid,start)){puts("UNKNOWN_ATTEMPT_PRESERVED");return fail(27);}
+    }
+    bool ready=reuse;for(int i=0;!ready&&i<160&&identity(pid,start);++i){if(renderer_status(pid,start,status,profile)){ready=true;break;}usleep(250000);}
     if(!ready){puts("NO_FRESH_RENDERER_LEFT_OFF");return fail(28);}
     if(!identity(pid,start))return fail(25);
     if(seed_root::read_setting(parent,"seed-lens-display-group-seedlings.txt")!=seed_lens::Setting::Missing){

@@ -47,20 +47,26 @@ public final class MainActivity extends Activity implements LensController.Obser
             toggle.setOnCheckedChangeListener((button,on)->{
                 if(suppress||controller.busy())return;
                 if(on&&!controller.armed()){
-                    changed();new AlertDialog.Builder(this).setTitle("啟用遊戲資訊")
-                        .setMessage("僅修改顯示。載入結果不明或逾時時，允許停止當次遊戲並保留紀錄，不自動重送；下次正常開啟的新程序會重新核對。")
-                        .setNegativeButton("取消",(d,w)->changed()).setPositiveButton("啟用",(d,w)->{
-                            if(controller.arm())controller.setGroup(selected,true);else{controller.reason="啟用意願未保存，請重試。";changed();}
-                        }).show();
+                    changed();consent(()->controller.setGroup(selected,true));
                 }else controller.setGroup(selected,on);
             });
         }
         message=style.text("",13,style.muted,false);message.setOnClickListener(v->{if(!controller.busy())controller.refreshGroups();});style.add(page,message,12);
         TextView launch=style.text("開啟遊戲 ↗",15,style.green,true);launch.setGravity(Gravity.CENTER);launch.setPadding(0,style.dp(10),0,style.dp(10));
-        launch.setOnClickListener(v->{Intent game=getPackageManager().getLaunchIntentForPackage("com.nianticlabs.pikmin");if(game!=null)startActivity(game);});style.add(page,launch,12);
+        launch.setOnClickListener(v->{
+            Runnable open=()->{if(controller.anyGroup()&&controller.armed())LensService.start(this);Intent game=getPackageManager().getLaunchIntentForPackage("com.nianticlabs.pikmin");if(game!=null)startActivity(game);};
+            if(controller.anyGroup()&&!controller.armed())consent(open);else open.run();
+        });style.add(page,launch,12);
         String version="未知";try{version=getPackageManager().getPackageInfo(getPackageName(),0).versionName;}catch(Exception ignored){}
         TextView footer=style.text("v"+version+"  ·  開發者 odyliao-lab",12,style.muted,false);footer.setGravity(Gravity.CENTER);style.add(page,footer,0);
         setContentView(root);root.requestApplyInsets();changed();
+    }
+    void consent(Runnable after){
+        new AlertDialog.Builder(this).setTitle("啟用遊戲資訊")
+            .setMessage("僅修改顯示。載入結果不明或逾時時，允許停止當次遊戲並保留紀錄，不自動重送；下次正常開啟的新程序會重新核對。")
+            .setNegativeButton("取消",(d,w)->changed()).setPositiveButton("啟用",(d,w)->{
+                if(controller.arm())after.run();else{controller.reason="啟用意願未保存，請重試。";changed();}
+            }).show();
     }
     @Override public void changed(){
         if(message==null)return;boolean busy=controller.busy();String unavailable=controller.operations.extensionAvailability();
@@ -73,7 +79,10 @@ public final class MainActivity extends Activity implements LensController.Obser
             reports[i].setText(value==null?"設定未確認":controller.groupReport[i]);
         }
         suppress=false;String text=busy?controller.progress:!controller.reason.isEmpty()?controller.reason:unavailable!=null?unavailable:"啟用後開啟遊戲即可使用。";
-        if(controller.state.blocksEnable())text="結果不明或載入受限，請正常重開遊戲；不重送載入。";
+        if(controller.state.phase==LensStatus.Phase.UNKNOWN||controller.state.phase==LensStatus.Phase.UNCERTAIN)
+            text="結果不明，請正常重開遊戲；保留紀錄，不重送載入。";
+        else if(controller.state.phase==LensStatus.Phase.RESTART_REQUIRED)
+            text="遊戲仍有舊版顯示或載入未完成，請正常重開遊戲後重新綁定。";
         message.setText(text);message.setTextColor(controller.state.blocksEnable()?style.error:style.muted);
     }
 }

@@ -12,6 +12,11 @@ public final class DisplayGroupsTest {
         check(DisplayGroups.MEMBERS.length==4);
         check(DisplayGroups.MEMBERS[0].length==3&&DisplayGroups.MEMBERS[1].length==2&&DisplayGroups.MEMBERS[2].length==2&&DisplayGroups.MEMBERS[3].length==1);
         check(DisplayGroups.MEMBERS[3][0].equals("nectar-stock-preview"));
+        check(DisplayGroups.failure(1,"").contains("Root"));
+        check(DisplayGroups.failure(6,"BLOCKED_STAGE_6\n").contains("遊戲版本"));
+        check(DisplayGroups.failure(23,"BLOCKED_STAGE_23\n").contains("安裝檔"));
+        check(DisplayGroups.failure(22,"BLOCKED_STAGE_22\n").contains("不支援"));
+        check(DisplayGroups.failure(26,"").contains("設定檔"));
         for(int g=0;g<4;g++){
             check(Boolean.TRUE.equals(DisplayGroups.setting(g,0,true,"LENS_GROUP\t"+g+"\ton\n")));
             check(Boolean.FALSE.equals(DisplayGroups.setting(g,0,true,"LENS_GROUP\t"+g+"\toff\n")));

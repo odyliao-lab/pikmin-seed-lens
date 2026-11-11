@@ -15,6 +15,16 @@ final class DisplayGroups {
         {"gift-preview","expedition-display"},{"nectar-stock-preview"}
     };
     static final int[] FIRST={0,3,5,7};
+    static String failure(int exit,String output){
+        if(output!=null&&output.contains("BLOCKED_STAGE_6"))return "遊戲版本或檔案核對不符，保持原顯示。";
+        if(output!=null&&output.contains("BLOCKED_STAGE_22"))return "目前平台的載入後端不支援，保持原顯示。";
+        if(output!=null&&output.contains("BLOCKED_STAGE_23"))return "App 安裝檔核對失敗，請重新安裝原簽章 APK。";
+        if(output!=null&&output.contains("CONFLICTING_MODULE"))return "發現其他載入模組，已停止；請先確認隔離環境。";
+        if(exit==26)return "設定檔無效、無法讀取或同步未完成；保留原件，點此重試。";
+        if(exit==4)return "前一操作尚未結束，請稍候重試。";
+        if(exit==1||exit==255||exit<0)return "Root 授權或安裝檔核對未通過，請允許此 App 的 Root 後重新核對。";
+        return "操作未完成（"+exit+"）；請核對 Root 與遊戲，不自動重送載入。";
+    }
     static Boolean setting(int group,int exit,boolean complete,String output){
         if(group<0||group>3||exit!=0||!complete||output==null)return null;
         if(output.equals("LENS_GROUP\t"+group+"\ton\n"))return true;

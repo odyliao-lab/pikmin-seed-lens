@@ -3,6 +3,10 @@
 // Owned exclusively by the standalone APK. Never fall back to another app's
 // controls/status or treat its loaded renderer as ours.
 namespace seed_lens {
+#ifndef SEED_DISPLAY_BUILD_ID
+#define SEED_DISPLAY_BUILD_ID "unqualified"
+#endif
+inline constexpr char display_build[]="seed-lens-four/" SEED_DISPLAY_BUILD_ID;
 inline constexpr char seed_control_leaf[]="seed-lens-seed-preview.txt";
 inline constexpr char seed_control[]="/data/local/tmp/seed-lens-seed-preview.txt";
 inline constexpr char seed_report_leaf[]="seed_lens_seed_preview_status.tsv";
