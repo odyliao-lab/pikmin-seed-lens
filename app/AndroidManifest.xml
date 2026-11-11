@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="dev.ody.seedpreview" android:versionCode="49" android:versionName="0.13.3">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="dev.ody.seedpreview" android:versionCode="50" android:versionName="0.13.4">
   <uses-permission android:name="android.permission.ACCESS_SUPERUSER" />
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
