@@ -96,6 +96,7 @@ final class LensController {
             }catch(Exception e){error="Root 或設定保存失敗；不推定開關已改變。";}
             final Boolean value=saved;final String problem=error;
             main.post(()->{
+                if(value!=null)DiagnosticStore.record(operations.context,"GROUP_SAVED");
                 groupOn[group]=value;groupReport[group]=value==null?"設定未確認":value?"已啟用，等待遊戲":"等待原顯示還原";
                 reason=problem;progress="";active.set(false);notifyView();
                 if(!pendingOff()&&value!=null&&anyGroup()&&armed())LensService.start(operations.context);
@@ -111,6 +112,7 @@ final class LensController {
             reason="關閉意願未保存，尚未關閉全部；請重試。";notifyView();return;
         }
         operations.context.stopService(new android.content.Intent(operations.context,LensService.class));
+        DiagnosticStore.record(operations.context,"ALL_OFF_BEGIN");
         reportRaw=null;reason="";closeQueued=true;resumeAllOff();
     }
     private void resumeAllOff(){
@@ -128,6 +130,7 @@ final class LensController {
             final boolean saved=committed;final String problem=error;
             main.post(()->{
                 boolean complete=saved&&preferences.edit().putBoolean("all-off-pending",false).commit();
+                DiagnosticStore.record(operations.context,complete?"ALL_OFF_SAVED":"ALL_OFF_FAILED");
                 for(int i=0;i<4;i++)groupOn[i]=complete?Boolean.FALSE:null;
                 reason=complete?"":problem.isEmpty()?"關閉結果尚未保存，請重試關閉全部。":problem;
                 progress="";active.set(false);notifyView();refreshReports();
@@ -202,9 +205,14 @@ final class LensController {
             reason="尚未取得本次啟用所需的確認。";notifyView();return;
         }
         if(!active.compareAndSet(false,true)){reason="前一操作尚未結束，請等候。";notifyView();return;}
+        final UpdateInterlock.Lease updateLease=action==LensStatus.Action.ENABLE?UpdateInterlock.beginLoad(operations.context.getFilesDir(),LensUpdater.installed(operations.context)):null;
+        if(action==LensStatus.Action.ENABLE&&updateLease==null){reason="更新準備中或前一操作尚未結束，請先完成／取消更新。";active.set(false);notifyView();return;}
         reason="";progress=action==LensStatus.Action.ENABLE?"正在回到遊戲並準備顯示…":action==LensStatus.Action.OFF?"正在關閉顯示…":"只讀核對中…";notifyView();
+        if(action==LensStatus.Action.ENABLE)DiagnosticStore.record(operations.context,"ENABLE_BEGIN");
         worker.execute(()->{
-            LensOperations.Result result=operations.execute(action,consent,foreground,()->main.post(()->{progress="原操作仍未返回，已鎖住重試，請等候。";notifyView();}));
+            LensOperations.Result result;
+            try{result=operations.execute(action,consent,foreground,()->main.post(()->{progress="原操作仍未返回，已鎖住重試，請等候。";notifyView();}));}
+            finally{if(updateLease!=null)updateLease.close();}
             long now=System.currentTimeMillis();
             LensStatus parsed=result.blocked!=null?new LensStatus(LensStatus.Phase.UNSUPPORTED,null,now,false):
                 LensStatus.parse(action,result.reply.exit,result.reply.output,result.reply.started,result.reply.complete,now,result.version,result.code,consent);
@@ -223,6 +231,10 @@ final class LensController {
                 // OFF and read errors never erase a barrier for the same
                 // process. A fresh boot/PID/start is required to proceed.
                 state=LensStatus.retainingBarrier(parsed,barrier,barrierPhase,unscopedBarrier);
+                if(action==LensStatus.Action.ENABLE){
+                    DiagnosticStore.record(operations.context,"ENABLE_"+state.phase.name());
+                    if(result.reply!=null)DiagnosticStore.record(operations.context,result.reply.exit<0?"LOADER_QUERY_FAILED":"LOADER_EXIT_"+result.reply.exit);
+                }
                 progress="";active.set(false);notifyView();refreshReports();
             });
         });

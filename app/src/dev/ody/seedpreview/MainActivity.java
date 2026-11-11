@@ -17,7 +17,7 @@ public final class MainActivity extends Activity implements LensController.Obser
     final TextView[] reports=new TextView[4];
     boolean suppress;
     @Override public void onCreate(Bundle saved){super.onCreate(saved);controller=LensController.get(this);build();}
-    @Override protected void onResume(){super.onResume();controller.attach(this);controller.refreshGroups();updates.postDelayed(poll,3000);}
+    @Override protected void onResume(){super.onResume();controller.attach(this);try{startService(new Intent(this,LensUpdateCheckService.class));}catch(RuntimeException ignored){}controller.refreshGroups();updates.postDelayed(poll,3000);}
     @Override protected void onPause(){updates.removeCallbacks(poll);controller.detach(this);super.onPause();}
     void build(){
         boolean dark=(getResources().getConfiguration().uiMode&Configuration.UI_MODE_NIGHT_MASK)==Configuration.UI_MODE_NIGHT_YES;
@@ -31,6 +31,7 @@ public final class MainActivity extends Activity implements LensController.Obser
         });
         ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);LinearLayout page=style.column();page.setPadding(style.dp(20),style.dp(18),style.dp(20),style.dp(18));
         root.addView(scroll,new LinearLayout.LayoutParams(-1,-1));scroll.addView(page);
+        LensTabs.add(this,style,page,false);
         ImageView image=new ImageView(this);image.setScaleType(ImageView.ScaleType.FIT_CENTER);image.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         try{image.setImageBitmap(OfflineArtwork.mascot(this));page.addView(image,new LinearLayout.LayoutParams(-1,style.dp(96)));}catch(Exception ignored){}
         TextView title=style.text("皮克敏花苗透視鏡",22,style.ink,true);title.setGravity(Gravity.CENTER);style.add(page,title,14);
@@ -59,7 +60,7 @@ public final class MainActivity extends Activity implements LensController.Obser
         }
         closeAll=style.text("關閉全部",15,style.green,true);closeAll.setGravity(Gravity.CENTER);closeAll.setPadding(0,style.dp(12),0,style.dp(12));
         closeAll.setOnClickListener(v->controller.allOff());style.add(page,closeAll,4);
-        message=style.text("",13,style.muted,false);message.setOnClickListener(v->{if(!controller.busy())controller.refreshGroups();updates.postDelayed(poll,3000);});style.add(page,message,12);
+        message=style.text("",13,style.muted,false);message.setOnClickListener(v->{if(!controller.busy())controller.refreshGroups();});style.add(page,message,12);
         TextView launch=style.text("開啟遊戲 ↗",15,style.green,true);launch.setGravity(Gravity.CENTER);launch.setPadding(0,style.dp(10),0,style.dp(10));
         launch.setOnClickListener(v->{
             Runnable open=()->{if(controller.anyGroup()&&controller.armed())LensService.start(this);Intent game=getPackageManager().getLaunchIntentForPackage("com.nianticlabs.pikmin");if(game!=null)startActivity(game);};

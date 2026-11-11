@@ -1,0 +1,85 @@
+package dev.ody.seedpreview;
+import android.app.*;
+import android.content.*;
+import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.net.Uri;
+import android.os.*;
+import android.view.*;
+import android.widget.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.concurrent.*;
+/** A separate lightweight process also reachable from the launcher long-press shortcut. */
+public final class DiagnosticsActivity extends Activity {
+ ForestStyle style;LinearLayout results;TextView notice;Button basic,root,preview;
+ Map<String,String> facts;boolean busy;String exportJson;
+ final ExecutorService worker=Executors.newSingleThreadExecutor();final Handler handler=new Handler(Looper.getMainLooper());
+ final Runnable updatePoll=new Runnable(){public void run(){if(updates!=null)try{updates.render();}catch(RuntimeException ignored){}handler.postDelayed(this,1000);}};
+ LensUpdateCard updates;
+ @Override public void onCreate(Bundle saved){super.onCreate(saved);if(saved!=null)exportJson=saved.getString("export-json");build();scan(false);}
+ void build(){
+  boolean dark=(getResources().getConfiguration().uiMode&Configuration.UI_MODE_NIGHT_MASK)==Configuration.UI_MODE_NIGHT_YES;style=new ForestStyle(this,dark);
+  getWindow().setStatusBarColor(style.paper);getWindow().setNavigationBarColor(style.paper);getWindow().getDecorView().setSystemUiVisibility(dark?0:View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR|View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+  ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);scroll.setBackgroundColor(style.paper);LinearLayout page=style.column();page.setPadding(style.dp(20),style.dp(18),style.dp(20),style.dp(20));scroll.addView(page);setContentView(scroll);
+  LensTabs.add(this,style,page,true);style.add(page,style.text("自我診斷",24,style.ink,true),12);
+  style.add(page,style.text("先檢查基本條件。診斷不啟用遊戲功能、不修改系統。",14,style.muted,false),12);
+  notice=style.text("讀取環境中…",14,style.muted,false);style.add(page,notice,12);
+  basic=style.button("重新檢查環境",false);basic.setOnClickListener(v->scan(false));style.add(page,basic,8);
+  root=style.button("檢查 Root",true);root.setOnClickListener(v->new AlertDialog.Builder(this).setTitle("檢查 Root")
+   .setMessage("將呼叫既有 su，只讀取 Root、轉譯後端與 SELinux。可能出現授權視窗；不安裝套件、不載入遊戲。")
+   .setNegativeButton("取消",null).setPositiveButton("開始檢查",(d,w)->scan(true)).show());style.add(page,root,12);
+  results=style.column();style.add(page,results,14);
+  preview=style.button("預覽問題回報",false);preview.setOnClickListener(v->chooseIssue());style.add(page,preview,8);
+  style.add(page,style.text("只提供版本、平台、Root 結果與透視鏡錯誤分類；不含帳號、位置、截圖、完整日誌或記憶體。未同意不傳送。",12,style.muted,false),14);
+  try{updates=new LensUpdateCard(this,style,page);}catch(RuntimeException e){style.add(page,style.text("更新設定暫時無法讀取；其他診斷仍可使用。",13,style.error,false),8);}
+  style.add(page,style.text("主畫面打不開時，可長按桌面圖示選「診斷與回報」。",12,style.muted,false),10);
+ }
+ @Override protected void onResume(){super.onResume();handler.post(updatePoll);}
+ @Override protected void onPause(){handler.removeCallbacks(updatePoll);super.onPause();}
+ @Override protected void onDestroy(){worker.shutdown();super.onDestroy();}
+ @Override protected void onSaveInstanceState(Bundle b){if(exportJson!=null)b.putString("export-json",exportJson);super.onSaveInstanceState(b);}
+ void scan(boolean checkRoot){
+  if(busy)return;busy=true;buttons();notice.setText(checkRoot?"等待 Root 授權，最多 20 秒…":"正在檢查版本與 App 內建檔案…");
+  final Map<String,String> previous=facts==null?null:new LinkedHashMap<>(facts);
+  worker.execute(()->{Map<String,String> found=DiagnosticCollector.basic(this);
+   if(checkRoot)found=DiagnosticCollector.root(found);
+   else if(previous!=null)for(String k:new String[]{"root","bridge","selinux"})found.put(k,previous.get(k));
+   final Map<String,String> value=found;runOnUiThread(()->{if(isDestroyed())return;facts=value;busy=false;buttons();render();});});
+ }
+ void buttons(){basic.setEnabled(!busy);root.setEnabled(!busy);preview.setEnabled(!busy&&facts!=null);}
+ void render(){
+  results.removeAllViews();notice.setText("Android "+facts.get("android_release")+"／API"+facts.get("android_api")+" · "+facts.get("abi")+"\n遊戲 "+facts.get("game_version")+"／"+facts.get("game_code")+"\nRoot："+rootLabel(facts.get("root")));
+  for(String text:DiagnosisPolicy.advice(facts)){LinearLayout card=style.card();style.add(card,style.text(text,14,style.ink,false),0);style.add(results,card,10);}
+ }
+ static String rootLabel(String s){if("granted".equals(s))return "已取得（不代表遊戲可載入）";if("not_checked".equals(s))return "尚未檢查";if("unavailable".equals(s))return "找不到指令";if("timeout".equals(s))return "逾時，結果未確認";return "未取得／無法確認";}
+ void chooseIssue(){
+  String[] labels={"App 無法開啟／閃退","Root 授權問題","無法啟用功能","遊戲文字沒有變更","關閉後未還原","其他"};
+  new AlertDialog.Builder(this).setTitle("遇到什麼問題？").setItems(labels,(d,which)->{
+   try{showReport(new DiagnosticReport(new LinkedHashMap<>(facts),DiagnosticStore.events(this),DiagnosticReport.ISSUES[which]));}
+   catch(Exception e){notice.setText("報告未通過資料範圍檢查，請重新檢查環境。");}
+  }).show();
+ }
+ void showReport(DiagnosticReport report){
+  LinearLayout box=style.column();box.setPadding(style.dp(18),style.dp(8),style.dp(18),0);
+  style.add(box,style.text("以下是實際提供的全部資料。本機編號不是送出成功收據。",13,style.muted,false),8);
+  TextView body=style.text(report.json,11,style.ink,false);body.setTypeface(Typeface.MONOSPACE);body.setTextIsSelectable(true);ScrollView view=new ScrollView(this);view.addView(body);box.addView(view,new LinearLayout.LayoutParams(-1,style.dp(230)));
+  CheckBox consent=style.check("我已檢視並同意提供此份診斷");style.add(box,consent,0);
+  style.add(box,style.text(DiagnosticEndpoint.configured()?"接收端："+DiagnosticEndpoint.URL+"。報告最多保存 30 天。":"上傳服務尚未啟用；可先匯出，再由你選擇私人管道提供。",12,style.muted,false),4);
+  AlertDialog dialog=new AlertDialog.Builder(this).setTitle("預覽問題回報").setView(box).setNegativeButton("取消",null).setNeutralButton("同意並匯出",null).setPositiveButton("同意並上傳",null).create();
+  dialog.setOnShowListener(v->{Button export=dialog.getButton(-3),upload=dialog.getButton(-1);export.setEnabled(false);upload.setEnabled(false);
+   consent.setOnCheckedChangeListener((b,checked)->{export.setEnabled(checked);upload.setEnabled(checked&&DiagnosticEndpoint.configured());});
+   export.setOnClickListener(b->{if(!consent.isChecked())return;exportJson=report.json;Intent intent=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/json").putExtra(Intent.EXTRA_TITLE,"seed-lens-report-"+report.id+".json");
+    try{startActivityForResult(intent,81);dialog.dismiss();}catch(ActivityNotFoundException e){notice.setText("找不到系統檔案選擇器，尚未匯出或傳送。");}});
+   upload.setOnClickListener(b->{if(!consent.isChecked()||busy||!DiagnosticEndpoint.configured())return;busy=true;buttons();dialog.dismiss();notice.setText("傳送中，請保留本機編號："+report.id);
+    worker.execute(()->{String result;try{result="已送出，回報編號："+DiagnosticUploader.send(report,true);}catch(Exception e){result="尚未取得成功收據；不會自動重送。請保留本機編號："+report.id;}final String text=result;runOnUiThread(()->{if(isDestroyed())return;busy=false;buttons();notice.setText(text);});});
+   });});dialog.show();
+ }
+ @Override protected void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);
+  if(request!=81)return;final String body=exportJson;exportJson=null;if(result!=RESULT_OK||data==null||data.getData()==null||body==null){notice.setText("已取消匯出，沒有傳送。");return;}
+  final Uri uri=data.getData();if(!"content".equals(uri.getScheme())||body.getBytes(StandardCharsets.UTF_8).length>DiagnosticReport.MAX_BYTES){notice.setText("匯出目的地無效，沒有傳送。");return;}
+  busy=true;buttons();worker.execute(()->{boolean ok=false;try(OutputStream out=getContentResolver().openOutputStream(uri,"w")){if(out!=null){out.write(body.getBytes(StandardCharsets.UTF_8));ok=true;}}catch(Exception ignored){}final boolean saved=ok;runOnUiThread(()->{if(isDestroyed())return;busy=false;buttons();notice.setText(saved?"已匯出；沒有上傳，請由你選擇私人管道提供。":"匯出未完成；沒有上傳。");});});
+ }
+}

@@ -1,0 +1,38 @@
+package dev.ody.seedpreview;
+import java.io.*;
+import java.nio.file.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.zip.*;
+public final class LensUpdateTest {
+ static int checks;interface Work{void run()throws Exception;}
+ static void check(boolean b){checks++;if(!b)throw new AssertionError("case "+checks);}
+ static void refused(Work work)throws Exception{boolean failed=false;try{work.run();}catch(Exception e){failed=true;}check(failed);}
+ static File archive(Path directory,boolean corrupt,boolean missing)throws Exception{
+  File file=directory.resolve(UUID.randomUUID()+".apk").toFile();
+  String[][] pairs={{"seed-loader-arm64-v8a.sha256","lib/arm64-v8a/libseed_loader.so"},{"seed-loader-x86_64.sha256","lib/x86_64/libseed_loader.so"},{"seed-bridge-x86_64.sha256","lib/x86_64/libseed_bridge.so"},{"seed-bridge-renderer.sha256","assets/libseed_display.so"}};
+  byte[] bytes={1,2,3,4};String hash=LensUpdateClient.hex(java.security.MessageDigest.getInstance("SHA-256").digest(bytes));
+  try(ZipOutputStream zip=new ZipOutputStream(new FileOutputStream(file))){for(int i=0;i<pairs.length;i++){
+    zip.putNextEntry(new ZipEntry("assets/"+pairs[i][0]));zip.write((hash+"\n").getBytes(StandardCharsets.US_ASCII));zip.closeEntry();
+    if(missing&&i==1)continue;zip.putNextEntry(new ZipEntry(pairs[i][1]));zip.write(corrupt&&i==1?new byte[]{0}:bytes);zip.closeEntry();
+   }zip.putNextEntry(new ZipEntry("lib/arm64-v8a/libseed_display.so"));zip.write(bytes);zip.closeEntry();}return file;
+ }
+ public static void main(String[] args)throws Exception{
+  String raw=new String(Files.readAllBytes(Paths.get(args[0])),StandardCharsets.UTF_8);LensUpdateInfo good=new LensUpdateInfo(raw);
+  check(good.code==36&&good.version.equals("0.9.5")&&good.newerThan(35)&&!good.newerThan(41));check(good.releaseUrl().contains("seed-lens-v0.9.5"));
+  for(String bad:new String[]{raw+"schema=1\n",raw.replace("dev.ody.seedpreview","dev.ody.pikmincontrol"),raw.replace("seed-lens-v0.9.5","v0.9.5"),raw.replace("pikmin-seed-lens-0.9.5.apk","pikmin-control-center-0.9.5.apk"),raw.replace("https://github.com","http://github.com"),raw.replace("minSdk=28","minSdk=1"),raw.replace("versionCode=36","versionCode=-1"),raw.replace("size=26293815","size=999999999999"),raw+"token=secret\n"})refused(()->new LensUpdateInfo(bad));
+  check(LensUpdateInfo.autoDue(true,86400001,1));check(!LensUpdateInfo.autoDue(false,86400001,1));check(!LensUpdateInfo.autoDue(true,10,1));
+  for(String url:new String[]{"http://github.com/x","https://evil.invalid/x","https://github.com.evil.invalid/x","https://user:pass@github.com/x","https://github.com:8443/x","file:///tmp/a"})check(!LensUpdateInfo.allowedRedirect(url));
+  check(LensUpdateInfo.allowedRedirect("https://release-assets.githubusercontent.com/a?signature=temporary"));
+  refused(()->LensUpdateClient.read(LensUpdateInfo.MANIFEST_URL,new ByteArrayOutputStream(),100,-1,null,0,()->1L));
+  Path dir=Files.createTempDirectory("seedlens-update-test");
+  try{
+   UpdateInterlock.Lease load=UpdateInterlock.beginLoad(dir.toFile(),40);check(load!=null);check(!UpdateInterlock.freeze(dir.toFile(),41));check(UpdateInterlock.beginLoad(dir.toFile(),40)==null);load.close();
+   check(UpdateInterlock.freeze(dir.toFile(),41));check(UpdateInterlock.beginLoad(dir.toFile(),40)==null);
+   try(UpdateInterlock.Lease installed=UpdateInterlock.beginLoad(dir.toFile(),41)){check(installed!=null);}check(!Files.exists(dir.resolve("update-freeze")));
+   Files.write(dir.resolve("update-freeze"),"bad".getBytes(StandardCharsets.US_ASCII));check(UpdateInterlock.beginLoad(dir.toFile(),41)==null);check(UpdateInterlock.clear(dir.toFile()));
+   LensUpdateArchive.inspect(archive(dir,false,false));check(true);refused(()->LensUpdateArchive.inspect(archive(dir,true,false)));refused(()->LensUpdateArchive.inspect(archive(dir,false,true)));
+  }finally{try(var files=Files.list(dir)){for(Path p:(Iterable<Path>)files::iterator)Files.delete(p);}Files.delete(dir);}
+  System.out.println("LensUpdateTest: "+checks+" product/URL/archive/interlock checks; not Android install acceptance");
+ }
+}
