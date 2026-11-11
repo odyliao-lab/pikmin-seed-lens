@@ -25,6 +25,9 @@ final class LensController {
     String raw="尚無操作紀錄。",progress="",reason="";
     LensContext barrier;
     boolean unscopedBarrier;
+    final Boolean[] groupOn=new Boolean[4];
+    final String[] groupReport={"尚未核對","尚未核對","尚未核對","尚未核對"};
+    LensContext autoAttempt;
     LensStatus.Phase barrierPhase=LensStatus.Phase.UNKNOWN;
     private LensController(Context context){
         operations=new LensOperations(context);preferences=context.getApplicationContext().getSharedPreferences("lens-interface",Context.MODE_PRIVATE);
@@ -55,6 +58,74 @@ final class LensController {
     void detach(Observer value){if(observer.get()==value)observer.clear();}
     private void notifyView(){Observer value=observer.get();if(value!=null)value.changed();}
     boolean busy(){return active.get();}
+    boolean groupsKnown(){for(Boolean value:groupOn)if(value==null)return false;return true;}
+    boolean anyGroup(){for(Boolean value:groupOn)if(Boolean.TRUE.equals(value))return true;return false;}
+    boolean armed(){try{return preferences.getBoolean("display-auto-arm",false);}catch(ClassCastException e){return false;}}
+    boolean arm(){return preferences.edit().putBoolean("display-auto-arm",true).commit();}
+    void refreshGroups(){
+        if(!active.compareAndSet(false,true))return;
+        progress="正在核對 Root 與設定…";notifyView();
+        worker.execute(()->{
+            Boolean[] found=new Boolean[4];String error="";
+            for(int i=0;i<4;i++)try{
+                LensOperations.Reply r=operations.displayGroup(i,null);found[i]=DisplayGroups.setting(i,r.exit,r.complete,r.output);
+                if(found[i]==null){error="Root 或設定核對失敗（"+r.exit+"）；點此重試，不會當成已關閉。";break;}
+            }catch(Exception e){error="Root 或設定讀取失敗；點此重試。";break;}
+            final String problem=error;
+            main.post(()->{
+                System.arraycopy(found,0,groupOn,0,4);reason=problem;progress="";active.set(false);notifyView();
+                if(groupsKnown()&&anyGroup()&&armed())LensService.start(operations.context);
+                refreshReports();
+            });
+        });
+    }
+    void setGroup(int group,boolean enabled){
+        if(group<0||group>3||!active.compareAndSet(false,true))return;
+        progress="保存整組設定…";reason="";notifyView();
+        worker.execute(()->{
+            Boolean saved=null;String error="";
+            try{LensOperations.Reply r=operations.displayGroup(group,enabled);saved=DisplayGroups.setting(group,r.exit,r.complete,r.output);
+                if(saved==null)error="設定未完整同步（"+r.exit+"），點此依已保存意願重試。";
+            }catch(Exception e){error="Root 或設定保存失敗；不推定開關已改變。";}
+            final Boolean value=saved;final String problem=error;
+            main.post(()->{
+                groupOn[group]=value;groupReport[group]=value==null?"設定未確認":value?"已啟用，等待遊戲":"等待原顯示還原";
+                reason=problem;progress="";active.set(false);notifyView();
+                if(value!=null&&anyGroup()&&armed())LensService.start(operations.context);
+                if(groupsKnown()&&!anyGroup())operations.context.stopService(new android.content.Intent(operations.context,LensService.class));
+                refreshReports();
+            });
+        });
+    }
+    void refreshReports(){
+        if(!groupsKnown()||!active.compareAndSet(false,true))return;
+        worker.execute(()->{
+            LensContext current=null;String raw=null;
+            try{current=operations.readContext();if(current!=null){LensOperations.Reply r=operations.displayReports(current);if(r.exit==0&&r.complete)raw=r.output;}}catch(Exception ignored){}
+            final LensContext owner=current;final String text=raw;final long now=System.currentTimeMillis();
+            main.post(()->{for(int i=0;i<4;i++)groupReport[i]=DisplayGroups.report(i,groupOn[i],owner,text,now);active.set(false);notifyView();});
+        });
+    }
+    void monitor(){
+        if(!armed()||!groupsKnown()||!anyGroup()||!active.compareAndSet(false,true))return;
+        worker.execute(()->{
+            LensContext found=null;boolean front=false;String unsupported=operations.extensionAvailability();String error="";
+            try{if(unsupported==null){found=operations.readContext();front=found!=null&&operations.gameForeground();}}catch(Exception denied){error="Root 或程序核對失敗，已停止等待；請回 App 重新核對。";}
+            final String failure=error;
+            final LensContext current=found;final boolean foreground=front;
+            main.post(()->{
+                active.set(false);
+                if(!failure.isEmpty()){reason=failure;operations.context.stopService(new android.content.Intent(operations.context,LensService.class));notifyView();return;}
+                if(unsupported!=null){reason=unsupported;notifyView();return;}
+                if(current==null){reason="已啟用，等待開啟遊戲。";notifyView();return;}
+                bindUnscopedBarrier(current);
+                if(blockedFor(current)){reason="結果不明，請正常重開遊戲；不重送載入。";notifyView();return;}
+                if(!foreground||autoAttempt!=null&&autoAttempt.same(current))return;
+                autoAttempt=current;reason="";
+                execute(LensStatus.Action.ENABLE,current,true,()->operations.gameForeground());
+            });
+        });
+    }
     boolean blockedFor(LensContext context){return unscopedBarrier||barrier!=null&&(context==null||barrier.same(context));}
     void confirm(Confirmation callback){
         if(!active.compareAndSet(false,true)){callback.finished(null,true);return;}

@@ -41,4 +41,14 @@ index4 同 boot，正常關閉 Game／Lens、保存原 APK 與 Lens data 後原�
 | 探險資訊 | D05 普通白盒對象／一般裝飾、明確狀態及遊戲時間、尊重原可見性 | 待移植 |
 | 精華／花瓣對照 | D02 保留精華數，補 confirmed 花瓣／容量／空間；契約為 nectar-stock-preview | 待移植 |
 
+### 四組來源整合（實機驗收前）
+
+原生 policy／adapter 依功能分開移植；新增 Game157 專用 renderer，156.x 保留原 renderer，沒有猜新入口。獨立 context 從 Unity 現存唯一 PlayerManager 的 PlayerInfo.PlayerId 與 inventoryManager 讀取，僅在既有 UI thread 使用；以弱參考、登入／登出 epoch、帳號 SHA、manager、revision 與 initialized 前後核對。登入／登出入口額外驗證精確 Game157 ELF 的 24-byte prologue。原始 player ID 不落地、不讀 token、不發 RPC；找不到或不唯一保持未知。
+
+四組 root 設定經既有 LoadLease 序列化，主意願先持久寫入，再逐一同步獨立成員並讀回。非法／symlink／讀取失敗不是 OFF。新 App UI 只有四個主開關、預設收合說明及共用錯誤；內建 foreground service 在使用者啟用後等待遊戲、精確綁定新 PID，沿用原載入器與持久 UNKNOWN 屏障。服務不從開機啟動、不自動重播同 PID 的失敗、不引入外部 APK／模組。
+
+來源八個實際 Gateway 的原 CONTROL／REPORT 與檔案 SHA 記於 `DISPLAY_SOURCE_CONTRACTS.json`；交叉測試直接核對本版 Java、native 契約及 renderer 的實際路徑。D02 保留 nectar-stock-preview，不使用 nectar-stock。
+
+0.9.0/code31 僅為本機簽章草稿，未安裝；之後修正遊戲 library 尚未映射時的等待與 metadata 查找成本，保留草稿並升至 0.9.1/code32。兩者均尚無本輪四組遊戲功能驗收資格；不以 build／CI 代替。前景服務遵循 Android specialUse 類型，僅供 App 內管理唯讀顯示，不要求通知權限測試。
+
 來源 Game157 資格不轉移至其他遊戲。MuMu 普通白盒、部分探險狀態、跨帳號與耐久樣本不足亦不繼承為通過。先建立獨立載入與隔離檔案的實測，再擴大 renderer。

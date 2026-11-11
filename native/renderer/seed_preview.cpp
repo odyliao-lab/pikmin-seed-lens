@@ -1,5 +1,6 @@
 #include "seed_preview.h"
 #include "display_contract.h"
+#include "extended_display.h"
 #include "seed_preview_policy.h"
 #include "seed_preview_sha256.h"
 #include "managed_gc.h"
@@ -308,6 +309,9 @@ void worker(std::string directory) {
         &&static_cast<Elf64_Ehdr*>(info.dli_fbase)->e_machine==EM_AARCH64;
     const auto* profile=valid?verified_game_profile(info.dli_fname):nullptr;
     valid=valid&&profile&&profile->layout==1;
+    // Only exact reviewed Game157 receives the additional display hooks.
+    // Older profiles retain the independently verified original renderer.
+    if(valid&&profile==&game_profiles[2]){seed_extended::start(directory.c_str());return;}
     auto base=static_cast<unsigned char*>(info.dli_fbase);
     if(valid){
         for(const auto* entry:{&profile->inventory,&profile->text,&profile->canvas,&profile->expedition,&profile->detail})

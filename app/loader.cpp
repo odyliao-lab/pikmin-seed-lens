@@ -4,6 +4,7 @@
 #include "payload_policy.h"
 #include "load_journal.h"
 #include "control_transaction.h"
+#include "display_settings.h"
 #include <fstream>
 #include <sstream>
 #include <sys/file.h>
@@ -96,9 +97,10 @@ static int inject_game(int pid,const std::string& start,const std::string& paylo
 #endif
 }
 
-static bool renderer_status(int pid,const std::string& start,std::string& status,const seed_preview::GameProfile* profile){
+static bool renderer_status(int pid,const std::string& start,std::string& status,const seed_preview::GameProfile* profile,const char *leaf=seed_lens::seed_report_leaf){
     if(!profile)return false;
-    status.clear();int fd=open(seed_lens::seed_report,O_RDONLY|O_CLOEXEC|O_NOFOLLOW|O_NONBLOCK);
+    const auto path=std::string("/data/user/0/com.nianticlabs.pikmin/files/")+leaf;
+    status.clear();int fd=open(path.c_str(),O_RDONLY|O_CLOEXEC|O_NOFOLLOW|O_NONBLOCK);
     if(fd<0)return false;struct stat st{},app{};char bytes[513]{};ssize_t n=-1;
     if(!fstat(fd,&st)&&S_ISREG(st.st_mode)&&st.st_size>0&&st.st_size<=512&&st.st_nlink==1
        &&!(st.st_mode&0022)&&!stat("/data/user/0/com.nianticlabs.pikmin",&app)&&st.st_uid==app.st_uid)n=::read(fd,bytes,sizeof(bytes));
@@ -130,14 +132,36 @@ int main(int argc,char**argv){
 #endif
         return 0;
     }
+    if(argc==4&&!strcmp(argv[1],"--display-group")){
+        if(strlen(argv[2])!=1||argv[2][0]<'0'||argv[2][0]>'3')return fail(2);
+        if(mkdir(base,0755)&&errno!=EEXIST)return fail(24);
+        if(!secure(base,true))return fail(24);
+        seed_root::LoadLease lease(base);if(!lease.held())return fail(4);
+        int parent=open("/data/local/tmp",O_RDONLY|O_DIRECTORY|O_CLOEXEC|O_NOFOLLOW);
+        if(parent<0)return fail(25);
+        bool ok=seed_root::display_setting(lease,parent,argv[2][0]-'0',argv[3],ticks(getpid()));close(parent);
+        return ok?0:fail(26);
+    }
     bool contained=argc==5&&!strcmp(argv[1],"--enable-contained");
     bool on=(argc==5&&!strcmp(argv[1],"--enable"))||contained,off=argc==4&&!strcmp(argv[1],"--off"),statusOnly=argc==4&&!strcmp(argv[1],"--status");
-    if(!on&&!off&&!statusOnly)return fail(2);
+    bool reportsOnly=argc==4&&!strcmp(argv[1],"--display-reports");
+    if(!on&&!off&&!statusOnly&&!reportsOnly)return fail(2);
     char* end=nullptr;long n=strtol(argv[2],&end,10);
     if(!end||*end||n<=1||n>INT_MAX||!seed_root::start_ticks(argv[3]))return fail(2);
     int pid=static_cast<int>(n);std::string start=argv[3],status;
     if(!identity(pid,start))return fail(3);
-    const auto* profile=(on||statusOnly)?game_profile(pid,start):nullptr;
+    const auto* profile=(on||statusOnly||reportsOnly)?game_profile(pid,start):nullptr;
+    if(reportsOnly){
+        if(!profile)return fail(6);
+        for(unsigned i=0;i<seed_lens::display_members.size();++i){
+            if(!identity(pid,start))return fail(3);
+            if(renderer_status(pid,start,status,profile,seed_lens::display_members[i].report))
+                printf("LENS_MEMBER\t%u\t%s",i,status.c_str());
+            else printf("LENS_MEMBER_MISSING\t%u\n",i);
+        }
+        if(!identity(pid,start))return fail(3);
+        printf("LENS_REPORTS_END\t%d\t%s\n",pid,start.c_str());return 0;
+    }
     if(statusOnly){if(renderer_status(pid,start,status,profile))printf("%s",status.c_str());else puts("NO_FRESH_SAME_PID_START_STATUS");return 0;}
     if(on&&!profile)return fail(6);
     if(on&&!contained){puts("EXPLICIT_FAIL_STOP_CONSENT_REQUIRED");return fail(22);}
@@ -162,6 +186,10 @@ int main(int argc,char**argv){
     if(!completed_attempt(lease,pid,start)){puts("UNKNOWN_ATTEMPT_PRESERVED");return fail(27);}
     bool ready=false;for(int i=0;i<160&&identity(pid,start);++i){if(renderer_status(pid,start,status,profile)){ready=true;break;}usleep(250000);}
     if(!ready){puts("NO_FRESH_RENDERER_LEFT_OFF");return fail(28);}
-    if(!identity(pid,start)||!seed_root::commit_control(lease,parent,seed_lens::seed_control_leaf,true,pid,start))return fail(25);
+    if(!identity(pid,start))return fail(25);
+    if(seed_root::read_setting(parent,"seed-lens-display-group-seedlings.txt")!=seed_lens::Setting::Missing){
+        for(unsigned group=0;group<seed_lens::display_groups.size();++group)
+            if(!seed_root::display_setting(lease,parent,group,"read",ticks(getpid())))return fail(26);
+    }else if(!seed_root::commit_control(lease,parent,seed_lens::seed_control_leaf,true,pid,start))return fail(25);
     puts("ON_COMMITTED_REQUIRES_UI_ACCEPTANCE");printf("%s",status.c_str());return 0;
 }
