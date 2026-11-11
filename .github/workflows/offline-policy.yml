@@ -29,8 +29,9 @@ jobs:
           sudo "$RUNNER_TEMP/settings-test"
       - name: Check group report parsing
         run: |
-          javac -encoding UTF-8 -d "$RUNNER_TEMP/java" app/src/dev/ody/seedpreview/{Compatibility,GameSession,LensContext,LensStatus,DisplayGroups}.java app/tests/{LensStatusTest,DisplayGroupsTest}.java
+          javac -encoding UTF-8 -d "$RUNNER_TEMP/java" app/src/dev/ody/seedpreview/{Compatibility,GameSession,LensContext,LensStatus,DisplayGroups,DisplayOverview}.java app/tests/{LensStatusTest,DisplayGroupsTest,DisplayOverviewTest}.java
           java -cp "$RUNNER_TEMP/java" dev.ody.seedpreview.LensStatusTest
           java -cp "$RUNNER_TEMP/java" dev.ody.seedpreview.DisplayGroupsTest
+          java -cp "$RUNNER_TEMP/java" dev.ody.seedpreview.DisplayOverviewTest
       - name: Cross-check eight original gateway contracts
         run: python3 research/test_display_contracts.py

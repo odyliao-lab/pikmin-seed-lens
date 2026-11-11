@@ -64,4 +64,25 @@ inline bool display_setting(const LoadLease &lease,int parent,unsigned group,std
  for(unsigned i=0;i<g.count;++i)if(read_setting(parent,display_members[g.first+i].control)!=wanted)return false;
  printf("LENS_GROUP\t%u\t%s\n",group,on?"on":"off");return true;
 }
+// One lease, validate before writes, persist all four OFF intentions before
+// fan-out. App also persists pending intent before invoking this transaction.
+inline bool display_all_off(const LoadLease &lease,int parent,std::string_view ownerStart) {
+ using namespace seed_lens;
+ if(!lease.held())return false;
+ for(const auto &g:display_groups){
+  auto master=std::string("seed-lens-display-group-")+g.key+".txt";
+  if(read_setting(parent,master.c_str())==Setting::Invalid)return false;
+ }
+ for(const auto &m:display_members)if(read_setting(parent,m.control)==Setting::Invalid)return false;
+ for(const auto &g:display_groups){
+  auto master=std::string("seed-lens-display-group-")+g.key+".txt";
+  if(!commit_control(lease,parent,master.c_str(),false,getpid(),ownerStart))return false;
+ }
+ for(const auto &m:display_members)
+  if(!commit_control(lease,parent,m.control,false,getpid(),ownerStart))return false;
+ for(unsigned i=0;i<display_groups.size();++i)
+  if(!display_setting(lease,parent,i,"read",ownerStart))return false;
+ puts("LENS_ALL_OFF_COMMITTED");return true;
+}
+
 }

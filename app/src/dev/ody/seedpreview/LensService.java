@@ -10,7 +10,7 @@ public final class LensService extends Service {
     final Handler handler=new Handler(Looper.getMainLooper());
     final Runnable poll=new Runnable(){public void run(){
         LensController c=LensController.get(LensService.this);
-        if(!c.armed()||c.groupsKnown()&&!c.anyGroup()){stopSelf();return;}
+        if(c.pendingOff()||!c.armed()||c.groupsKnown()&&!c.anyGroup()){stopSelf();return;}
         c.monitor();handler.postDelayed(this,4000);
     }};
     static void start(Context context){try{context.startForegroundService(new Intent(context,LensService.class));}

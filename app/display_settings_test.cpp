@@ -75,6 +75,22 @@ int main(){
    int fd=open(member.c_str(),O_CREAT|O_WRONLY,0644);assert(fd>=0);assert(write(fd,"bad\n",4)==4);close(fd);
    assert(!display_setting(lease,parent,group,"off","123"));
    assert(read_setting(parent,master.c_str())==Setting::Off);
+   assert(!display_all_off(lease,parent,"123"));
+   assert(unlink(member.c_str())==0);
+
+  }
+
+  // All-OFF must override every valid ON, persist across reads and recover
+  // after every prefix of master/member commits (the App retains pending intent).
+  for(unsigned cut=0;cut<=12;cut++){
+   for(unsigned g=0;g<4;g++)assert(display_setting(lease,parent,g,"on","123"));
+   for(unsigned step=0;step<cut;step++){
+    std::string leaf=step<4?std::string("seed-lens-display-group-")+display_groups[step].key+".txt":display_members[step-4].control;
+    assert(commit_control(lease,parent,leaf.c_str(),false,getpid(),"123"));
+   }
+   assert(display_all_off(lease,parent,"123"));
+   for(unsigned g=0;g<4;g++)assert(display_setting(lease,parent,g,"read","123"));
+   for(const auto &m:display_members)assert(read_setting(parent,m.control)==Setting::Off);
   }
  }
  close(parent);std::filesystem::remove_all(directory);

@@ -27,6 +27,10 @@ final class LensController {
     boolean unscopedBarrier;
     final Boolean[] groupOn=new Boolean[4];
     final String[] groupReport={"尚未核對","尚未核對","尚未核對","尚未核對"};
+    LensContext reportContext;
+    String reportRaw;
+    final DisplayGroups.Report[] effects=new DisplayGroups.Report[4];
+    boolean reportReadFailed,contextChecked;
     LensContext autoAttempt;
     LensStatus.Phase barrierPhase=LensStatus.Phase.UNKNOWN;
     private LensController(Context context){
@@ -62,8 +66,10 @@ final class LensController {
     boolean groupsKnown(){for(Boolean value:groupOn)if(value==null)return false;return true;}
     boolean anyGroup(){for(Boolean value:groupOn)if(Boolean.TRUE.equals(value))return true;return false;}
     boolean armed(){try{return preferences.getBoolean("display-auto-arm",false);}catch(ClassCastException e){return false;}}
-    boolean arm(){return preferences.edit().putBoolean("display-auto-arm",true).commit();}
+    boolean pendingOff(){try{return preferences.getBoolean("all-off-pending",false);}catch(ClassCastException invalid){return true;}}
+    boolean arm(){if(pendingOff())return false;return preferences.edit().putBoolean("display-auto-arm",true).commit();}
     void refreshGroups(){
+        if(pendingOff()){allOff();return;}
         if(!active.compareAndSet(false,true))return;
         progress="正在核對 Root 與設定…";notifyView();
         worker.execute(()->{
@@ -81,7 +87,7 @@ final class LensController {
         });
     }
     void setGroup(int group,boolean enabled){
-        if(group<0||group>3||!active.compareAndSet(false,true))return;
+        if(group<0||group>3||pendingOff()||!active.compareAndSet(false,true))return;
         progress="保存整組設定…";reason="";notifyView();
         worker.execute(()->{
             Boolean saved=null;String error="";
@@ -98,17 +104,51 @@ final class LensController {
             });
         });
     }
+    void allOff(){
+        if(!active.compareAndSet(false,true))return;
+        // One durable App transaction cancels auto-enable before any root write.
+        if(!preferences.edit().putBoolean("all-off-pending",true).putBoolean("display-auto-arm",false).commit()){
+            reason="關閉意願未保存，尚未關閉全部；請重試。";active.set(false);notifyView();return;
+        }
+        operations.context.stopService(new android.content.Intent(operations.context,LensService.class));
+        reportRaw=null;progress="正在關閉全部…";reason="";notifyView();
+        worker.execute(()->{
+            boolean committed=false;String error="";
+            try{LensOperations.Reply r=operations.allOff();committed=DisplayGroups.allOffSaved(r.exit,r.complete,r.output);
+                if(!committed)error=DisplayGroups.failure(r.exit,r.output);
+            }catch(Exception failure){error="Root 或設定保存失敗；尚未確認全部關閉。";}
+            final boolean saved=committed;final String problem=error;
+            main.post(()->{
+                boolean complete=saved&&preferences.edit().putBoolean("all-off-pending",false).commit();
+                for(int i=0;i<4;i++)groupOn[i]=complete?Boolean.FALSE:null;
+                reason=complete?"":problem.isEmpty()?"關閉結果尚未保存，請重試關閉全部。":problem;
+                progress="";active.set(false);notifyView();refreshReports();
+            });
+        });
+    }
+    void updateReports(long now){
+        for(int i=0;i<4;i++){
+            effects[i]=groupOn[i]==null?null:DisplayGroups.checkedReport(i,groupOn[i],reportContext,reportRaw,now);
+            groupReport[i]=effects[i]==null?"設定未確認":effects[i].text;
+        }
+    }
+    boolean gameAbsent(){return contextChecked&&!reportReadFailed&&reportContext==null;}
+    String overview(){
+        updateReports(System.currentTimeMillis());
+        return DisplayOverview.text(groupOn,effects,reportContext!=null,busy(),pendingOff(),progress,
+            reportReadFailed&&reason.isEmpty()?"read-failed":reason,operations.extensionAvailability(),gameAbsent()?LensStatus.Phase.UNVERIFIED:state.phase);
+    }
     void refreshReports(){
         if(!groupsKnown()||!active.compareAndSet(false,true))return;
         worker.execute(()->{
-            LensContext current=null;String raw=null;
-            try{current=operations.readContext();if(current!=null){LensOperations.Reply r=operations.displayReports(current);if(r.exit==0&&r.complete)raw=r.output;}}catch(Exception ignored){}
-            final LensContext owner=current;final String text=raw;final long now=System.currentTimeMillis();
-            main.post(()->{bindUnscopedBarrier(owner);for(int i=0;i<4;i++)groupReport[i]=DisplayGroups.report(i,groupOn[i],owner,text,now);active.set(false);notifyView();});
+            LensContext current=null;String raw=null;boolean failed=false;
+            try{current=operations.readContext();if(current!=null){LensOperations.Reply r=operations.displayReports(current);if(r.exit==0&&r.complete)raw=r.output;else failed=true;}}catch(Exception ignored){failed=true;}
+            final LensContext owner=current;final String text=raw;final boolean failure=failed;
+            main.post(()->{reportContext=owner;reportRaw=text;reportReadFailed=failure;contextChecked=true;bindUnscopedBarrier(owner);updateReports(System.currentTimeMillis());active.set(false);notifyView();});
         });
     }
     void monitor(){
-        if(!armed()||!groupsKnown()||!anyGroup()||!active.compareAndSet(false,true))return;
+        if(pendingOff()||!armed()||!groupsKnown()||!anyGroup()||!active.compareAndSet(false,true))return;
         worker.execute(()->{
             LensContext found=null;boolean front=false;String unsupported=operations.extensionAvailability();String error="";
             try{if(unsupported==null){found=operations.readContext();front=found!=null&&operations.gameForeground();}}catch(Exception denied){error="Root 或程序核對失敗，已停止等待；請回 App 重新核對。";}
@@ -119,16 +159,17 @@ final class LensController {
                 if(!failure.isEmpty()){reason=failure;operations.context.stopService(new android.content.Intent(operations.context,LensService.class));notifyView();return;}
                 if(unsupported!=null){reason=unsupported;notifyView();return;}
                 if(current==null){
+                    reportContext=null;reportRaw=null;
                     // Do not erase the last load failure when that game exits.
                     if(state.phase!=LensStatus.Phase.REFUSED&&state.phase!=LensStatus.Phase.UNVERIFIED)
-                        reason="已啟用，等待開啟遊戲。";
-                    else if(reason.isEmpty())reason="已啟用，等待開啟遊戲。";
+                        reason="";
+                    else if(reason.isEmpty())reason="";
                     notifyView();return;
                 }
                 bindUnscopedBarrier(current);
                 if(blockedFor(current)){reason="結果不明，請正常重開遊戲；不重送載入。";notifyView();return;}
                 if(!foreground||autoAttempt!=null&&autoAttempt.same(current)){notifyView();return;}
-                autoAttempt=current;reason="";
+                reportContext=current;reportRaw=null;autoAttempt=current;reason="";
                 execute(LensStatus.Action.ENABLE,current,true,()->operations.gameForeground());
             });
         });
@@ -174,7 +215,7 @@ final class LensController {
                 // OFF and read errors never erase a barrier for the same
                 // process. A fresh boot/PID/start is required to proceed.
                 state=LensStatus.retainingBarrier(parsed,barrier,barrierPhase,unscopedBarrier);
-                progress="";active.set(false);notifyView();
+                progress="";active.set(false);notifyView();refreshReports();
             });
         });
     }
