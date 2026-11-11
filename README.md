@@ -6,11 +6,11 @@
   <img src="docs/images/readme/illustration.jpg" width="260" alt="皮克敏拿著放大鏡觀察花苗的示意插畫">
 </p>
 
-**[下載 0.14.1 預覽版 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.14.1)** · 開發者：odyliao-lab
+**[下載 0.14.2 預覽版 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.14.2)** · 開發者：odyliao-lab
 
-0.14.1 對應遊戲 157.0；遊戲 156.1 使用[舊版 0.7.3 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.7.3)（僅花苗名稱顯示）。
+0.14.2 對應遊戲 157.0；遊戲 156.1 使用[舊版 0.7.3 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.7.3)（僅花苗名稱顯示）。
 
-## 四個功能開關
+## 功能
 
 | 功能 | 顯示內容 |
 |---|---|
@@ -18,20 +18,21 @@
 | 皮克敏資訊 | 目前花態、可收瓣／任務狀態、已取得裝飾 |
 | 探險資訊 | 一般白盒對象與裝飾、探險狀態與遊戲剩餘時間 |
 | 精華／花瓣對照 | 保留精華數量，補對應花瓣、容量與剩餘空間 |
+| 複製探險座標 | 查看探險詳情，複製目前項目的座標至本機剪貼簿 |
 
-0.14.1 包含[執行狀態與關閉全部](docs/STATUS_ALL_OFF.md)、[診斷與版本更新](docs/DIAGNOSTICS_UPDATES.md)，以及 [App 直接回報](docs/APP_DIRECT_UPLOAD.md)。在診斷頁預覽、選填 Email、同意後即可直接上傳，不需登入；離線匯出仍保留。
+0.14.2 包含[執行狀態與關閉全部](docs/STATUS_ALL_OFF.md)、[診斷與版本更新](docs/DIAGNOSTICS_UPDATES.md)，以及 [App 直接回報](docs/APP_DIRECT_UPLOAD.md)。在診斷頁預覽、選填 Email、同意後即可直接上傳，不需登入；離線匯出仍保留。
 
 [診斷回報站](https://seed-lens-reports.ody-liao.chatgpt.site)也可上傳匯出的 JSON。Email 僅供修正通知，目前尚未接上寄信服務；管理後台僅限站長登入。[網站原始碼與限制](server/sites/README.md)。
 
 工具頁直接開關，說明預設收合；診斷頁提供環境排除建議與檢查新版本。各項實測範圍見下表與[完整驗收矩陣](docs/DISPLAY_PORT_RESULTS.md)。
 
-開發候選0.14.2將工具頁改成五個緊湊功能列，小圖示橫排、說明按需展開，底部兩個操作固定可見。[版面比較與實測](docs/COMPACT_UI.md)。
+0.14.2將工具頁改成五個緊湊功能列，小圖示橫排、說明按需展開，底部兩個操作固定可見。[版面比較與實測](docs/COMPACT_UI.md)。
 
 0.14.1 改為「先保存選擇，再動態套用」：遊戲未開或 Root／版本條件尚未就緒，也可先打開五個開關，App 另顯示等待原因。[操作與驗證](docs/FEATURE_INTENT.md)。
 
-0.13.3 在四組下方新增「複製探險座標」，預設關閉。查看花苗／水果探險詳情或左右換卡停穩後，自動複製目前座標；不移動定位，座標不納入診斷或上傳。[操作與實測範圍](docs/GPS_COPY.md)。
+座標複製預設關閉，不移動定位，座標不納入診斷或上傳。[操作與實測範圍](docs/GPS_COPY.md)。
 
-[0.14.1 發布與驗證](docs/RELEASE_0141.md)。
+[0.14.2 發布與驗證](docs/RELEASE_0142.md)。
 
 ## 使用方式
 
