@@ -42,6 +42,8 @@ final class PMCanary {
         if(Api34PmResearch.allowed(args.getString("research_scope"),args.getString("expected_api"),api,
                 abi,Process.is64Bit(),android.system.Os.uname().machine,packagedAbi(context),processMachine,
                 args.containsKey("load_pid")))backend="x64";
+        boolean pm32=Api32PmResearch.allowed(args.getString("research_scope"),args.getString("expected_api"),api,abi,Process.is64Bit(),android.system.Os.uname().machine,packagedAbi(context),processMachine,args.containsKey("load_pid"));
+        if(pm32)backend="x64";
         boolean arm=backend.equals("arm64");
         if(backend.isEmpty()||Process.myUid()<10000||
            !"dev.ody.seedlensrootprobe".equals(context.getPackageName())||
@@ -66,7 +68,9 @@ final class PMCanary {
         try(FileOutputStream output=new FileOutputStream(receipt,true)){
             output.write(("APP_UID\t"+Process.myUid()+"\nPROCESS_ELF_MACHINE\t"+processMachine+"\nRUNNER_SHA\t"+expected+"TARGET\t"+pid+"\t"+start+"\nONE_COMMAND_ONLY\n").getBytes(StandardCharsets.UTF_8));
             output.getFD().sync();
-            java.lang.Process child=new ProcessBuilder("su","-M","-c",command).redirectErrorStream(true).start();
+            ProcessBuilder invocation=pm32?new ProcessBuilder("su","-c",command):new ProcessBuilder("su","-M","-c",command);
+            java.lang.Process child=invocation.redirectErrorStream(true).start();
+            child.getOutputStream().close();
             AtomicBoolean failed=new AtomicBoolean(false);
             ByteArrayOutputStream retained=new ByteArrayOutputStream();
             Thread reader=new Thread(()->{

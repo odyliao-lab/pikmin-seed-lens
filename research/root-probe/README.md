@@ -184,3 +184,13 @@ only in this explicit root-only scope. Read-only stdin is closed and a query
 timeout is contained. Neither a successful query nor host tests qualify game
 loading. Actual failures and product gates are recorded in
 `docs/API32_MUMU_BACKEND_RESEARCH.md`; prior research APK versions remain intact.
+
+## API32 ordinary-App PM research0.0.19
+
+After the built-in MuMu Root grant, `api32_pm_research` separately admits only
+API32, x64 ELF62 and the packaged x64 runner, kernel label aarch64, and an explicit
+self-probe target. It uses native `su -c`; no failed `-M` command is retried.
+The default generic backend still refuses32. Normal, controlled UNKNOWN and a
+new-process regression independently passed in Android; see
+[API32 evidence](../../docs/API32_MUMU_BACKEND_RESEARCH.md). This does not qualify
+a game or make the research APKs product dependencies.

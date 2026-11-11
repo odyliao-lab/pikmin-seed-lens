@@ -3,6 +3,7 @@
 // stack with guard pages. This is NOT rollback of TLS, heap, locks or dlopen.
 // UNKNOWN latches this object: no retry, implicit detach, cleanup or signal loss.
 #include "KittyTrace.hpp"
+#include "api32_user_context.h"
 #include <array>
 #include <chrono>
 #include <vector>
@@ -27,9 +28,15 @@ class X64CallContext {
         out.resize(io.iov_len); return true;
     }
     bool capture() {
-        return trace_.getRegs(&original_) && static_cast<int64_t>(original_.orig_rax)==-1 &&
-            original_.rsp>=redzone_.size() && xread(trace_.pid(),xstate_) &&
-            trace_.peekMem(original_.rsp-redzone_.size(),redzone_.data(),redzone_.size())==redzone_.size();
+        bool regs=trace_.getRegs(&original_);
+        bool user=regs&&user_context_registers(original_,trace_.pid(),true);
+        bool stack=user&&original_.rsp>=redzone_.size();
+        bool state=stack&&xread(trace_.pid(),xstate_);
+        bool red=state&&trace_.peekMem(original_.rsp-redzone_.size(),redzone_.data(),redzone_.size())==redzone_.size();
+#ifdef SEED_API32_CONTEXT_RESEARCH
+        if(!red)printf("API32_CONTEXT_CAPTURE_REFUSED regs=%d orig=%lld rax=%lld stack=%d xstate=%d redzone=%d\n",regs,(long long)original_.orig_rax,(long long)original_.rax,stack,state,red);
+#endif
+        return red;
     }
     bool restore() {
         if(!trace_.stop())return false;

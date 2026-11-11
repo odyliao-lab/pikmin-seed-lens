@@ -33,7 +33,7 @@ Copy-Item -LiteralPath $runner -Destination "$out/native/lib/$Abi/libseed_probe_
 [IO.File]::WriteAllText("$out/assets/runner.abi",$Abi+"`n",[Text.Encoding]::ASCII)
 $bt="$SdkPath/build-tools/35.0.0";$jar="$SdkPath/platforms/android-35/android.jar";$env:JAVA_HOME=$JavaHome
 New-Item -ItemType Directory "$out/platform-tests" | Out-Null
-& "$JavaHome/bin/javac.exe" --release 8 -d "$out/platform-tests" "$PSScriptRoot/ProcessElf.java" "$PSScriptRoot/ProcessElfTest.java" "$PSScriptRoot/ProbePlatform.java" "$PSScriptRoot/ProbePlatformTest.java" "$PSScriptRoot/RootOnlyPlatform.java" "$PSScriptRoot/RootOnlyPlatformTest.java" "$PSScriptRoot/Api34PmResearch.java" "$PSScriptRoot/Api34PmResearchTest.java"
+& "$JavaHome/bin/javac.exe" --release 8 -d "$out/platform-tests" "$PSScriptRoot/ProcessElf.java" "$PSScriptRoot/ProcessElfTest.java" "$PSScriptRoot/ProbePlatform.java" "$PSScriptRoot/ProbePlatformTest.java" "$PSScriptRoot/RootOnlyPlatform.java" "$PSScriptRoot/RootOnlyPlatformTest.java" "$PSScriptRoot/Api34PmResearch.java" "$PSScriptRoot/Api32PmResearch.java" "$PSScriptRoot/Api34PmResearchTest.java" "$PSScriptRoot/Api32PmResearchTest.java"
 if($LASTEXITCODE){throw 'Research platform test compile failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/platform-tests" dev.ody.seedlensrootprobe.ProcessElfTest
 if($LASTEXITCODE){throw 'Research process ELF checks failed'}
@@ -43,9 +43,11 @@ if($LASTEXITCODE){throw 'Research platform admission/refusal checks failed'}
 if($LASTEXITCODE){throw 'Self-only Root scope/refusal checks failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/platform-tests" dev.ody.seedlensrootprobe.Api34PmResearchTest
 if($LASTEXITCODE){throw 'Explicit API34 PM scope/refusal checks failed'}
+& "$JavaHome/bin/java.exe" -cp "$out/platform-tests" dev.ody.seedlensrootprobe.Api32PmResearchTest
+if($LASTEXITCODE){throw 'Explicit API32 PM scope/refusal checks failed'}
 & "$bt/aapt2.exe" link -I $jar --manifest "$PSScriptRoot/AndroidManifest.xml" -A "$out/assets" -o "$out/unsigned.apk"
 if($LASTEXITCODE){throw 'Root probe manifest failed'}
-& "$JavaHome/bin/javac.exe" -encoding UTF-8 -source 8 -target 8 -classpath $jar -d "$out/classes" "$PSScriptRoot/RootInstrumentation.java" "$PSScriptRoot/RootEndpoint.java" "$PSScriptRoot/PMCanary.java" "$PSScriptRoot/ProbePlatform.java" "$PSScriptRoot/ProcessElf.java" "$PSScriptRoot/RootOnlyPlatform.java" "$PSScriptRoot/Api34PmResearch.java"
+& "$JavaHome/bin/javac.exe" -encoding UTF-8 -source 8 -target 8 -classpath $jar -d "$out/classes" "$PSScriptRoot/RootInstrumentation.java" "$PSScriptRoot/RootEndpoint.java" "$PSScriptRoot/PMCanary.java" "$PSScriptRoot/ProbePlatform.java" "$PSScriptRoot/ProcessElf.java" "$PSScriptRoot/RootOnlyPlatform.java" "$PSScriptRoot/Api34PmResearch.java" "$PSScriptRoot/Api32PmResearch.java"
 if($LASTEXITCODE){throw 'Root probe Java compile failed'}
 & "$JavaHome/bin/jar.exe" cf "$out/classes.jar" -C "$out/classes" .
 if($LASTEXITCODE){throw 'Class jar failed'}

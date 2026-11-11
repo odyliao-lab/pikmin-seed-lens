@@ -1,5 +1,45 @@
 # MuMu API32後端前置驗證（2026-11-11）
 
+## 後續修正：內建Root及自有載入鏈通過，尚未整合產品
+
+進一步讀取本機Root服務紀錄，確認先前su-c查詢不是已證明不可能，而是內建Settings
+Root授權視窗等待後自動拒絕。完成自有研究App的內建授權後，同boot、普通UID10048、
+adbd2000實際su-c取得UID0、同PID1 mount namespace及boot。沒有新增Root管理器／模組。
+研究App19保留原lab簽章，新增ACCESS_SUPERUSER宣告及精確api32_pm_research範圍；
+Root-only仍拒絕load_pid，一般ProbePlatform仍不納入API32，產品守門本階段不改。
+
+對照Google AOSP [Android12L NativeBridge介面](https://android.googlesource.com/platform/art/+/android-12.1.0_r1/libnativebridge/include/nativebridge/native_bridge.h)
+及[NativeLoader介面](https://android.googlesource.com/platform/art/+/android-12.1.0_r1/libnativeloader/include/nativeloader/native_loader.h)，
+獨立API32／libnb adapter使用四參數trampoline；由真ClassLoader namespace、raw-native
+查詢必須null及實際load的needs_native_bridge=true確認橋接，不讀私有ART結構或猜namespace。
+同一adapter來源供後續整合，沒有把API35五參數介面硬套進API32。
+
+MuMu的原生運算中子程序回報orig_rax=-254、-237等負標記，而阻塞read實測orig_rax=0、
+rax=-512；不能只採原本的-1。新增僅API32/libnb研究旗標生效的停止狀態判別：非負
+syscall號及Linux restart結果仍拒絕，另要求syscall-info的x64 arch／IP／SP與GPR相符；
+最初擷取只接受NONE，自己完成且恢復的remote syscall後才接受EXIT，從不接受ENTRY。
+自有fork程序15項正常返回、逾時、SIGILL、外部SIGUSR1及退出案例通過；返回案例完整
+GPR／XSTATE／redzone逐字相同且heartbeat恢復，UNKNOWN不重試。旗標尚未進產品。
+
+第一次自有載入因舊context守門拒絕；第二次因remote syscall EXIT處理仍不足而UNKNOWN
+收容；兩筆均保留。第三次載入及JNI成功，但診斷切換adbd中斷了instrumentation啟動連線，
+缺Java FINISH，仍記未通過。修正研究driver保持adbd2000全程不重啟；診斷只用既有su-c
+唯讀回讀，自有UID10048親自執行PM loader，沒有以shell代發載入。
+
+| 同boot的新自有程序 | 獨立結果 |
+|---|---|
+| PID8129/start205510 | exit0；真namespace、ARM JNI四值、package/version/key/library/symbol負例、單worker、完整journal及90秒Java FINISH PASS／程序退出 |
+| PID9314/start215767 | 故意在durable CALLING後逾時，exit42／UNKNOWN、精確target及worker收容；不重送 |
+| PID10497/start222608 | 另一新程序exit0，完整JNI／負例／journal／Java FINISH與程序退出回歸通過 |
+
+研究Root client19的ProcessElf94、ProbePlatform77、RootOnly48、API34 scope496及
+API32 scope496 JVM檢查通過。host carrier12、Root client19及研究fixture7僅供上述隔離驗證，
+不會成為產品安裝依賴；後續交付仍必須原簽章、遞增版本、單一APK，且要另外驗遊戲待種
+花苗ON／OFF。**目前通過的是自有後端鏈，還不是產品功能通過。**
+
+下方保留最初失敗階段；「尚未通過」描述當時checkpoint，後續進度以上段為準。
+
+
 使用者明確要求確認API32後端，通過才開放產品；本次遊戲功能範圍僅待種花苗ON／OFF，
 探險略過。只操作既有index4 `SeedLens-Isolated-A12`／created1794178164127859，
 端點由CLI重新核對為127.0.0.1:16512；原四台、index5、官方AVD及台中設備未操作。

@@ -5,7 +5,9 @@
 #ifndef SEED_PROBE_API
 #define SEED_PROBE_API 31
 #endif
-#ifdef SEED_API34_PM_RESEARCH
+#if defined(SEED_API32_PM_RESEARCH)
+static_assert(SEED_PROBE_API==32);
+#elif defined(SEED_API34_PM_RESEARCH)
 static_assert(SEED_PROBE_API==34);
 #else
 static_assert(SEED_PROBE_API==31||SEED_PROBE_API==35);

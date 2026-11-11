@@ -8,7 +8,10 @@
 #include <string>
 #include "xdl.h"
 #include "apk_payload.h"
-#ifdef SEED_API34_LAB_CANARY
+#if defined(SEED_API32_LAB_CANARY)
+#include "bridge_platform_api32.h"
+using CanaryPlatform=seed_bridge_api32::Platform;
+#elif defined(SEED_API34_LAB_CANARY)
 #include "bridge_dispatch.h"
 using CanaryPlatform=seed_bridge::PlatformForRuntime;
 #elif defined(SEED_API31_CANARY)
@@ -25,7 +28,7 @@ using CanaryPlatform=seed_bridge::Platform;
 #error host probe requires x86_64
 #endif
 namespace {
-#if defined(SEED_API31_CANARY) || defined(SEED_API35_LAB_CANARY) || defined(SEED_API34_LAB_CANARY)
+#if defined(SEED_API31_CANARY) || defined(SEED_API35_LAB_CANARY) || defined(SEED_API34_LAB_CANARY) || defined(SEED_API32_LAB_CANARY)
 constexpr const char* probeVersion=SEED_API31_PROBE_VERSION;
 constexpr jlong probeCode=SEED_API31_PROBE_CODE;
 #else
@@ -118,6 +121,8 @@ void* worker(void*) {
     r.add("APK_ZIP_CANARY");
 #ifdef SEED_API31_CANARY
     r.add("API31_NAMESPACE_PAIR_NOT_YET_LOADED");
+#elif defined(SEED_API32_LAB_CANARY)
+    r.add("API32_BRIDGED_NAMESPACE_SELF_PROBE");
 #elif defined(SEED_API34_LAB_CANARY)
     r.add("API34_NAMESPACE_PAIR_NOT_YET_LOADED");
 #else
@@ -135,6 +140,8 @@ void* worker(void*) {
     if(!handle){r.add(bridge.error());return nullptr;}
 #ifdef SEED_API31_CANARY
     r.add("API31_BRIDGED_NAMESPACE_CONFIRMED_BY_LOAD");
+#elif defined(SEED_API32_LAB_CANARY)
+    r.add("API32_BRIDGED_NAMESPACE_SELF_PROBE");
 #elif defined(SEED_API34_LAB_CANARY)
     r.add("API34_BRIDGED_NAMESPACE_CONFIRMED_BY_LOAD");
 #endif

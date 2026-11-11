@@ -29,7 +29,7 @@ kitty_rp_call_t KittyTraceMgr::_callFunctionFrom(uintptr_t callerAddress, uintpt
         if(!nx){puts("RESEARCH_FUNCTION_REFUSED_CALLER");_exit(81);}
     }
     user_regs_struct before{};
-    if(!getRegs(&before) || static_cast<int64_t>(before.orig_rax)!=-1){
+    if(!getRegs(&before) || !seed_research::user_context_registers(before,_pid,true)){
         puts("RESEARCH_FUNCTION_REFUSED_KERNEL_CONTEXT");_exit(82);
     }
     std::array<uintptr_t,6> args{};va_list vl;va_start(vl,nargs);

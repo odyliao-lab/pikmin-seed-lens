@@ -1,5 +1,6 @@
 // Research-only derivative of the 0.3.1 x64 backend. Self probe only.
 #include "pm_backend.h"
+#include "../api32_user_context.h"
 #include "identity.h"
 #include <android/api-level.h>
 #include "../../app/entry_context.h"
@@ -48,7 +49,7 @@ int run(int pid,const std::string& start,const std::string& host,int socket,bool
             }
             bool haveRegs=mgr.trace.getRegs(&regs),sameOwner=seed_root::thread_owner(tid,pid,ts);
             printf("PROBE_PM_CONTEXT regs=%d orig_rax=%lld owner=%d\n",haveRegs,static_cast<long long>(regs.orig_rax),sameOwner);
-            if(haveRegs&&static_cast<int64_t>(regs.orig_rax)==-1&&sameOwner){
+            if(haveRegs&&seed_research::user_context_registers(regs,tid)&&sameOwner){
                 probePid=pid;probeStart=start;traceTid=tid;threadStart=ts;acquired=true;break;
             }
             if(!mgr.trace.detach())return refused(15);
