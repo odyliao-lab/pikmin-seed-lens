@@ -1,5 +1,9 @@
 # 架構
 
+0.7.0/code26依使用者最新要求改為單頁精簡介面，移除分頁／外觀選單／常駐技術區。
+`MainActivity`仍只持有當次同意，`LensController`／`LensOperations`及native守門保持原樣；
+只讀核對、直接OFF與UNKNOWN禁止重送保留。外觀跟隨系統，舊外觀偏好保留但不再作為入口。
+
 ## 森林手帳原生介面（驗收中）
 
 `MainActivity`只保有頁面與當次同意；`LensController`以程序級單一操作鎖持有執行，

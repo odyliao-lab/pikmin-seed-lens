@@ -1,5 +1,29 @@
 # 驗證分層
 
+## 0.7.0/code26：使用者指定的單頁精簡版
+
+移除三分頁、宣傳文案、外觀選單與常駐技術資訊；保留離線圖示、功能Switch／一句說明、
+簡短狀態／錯誤、版本與開發者。必要同意原頁展開，OFF直接操作；只讀核對及受限時OFF
+入口保留。controller／native守門、單一操作鎖、UNKNOWN與簽章原樣保留。
+
+APK SHA256 `caba3b1f299fcda053b2dc121074ab75cf30510d9f94c3435ecbee683b9ce364`，
+原9080…34a7e憑證；版本遞增，0.6.7原件保留。完整建置的Compatibility55、InstalledNative29、
+GameSession27、LensStatus102、LensContext34、ZIP layout10／paired digest4通過；
+native executables仍只編譯，API31／34開關仍false。
+
+僅新index5／SeedLens-Isolated-A15／created1794181954477010，boot400309d5…5a35，
+實際API35／x86_64／libnb.so。-r升級保留資料及46筆原歷史，未啟用TalkBack。
+實際橫向／直向顯示單頁；只勾一項送出disabled，取消後兩項清空，兩項新確認後才送出一次。
+156.1/code1793076318新程序34348/start790028/UID10068實際庫存名稱／長字縮小、
+App新鮮READ已啟用、直接Switch OFF及原名／字級還原，庫存357未變。
+最終同程序156.1 ready/control0、189個thread TracerPid0，adbd UID2000；原46筆SHA不變，
+正常新增一筆後共47筆，journal仍RETURNED_UNVERIFIED。
+暫時portrait鎖已還原原free／auto1／user0。最初final-preview圖是只讀處理中，
+最終以final-settled的OFF畫面為準，不偽造畫面狀態。
+
+此版只做本次介面改動所需基本回歸；新APK的捲動、重啟／其他遊戲及其他平台尚無完整
+新證據，不能承接下方0.6.7矩陣。未領回探險樣本及API31／34原遊戲啟動障礙仍保留。
+
 ## 2026-11-11：森林手帳原生UI分項
 
 原簽章新UI僅在授權index5／API35隔離機實測；圖片Windows封裝反斜線問題
