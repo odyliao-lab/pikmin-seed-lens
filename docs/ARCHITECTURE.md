@@ -1,5 +1,9 @@
 # 架構
 
+## 執行狀態與關閉全部
+
+0.10.3 新增只讀狀態彙整與前景定期核對；關閉全部使用 App 持久 pending-OFF，加上既有原生 lease／原子 writer，同步四主意願及八成員。載入、版本與 UNKNOWN 守門不變。[行為與驗證](STATUS_ALL_OFF.md)。
+
 ## 四組顯示移植（開發中）
 
 沿用既有 APK 自包含載入器；[最新功能對照與驗收界線](DISPLAY_PORT_RESULTS.md)。Game157 使用獨立唯讀 PlayerManager／InventoryManager context、八項 seed-lens 控制／回報與四個先保存主意願。0.9.5 在 MuMu API32／35 表列畫面與 OFF 還原已觀察，API35 新 PID 自動重綁亦通過；API32 重啟及缺樣本仍分別待驗。
