@@ -1,6 +1,6 @@
-# 四組唯讀顯示：私人測試交付
+# 四組唯讀顯示：0.9.5 預覽版驗收
 
-2026-11-11；四組唯讀顯示移植。原簽章 0.9.5/code36，APK 尚未發布；功能已接入真實 Game157 資料與 UI，仍有缺樣本及平台待驗，不能標成全部驗收完成。[完整證據與失敗紀錄](DISPLAY_PORT.md)。
+2026-11-11；四組唯讀顯示移植。原簽章 0.9.5/code36 預覽版，功能已接入真實 Game157 資料與 UI，仍有缺樣本及平台待驗，不能標成全部驗收完成。[完整證據與失敗紀錄](DISPLAY_PORT.md)。
 
 ## 使用流程
 
@@ -45,7 +45,7 @@ API35 環境沒有控制中心、研究 APK 或 `/data/adb/modules`；舊 global
 
 ## 產物與實際截圖
 
-私人 APK 位於 ignored `.tools/build/0.9.5/signed/pikmin-seed-lens-0.9.5-signed.apk`。
+[下載 0.9.5 預覽版 APK、SHA256 與建置來源資訊](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.9.5)。發布沿用已實測的同一份原簽章 APK，沒有重建；本機原件保留於 ignored `.tools/build/0.9.5/signed/pikmin-seed-lens-0.9.5-signed.apk`。
 
 SHA256：`795fe4222820aabd885788c511aa861131102cfc7fcc07459bbceee31374dc8d`。
 

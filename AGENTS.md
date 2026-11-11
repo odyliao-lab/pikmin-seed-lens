@@ -1,6 +1,6 @@
 # Pikmin Seed Lens
 
-This private repository is the independent source for 皮克敏花苗透視鏡.
+This repository is the independent source for 皮克敏花苗透視鏡.
 Read README.md, docs/ARCHITECTURE.md and docs/VALIDATION.md before work.
 Do not commit keys, tokens, raw diagnostics, screenshots, APKs or game binaries.
 Do not operate any device without current task authorization and fresh identity.
