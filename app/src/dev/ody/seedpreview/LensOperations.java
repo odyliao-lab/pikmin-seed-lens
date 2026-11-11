@@ -35,7 +35,9 @@ final class LensOperations {
         Reply reply=shell(CONTEXT_SCRIPT,true,null);
         if(reply.exit==3&&reply.complete)return null;
         if(reply.exit!=0||!reply.complete)throw new IOException("Root or process query failed");
-        return LensContext.parse(reply.output);
+        LensContext parsed=LensContext.parse(reply.output);
+        if(parsed==null)throw new IOException("invalid process identity reply");
+        return parsed;
     }
     String extensionAvailability(){
         String blocked=availability();if(blocked!=null)return blocked;
@@ -99,6 +101,7 @@ final class LensOperations {
         if(group<0||group>3)throw new IllegalArgumentException("group");
         return displayCommand("--display-group "+group+" "+(enabled==null?"read":enabled?"on":"off"),null);
     }
+    Reply allOff()throws Exception{return displayCommand("--display-all-off",null);}
     Reply displayReports(LensContext current)throws Exception{
         if(current==null)throw new IOException("missing game");
         return displayCommand("--display-reports \"$p\" \"$t\"",current);

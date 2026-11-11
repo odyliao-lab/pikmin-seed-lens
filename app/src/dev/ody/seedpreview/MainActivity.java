@@ -10,13 +10,15 @@ import android.widget.*;
 
 /** Four direct group switches on one page. Descriptions start collapsed. */
 public final class MainActivity extends Activity implements LensController.Observer {
-    LensController controller;ForestStyle style;TextView message;
+    LensController controller;ForestStyle style;TextView message,status,closeAll;
+    final Handler updates=new Handler(Looper.getMainLooper());
+    final Runnable poll=new Runnable(){public void run(){changed();controller.refreshReports();updates.postDelayed(this,3000);}};
     final Switch[] switches=new Switch[4];
     final TextView[] reports=new TextView[4];
     boolean suppress;
     @Override public void onCreate(Bundle saved){super.onCreate(saved);controller=LensController.get(this);build();}
-    @Override protected void onResume(){super.onResume();controller.attach(this);controller.refreshGroups();}
-    @Override protected void onPause(){controller.detach(this);super.onPause();}
+    @Override protected void onResume(){super.onResume();controller.attach(this);controller.refreshGroups();updates.postDelayed(poll,3000);}
+    @Override protected void onPause(){updates.removeCallbacks(poll);controller.detach(this);super.onPause();}
     void build(){
         boolean dark=(getResources().getConfiguration().uiMode&Configuration.UI_MODE_NIGHT_MASK)==Configuration.UI_MODE_NIGHT_YES;
         style=new ForestStyle(this,dark);LinearLayout root=style.column();root.setBackgroundColor(style.paper);
@@ -32,6 +34,7 @@ public final class MainActivity extends Activity implements LensController.Obser
         ImageView image=new ImageView(this);image.setScaleType(ImageView.ScaleType.FIT_CENTER);image.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         try{image.setImageBitmap(OfflineArtwork.mascot(this));page.addView(image,new LinearLayout.LayoutParams(-1,style.dp(96)));}catch(Exception ignored){}
         TextView title=style.text("皮克敏花苗透視鏡",22,style.ink,true);title.setGravity(Gravity.CENTER);style.add(page,title,14);
+        status=style.text("正在核對…",15,style.green,true);status.setGravity(Gravity.CENTER);style.add(page,status,4);
         for(int group=0;group<4;group++){
             final int selected=group;LinearLayout card=style.card(),row=new LinearLayout(this);row.setGravity(Gravity.CENTER_VERTICAL);
             row.addView(style.text(DisplayGroups.TITLES[group],18,style.ink,true),new LinearLayout.LayoutParams(0,-2,1));
@@ -54,7 +57,9 @@ public final class MainActivity extends Activity implements LensController.Obser
                 }else controller.setGroup(selected,on);
             });
         }
-        message=style.text("",13,style.muted,false);message.setOnClickListener(v->{if(!controller.busy())controller.refreshGroups();});style.add(page,message,12);
+        closeAll=style.text("關閉全部",15,style.green,true);closeAll.setGravity(Gravity.CENTER);closeAll.setPadding(0,style.dp(12),0,style.dp(12));
+        closeAll.setOnClickListener(v->controller.allOff());style.add(page,closeAll,4);
+        message=style.text("",13,style.muted,false);message.setOnClickListener(v->{if(!controller.busy())controller.refreshGroups();updates.postDelayed(poll,3000);});style.add(page,message,12);
         TextView launch=style.text("開啟遊戲 ↗",15,style.green,true);launch.setGravity(Gravity.CENTER);launch.setPadding(0,style.dp(10),0,style.dp(10));
         launch.setOnClickListener(v->{
             Runnable open=()->{if(controller.anyGroup()&&controller.armed())LensService.start(this);Intent game=getPackageManager().getLaunchIntentForPackage("com.nianticlabs.pikmin");if(game!=null)startActivity(game);};
@@ -73,19 +78,20 @@ public final class MainActivity extends Activity implements LensController.Obser
     }
     @Override public void changed(){
         if(message==null)return;boolean busy=controller.busy();String unavailable=controller.operations.extensionAvailability();
+        status.setText(controller.overview());closeAll.setEnabled(!controller.pendingOff()||!busy);closeAll.setAlpha(closeAll.isEnabled()?1f:0.45f);
         suppress=true;
         for(int i=0;i<4;i++){
             Boolean value=controller.groupOn[i];switches[i].setChecked(Boolean.TRUE.equals(value));
             // OFF remains available even if the installed game becomes unsupported.
-            switches[i].setEnabled(!busy&&value!=null&&(Boolean.TRUE.equals(value)||unavailable==null));
+            switches[i].setEnabled(!busy&&!controller.pendingOff()&&value!=null&&(Boolean.TRUE.equals(value)||unavailable==null));
             switches[i].setAlpha(switches[i].isEnabled()?1f:0.45f);
             reports[i].setText(value==null?"設定未確認":controller.groupReport[i]);
         }
-        suppress=false;String text=busy?controller.progress:!controller.reason.isEmpty()?controller.reason:unavailable!=null?unavailable:"啟用後開啟遊戲即可使用。";
-        if(controller.state.phase==LensStatus.Phase.UNKNOWN||controller.state.phase==LensStatus.Phase.UNCERTAIN)
+        suppress=false;String text=busy?controller.progress:!controller.reason.isEmpty()?controller.reason:unavailable!=null?unavailable:controller.reportReadFailed?"無法核對遊戲回報，請檢查 Root 後點此重試。":controller.anyGroup()?"開關代表啟用意願；套用結果以遊戲回報為準。":"關閉意願已保存；回到遊戲等待還原，點此可重新核對。";
+        if(!controller.gameAbsent()&&(controller.state.phase==LensStatus.Phase.UNKNOWN||controller.state.phase==LensStatus.Phase.UNCERTAIN))
             text="結果不明，請正常重開遊戲；保留紀錄，不重送載入。";
-        else if(controller.state.phase==LensStatus.Phase.RESTART_REQUIRED)
+        else if(!controller.gameAbsent()&&controller.state.phase==LensStatus.Phase.RESTART_REQUIRED)
             text="遊戲仍有舊版顯示或載入未完成，請正常重開遊戲後重新綁定。";
-        message.setText(text);message.setTextColor(controller.state.blocksEnable()?style.error:style.muted);
+        message.setText(text);message.setTextColor(controller.state.blocksEnable()&&!controller.gameAbsent()?style.error:style.muted);
     }
 }

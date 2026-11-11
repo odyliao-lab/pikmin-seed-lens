@@ -134,14 +134,16 @@ int main(int argc,char**argv){
 #endif
         return 0;
     }
-    if(argc==4&&!strcmp(argv[1],"--display-group")){
-        if(strlen(argv[2])!=1||argv[2][0]<'0'||argv[2][0]>'3')return fail(2);
+    bool allOff=argc==2&&!strcmp(argv[1],"--display-all-off");
+    if(allOff||(argc==4&&!strcmp(argv[1],"--display-group"))){
+        if(!allOff&&(strlen(argv[2])!=1||argv[2][0]<'0'||argv[2][0]>'3'))return fail(2);
         if(mkdir(base,0755)&&errno!=EEXIST)return fail(24);
         if(!secure(base,true))return fail(24);
         seed_root::LoadLease lease(base);if(!lease.held())return fail(4);
         int parent=open("/data/local/tmp",O_RDONLY|O_DIRECTORY|O_CLOEXEC|O_NOFOLLOW);
         if(parent<0)return fail(25);
-        bool ok=seed_root::display_setting(lease,parent,argv[2][0]-'0',argv[3],ticks(getpid()));close(parent);
+        bool ok=allOff?seed_root::display_all_off(lease,parent,ticks(getpid())):
+            seed_root::display_setting(lease,parent,argv[2][0]-'0',argv[3],ticks(getpid()));close(parent);
         return ok?0:fail(26);
     }
     bool contained=argc==5&&!strcmp(argv[1],"--enable-contained");

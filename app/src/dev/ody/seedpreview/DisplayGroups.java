@@ -31,7 +31,33 @@ final class DisplayGroups {
         if(output.equals("LENS_GROUP\t"+group+"\toff\n"))return false;
         return null;
     }
+    static boolean allOffSaved(int exit,boolean complete,String output){
+        return exit==0&&complete&&("LENS_GROUP\t0\toff\nLENS_GROUP\t1\toff\nLENS_GROUP\t2\toff\nLENS_GROUP\t3\toff\nLENS_ALL_OFF_COMMITTED\n").equals(output);
+    }
+    enum Effect { WAITING, APPLIED, RESTORED }
+    static final class Report {
+        final Effect effect;final String text;
+        Report(Effect effect,String text){this.effect=effect;this.text=text;}
+    }
+    static Report checkedReport(int group,boolean enabled,LensContext context,String raw,long now){
+        String text=report(group,enabled,context,raw,now);
+        Effect effect=text.equals("已關閉")?Effect.RESTORED:Effect.WAITING;
+        // A group can include pages never opened (e.g. planter detail). Report
+        // only acknowledged pages, without pretending the entire group was seen.
+        if(enabled&&(text.equals("已啟用")||text.equals("已啟用，等待遊戲卡片"))){
+            String[] lines=raw.split("\n");
+            for(int i=FIRST[group];i<FIRST[group]+MEMBERS[group].length;i++){
+                String prefix="LENS_MEMBER\t"+i+"\t";
+                if(!lines[i+1].startsWith(prefix))continue;
+                String[] fields=lines[i+1].substring(prefix.length()).split("\t",-1);
+                if(fields[4].equals("ready")&&Long.parseLong(fields[6])>0)
+                    return new Report(Effect.APPLIED,text.equals("已啟用")?"已套用（遊戲回報）":"已有畫面回報套用；其餘待回報");
+            }
+        }
+        return new Report(effect,effect==Effect.RESTORED?"已確認關閉":text.equals("已啟用")?"等待可用遊戲畫面":text);
+    }
     static String report(int group,boolean enabled,LensContext context,String raw,long now){
+        if(group<0||group>3)return "回報契約不符";
         if(context==null||raw==null||raw.indexOf('\r')>=0||raw.length()>8192||!raw.endsWith("\n"))return "等待遊戲資料";
         String[] lines=raw.split("\n");
         if(lines.length!=10||!lines[0].startsWith("LENS_SESSION\t"))return "回報未完整核對";
