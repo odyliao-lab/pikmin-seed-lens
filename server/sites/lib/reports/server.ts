@@ -3,7 +3,7 @@ import admin from '../../assets/admin.html?raw';
 import css from '../../assets/site.css?raw';
 import uploadJs from '../../assets/upload.js?raw';
 import adminJs from '../../assets/admin.js?raw';
-import { validate, contact, canonical, parseUnique, ID, AGE, STATES } from './policy.mjs';
+import { validate, contact, canonical, parseUnique, ID, AGE, STATES, postAllowed } from './policy.mjs';
 type Env = {DB?: D1Database; ADMIN_EMAIL?: string; RATE_KEY?: string};
 type User = {email:string;userId:string}|null;
 const headers = {'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer','X-Frame-Options':'DENY','Content-Security-Policy':"default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'"};
@@ -26,7 +26,7 @@ export async function handle(r:Request, env:Env, user:User) {
    const assets:Record<string,[string,string]>={'/':[upload,'text/html'],'/admin':[admin,'text/html'],'/site.css':[css,'text/css'],'/upload.js':[uploadJs,'text/javascript'],'/admin.js':[adminJs,'text/javascript']};
    if(assets[path] && !url.search){const [data,kind]=assets[path];return response(200,data,kind+'; charset=utf-8');}
   }
-  if(r.method==='POST' && r.headers.get('Origin')!==url.origin && !(path==='/v1/reports'&&!r.headers.has('Origin')))return response(403,{code:'origin'});
+  if(r.method==='POST'&&!postAllowed(r,path))return response(403,{code:'origin'});
   if(path.startsWith('/admin/api/')&&!owner)return response(user?403:401,{code:'owner_required'});
   if(path==='/admin/api/session'&&r.method==='GET')return response(200,{owner:true});
   if(!['/api/submit','/v1/reports'].includes(path)&&!path.startsWith('/admin/api/'))return response(404,{code:'not_found'});

@@ -19,9 +19,9 @@
 | 探險資訊 | 一般白盒對象與裝飾、探險狀態與遊戲剩餘時間 |
 | 精華／花瓣對照 | 保留精華數量，補對應花瓣、容量與剩餘空間 |
 
-開發分支新增[執行狀態與關閉全部](docs/STATUS_ALL_OFF.md)，以及[診斷、自願回報與版本更新](docs/DIAGNOSTICS_UPDATES.md)（0.11.2，尚未發布）。APK 直接上傳尚未啟用，目前可先同意匯出診斷。
+開發分支新增[執行狀態與關閉全部](docs/STATUS_ALL_OFF.md)、[診斷與版本更新](docs/DIAGNOSTICS_UPDATES.md)，以及 [App 直接回報](docs/APP_DIRECT_UPLOAD.md)（0.12.1/code45 候選，尚未公開發布）。在診斷頁預覽、選填 Email、同意後即可直接上傳，不需登入；離線匯出仍保留。
 
-[診斷回報站](https://seed-lens-reports.ody-liao.chatgpt.site)已開放免登入上傳，支援預覽同意與選填修正通知 Email；管理後台僅限站長登入，可篩選報告與保存處理狀態。[網站原始碼與限制](server/sites/README.md)。APK 直接上傳仍未啟用。
+[診斷回報站](https://seed-lens-reports.ody-liao.chatgpt.site)也可上傳匯出的 JSON。Email 僅供修正通知，目前尚未接上寄信服務；管理後台僅限站長登入。[網站原始碼與限制](server/sites/README.md)。已發布的 0.9.5 不包含上述開發分支功能。
 
 工具頁直接開關，說明預設收合；診斷頁提供環境排除建議與檢查新版本。各項實測範圍見下表與[完整驗收矩陣](docs/DISPLAY_PORT_RESULTS.md)。
 

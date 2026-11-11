@@ -14,7 +14,7 @@ import java.util.*;
 import java.util.concurrent.*;
 /** A separate lightweight process also reachable from the launcher long-press shortcut. */
 public final class DiagnosticsActivity extends Activity {
- ForestStyle style;LinearLayout results;TextView notice;Button basic,root,preview;
+ ForestStyle style;LinearLayout results;TextView notice;Button basic,root,preview,retry;
  Map<String,String> facts;boolean busy;String exportJson;
  final ExecutorService worker=Executors.newSingleThreadExecutor();final Handler handler=new Handler(Looper.getMainLooper());
  final Runnable updatePoll=new Runnable(){public void run(){if(updates!=null)try{updates.render();}catch(RuntimeException ignored){}handler.postDelayed(this,1000);}};
@@ -31,7 +31,8 @@ public final class DiagnosticsActivity extends Activity {
   });LinearLayout page=style.column();page.setPadding(style.dp(20),style.dp(18),style.dp(20),style.dp(20));scroll.addView(page);setContentView(scroll);
   LensTabs.add(this,style,page,true);style.add(page,style.text("自我診斷",24,style.ink,true),12);
   style.add(page,style.text("先檢查基本條件。診斷不啟用遊戲功能、不修改系統。",14,style.muted,false),12);
-  notice=style.text("讀取環境中…",14,style.muted,false);style.add(page,notice,12);
+  notice=style.text("讀取環境中…",14,style.muted,false);notice.setTextIsSelectable(true);style.add(page,notice,12);
+  retry=style.button("重試此份回報",false);retry.setVisibility(View.GONE);style.add(page,retry,8);
   basic=style.button("重新檢查環境",false);basic.setOnClickListener(v->scan(false));style.add(page,basic,8);
   root=style.button("檢查 Root",true);root.setOnClickListener(v->new AlertDialog.Builder(this).setTitle("檢查 Root")
    .setMessage("將呼叫既有 su，只讀取 Root、轉譯後端與 SELinux。可能出現授權視窗；不安裝套件、不載入遊戲。")
@@ -68,18 +69,28 @@ public final class DiagnosticsActivity extends Activity {
   }).show();
  }
  void showReport(DiagnosticReport report){
+  showReport(report,"");
+ }
+ void showReport(DiagnosticReport report,String previousEmail){
   LinearLayout box=style.column();box.setBackgroundColor(style.paper);box.setPadding(style.dp(18),style.dp(8),style.dp(18),0);
   style.add(box,style.text("以下是實際提供的全部資料。本機編號不是送出成功收據。",13,style.muted,false),8);
-  TextView body=style.text(report.json,11,style.ink,false);body.setTypeface(Typeface.MONOSPACE);body.setTextIsSelectable(true);ScrollView view=new ScrollView(this);view.addView(body);box.addView(view,new LinearLayout.LayoutParams(-1,style.dp(230)));
-  CheckBox consent=style.check("我已檢視並同意提供此份診斷");style.add(box,consent,0);
-  style.add(box,style.text(DiagnosticEndpoint.configured()?"接收端："+DiagnosticEndpoint.URL+"。報告最多保存 30 天。":"上傳服務尚未啟用；可先匯出，再由你選擇私人管道提供。",12,style.muted,false),4);
-  AlertDialog dialog=new AlertDialog.Builder(this).setTitle("預覽問題回報").setView(box).setNegativeButton("取消",null).setNeutralButton("同意並匯出",null).setPositiveButton("同意並上傳",null).create();
+  TextView body=style.text(report.json,11,style.ink,false);body.setTypeface(Typeface.MONOSPACE);body.setTextIsSelectable(true);ScrollView view=new ScrollView(this);view.addView(body);box.addView(view,new LinearLayout.LayoutParams(-1,style.dp(160)));
+  style.add(box,style.text("Email（選填）",13,style.ink,true),8);
+  EditText email=new EditText(this);email.setTextColor(style.ink);email.setHintTextColor(style.muted);email.setHint("you@example.com");email.setSingleLine(true);email.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);email.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(254)});email.setText(previousEmail);style.add(box,email,0);
+  style.add(box,style.text("僅用於問題修正後通知；不填也能提報，不會用於行銷。Email 只隨上傳提供，不放入匯出 JSON。",12,style.muted,false),2);
+  CheckBox consent=style.check("我已檢視並同意提供診斷；上傳時另附選填 Email");style.add(box,consent,0);
+  email.addTextChangedListener(new android.text.TextWatcher(){public void beforeTextChanged(CharSequence s,int start,int count,int after){}public void onTextChanged(CharSequence s,int start,int before,int count){consent.setChecked(false);}public void afterTextChanged(android.text.Editable s){}});
+  style.add(box,style.text("接收端：seed-lens-reports.ody-liao.chatgpt.site\n免登入。資料保存 29 天，逾期不供查詢，於服務處理請求時清除。尚未提供自動通知。",12,style.muted,false),4);
+  ScrollView container=new ScrollView(this);container.addView(box);
+  AlertDialog dialog=new AlertDialog.Builder(this).setTitle("預覽問題回報").setView(container).setNegativeButton("取消",null).setNeutralButton("同意並匯出",null).setPositiveButton("同意並上傳",null).create();
   dialog.setOnShowListener(v->{Button export=dialog.getButton(-3),upload=dialog.getButton(-1);export.setEnabled(false);upload.setEnabled(false);
    consent.setOnCheckedChangeListener((b,checked)->{export.setEnabled(checked);upload.setEnabled(checked&&DiagnosticEndpoint.configured());});
    export.setOnClickListener(b->{if(!consent.isChecked())return;exportJson=report.json;Intent intent=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/json").putExtra(Intent.EXTRA_TITLE,"seed-lens-report-"+report.id+".json");
     try{startActivityForResult(intent,81);dialog.dismiss();}catch(ActivityNotFoundException e){notice.setText("找不到系統檔案選擇器，尚未匯出或傳送。");}});
-   upload.setOnClickListener(b->{if(!consent.isChecked()||busy||!DiagnosticEndpoint.configured())return;busy=true;buttons();dialog.dismiss();notice.setText("傳送中，請保留本機編號："+report.id);
-    worker.execute(()->{String result;try{result="已送出，回報編號："+DiagnosticUploader.send(report,true);}catch(Exception e){result="尚未取得成功收據；不會自動重送。請保留本機編號："+report.id;}final String text=result;runOnUiThread(()->{if(isDestroyed())return;busy=false;buttons();notice.setText(text);});});
+   upload.setOnClickListener(b->{if(!consent.isChecked()||busy||!DiagnosticEndpoint.configured())return;
+    final String contact;try{contact=DiagnosticSubmission.email(email.getText().toString());}catch(IllegalArgumentException e){email.setError("Email 格式不正確，請更正或留空");email.requestFocus();return;}
+    busy=true;buttons();retry.setVisibility(View.GONE);dialog.dismiss();notice.setText("傳送中，請保留本機編號："+report.id);
+    worker.execute(()->{String result;boolean accepted=false;try{result="已收到報告，回報編號："+DiagnosticUploader.send(report,contact,true);accepted=true;}catch(Exception e){result=(e instanceof DiagnosticUploader.Failure?e.getMessage():"尚未取得成功收據，傳送結果未知。")+"\n不會自動重送。請保留本機編號："+report.id;}final String text=result;final boolean ok=accepted;runOnUiThread(()->{if(isDestroyed())return;busy=false;buttons();notice.setText(text);retry.setVisibility(ok?View.GONE:View.VISIBLE);retry.setOnClickListener(v2->{if(!busy)showReport(report,contact);});});});
    });});dialog.show();
  }
  @Override protected void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);

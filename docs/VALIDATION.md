@@ -1,5 +1,7 @@
 # 驗證分層
 
+0.12.1 直接回報：49 項診斷 policy、37 項上傳檢查與 4 組 Sites policy；原簽章建置後，既有隔離 MuMu API35 實際完成 Email 驗證、改值重設同意，以及 App → 正式 Sites → 精確收據。一般 JVM 另驗 Email 空白／填寫。沒有重跑遊戲功能、不擴大平台資格；[候選產物與證據](APP_DIRECT_UPLOAD.md)。
+
 Sites 選填 Email：3 組 Node policy、4 組本機 Miniflare／D1 HTTP 測試與 TypeScript 檢查通過；瀏覽器完成選檔、同意、Email 提報及私人明細。公開入口另以無 cookie HTTPS 實測頁面 200、合成匿名提報 201，以及後台／偽造身分 401、缺同意／非法格式 400、跨站 403。正式已登入非站長帳號仍待驗。保留 [Sites 專項限制](../server/sites/README.md)。
 
 診斷網站：原接收端 7 組與網站 5 組 loopback 測試通過；瀏覽器使用合成資料完成同意上傳／後台登入、明細與處理狀態保存。未部署主機或 HTTPS，不代表已可對外收件；[設定與待驗項目](../server/diagnostics/README.md)。

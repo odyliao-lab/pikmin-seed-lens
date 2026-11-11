@@ -1,5 +1,13 @@
 # 2026-11-11 Sites 私人預覽
 
+## App 原生上傳契約
+
+Sites 來源 `c5bb667e9d47e5d1b9c4ff0ac47beadfb14b63dd`、version 2；部署 `appgdep_6af468d073a8819196f050e6638f02f6` succeeded，保留 public 入口與原管理權限。
+
+`/api/submit` 增加原生 JSON 契約：無 Origin 時必須有 `X-Seed-Lens-Client: android-v1`；同意 header、大小、schema、限流、去重仍必須通過。此 header 不是身分憑證，沒有管理權限。若有 Origin，必須精確同源，不能藉此 header 放行跨站或管理 API；不開放 CORS。
+
+修正前正式 JVM 上傳收到 403／origin（JDK 會省略受限制的 Origin header），不是報告已成功。修正後，實際產品 DiagnosticUploader 以正常 JVM、無特殊參數／cookie／token，完成 Email 空白與合成地址兩份收據核對；合成編號末碼 12／13，App 版本標示 0.0.0。另有 MuMu App 0.12.1 的實際診斷提報，專項見 APP_DIRECT_UPLOAD.md；測試地址皆為 example.invalid，不寄信。
+
 ## 後續更正：免登入上傳已開放
 
 使用者撤回「上傳前也必須登入」並更正為不需要登入。2026-11-11 將 access mode 改為 public，重新部署既有相同版本，部署 `appgdep_6af45e89e1488191bd76f8d472b78ff2` succeeded。沒有修改讀報告的管理者授權，沒有把管理資料設成公開。

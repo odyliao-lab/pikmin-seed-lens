@@ -2,6 +2,13 @@ import { FACTS, ISSUES, EVENTS, ENUMS } from './contract.mjs';
 export const ID = /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/;
 export const STATES = ['new','investigating','resolved'];
 export const AGE = 29*86400;
+// Public ingress is not authenticated by this header. It selects a native wire
+// contract; browsers cannot add it cross-origin without a denied CORS preflight.
+export function postAllowed(request,path) {
+  const origin=request.headers.get('Origin');
+  if(origin!==null)return origin===new URL(request.url).origin;
+  return path==='/v1/reports'||path==='/api/submit'&&request.headers.get('X-Seed-Lens-Client')==='android-v1'&&request.headers.get('Content-Type')?.split(';')[0].trim()==='application/json';
+}
 const exact = (o, keys) => o && typeof o === 'object' && !Array.isArray(o) && Object.keys(o).sort().join('|') === [...keys].sort().join('|');
 export function validate(report) {
   if (!exact(report,['schema','report_id','issue','facts','events']) || report.schema !== 1 || !ID.test(report.report_id) || !ISSUES.includes(report.issue) || !exact(report.facts, FACTS)) throw Error('invalid_report');
