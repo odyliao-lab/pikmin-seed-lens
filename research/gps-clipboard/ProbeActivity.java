@@ -1,0 +1,8 @@
+package dev.ody.seedlensclipprobe;
+import android.app.Activity;import android.os.Bundle;import android.widget.*;
+public final class ProbeActivity extends Activity {
+ static native int run(int mode);
+ public void onCreate(Bundle b){super.onCreate(b);LinearLayout page=new LinearLayout(this);page.setOrientation(1);page.setPadding(0,180,0,0);TextView state=new TextView(this);state.setText("Isolated ARM64 clipboard probe / API"+android.os.Build.VERSION.SDK_INT);page.addView(state);Button test=new Button(this);test.setText("Run clipboard self-test");page.addView(test);Button read=new Button(this);read.setText("Read clipboard fingerprint");page.addView(read);read.setOnClickListener(v->{try{android.content.ClipboardManager cm=(android.content.ClipboardManager)getSystemService(CLIPBOARD_SERVICE);android.content.ClipData cd=cm.getPrimaryClip();String text=cd!=null&&cd.getItemCount()==1?String.valueOf(cd.getItemAt(0).getText()):"";byte[] hash=java.security.MessageDigest.getInstance("SHA-256").digest(text.getBytes(java.nio.charset.StandardCharsets.UTF_8));StringBuilder hex=new StringBuilder();for(byte x:hash)hex.append(String.format("%02x",x&255));state.setText("READ_CLIP format="+text.matches("-?[0-9]+\\.[0-9]{7},-?[0-9]+\\.[0-9]{7}")+" SHA256="+hex);}catch(Throwable e){state.setText("READ_FAILED "+e.getClass().getSimpleName());}});setContentView(page);
+ test.setOnClickListener(v->{try{System.loadLibrary("clipprobe");int off=run(0),invalid=run(2),copy=run(1),worker=run(3);state.setText("API"+android.os.Build.VERSION.SDK_INT+" OFF="+off+" INVALID="+invalid+" COPY_READBACK="+copy+" WORKER="+worker+" / NOT GAME VALIDATION");}catch(Throwable e){state.setText("FAILED "+e.getClass().getSimpleName());}});
+ }
+}
