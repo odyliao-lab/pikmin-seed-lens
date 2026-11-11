@@ -1,5 +1,9 @@
 # 架構
 
+## 四組顯示移植（開發中）
+
+沿用既有 APK 自包含載入器；[本輪盤點、控制檔隔離與驗收界線](DISPLAY_PORT.md)。目前仍不能將新功能或 App 先開流程列為通過。
+
 ## 0.7.3：桌面圖示與直式
 
 Manifest的application icon及roundIcon指向原生adaptive icon，森林底色及放大鏡／花苗
