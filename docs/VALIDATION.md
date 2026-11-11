@@ -1,5 +1,15 @@
 # 驗證分層
 
+## 0.7.3/code29：桌面圖示／固定直式
+
+原簽章新APK、原版本保留；Manifest資源及portrait=1核對。只操作已授權index4同boot，
+MuMu橫向桌面實際出現新放大鏡／花苗圖示，點圖示後App為1080×1920直式，
+ActivityManager實際SCREEN_ORIENTATION_PORTRAIT。只讀核對後Switch true、已啟用；
+157同PID14218/start280512的待種花苗完整名稱保持，沒有第二次載入。
+八項封裝native／digest entries與0.7.2逐位元相同，六筆研究歷史及唯一產品journal SHA不變。
+最後188個thread TracerPid0，研究三APK仍不存在；本版不新增其他平台／重啟驗收主張。
+已依本次使用者明確授權上傳同控制中心發布庫；[完整紀錄](PRODUCT073_ICON_PORTRAIT.md)。
+
 ## 2026-11-11：0.7.2／API32＋157待種花苗通過
 
 後續已定位前次su-c逾時為內建Root授權自動拒絕；普通App取得授權後，隔離CPU15例、

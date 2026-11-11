@@ -124,7 +124,9 @@ Copy-Item -LiteralPath "$root/third_party/RENDERER_NOTICES.md" -Destination "$ou
 # this asset flat; the raw ZIP checker rejects backslash entries before signing.
 Copy-Item -LiteralPath "$PSScriptRoot/assets/art/forest-lens-mascot-v1.png" -Destination "$out/assets/forest-lens-mascot-v1.png"
 $bt="$SdkPath/build-tools/35.0.0";$jar="$SdkPath/platforms/android-35/android.jar";$env:JAVA_HOME=$JavaHome
-& "$bt/aapt2.exe" link -I $jar --manifest "$PSScriptRoot/AndroidManifest.xml" -A "$out/assets" -0 so -o "$out/unsigned.apk"
+& "$bt/aapt2.exe" compile --dir "$PSScriptRoot/res" -o "$out/resources.zip"
+if($LASTEXITCODE){throw 'Launcher resource compilation failed'}
+& "$bt/aapt2.exe" link -I $jar --manifest "$PSScriptRoot/AndroidManifest.xml" "$out/resources.zip" -A "$out/assets" -0 so -o "$out/unsigned.apk"
 if($LASTEXITCODE){throw 'Resource link failed'}
 $sources=@(Get-ChildItem "$PSScriptRoot/src" -Recurse -Filter *.java|Where-Object {$_.FullName -ine $checkedInCompatibility}|ForEach-Object FullName)+@($compatibilitySource)
 & "$JavaHome/bin/javac.exe" -encoding UTF-8 -source 8 -target 8 -classpath $jar -d "$out/classes" $sources

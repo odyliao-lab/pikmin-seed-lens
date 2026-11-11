@@ -1,6 +1,12 @@
 # pikmin-seed-lens
 皮克敏花苗透視鏡
 
+**0.7.3/code29**新增原創「放大鏡＋花苗」森林配色桌面圖示，App固定直式。
+原簽章升級已在授權MuMu API32隔離機實看桌面圖示、橫向桌面開App轉直式、
+只讀狀態及既有157花苗顯示延續；native與0.7.2逐項相同，未新增載入。
+發布於控制中心同一[Releases頁](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.7.3)，
+獨立透視鏡預覽標籤，非完整多平台驗收。[本版紀錄](docs/PRODUCT073_ICON_PORTRAIT.md)。
+
 目前交付為**單頁精簡版0.7.2/code28**。已在MuMu內建12.0的實際API32／x64-libnb、
 精確遊戲157.0完成待種花苗名稱／長字縮小、直接OFF原名與字級還原、同程序再ON。
 只需既有內建Root＋單一原簽章APK；三個研究APK已移除，不需要額外顯示套件。

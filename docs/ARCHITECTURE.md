@@ -1,5 +1,12 @@
 # 架構
 
+## 0.7.3：桌面圖示與直式
+
+Manifest的application icon及roundIcon指向原生adaptive icon，森林底色及放大鏡／花苗
+vector foreground隨桌面遮罩縮放；aapt2先compile再link資源。MainActivity宣告
+screenOrientation=portrait，只限制透視鏡Activity，不修改遊戲或系統旋轉設定。
+controller、Root、native及版本／程序守門不變。[實測與發布](PRODUCT073_ICON_PORTRAIT.md)。
+
 ## 0.7.2：已實測的MuMu API32獨立後端
 
 在隔離普通App Root／CPU／正常PM-JNI／timeout收容／新程序研究通過後，才開放
