@@ -90,6 +90,11 @@ if($LASTEXITCODE){throw 'Display group protocol checks failed'}
 if($LASTEXITCODE){throw 'Display overview compile failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.DisplayOverviewTest
 if($LASTEXITCODE){throw 'Display overview checks failed'}
+$controllerSources=@(Get-ChildItem "$PSScriptRoot/tests/controller" -Recurse -Filter '*.java' | ForEach-Object FullName)
+& "$JavaHome/bin/javac.exe" -encoding UTF-8 -classpath "$out/tests" -d "$out/controller-tests" "$PSScriptRoot/src/dev/ody/seedpreview/LensController.java" @controllerSources
+if($LASTEXITCODE){throw 'Controller all-OFF host test compile failed'}
+& "$JavaHome/bin/java.exe" -cp "$out/controller-tests$([IO.Path]::PathSeparator)$out/tests" dev.ody.seedpreview.AllOffControllerTest
+if($LASTEXITCODE){throw 'Controller all-OFF queue/recovery checks failed'}
 & "$JavaHome/bin/javac.exe" -encoding UTF-8 -d "$out/tests" "$PSScriptRoot/tests/ApkNativeLayout.java" "$PSScriptRoot/tests/ApkNativeLayoutTest.java"
 if($LASTEXITCODE){throw 'APK layout checker compile failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.ApkNativeLayoutTest

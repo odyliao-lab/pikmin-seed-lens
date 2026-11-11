@@ -78,7 +78,7 @@ public final class MainActivity extends Activity implements LensController.Obser
     }
     @Override public void changed(){
         if(message==null)return;boolean busy=controller.busy();String unavailable=controller.operations.extensionAvailability();
-        status.setText(controller.overview());closeAll.setEnabled(!busy);closeAll.setAlpha(busy?0.45f:1f);
+        status.setText(controller.overview());closeAll.setEnabled(!controller.pendingOff()||!busy);closeAll.setAlpha(closeAll.isEnabled()?1f:0.45f);
         suppress=true;
         for(int i=0;i<4;i++){
             Boolean value=controller.groupOn[i];switches[i].setChecked(Boolean.TRUE.equals(value));
@@ -92,6 +92,6 @@ public final class MainActivity extends Activity implements LensController.Obser
             text="結果不明，請正常重開遊戲；保留紀錄，不重送載入。";
         else if(!controller.gameAbsent()&&controller.state.phase==LensStatus.Phase.RESTART_REQUIRED)
             text="遊戲仍有舊版顯示或載入未完成，請正常重開遊戲後重新綁定。";
-        message.setText(text);message.setTextColor(controller.state.blocksEnable()?style.error:style.muted);
+        message.setText(text);message.setTextColor(controller.state.blocksEnable()&&!controller.gameAbsent()?style.error:style.muted);
     }
 }

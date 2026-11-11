@@ -33,5 +33,9 @@ jobs:
           java -cp "$RUNNER_TEMP/java" dev.ody.seedpreview.LensStatusTest
           java -cp "$RUNNER_TEMP/java" dev.ody.seedpreview.DisplayGroupsTest
           java -cp "$RUNNER_TEMP/java" dev.ody.seedpreview.DisplayOverviewTest
+      - name: Check actual controller all-OFF queue and restart recovery
+        run: |
+          javac -encoding UTF-8 -cp "$RUNNER_TEMP/java" -d "$RUNNER_TEMP/controller" app/src/dev/ody/seedpreview/LensController.java $(find app/tests/controller -name '*.java')
+          java -cp "$RUNNER_TEMP/controller:$RUNNER_TEMP/java" dev.ody.seedpreview.AllOffControllerTest
       - name: Cross-check eight original gateway contracts
         run: python3 research/test_display_contracts.py

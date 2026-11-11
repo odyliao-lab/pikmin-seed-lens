@@ -30,7 +30,7 @@ final class LensController {
     LensContext reportContext;
     String reportRaw;
     final DisplayGroups.Report[] effects=new DisplayGroups.Report[4];
-    boolean reportReadFailed,contextChecked;
+    boolean reportReadFailed,contextChecked,closeQueued;
     LensContext autoAttempt;
     LensStatus.Phase barrierPhase=LensStatus.Phase.UNKNOWN;
     private LensController(Context context){
@@ -81,7 +81,7 @@ final class LensController {
             final String problem=error;
             main.post(()->{
                 System.arraycopy(found,0,groupOn,0,4);reason=problem;progress="";active.set(false);notifyView();
-                if(groupsKnown()&&anyGroup()&&armed())LensService.start(operations.context);
+                if(!pendingOff()&&groupsKnown()&&anyGroup()&&armed())LensService.start(operations.context);
                 refreshReports();
             });
         });
@@ -98,20 +98,28 @@ final class LensController {
             main.post(()->{
                 groupOn[group]=value;groupReport[group]=value==null?"設定未確認":value?"已啟用，等待遊戲":"等待原顯示還原";
                 reason=problem;progress="";active.set(false);notifyView();
-                if(value!=null&&anyGroup()&&armed())LensService.start(operations.context);
+                if(!pendingOff()&&value!=null&&anyGroup()&&armed())LensService.start(operations.context);
                 if(groupsKnown()&&!anyGroup())operations.context.stopService(new android.content.Intent(operations.context,LensService.class));
                 refreshReports();
             });
         });
     }
     void allOff(){
-        if(!active.compareAndSet(false,true))return;
+        if(closeQueued)return;
         // One durable App transaction cancels auto-enable before any root write.
         if(!preferences.edit().putBoolean("all-off-pending",true).putBoolean("display-auto-arm",false).commit()){
-            reason="關閉意願未保存，尚未關閉全部；請重試。";active.set(false);notifyView();return;
+            reason="關閉意願未保存，尚未關閉全部；請重試。";notifyView();return;
         }
         operations.context.stopService(new android.content.Intent(operations.context,LensService.class));
-        reportRaw=null;progress="正在關閉全部…";reason="";notifyView();
+        reportRaw=null;reason="";closeQueued=true;resumeAllOff();
+    }
+    private void resumeAllOff(){
+        if(!closeQueued)return;
+        if(!active.compareAndSet(false,true)){
+            progress="已保存關閉要求，等待前一操作結束…";notifyView();
+            main.postDelayed(this::resumeAllOff,250);return;
+        }
+        closeQueued=false;progress="正在關閉全部…";notifyView();
         worker.execute(()->{
             boolean committed=false;String error="";
             try{LensOperations.Reply r=operations.allOff();committed=DisplayGroups.allOffSaved(r.exit,r.complete,r.output);
@@ -190,7 +198,7 @@ final class LensController {
         });
     }
     void execute(LensStatus.Action action,LensContext consent,boolean failStop,LensOperations.Foreground foreground){
-        if(action==LensStatus.Action.ENABLE&&(consent==null||!failStop||blockedFor(consent))){
+        if(action==LensStatus.Action.ENABLE&&(pendingOff()||consent==null||!failStop||blockedFor(consent))){
             reason="尚未取得本次啟用所需的確認。";notifyView();return;
         }
         if(!active.compareAndSet(false,true)){reason="前一操作尚未結束，請等候。";notifyView();return;}
