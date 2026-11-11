@@ -24,4 +24,8 @@
   該沿革 notices 含 Zygisk header 條目，本 repo 未使用／安裝 Zygisk 模組。
 - 建置將上述必要 notices 包入 APK，沒有提供第三方通用 injector CLI。
 
-上述第三方授權不代表本專案其他私人程式自動改為開源。
+## 本專案授權
+
+2026-11-11 使用者授權公開 repo，並指定程式碼採 [MIT License](../LICENSE)。第三方元件保留各自原授權；程式碼的 MIT 授權不授予皮克敏角色或參考圖片的權利。
+
+Game157 四組顯示另依固定來源 `a02b58f35295948cbd29e467ce5ccd7ffe33161a` 選擇性移植；來源與契約見 [DISPLAY_SOURCE_CONTRACTS](DISPLAY_SOURCE_CONTRACTS.json)，獨立整合與驗證見 [DISPLAY_PORT_RESULTS](DISPLAY_PORT_RESULTS.md)。

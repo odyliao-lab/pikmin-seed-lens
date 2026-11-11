@@ -6,9 +6,9 @@
   <img src="docs/images/readme/illustration.jpg" width="260" alt="皮克敏拿著放大鏡觀察花苗的示意插畫">
 </p>
 
-**原始碼版本：0.9.5（APK 尚未發布）** · 開發者：odyliao-lab
+**[下載 0.9.5 預覽版 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.9.5)** · 開發者：odyliao-lab
 
-[下載舊版 0.7.3 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.7.3)（僅花苗名稱顯示）。
+0.9.5 對應遊戲 157.0；遊戲 156.1 使用[舊版 0.7.3 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.7.3)（僅花苗名稱顯示）。
 
 ## 四個功能開關
 
@@ -76,4 +76,4 @@ pwsh -NoProfile -File app/build.ps1 `
 
 提交變更請勿包含金鑰、帳號資料或遊戲檔案；[repo 安全設定與公開前待辦](docs/REPOSITORY_SECURITY.md)。
 
-專案開源授權尚待選定；第三方元件依各自授權使用。
+程式碼採 [MIT License](LICENSE)；第三方元件保留各自授權，角色與圖片不包含在程式碼授權範圍內。
