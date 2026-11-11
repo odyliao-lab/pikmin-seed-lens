@@ -12,7 +12,7 @@ import android.widget.*;
 public final class MainActivity extends Activity implements LensController.Observer {
     LensController controller;ForestStyle style;TextView message,status,closeAll;
     final Handler updates=new Handler(Looper.getMainLooper());
-    final Runnable poll=new Runnable(){public void run(){changed();controller.refreshReports();updates.postDelayed(this,3000);}};
+    final Runnable poll=new Runnable(){public void run(){changed();controller.tick();controller.refreshReports();updates.postDelayed(this,3000);}};
     final Switch[] switches=new Switch[4];
     final TextView[] reports=new TextView[4];
     Switch gpsSwitch;TextView gpsReport;
@@ -51,12 +51,8 @@ public final class MainActivity extends Activity implements LensController.Obser
             style.add(card,expand,0);style.add(card,detail,0);style.add(page,card,10);
             toggle.setOnCheckedChangeListener((button,on)->{
                 if(suppress)return;
-                // A periodic read can acquire the gate after the last redraw.
-                // Restore the durable value if this click could not be saved.
-                if(controller.busy()){changed();return;}
-                if(on&&!controller.armed()){
-                    changed();consent(()->controller.setGroup(selected,true));
-                }else controller.setGroup(selected,on);
+                controller.setGroup(selected,on);
+                if(on&&!controller.armed()&&Boolean.TRUE.equals(controller.groupOn[selected]))consent(()->{});
             });
         }
         LinearLayout gpsCard=style.card(),gpsRow=new LinearLayout(this);gpsRow.setGravity(Gravity.CENTER_VERTICAL);
@@ -67,10 +63,10 @@ public final class MainActivity extends Activity implements LensController.Obser
         gpsReport=style.text("尚未核對",12,style.muted,false);style.add(gpsCard,gpsReport,0);
         TextView gpsDetail=style.text("開啟探險花苗／水果詳情，左右切換停穩後複製目前項目座標。不移動定位、不派遣或領取；四組資訊顯示全關也能使用。未知或隱藏時保留原剪貼簿，座標不會上傳。",13,style.muted,false);gpsDetail.setVisibility(View.GONE);
         TextView gpsExpand=style.text("說明 ▸",12,style.green,false);gpsExpand.setPadding(0,style.dp(8),0,style.dp(8));gpsExpand.setOnClickListener(v->{boolean visible=gpsDetail.getVisibility()==View.VISIBLE;gpsDetail.setVisibility(visible?View.GONE:View.VISIBLE);gpsExpand.setText(visible?"說明 ▸":"說明 ▾");});style.add(gpsCard,gpsExpand,0);style.add(gpsCard,gpsDetail,0);style.add(page,gpsCard,10);
-        gpsSwitch.setOnCheckedChangeListener((button,on)->{if(suppress)return;if(controller.busy()){changed();return;}if(on&&!controller.armed()){changed();consent(()->controller.setGps(true));}else controller.setGps(on);});
+        gpsSwitch.setOnCheckedChangeListener((button,on)->{if(suppress)return;controller.setGps(on);if(on&&!controller.armed()&&Boolean.TRUE.equals(controller.gpsOn))consent(()->{});});
         closeAll=style.text("關閉全部",15,style.green,true);closeAll.setGravity(Gravity.CENTER);closeAll.setPadding(0,style.dp(12),0,style.dp(12));
         closeAll.setOnClickListener(v->controller.allOff());style.add(page,closeAll,4);
-        message=style.text("",13,style.muted,false);message.setOnClickListener(v->{if(!controller.busy())controller.refreshGroups();});style.add(page,message,12);
+        message=style.text("",13,style.muted,false);message.setOnClickListener(v->{if(controller.anyGroup()&&!controller.armed())consent(()->{});else controller.refreshGroups();});style.add(page,message,12);
         TextView launch=style.text("開啟遊戲 ↗",15,style.green,true);launch.setGravity(Gravity.CENTER);launch.setPadding(0,style.dp(10),0,style.dp(10));
         launch.setOnClickListener(v->{
             Runnable open=()->{if(controller.anyGroup()&&controller.armed())LensService.start(this);Intent game=getPackageManager().getLaunchIntentForPackage("com.nianticlabs.pikmin");if(game!=null)startActivity(game);};
@@ -81,25 +77,25 @@ public final class MainActivity extends Activity implements LensController.Obser
         setContentView(root);root.requestApplyInsets();changed();
     }
     void consent(Runnable after){
-        new AlertDialog.Builder(this).setTitle("啟用遊戲資訊")
-            .setMessage("依開關補充遊戲資訊或複製選取探險座標，不移動定位。載入結果不明或逾時時，允許停止當次遊戲並保留紀錄，不自動重送；下次正常開啟的新程序會重新核對。")
-            .setNegativeButton("取消",(d,w)->changed()).setPositiveButton("啟用",(d,w)->{
+        new AlertDialog.Builder(this).setTitle("允許自動套用")
+            .setMessage("開關選擇已保存。條件符合後會自動套用資訊或複製探險座標，不移動定位。載入結果不明或逾時時，允許停止當次遊戲並保留紀錄，不自動重送；下次正常開啟的新程序會重新核對。")
+            .setNegativeButton("取消",(d,w)->changed()).setPositiveButton("允許",(d,w)->{
                 if(controller.arm())after.run();else{controller.reason="啟用意願未保存，請重試。";changed();}
             }).show();
     }
     @Override public void changed(){
         if(message==null)return;boolean busy=controller.busy();String unavailable=controller.operations.extensionAvailability();
-        status.setText(controller.overview());closeAll.setEnabled(!controller.pendingOff()||!busy);closeAll.setAlpha(closeAll.isEnabled()?1f:0.45f);
+        status.setText(controller.overview());closeAll.setEnabled(true);closeAll.setAlpha(closeAll.isEnabled()?1f:0.45f);
         suppress=true;
         for(int i=0;i<4;i++){
             Boolean value=controller.groupOn[i];switches[i].setChecked(Boolean.TRUE.equals(value));
-            // OFF remains available even if the installed game becomes unsupported.
-            switches[i].setEnabled(!busy&&!controller.pendingOff()&&value!=null&&(Boolean.TRUE.equals(value)||unavailable==null));
+            // Preferences remain editable while Root, game or an older operation waits.
+            switches[i].setEnabled(true);
             switches[i].setAlpha(switches[i].isEnabled()?1f:0.45f);
-            reports[i].setText(value==null?"設定未確認":controller.groupReport[i]);
+            reports[i].setText(controller.groupReport[i]);
         }
         gpsSwitch.setChecked(Boolean.TRUE.equals(controller.gpsOn));
-        gpsSwitch.setEnabled(!busy&&!controller.pendingOff()&&controller.gpsOn!=null&&(Boolean.TRUE.equals(controller.gpsOn)||controller.operations.gpsAvailability()==null));
+        gpsSwitch.setEnabled(true);
         gpsSwitch.setAlpha(gpsSwitch.isEnabled()?1f:0.45f);gpsReport.setText(controller.gpsText);
         suppress=false;String text=busy?controller.progress:!controller.reason.isEmpty()?controller.reason:unavailable!=null?unavailable:controller.reportReadFailed?"無法核對遊戲回報，請檢查 Root 後點此重試。":controller.anyGroup()?"開關代表啟用意願；套用結果以遊戲回報為準。":"關閉意願已保存；回到遊戲等待還原，點此可重新核對。";
         if(!controller.gameAbsent()&&(controller.state.phase==LensStatus.Phase.UNKNOWN||controller.state.phase==LensStatus.Phase.UNCERTAIN))

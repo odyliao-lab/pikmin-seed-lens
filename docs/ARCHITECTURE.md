@@ -1,5 +1,9 @@
 # 架構
 
+## 可預先選擇的功能意願
+
+0.14.1 將五個開關意願保存於 App 私有偏好；原生控制／遊戲效果分別確認。單一 worker 背景同步，修訂號拒絕舊回報覆蓋新選擇；只有取得首次套用同意且資格成立，才同步有效 ON。pending-OFF 仍先取得原生關閉確認，再套用之後的新意願。Root／原生載入 gate 不再控制 UI 是否可點選。[行為、遷移與驗證](FEATURE_INTENT.md)。
+
 ## 獨立 GPS 複製
 
 0.13.3 在四組下方新增預設 OFF 的第五開關，沿用自包含載入、lease、精確 Game157／PID／build 守門與重綁服務。Canvas UI-thread tick 只處理單一 focused／active 詳情頁，session 與項目穩定 400ms 後，以 APK 內 JNI ClipboardManager 寫入並讀回確認；弱參考上限八頁、失敗每項三次。自有控制／回報只有意願與計數，不含座標。所有開關可排隊寫入，背景報告查詢不占用操作 gate；仍用同一 serial worker。詳細行為及資格見 [GPS_COPY](GPS_COPY.md)。

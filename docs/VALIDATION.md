@@ -1,5 +1,7 @@
 # 驗證分層
 
+0.14.1 可預先選擇的五開關：80項真實 controller host 檢查涵蓋意願／有效值、遷移、快速修改與 OFF 排程；產品實測另見 [FEATURE_INTENT](FEATURE_INTENT.md)，不以編譯／測試擴大資格。
+
 0.13.3 GPS 候選：隔離剪貼簿能力、策略／交易、App 設定與實際遊戲分開記錄於 [GPS_COPY](GPS_COPY.md)。只有實際成功的表列組合取得該功能資格，不以舊四組結果或來源 carousel 測試代替。
 
 0.12.1 直接回報：49 項診斷 policy、37 項上傳檢查與 4 組 Sites policy；原簽章建置後，既有隔離 MuMu API35 實際完成 Email 驗證、改值重設同意，以及 App → 正式 Sites → 精確收據。一般 JVM 另驗 Email 空白／填寫。沒有重跑遊戲功能、不擴大平台資格；[候選產物與證據](APP_DIRECT_UPLOAD.md)。
