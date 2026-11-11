@@ -1,5 +1,21 @@
 # 驗證分層
 
+## 發布後0.7.3：MuMu Android15／API35＋157待種花苗通過
+
+依使用者要求沿用MuMu12本輪範圍，只驗待種花苗開關，探險略過。
+既有新index5身分及新boot核對後，保留登入正常升級精確157及原簽章0.7.3；研究三APK
+檔案保留後移除，不使用額外顯示模組。實際普通產品App Root及單次正常載入成功。
+
+| 組合／本次範圍 | 結果 |
+|---|---|
+| 0.7.3／API35 x64-libnb／157.0 code1793360009 | 首次ON、庫存完整裝飾名／長名縮小、直接OFF原名字級還原、同程序再ON通過；357不變 |
+| 同APK其他平台／遊戲／探險／重啟 | 本輪沒有新增資格；API32見前次UI顯示延續，完整ON-OFF為0.7.2獨立證據 |
+
+同boot、PID2380/start16266/UID10068。原47份歷史SHA不變，正常只新增一份journal，
+OFF及再ON不再載入，最終同一份SHA不變、ready/control1、168個thread TracerPid0、adbd2000。
+產品journal維持RETURNED_UNVERIFIED，成功另依畫面與新鮮renderer狀態，不竄改歷史。
+沒有發現本範圍產品相容故障，未修改或重發0.7.3。[完整本輪結果](PRODUCT073_API35_STOCK.md)。
+
 ## 0.7.3/code29：桌面圖示／固定直式
 
 原簽章新APK、原版本保留；Manifest資源及portrait=1核對。只操作已授權index4同boot，
