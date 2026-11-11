@@ -37,4 +37,4 @@ APK SHA256：`f7abe8a85236fba4c8c27665f5726061e4eb79136744092303741d1e9b28fd8b`�
 
 ## 發布
 
-使用者於 2026-11-11 授權發布，同一份已實測 APK 上傳至 [0.13.3 發布頁](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.13.3)，附校驗及宣傳示意圖。main 不合併；App 更新索引的 main 版本仍維持 0.9.5，本分支已準備新索引，合併前請使用發布頁手動下載。
+使用者於 2026-11-11 授權發布，同一份已實測 APK 上傳至 [0.13.3 發布頁](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.13.3)，附校驗及宣傳示意圖。該次發布先於合併；使用者隨後更正順序，全部功能 PR 已合併 main，再以 0.13.4 升版交付。0.13.3 tag 與 APK 保留不覆寫；目前下載與索引見 [0.13.4 紀錄](RELEASE_0134.md)。
