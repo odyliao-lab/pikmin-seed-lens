@@ -2,7 +2,9 @@
 
 ## 四組顯示移植（開發中）
 
-沿用既有 APK 自包含載入器；[本輪盤點、控制檔隔離與驗收界線](DISPLAY_PORT.md)。目前仍不能將新功能或 App 先開流程列為通過。
+沿用既有 APK 自包含載入器；[本輪功能對照與驗收界線](DISPLAY_PORT.md)。Game157 使用獨立唯讀 PlayerManager／InventoryManager context、八項 seed-lens 控制／回報與四個先保存主意願。0.9.1 在 MuMu API32 首輪 App 先開與表列畫面已觀察；重啟、其他平台及樣本仍須各自驗證。
+
+App 內建使用者啟用的前景服務管理新 PID 綁定，不從開機啟動，不重送 UNKNOWN。loader 對 Game157 要求同 APK build 的實體回報；遊戲仍映射舊 PM APK 時先拒絕，不再次注入。舊設定只在獨立 App 自有控制交易紀錄證明擁有權後一次遷移，不把其他 App 全域檔當執行來源。歷史 attempt 原件保留。
 
 ## 0.7.3：桌面圖示與直式
 

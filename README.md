@@ -8,6 +8,8 @@
 
 **[下載 0.7.3 預覽版 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.7.3)** · 開發者：odyliao-lab
 
+開發分支正整合四組開關：花苗、皮克敏、探險、精華／花瓣對照；尚未發布。[功能進度與實測界線](docs/DISPLAY_PORT.md)。下列下載與相容表仍指已交付預覽版。
+
 ## 使用方式
 
 需要既有 **Root＋單一 APK**，不需 LSPosed 或額外顯示模組。介面固定直式，功能直接開關；僅修改顯示，不變更物品或執行遊戲操作。
