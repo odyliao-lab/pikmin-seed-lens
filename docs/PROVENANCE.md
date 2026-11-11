@@ -32,4 +32,6 @@ Game157 四組顯示另依固定來源 `a02b58f35295948cbd29e467ce5ccd7ffe33161a
 
 ## 診斷與更新來源
 
+獨立 GPS 複製選擇性參考同一私人來源 repo 的 `8abb7ee` carousel policy／adapter，使用自有控制、回報、JNI helper 及既有 APK 載入器，不移植核心或定位寫入。來源只讀，未修改；[整合與驗證](GPS_COPY.md)。
+
 診斷 schema、接收端、同意／匯出與私人更新 interlock 為本 repo 實作。`LensUpdateInfo`／`LensUpdateClient` 選擇性改寫自使用者授權唯讀來源的 `UpdateInfo.java`／`UpdateClient.java`（來源 HEAD `89569e047ee3ad590d4092e6d44eea3a9f5c04cb`）；安裝流程只參考 Android PackageInstaller 使用者確認方式，不移植核心、GPS、排程或自動化流程，也未修改來源 repo。
