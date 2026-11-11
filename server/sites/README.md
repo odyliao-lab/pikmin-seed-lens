@@ -2,6 +2,8 @@
 
 目前依使用者最終更正，已開放免登入上傳；只有管理後台需要站長的 ChatGPT 帳號。正式匿名 HTTPS 提報已以合成資料取得 201 收據，未登入／偽造身分的管理請求皆為 401。固定清除排程與寄信尚未實作。
 
+原生 App 0.12.1 可將同一 `{report,email}` 信封直接上傳：無 Origin 時須明示 `X-Seed-Lens-Client: android-v1` 並提供 JSON／同意 header。此為公開接收協定，不是管理驗證；帶錯誤 Origin 仍拒絕，所有管理 API 維持原授權。新增 Node 契約測試後共 4 組。
+
 使用 Sites／Vinext Worker＋D1，不需 VPS、R2 或外部郵件服務。來源由獨立透視鏡 repo 的 `server/sites/` 保留鏡像，Sites 專用 source repo 負責部署。不要把本機 `.dev.vars`、報告或截圖提交。
 
 ## 使用流程

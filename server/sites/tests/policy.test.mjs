@@ -1,8 +1,18 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {validate, contact, parseUnique, canonical} from '../lib/reports/policy.mjs';
+import {validate, contact, parseUnique, canonical, postAllowed} from '../lib/reports/policy.mjs';
 import {FACTS} from '../lib/reports/contract.mjs';
 const report=()=>({schema:1,report_id:'00000000-0000-4000-8000-000000000001',issue:'root_problem',facts:Object.fromEntries(FACTS.map(k=>[k,'unknown'])),events:['ENABLE_REFUSED']});
+test('native envelope has no browser Origin dependency; never permits cross-origin or admin',()=>{
+ const req=headers=>new Request('https://reports.example.invalid/api/submit',{method:'POST',headers});
+ const native={'X-Seed-Lens-Client':'android-v1','Content-Type':'application/json; charset=utf-8'};
+ assert.equal(postAllowed(req(native),'/api/submit'),true);
+ assert.equal(postAllowed(req({}),'/api/submit'),false);
+ assert.equal(postAllowed(req({...native,Origin:'https://evil.invalid'}),'/api/submit'),false);
+ assert.equal(postAllowed(req(native),'/admin/api/reports/id'),false);
+ assert.equal(postAllowed(req({...native,'Content-Type':'text/plain'}),'/api/submit'),false);
+ assert.equal(postAllowed(req({Origin:'https://reports.example.invalid'}),'/api/submit'),true);
+});
 test('closed report contract preserves unknown and rejects email inside diagnostic',()=>{
  assert.deepEqual(validate(report()),report());let bad=report();bad.email='synthetic@example.invalid';assert.throws(()=>validate(bad));
  bad=report();bad.facts.account='private';assert.throws(()=>validate(bad));bad=report();bad.facts.root='absent';assert.throws(()=>validate(bad));
