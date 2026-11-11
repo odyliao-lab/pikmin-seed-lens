@@ -44,5 +44,6 @@ jobs:
           java -cp "$RUNNER_TEMP/java" dev.ody.seedpreview.LensUpdateTest updates/preview.properties
           python3 server/diagnostics/test_receiver.py --fixture "$RUNNER_TEMP/synthetic-report.json"
           python3 server/diagnostics/test_web.py
+          node --test server/sites/tests/policy.test.mjs
       - name: Cross-check eight original gateway contracts
         run: python3 research/test_display_contracts.py

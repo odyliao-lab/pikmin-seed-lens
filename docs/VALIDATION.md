@@ -1,5 +1,7 @@
 # 驗證分層
 
+Sites 選填 Email：3 組 Node policy、4 組本機 Miniflare／D1 HTTP 測試與 TypeScript 檢查通過；瀏覽器完成選檔、同意、Email 提報及私人明細。Sites 私人部署成功不代表網友匿名提報已驗，尚未改公開權限或驗證正式非站長帳號。保留 [Sites 專項限制](../server/sites/README.md)。
+
 診斷網站：原接收端 7 組與網站 5 組 loopback 測試通過；瀏覽器使用合成資料完成同意上傳／後台登入、明細與處理狀態保存。未部署主機或 HTTPS，不代表已可對外收件；[設定與待驗項目](../server/diagnostics/README.md)。
 
 0.11.2 診斷／自願回報／更新檢查分項證據見[專項驗證](DIAGNOSTICS_UPDATES.md)。接收端部署與未來較新版的實際更新安裝仍待驗，不擴大 Android／遊戲資格。
