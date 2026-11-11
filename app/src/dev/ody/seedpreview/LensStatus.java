@@ -12,6 +12,13 @@ final class LensStatus {
         this.phase=phase;this.session=session;this.observedAt=at;this.controlOn=on;
     }
     static LensStatus unverified(){return new LensStatus(Phase.UNVERIFIED,null,0,false);}
+    static LensStatus forCurrentSession(LensStatus value,LensContext current){
+        // Presentation only: a prior process's warning is not the new process's
+        // result. No persisted journal or admission barrier is removed here.
+        if(current!=null&&value.session!=null&&!value.session.same(current)&&value.blocksEnable())
+            return new LensStatus(Phase.UNVERIFIED,current,value.observedAt,false);
+        return value;
+    }
     boolean blocksEnable(){return phase==Phase.UNKNOWN||phase==Phase.UNCERTAIN||phase==Phase.RESTART_REQUIRED||phase==Phase.UNSUPPORTED;}
     static Phase savedBarrierPhase(String value,boolean legacyUncertain){
         if(Phase.RESTART_REQUIRED.name().equals(value))return Phase.RESTART_REQUIRED;

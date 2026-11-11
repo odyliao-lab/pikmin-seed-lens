@@ -72,6 +72,12 @@ public final class LensStatusTest {
         expect(LensStatus.Phase.UNVERIFIED,parse(read,0,H.replace(B,"broken")+R,true));
         expect(LensStatus.Phase.UNCERTAIN,parse(on,0,H.replace(B,"11111111-2222-3333-4444-555555555556")+ON+R,true));
         for(LensStatus.Phase barrier:new LensStatus.Phase[]{LensStatus.Phase.UNKNOWN,LensStatus.Phase.UNCERTAIN,LensStatus.Phase.RESTART_REQUIRED}){
+            LensStatus prior=new LensStatus(barrier,S,100000,false);
+            expect(barrier,LensStatus.forCurrentSession(prior,S));
+            expect(barrier,LensStatus.forCurrentSession(prior,null));
+            expect(barrier,LensStatus.forCurrentSession(new LensStatus(barrier,null,100000,false),S));
+            expect(LensStatus.Phase.UNVERIFIED,LensStatus.forCurrentSession(prior,LensContext.parse("4322\t9877\t"+B+"\n")));
+            expect(LensStatus.Phase.UNVERIFIED,LensStatus.forCurrentSession(prior,LensContext.parse("4321\t9876\t11111111-2222-3333-4444-555555555556\n")));
             if(!new LensStatus(barrier,S,100000,false).blocksEnable())throw new AssertionError("retry barrier not blocking");++checks;
             expect(barrier,LensStatus.retainingBarrier(parse(off,0,H+OFF,true),S,barrier));
             expect(barrier,LensStatus.retainingBarrier(parse(read,0,H+R,true),S,barrier));

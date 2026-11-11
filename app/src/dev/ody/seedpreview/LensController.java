@@ -53,6 +53,7 @@ final class LensController {
             barrier=current;barrierPhase=LensStatus.Phase.UNCERTAIN;unscopedBarrier=false;
             state=new LensStatus(barrierPhase,current,System.currentTimeMillis(),false);persistBarrier();
         }
+        state=LensStatus.forCurrentSession(state,current);
     }
     void attach(Observer value){observer=new WeakReference<>(value);notifyView();}
     void detach(Observer value){if(observer.get()==value)observer.clear();}
@@ -103,7 +104,7 @@ final class LensController {
             LensContext current=null;String raw=null;
             try{current=operations.readContext();if(current!=null){LensOperations.Reply r=operations.displayReports(current);if(r.exit==0&&r.complete)raw=r.output;}}catch(Exception ignored){}
             final LensContext owner=current;final String text=raw;final long now=System.currentTimeMillis();
-            main.post(()->{for(int i=0;i<4;i++)groupReport[i]=DisplayGroups.report(i,groupOn[i],owner,text,now);active.set(false);notifyView();});
+            main.post(()->{bindUnscopedBarrier(owner);for(int i=0;i<4;i++)groupReport[i]=DisplayGroups.report(i,groupOn[i],owner,text,now);active.set(false);notifyView();});
         });
     }
     void monitor(){
