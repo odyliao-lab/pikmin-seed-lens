@@ -82,8 +82,10 @@ if($LASTEXITCODE){throw 'Lens presentation protocol compile failed'}
 if($LASTEXITCODE){throw 'Lens presentation protocol checks failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.LensContextTest
 if($LASTEXITCODE){throw 'Lens boot/process binding checks failed'}
-& "$JavaHome/bin/javac.exe" -encoding UTF-8 -classpath "$out/tests" -d "$out/tests" "$PSScriptRoot/src/dev/ody/seedpreview/DisplayGroups.java" "$PSScriptRoot/tests/DisplayGroupsTest.java"
+& "$JavaHome/bin/javac.exe" -encoding UTF-8 -classpath "$out/tests" -d "$out/tests" "$PSScriptRoot/src/dev/ody/seedpreview/DisplayGroups.java" "$PSScriptRoot/tests/DisplayGroupsTest.java" "$PSScriptRoot/src/dev/ody/seedpreview/GpsCopy.java" "$PSScriptRoot/tests/GpsCopyTest.java"
 if($LASTEXITCODE){throw 'Display group protocol compile failed'}
+& "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.GpsCopyTest
+if($LASTEXITCODE){throw 'GPS contract tests failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.DisplayGroupsTest
 if($LASTEXITCODE){throw 'Display group protocol checks failed'}
 & "$JavaHome/bin/javac.exe" -encoding UTF-8 -classpath "$out/tests" -d "$out/tests" "$PSScriptRoot/src/dev/ody/seedpreview/DisplayOverview.java" "$PSScriptRoot/tests/DisplayOverviewTest.java"

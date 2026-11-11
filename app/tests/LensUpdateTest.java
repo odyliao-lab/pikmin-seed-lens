@@ -19,8 +19,8 @@ public final class LensUpdateTest {
  }
  public static void main(String[] args)throws Exception{
   String raw=new String(Files.readAllBytes(Paths.get(args[0])),StandardCharsets.UTF_8);LensUpdateInfo good=new LensUpdateInfo(raw);
-  check(good.code==36&&good.version.equals("0.9.5")&&good.newerThan(35)&&!good.newerThan(41));check(good.releaseUrl().contains("seed-lens-v0.9.5"));
-  for(String bad:new String[]{raw+"schema=1\n",raw.replace("dev.ody.seedpreview","dev.ody.pikmincontrol"),raw.replace("seed-lens-v0.9.5","v0.9.5"),raw.replace("pikmin-seed-lens-0.9.5.apk","pikmin-control-center-0.9.5.apk"),raw.replace("https://github.com","http://github.com"),raw.replace("minSdk=28","minSdk=1"),raw.replace("versionCode=36","versionCode=-1"),raw.replace("size=26293815","size=999999999999"),raw+"token=secret\n"})refused(()->new LensUpdateInfo(bad));
+  check(good.code==49&&good.version.equals("0.13.3")&&good.newerThan(48)&&!good.newerThan(49));check(good.releaseUrl().contains("seed-lens-v0.13.3"));
+  for(String bad:new String[]{raw+"schema=1\n",raw.replace("dev.ody.seedpreview","dev.ody.pikmincontrol"),raw.replace("seed-lens-v"+good.version,"v"+good.version),raw.replace("pikmin-seed-lens-"+good.version+".apk","other-app.apk"),raw.replace("https://github.com","http://github.com"),raw.replace("minSdk=28","minSdk=1"),raw.replace("versionCode="+good.code,"versionCode=-1"),raw.replace("size="+good.size,"size=999999999999"),raw+"token=secret\n"})refused(()->new LensUpdateInfo(bad));
   check(LensUpdateInfo.autoDue(true,86400001,1));check(!LensUpdateInfo.autoDue(false,86400001,1));check(!LensUpdateInfo.autoDue(true,10,1));
   for(String url:new String[]{"http://github.com/x","https://evil.invalid/x","https://github.com.evil.invalid/x","https://user:pass@github.com/x","https://github.com:8443/x","file:///tmp/a"})check(!LensUpdateInfo.allowedRedirect(url));
   check(LensUpdateInfo.allowedRedirect("https://release-assets.githubusercontent.com/a?signature=temporary"));

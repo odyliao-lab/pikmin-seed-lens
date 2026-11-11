@@ -1,5 +1,7 @@
 # 驗證分層
 
+0.13.3 GPS 候選：隔離剪貼簿能力、策略／交易、App 設定與實際遊戲分開記錄於 [GPS_COPY](GPS_COPY.md)。只有實際成功的表列組合取得該功能資格，不以舊四組結果或來源 carousel 測試代替。
+
 0.12.1 直接回報：49 項診斷 policy、37 項上傳檢查與 4 組 Sites policy；原簽章建置後，既有隔離 MuMu API35 實際完成 Email 驗證、改值重設同意，以及 App → 正式 Sites → 精確收據。一般 JVM 另驗 Email 空白／填寫。沒有重跑遊戲功能、不擴大平台資格；[候選產物與證據](APP_DIRECT_UPLOAD.md)。
 
 Sites 選填 Email：3 組 Node policy、4 組本機 Miniflare／D1 HTTP 測試與 TypeScript 檢查通過；瀏覽器完成選檔、同意、Email 提報及私人明細。公開入口另以無 cookie HTTPS 實測頁面 200、合成匿名提報 201，以及後台／偽造身分 401、缺同意／非法格式 400、跨站 403。正式已登入非站長帳號仍待驗。保留 [Sites 專項限制](../server/sites/README.md)。

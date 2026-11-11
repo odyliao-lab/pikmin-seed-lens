@@ -44,7 +44,22 @@ class DisplayContracts(unittest.TestCase):
         loader=(ROOT/'app/loader.cpp').read_text()
         renderer=(ROOT/'native/renderer/extended_display.cpp').read_text()
         self.assertIn('seed_root::fresh_display_status',loader)
-        self.assertEqual(renderer.count('seed_lens::display_build'),8)
+        # Eight existing member reports plus the independent GPS report.
+        self.assertEqual(renderer.count('seed_lens::display_build'),9)
         self.assertIn('SEED_DISPLAY_BUILD_ID=$displayBuildId',(ROOT/'app/build.ps1').read_text())
+
+    def test_standalone_gps_contract_is_separate(self):
+        contract=(ROOT/'native/renderer/display_contract.h').read_text()
+        self.assertIn('gps_control_leaf[]="seed-lens-gps-copy.txt"',contract)
+        self.assertIn('gps_report_leaf[]="seed_lens_gps_copy_status.tsv"',contract)
+        loader=(ROOT/'app/loader.cpp').read_text()
+        self.assertIn('renderer_status(pid,start,status,profile,seed_lens::gps_report_leaf)',loader)
+        self.assertIn('LENS_GPS_REPORT',loader)
+        renderer=(ROOT/'native/renderer/extended_display.cpp').read_text()
+        self.assertIn('directory+"/files/"+seed_lens::gps_report_leaf',renderer)
+        controller=(ROOT/'app/src/dev/ody/seedpreview/LensController.java').read_text()
+        self.assertIn('LENS_GPS_REPORT',controller)
+        diagnostics=(ROOT/'app/src/dev/ody/seedpreview/DiagnosticReport.java').read_text()
+        self.assertNotIn('gps_copy_status',diagnostics)
 
 if __name__=='__main__':unittest.main()

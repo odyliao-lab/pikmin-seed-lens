@@ -19,8 +19,8 @@ public final class AllOffControllerTest {
  }
  static void settle(LensController c)throws Exception{
   long until=System.nanoTime()+3_000_000_000L;
-  do {Handler.one();Thread.sleep(2);}while((c.busy()||!Handler.tasks.isEmpty())&&System.nanoTime()<until);
-  check(!c.busy()&&Handler.tasks.isEmpty());
+  do {Handler.one();Thread.sleep(2);}while((c.busy()||c.reportReading.get()||!Handler.tasks.isEmpty())&&System.nanoTime()<until);
+  check(!c.busy()&&!c.reportReading.get()&&Handler.tasks.isEmpty());
  }
  public static void main(String[] args)throws Exception{
   Prefs prefs=new Prefs();prefs.values.put("display-auto-arm",true);LensController c=make(prefs),restarted=null,deferred=null;
@@ -46,11 +46,22 @@ public final class AllOffControllerTest {
    prefs.fail=true;int calls=restarted.operations.offCalls;restarted.allOff();
    check(restarted.operations.offCalls==calls&&restarted.reason.contains("未保存"));
    Prefs updatePrefs=new Prefs();updatePrefs.values.put("display-auto-arm",true);deferred=make(updatePrefs);
-   Arrays.fill(deferred.groupOn,true);deferred.operations.game=barrier;deferred.operations.front=true;
+   Arrays.fill(deferred.groupOn,true);deferred.gpsOn=false;deferred.operations.game=barrier;deferred.operations.front=true;
    java.io.File directory=deferred.operations.context.getFilesDir();check(UpdateInterlock.freeze(directory,41));
    deferred.monitor();settle(deferred);check(deferred.autoAttempt==null&&deferred.operations.enableCalls==0);
    check(UpdateInterlock.clear(directory));deferred.operations.allowEnable=true;
    deferred.monitor();settle(deferred);check(deferred.autoAttempt.same(barrier)&&deferred.operations.enableCalls==1);
+   Arrays.fill(deferred.groupOn,false);deferred.gpsOn=true;deferred.autoAttempt=null;
+   check(deferred.groupsKnown()&&deferred.anyGroup());deferred.monitor();settle(deferred);check(deferred.operations.enableCalls==2);
+   deferred.allOff();settle(deferred);check(Boolean.FALSE.equals(deferred.gpsOn)&&!deferred.anyGroup());
+   deferred.operations.reportEntered=new java.util.concurrent.CountDownLatch(1);
+   deferred.operations.reportRelease=new java.util.concurrent.CountDownLatch(1);
+   deferred.refreshReports();check(deferred.operations.reportEntered.await(1,java.util.concurrent.TimeUnit.SECONDS));
+   check(!deferred.busy()&&deferred.reportReading.get());
+   deferred.setGps(true);check(deferred.busy()); // User intent queues behind a passive read.
+   deferred.operations.reportRelease.countDown();settle(deferred);
+   check(Boolean.TRUE.equals(deferred.gpsOn));
+   deferred.allOff();settle(deferred);check(Boolean.FALSE.equals(deferred.gpsOn));
    System.out.println("AllOffControllerTest: "+checks+" real controller queue/persistence checks with host Android/root doubles; not device acceptance");
   }finally{c.worker.shutdownNow();if(restarted!=null)restarted.worker.shutdownNow();if(deferred!=null){deferred.worker.shutdownNow();java.io.File dir=deferred.operations.context.getFilesDir();for(java.io.File file:dir.listFiles())file.delete();dir.delete();}}
  }

@@ -1,14 +1,14 @@
 # 皮克敏花苗透視鏡
 
-在 Pikmin Bloom 補充花苗、皮克敏、探險與精華資訊。僅修改顯示，關閉後還原原文字與字級。
+在 Pikmin Bloom 補充花苗、皮克敏、探險與精華資訊，並可複製探險座標。顯示關閉後還原原文字與字級。
 
 <p align="center">
   <img src="docs/images/readme/illustration.jpg" width="260" alt="皮克敏拿著放大鏡觀察花苗的示意插畫">
 </p>
 
-**[下載 0.9.5 預覽版 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.9.5)** · 開發者：odyliao-lab
+**[下載 0.13.3 預覽版 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.13.3)** · 開發者：odyliao-lab
 
-0.9.5 對應遊戲 157.0；遊戲 156.1 使用[舊版 0.7.3 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.7.3)（僅花苗名稱顯示）。
+0.13.3 對應遊戲 157.0；遊戲 156.1 使用[舊版 0.7.3 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.7.3)（僅花苗名稱顯示）。
 
 ## 四個功能開關
 
@@ -19,11 +19,13 @@
 | 探險資訊 | 一般白盒對象與裝飾、探險狀態與遊戲剩餘時間 |
 | 精華／花瓣對照 | 保留精華數量，補對應花瓣、容量與剩餘空間 |
 
-開發分支新增[執行狀態與關閉全部](docs/STATUS_ALL_OFF.md)、[診斷與版本更新](docs/DIAGNOSTICS_UPDATES.md)，以及 [App 直接回報](docs/APP_DIRECT_UPLOAD.md)（0.12.1/code45 候選，尚未公開發布）。在診斷頁預覽、選填 Email、同意後即可直接上傳，不需登入；離線匯出仍保留。
+0.13.3 包含[執行狀態與關閉全部](docs/STATUS_ALL_OFF.md)、[診斷與版本更新](docs/DIAGNOSTICS_UPDATES.md)，以及 [App 直接回報](docs/APP_DIRECT_UPLOAD.md)。在診斷頁預覽、選填 Email、同意後即可直接上傳，不需登入；離線匯出仍保留。
 
-[診斷回報站](https://seed-lens-reports.ody-liao.chatgpt.site)也可上傳匯出的 JSON。Email 僅供修正通知，目前尚未接上寄信服務；管理後台僅限站長登入。[網站原始碼與限制](server/sites/README.md)。已發布的 0.9.5 不包含上述開發分支功能。
+[診斷回報站](https://seed-lens-reports.ody-liao.chatgpt.site)也可上傳匯出的 JSON。Email 僅供修正通知，目前尚未接上寄信服務；管理後台僅限站長登入。[網站原始碼與限制](server/sites/README.md)。
 
 工具頁直接開關，說明預設收合；診斷頁提供環境排除建議與檢查新版本。各項實測範圍見下表與[完整驗收矩陣](docs/DISPLAY_PORT_RESULTS.md)。
+
+0.13.3 在四組下方新增「複製探險座標」，預設關閉。查看花苗／水果探險詳情或左右換卡停穩後，自動複製目前座標；不移動定位，座標不納入診斷或上傳。[操作與實測範圍](docs/GPS_COPY.md)。
 
 ## 使用方式
 
@@ -36,6 +38,8 @@
 MuMu 12.0 先讓遊戲到主畫面，再啟用透視鏡；MuMu 15.0 可先啟用透視鏡再開遊戲。若結果不明或升級後仍載入舊版，依提示重開遊戲，不對同一程序重送載入。
 
 ## 已驗證環境
+
+0.13.3 的座標複製已在 MuMu 內建 12.0（API32）及 15.0（API35）搭配遊戲 157.0 通過水果詳情 ON／OFF／再 ON；API35 另通過遊戲重啟自動重綁。[GPS 專項紀錄](docs/GPS_COPY.md)。下表保留四組資訊及舊版資格。
 
 以下均為 **MuMu x86_64＋NativeBridge**。0.9.5 已實測花苗庫存統計、成年裝飾／葉與任務副標、待派期限、精華／花瓣對照的 ON／OFF；資格限這些樣本與表列流程。
 
