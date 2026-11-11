@@ -1,5 +1,15 @@
 # 2026-11-11 Sites 私人預覽
 
+## 後續更正：免登入上傳已開放
+
+使用者撤回「上傳前也必須登入」並更正為不需要登入。2026-11-11 將 access mode 改為 public，重新部署既有相同版本，部署 `appgdep_6af45e89e1488191bd76f8d472b78ff2` succeeded。沒有修改讀報告的管理者授權，沒有把管理資料設成公開。
+
+正式無 cookie HTTPS：上傳頁 200、後台清單／session 401、偽造身分 401、缺少同意 400、非法 schema 400、跨站上傳 403。公開權限更新初期曾短暫回 sign-in-required，等待生效後以上檢查全數通過。
+
+一次合成匿名提報取得 201 accepted：編號 `00000000-0000-4000-8000-000000000011`，App 版本 `0.0.0`、問題 other、其他資料 unknown、Email 空白。此為後台的一筆驗收資料，不是網友故障紀錄；沒有上傳實際裝置或聯絡資料。正式登入的非站長帳號、實際網友提報與寄信仍未驗證。
+
+以下保留首次私人預覽的歷史，不代表目前開放範圍。
+
 - 站台：https://seed-lens-reports.ody-liao.chatgpt.site
 - 管理入口：https://seed-lens-reports.ody-liao.chatgpt.site/admin
 - Sites source commit：`3b5fd0a624a2ee0f0c106791116e10a49086684f`

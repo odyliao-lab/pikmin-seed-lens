@@ -1,5 +1,7 @@
 # 花苗透視鏡回報站（Sites）
 
+目前依使用者最終更正，已開放免登入上傳；只有管理後台需要站長的 ChatGPT 帳號。正式匿名 HTTPS 提報已以合成資料取得 201 收據，未登入／偽造身分的管理請求皆為 401。固定清除排程與寄信尚未實作。
+
 使用 Sites／Vinext Worker＋D1，不需 VPS、R2 或外部郵件服務。來源由獨立透視鏡 repo 的 `server/sites/` 保留鏡像，Sites 專用 source repo 負責部署。不要把本機 `.dev.vars`、報告或截圖提交。
 
 ## 使用流程
@@ -31,6 +33,6 @@ npx tsc --noEmit
 
 本機 Miniflare：依 starter README 將 migration 套至本機 D1，設定 ignored `.dev.vars` 的 `ADMIN_EMAIL=seedy@sites.test` 與合成 RATE_KEY，再 `npm run dev -- --hostname 127.0.0.1 --port 5189`。`python tests/http_test.py` 只測該 loopback，會建立合成資料，不可用於正式服務。測試 4 組：Email 留空／填寫、同意／Origin／偽造身分拒絕、原生協定／限流、狀態／篩選；政策另 3 組通過。瀏覽器已完成 Email 提報、登入、私人明細，確認下載不含 Email。
 
-正式 Sites 的身分與 D1 端到端、公開匿名上傳與外部非管理者拒絕仍須部署後分項驗收；不可把本機模擬登入當成正式登入結果。資料庫是空白起站，本機合成報告不隨部署上傳。
+公開匿名提報已於正式 Sites 取得有效收據；未登入與偽造身分的讀取拒絕亦通過。正式已登入非站長的身分隔離仍待分項驗收，不可把本機模擬登入當成正式登入結果。資料庫空白起站後新增了一筆明列於 DEPLOYMENT.md 的合成驗收資料，本機其他報告未上傳。
 
 託管依 Sites 現行內含額度／價格，不能保證永久免費。維持平台網址、1000 份限制與小型封閉報告，未建立付費 VPS／購買網域。

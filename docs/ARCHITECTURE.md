@@ -2,7 +2,7 @@
 
 ## 診斷與更新
 
-Sites 版回報站使用 Vinext Worker＋D1，診斷與選填通知 Email 分表保存；管理讀寫再以 Sites 登入身分及 runtime ADMIN_EMAIL 守門。原 App schema 不變，Email 不放診斷下載。目前部署 owner-private，未改 APK 上傳端點。[原始碼與資料保存限制](../server/sites/README.md)。Python 版保留為既有本機接收端，不用它提供 Sites 能力。
+Sites 版回報站使用 Vinext Worker＋D1，診斷與選填通知 Email 分表保存；上傳免登入，管理讀寫以 Sites 登入身分及 runtime ADMIN_EMAIL 守門。原 App schema 不變，Email 不放診斷下載。Sites 已開放公開入口，未改 APK 上傳端點。[原始碼與資料保存限制](../server/sites/README.md)。Python 版保留為既有本機接收端，不用它提供 Sites 能力。
 
 伺服器沿用封閉 JSON 接收端，新增同源上傳頁與私人管理後台；報告仍為不可覆寫 JSON，SQLite 只保存處理狀態。管理 session 保留記憶體，密碼雜湊從外部環境讀取；APK 未設定端點。[後台部署與驗收界線](../server/diagnostics/README.md)。
 

@@ -21,7 +21,7 @@
 
 開發分支新增[執行狀態與關閉全部](docs/STATUS_ALL_OFF.md)，以及[診斷、自願回報與版本更新](docs/DIAGNOSTICS_UPDATES.md)（0.11.2，尚未發布）。APK 直接上傳尚未啟用，目前可先同意匯出診斷。
 
-[診斷回報站](https://seed-lens-reports.ody-liao.chatgpt.site)已部署 Sites 私人預覽，支援預覽同意上傳、選填修正通知 Email、管理者篩選與處理狀態；目前僅站長可開啟，尚未開放網友。[網站原始碼與限制](server/sites/README.md)。APK 直接上傳仍未啟用。
+[診斷回報站](https://seed-lens-reports.ody-liao.chatgpt.site)已開放免登入上傳，支援預覽同意與選填修正通知 Email；管理後台僅限站長登入，可篩選報告與保存處理狀態。[網站原始碼與限制](server/sites/README.md)。APK 直接上傳仍未啟用。
 
 工具頁直接開關，說明預設收合；診斷頁提供環境排除建議與檢查新版本。各項實測範圍見下表與[完整驗收矩陣](docs/DISPLAY_PORT_RESULTS.md)。
 

@@ -1,6 +1,6 @@
 # 驗證分層
 
-Sites 選填 Email：3 組 Node policy、4 組本機 Miniflare／D1 HTTP 測試與 TypeScript 檢查通過；瀏覽器完成選檔、同意、Email 提報及私人明細。Sites 私人部署成功不代表網友匿名提報已驗，尚未改公開權限或驗證正式非站長帳號。保留 [Sites 專項限制](../server/sites/README.md)。
+Sites 選填 Email：3 組 Node policy、4 組本機 Miniflare／D1 HTTP 測試與 TypeScript 檢查通過；瀏覽器完成選檔、同意、Email 提報及私人明細。公開入口另以無 cookie HTTPS 實測頁面 200、合成匿名提報 201，以及後台／偽造身分 401、缺同意／非法格式 400、跨站 403。正式已登入非站長帳號仍待驗。保留 [Sites 專項限制](../server/sites/README.md)。
 
 診斷網站：原接收端 7 組與網站 5 組 loopback 測試通過；瀏覽器使用合成資料完成同意上傳／後台登入、明細與處理狀態保存。未部署主機或 HTTPS，不代表已可對外收件；[設定與待驗項目](../server/diagnostics/README.md)。
 
