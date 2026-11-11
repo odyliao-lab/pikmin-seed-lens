@@ -38,4 +38,32 @@ Root及產品由普通App正常UI執行，不依賴研究APK或顯示模組；�
 
 ## 第二階段：MuMu內建12／實際API32
 
-待另行實機驗證；本階段結果不承接API35，也不代替必要API31。
+只操作既有新index4／SeedLens-Isolated-A12／created1794178164127859／16512。
+正常關閉API35後才開本機；實際API32/x86_64/libnb、原Permissive，
+boot `baf6009f-3eca-45bf-a05d-086cf5c2d2fb`。開機自動恢復157程序，先核新PID／UID及
+精確版本，再正常force-stop作為降版準備，沒有對該程序載入產品。
+
+沿用第一階段已驗的既有Root標準PM session -r -d，精確156.1及完整splits SHA與上段相同，
+保留登入、不清資料、沒有新套件；原7份歷史逐份SHA不變。原控制檔ON及157舊status也
+保留作為歷史，沒有拿舊status當新程序成功。156.1未載入時的實際畫面仍為原名。
+
+156.1新程序PID3551/start14464/UID10041，產品UID10042；正常產品su-c及同PID1 mount
+guard完成本次確認後，只送出一次載入，保持遊戲前景22秒再回App。首輪載入成功，
+開花苗頁後ready1：周年長名、照片鈕扣徽章及咖啡杯完整名稱／縮字實際可見。
+直接OFF後原名、省略及原字級還原，control OFF／ready0；同程序新確認後再ON正常，
+沒有第二次載入。庫存仍357，探險未操作。
+
+唯一新增正常journal SHA
+`3b51117a50e143868f4420b8bb9af1b22c2be06152590aae616245e543110114`，
+原7份＋新增1份＝8份；ON／OFF／再ON至最終均保持SHA不變，沒有新增UNKNOWN。
+正常journal維持RETURNED_UNVERIFIED，成功另依畫面及新鮮status核對，不竄改journal。
+最終171個thread TracerPid0、adbd2000、ON／ready1；精確遊戲splits及產品原APK SHA
+再次核對一致，研究三APK／控制中心／顯示模組不存在。
+原始證據僅存ignored `.tools/lab/product073-api32-game1561-f546431d0135420cab7d148c161c6491`。
+
+## 本輪交付界線
+
+兩台基本待種花苗ON／OFF還原／再ON均成立；API35首輪UNKNOWN與照片卡首輪省略差異
+保留，不宣稱各程序首次載入均成功或每張卡首輪皆全名。無產品來源／APK改動，仍使用
+同一已發布原簽章0.7.3。最終API35已正常關閉，API32待種花苗保持ON供本人查看。
+沒有新增探險、離屏重用、完整重啟或其他遊戲版本資格；API31／34及九組仍未通過。
