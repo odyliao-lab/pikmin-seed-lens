@@ -26,6 +26,14 @@
 
 ## 逐項目標（未驗收不得標完成）
 
+### 0.8.0/code30：獨立檔案與最小載入通過
+
+這是控制／回報隔離的 minor 版本，仍是原花苗顯示，沒有宣稱八項新功能已完成。原憑證 SHA256 `9080c5d8c9a138a3a8eb42ec65755cf2abd64b881a7bf398feabe3547b934a7e`；APK SHA256 `1c58745f4faf11258367e6e2ab59fb77b237ab9f313d026fd4382271e2d1a033`。APK 僅私人測試，不發布。
+
+index4 同 boot，正常關閉 Game／Lens、保存原 APK 與 Lens data 後原簽章升級。透過普通 App UI 的主畫面／fail-stop 確認，在新 Game156.1 PID12359/start385694 僅載入一次。新控制 `seed-lens-seed-preview.txt` 與新回報 `seed_lens_seed_preview_status.tsv` 同 PID/start；舊 `pikmin-seed-preview.txt` 全程 OFF。實際花苗頁完整長名／縮字可見，App UI OFF 後原名與原字型還原；同程序 ready/control0，357 不變。原兩份 attempt SHA 不變，新增一份正常 journal；不以此推論重複啟用或新四組已驗。
+
+雙 ABI loader、ARM renderer、Java 與 APK 簽章／16KB 配對檢查通過。新增 group policy 涵蓋 3／2／2／1 分組、OR 遷移、非法值拒絕、已存 OFF 優先；Linux CI `42960432389` 的兩個 native 純 policy 測試實際執行通過。CI 不是 Android 原生或遊戲驗收。原始備份與截圖留在 ignored `.tools/display-port-baseline/` 及隔離機 root0700 備份目錄。
+
 | 組別 | 需實接內容 | 初始狀態 |
 |---|---|---|
 | 花苗資訊 | 顏色／種類、D01 已收／持育待／未知原因、育苗詳細頁步數列 | 待移植 |
