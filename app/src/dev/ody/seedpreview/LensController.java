@@ -126,7 +126,7 @@ final class LensController {
                 }
                 bindUnscopedBarrier(current);
                 if(blockedFor(current)){reason="結果不明，請正常重開遊戲；不重送載入。";notifyView();return;}
-                if(!foreground||autoAttempt!=null&&autoAttempt.same(current))return;
+                if(!foreground||autoAttempt!=null&&autoAttempt.same(current)){notifyView();return;}
                 autoAttempt=current;reason="";
                 execute(LensStatus.Action.ENABLE,current,true,()->operations.gameForeground());
             });
