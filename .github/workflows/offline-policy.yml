@@ -1,0 +1,36 @@
+name: Offline policy
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  policy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Run native display policy tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          for source in native/tests/*_test.cpp; do
+            output="$RUNNER_TEMP/$(basename "$source" .cpp)"
+            g++ -std=c++20 -Wall -Wextra -Werror "$source" -o "$output"
+            "$output"
+          done
+      - name: Check patch whitespace
+        run: git show --format= --check HEAD
+      - name: Run real settings writer in isolated temporary directory
+        run: |
+          g++ -std=c++20 -Wall -Wextra -Wno-misleading-indentation -I native/renderer app/display_settings_test.cpp -o "$RUNNER_TEMP/settings-test"
+          sudo "$RUNNER_TEMP/settings-test"
+      - name: Check group report parsing
+        run: |
+          javac -encoding UTF-8 -d "$RUNNER_TEMP/java" app/src/dev/ody/seedpreview/{Compatibility,GameSession,LensContext,LensStatus,DisplayGroups}.java app/tests/{LensStatusTest,DisplayGroupsTest}.java
+          java -cp "$RUNNER_TEMP/java" dev.ody.seedpreview.LensStatusTest
+          java -cp "$RUNNER_TEMP/java" dev.ody.seedpreview.DisplayGroupsTest
+      - name: Cross-check eight original gateway contracts
+        run: python3 research/test_display_contracts.py

@@ -53,6 +53,13 @@ inline std::u16string decorate(std::u16string_view source,int seed_type,int colo
 // Expedition titles have different layout constraints: keep their prior 75%
 // floor after the 12-point range produced truncated short labels in API35/156.1.
 // These are bounds for the game's AutoSize, not a fixed font size.
+inline std::u16string compact_card_title(std::u16string_view text) {
+    auto plain=plain_name(text);if(plain.empty()||plain.size()<=8)return plain;
+    auto suffix=plain.ends_with(u"金苗")?u"金苗":plain.ends_with(u"花苗")?u"花苗":u"";
+    auto keep=8-1-std::u16string_view(suffix).size();auto prefix=plain.substr(0,keep);
+    if(!prefix.empty()&&prefix.back()>=0xd800&&prefix.back()<=0xdbff)prefix.pop_back();
+    return prefix+u"…"+suffix;
+}
 inline int minimum_font_size(int original,bool inventory) {
     return std::min(original,inventory?12:std::max(12,original*3/4));
 }

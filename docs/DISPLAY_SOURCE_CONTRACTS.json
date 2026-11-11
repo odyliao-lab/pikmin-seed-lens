@@ -1,0 +1,53 @@
+{
+  "revision": "a02b58f35295948cbd29e467ce5ccd7ffe33161a",
+  "members": [
+    {
+      "source": "SeedPreviewGateway.java",
+      "source_sha256": "ef179286eff708a8f17b434affa805edf622e0d44bb3b25a86b0ede407c25621",
+      "source_control": "/data/local/tmp/pikmin-seed-preview.txt",
+      "source_report": "/data/user/0/com.nianticlabs.pikmin/files/seed_preview_status.tsv"
+    },
+    {
+      "source": "SeedCollectionGateway.java",
+      "source_sha256": "7c2450e9269d454cb36c82daec814ba97d55037fc48ab8fa9c116b79eec5f72b",
+      "source_control": "/data/local/tmp/pikmin-seed-collection.txt",
+      "source_report": "/data/user/0/com.nianticlabs.pikmin/files/seed_collection_status.tsv"
+    },
+    {
+      "source": "PlanterDisplayGateway.java",
+      "source_sha256": "d77d48c50172f0c5f109e1b0c873fcf68ab5776c28fb821d2435bafcf82a48bc",
+      "source_control": "/data/local/tmp/pikmin-planter-display.txt",
+      "source_report": "/data/user/0/com.nianticlabs.pikmin/files/planter_display_status.tsv"
+    },
+    {
+      "source": "AdultStateGateway.java",
+      "source_sha256": "a353b1a88ab1239604f25d7c2991fa2b6d00b4749db15a7382b6361b0dd39bb0",
+      "source_control": "/data/local/tmp/pikmin-adult-state-preview.txt",
+      "source_report": "/data/user/0/com.nianticlabs.pikmin/files/adult_state_preview_status.tsv"
+    },
+    {
+      "source": "AdultDecorationGateway.java",
+      "source_sha256": "41d180383aa1f64af377de9b8ef1d9f0205020b88e3321b12ef0b2273eee8c62",
+      "source_control": "/data/local/tmp/pikmin-adult-decoration-preview.txt",
+      "source_report": "/data/user/0/com.nianticlabs.pikmin/files/adult_decoration_preview_status.tsv"
+    },
+    {
+      "source": "GiftPreviewGateway.java",
+      "source_sha256": "d9357cad81164767783818d2d123218409de7d748448bfab18585f400408c987",
+      "source_control": "/data/local/tmp/pikmin-gift-preview.txt",
+      "source_report": "/data/user/0/com.nianticlabs.pikmin/files/gift_preview_status.tsv"
+    },
+    {
+      "source": "ExpeditionDisplayGateway.java",
+      "source_sha256": "76c99b889873da4a7c6cf2f9a1f0168003a785040f40d386e14ceb50bd2579c4",
+      "source_control": "/data/local/tmp/pikmin-expedition-display.txt",
+      "source_report": "/data/user/0/com.nianticlabs.pikmin/files/expedition_display_status.tsv"
+    },
+    {
+      "source": "NectarStockGateway.java",
+      "source_sha256": "b76b5c17c554dc2b39760b7fc4659a2018a8a992575104c4596542ce7df0a466",
+      "source_control": "/data/local/tmp/pikmin-nectar-stock-preview.txt",
+      "source_report": "/data/user/0/com.nianticlabs.pikmin/files/nectar_stock_preview_status.tsv"
+    }
+  ]
+}

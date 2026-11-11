@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /** Same guarded native operations; no UI preference can authorize an operation. */
 final class LensOperations {
     interface Foreground { boolean showGame() throws Exception; }
-    static final String CONTEXT_SCRIPT="set -eu\n[ $(id -u) = 0 ]\np=$(pidof com.nianticlabs.pikmin); case \"$p\" in ''|*[!0-9]*) exit 3;; esac\nt=$(sed 's/.*) //' /proc/$p/stat | awk '{print $20}')\nb=$(cat /proc/sys/kernel/random/boot_id)\nprintf '%s\\t%s\\t%s\\n' \"$p\" \"$t\" \"$b\"\n";
+    static final String CONTEXT_SCRIPT="set -eu\n[ $(id -u) = 0 ]\np=$(pidof com.nianticlabs.pikmin || true); case \"$p\" in ''|*[!0-9]*) exit 3;; esac\nt=$(sed 's/.*) //' /proc/$p/stat | awk '{print $20}')\nb=$(cat /proc/sys/kernel/random/boot_id)\nprintf '%s\\t%s\\t%s\\n' \"$p\" \"$t\" \"$b\"\n";
     static final class Reply {
         final int exit;final String output;final boolean started,complete;
         Reply(int exit,String output,boolean started,boolean complete){this.exit=exit;this.output=output;this.started=started;this.complete=complete;}
@@ -33,7 +33,14 @@ final class LensOperations {
     }
     LensContext readContext()throws Exception{
         Reply reply=shell(CONTEXT_SCRIPT,true,null);
-        return reply.exit==0&&reply.complete?LensContext.parse(reply.output):null;
+        if(reply.exit==3&&reply.complete)return null;
+        if(reply.exit!=0||!reply.complete)throw new IOException("Root or process query failed");
+        return LensContext.parse(reply.output);
+    }
+    String extensionAvailability(){
+        String blocked=availability();if(blocked!=null)return blocked;
+        try{PackageInfo game=gameInfo();return "157.0".equals(game.versionName)&&game.getLongVersionCode()==1793360009L?null:"四組資訊目前只接受已核對的遊戲 157.0。";}
+        catch(Exception e){return "尚未找到遊戲。";}
     }
     Result execute(LensStatus.Action action,LensContext consent,Foreground foreground,Runnable pending){
         String version=null;long code=0;
@@ -88,6 +95,30 @@ final class LensOperations {
         }
     }
     private boolean installed(String name){try{context.getPackageManager().getPackageInfo(name,0);return true;}catch(Exception e){return false;}}
+    Reply displayGroup(int group,Boolean enabled)throws Exception{
+        if(group<0||group>3)throw new IllegalArgumentException("group");
+        return displayCommand("--display-group "+group+" "+(enabled==null?"read":enabled?"on":"off"),null);
+    }
+    Reply displayReports(LensContext current)throws Exception{
+        if(current==null)throw new IOException("missing game");
+        return displayCommand("--display-reports \"$p\" \"$t\"",current);
+    }
+    private Reply displayCommand(String arguments,LensContext current)throws Exception{
+        String abi=Build.SUPPORTED_ABIS[0];
+        String loader=new File(context.getApplicationInfo().nativeLibraryDir,"libseed_loader.so").getCanonicalPath();
+        if(!InstalledNative.allowed(loader,abi,"libseed_loader.so"))throw new IOException("invalid installed path");
+        String script="set -eu\n[ $(sha256sum "+loader+" | cut -d' ' -f1) = "+digestAsset("seed-loader-"+abi+".sha256")+" ]\n";
+        if(current!=null)script+="p=$(pidof com.nianticlabs.pikmin || true); case \"$p\" in ''|*[!0-9]*) exit 3;; esac\nt=$(sed 's/.*) //' /proc/$p/stat | awk '{print $20}')\nb=$(cat /proc/sys/kernel/random/boot_id)\n"+current.shellGuard()+"printf 'LENS_SESSION\\t%s\\t%s\\t%s\\n' \"$p\" \"$t\" \"$b\"\n";
+        return shell(script+"exec "+loader+" "+arguments+"\n",false,null);
+    }
+    boolean gameForeground()throws Exception{
+        Reply r=shell("p=$(pidof com.nianticlabs.pikmin || true); case \"$p\" in ''|*[!0-9]*) exit 3;; esac\ngrep -q '/libil2cpp.so' /proc/$p/maps || exit 3\ndumpsys activity activities | grep -E 'topResumedActivity=|^[[:space:]]*(mResumedActivity|ResumedActivity):'\n",true,null);
+        if(r.exit!=0||!r.complete)return false;int count=0;
+        for(String line:r.output.split("\n"))if(!line.trim().isEmpty()){
+            if(!line.contains(" u0 com.nianticlabs.pikmin/"))return false;count++;
+        }
+        return count>0&&count<=2;
+    }
     private String hashAsset(String name)throws Exception{
         MessageDigest digest=MessageDigest.getInstance("SHA-256");
         try(InputStream in=context.getAssets().open(name)){byte[] bytes=new byte[65536];int n;while((n=in.read(bytes))!=-1)digest.update(bytes,0,n);}
@@ -116,7 +147,7 @@ final class LensOperations {
             String sha=bridge?digestAsset("seed-bridge-x86_64.sha256"):hashAsset("libseed_display.so");
             s.append("[ $(sha256sum "+payload+" | cut -d' ' -f1) = "+sha+" ]\n");
         }
-        s.append("p=$(pidof com.nianticlabs.pikmin); case \"$p\" in ''|*[!0-9]*) echo GAME_NOT_UNIQUE; exit 3;; esac\n")
+        s.append("p=$(pidof com.nianticlabs.pikmin || true); case \"$p\" in ''|*[!0-9]*) echo GAME_NOT_UNIQUE; exit 3;; esac\n")
             .append("t=$(sed 's/.*) //' /proc/$p/stat | awk '{print $20}')\nb=$(cat /proc/sys/kernel/random/boot_id)\n");
         if(on)s.append(consent.shellGuard());
         s.append("printf 'LENS_SESSION\\t%s\\t%s\\t%s\\n' \"$p\" \"$t\" \"$b\"\n");

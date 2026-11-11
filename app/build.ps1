@@ -40,6 +40,7 @@ foreach($pin in $pins){
 }
 $manifest=[xml](Get-Content "$PSScriptRoot/AndroidManifest.xml" -Raw)
 $version=[string]$manifest.manifest.versionName
+$displayBuildId="$version-code$($manifest.manifest.versionCode)"
 if($version -notmatch '^0\.[0-9]+\.[0-9]+$'){throw 'Invalid standalone version'}
 if($Api31Qualification -and ([long]$manifest.manifest.versionCode -le 12 -or [version]$version -le [version]'0.3.1')){throw 'API31 qualification must retain 0.3.1 and use a higher version/code'}
 $kind=if($Unsigned){'unsigned'}else{'signed'}
@@ -81,6 +82,10 @@ if($LASTEXITCODE){throw 'Lens presentation protocol compile failed'}
 if($LASTEXITCODE){throw 'Lens presentation protocol checks failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.LensContextTest
 if($LASTEXITCODE){throw 'Lens boot/process binding checks failed'}
+& "$JavaHome/bin/javac.exe" -encoding UTF-8 -classpath "$out/tests" -d "$out/tests" "$PSScriptRoot/src/dev/ody/seedpreview/DisplayGroups.java" "$PSScriptRoot/tests/DisplayGroupsTest.java"
+if($LASTEXITCODE){throw 'Display group protocol compile failed'}
+& "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.DisplayGroupsTest
+if($LASTEXITCODE){throw 'Display group protocol checks failed'}
 & "$JavaHome/bin/javac.exe" -encoding UTF-8 -d "$out/tests" "$PSScriptRoot/tests/ApkNativeLayout.java" "$PSScriptRoot/tests/ApkNativeLayoutTest.java"
 if($LASTEXITCODE){throw 'APK layout checker compile failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.ApkNativeLayoutTest
@@ -93,8 +98,9 @@ foreach($abi in @('arm64-v8a','x86_64')){
  # Build and copy ARM first. The bridge hashes THIS immutable build output,
  # never an earlier installed renderer or a stale CMake cache entry.
  $rendererPin=if($abi -eq 'x86_64'){"$out/assets/libseed_display.so"}else{''}
- & $CmakePath -G Ninja "-DCMAKE_MAKE_PROGRAM=$NinjaPath" "-DCMAKE_TOOLCHAIN_FILE=$NdkPath/build/cmake/android.toolchain.cmake" "-DANDROID_ABI=$abi" "-DSEED_BRIDGE_RENDERER=$rendererPin" "-DSEED_API31_CANDIDATE=$api31Flag" "-DSEED_API34_CANDIDATE=$api34Flag" -DANDROID_PLATFORM=android-28 -DANDROID_STL=c++_static -DCMAKE_BUILD_TYPE=Release -S $PSScriptRoot -B $nativeBuild
+ & $CmakePath -G Ninja "-DCMAKE_MAKE_PROGRAM=$NinjaPath" "-DCMAKE_TOOLCHAIN_FILE=$NdkPath/build/cmake/android.toolchain.cmake" "-DANDROID_ABI=$abi" "-DSEED_DISPLAY_BUILD_ID=$displayBuildId" "-DSEED_BRIDGE_RENDERER=$rendererPin" "-DSEED_API31_CANDIDATE=$api31Flag" "-DSEED_API34_CANDIDATE=$api34Flag" -DANDROID_PLATFORM=android-28 -DANDROID_STL=c++_static -DCMAKE_BUILD_TYPE=Release -S $PSScriptRoot -B $nativeBuild
  if($LASTEXITCODE){throw 'Native configure failed'}
+ if(!(Get-Content "$nativeBuild/CMakeCache.txt" -Raw).Contains("SEED_DISPLAY_BUILD_ID:STRING=$displayBuildId")){throw 'Native display build identity mismatch'}
  if(!(Get-Content "$nativeBuild/CMakeCache.txt" -Raw).Contains("SEED_API31_CANDIDATE:BOOL=$api31Flag")){throw 'Native candidate setting mismatch'}
  if(!(Get-Content "$nativeBuild/CMakeCache.txt" -Raw).Contains("SEED_API34_CANDIDATE:BOOL=$api34Flag")){throw 'Native API34 candidate setting mismatch'}
  & $CmakePath --build $nativeBuild --parallel 4
