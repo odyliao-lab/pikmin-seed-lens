@@ -21,3 +21,10 @@ diagnostics/
 backups/
 .DS_Store
 Thumbs.db
+
+# Track receiver source only; reports and diagnostics stay ignored.
+!server/diagnostics/
+server/diagnostics/*
+!server/diagnostics/receiver.py
+!server/diagnostics/test_receiver.py
+!server/diagnostics/README.md

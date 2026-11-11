@@ -23,7 +23,7 @@ public final class AllOffControllerTest {
   check(!c.busy()&&Handler.tasks.isEmpty());
  }
  public static void main(String[] args)throws Exception{
-  Prefs prefs=new Prefs();prefs.values.put("display-auto-arm",true);LensController c=make(prefs),restarted=null;
+  Prefs prefs=new Prefs();prefs.values.put("display-auto-arm",true);LensController c=make(prefs),restarted=null,deferred=null;
   try{
    Arrays.fill(c.groupOn,true);c.active.set(true); // A report read is still in flight.
    LensContext barrier=LensContext.parse("123\t456\t"+DisplayGroupsTest.BOOT+"\n");
@@ -45,7 +45,13 @@ public final class AllOffControllerTest {
    for(Boolean on:restarted.groupOn)check(Boolean.FALSE.equals(on));
    prefs.fail=true;int calls=restarted.operations.offCalls;restarted.allOff();
    check(restarted.operations.offCalls==calls&&restarted.reason.contains("未保存"));
+   Prefs updatePrefs=new Prefs();updatePrefs.values.put("display-auto-arm",true);deferred=make(updatePrefs);
+   Arrays.fill(deferred.groupOn,true);deferred.operations.game=barrier;deferred.operations.front=true;
+   java.io.File directory=deferred.operations.context.getFilesDir();check(UpdateInterlock.freeze(directory,41));
+   deferred.monitor();settle(deferred);check(deferred.autoAttempt==null&&deferred.operations.enableCalls==0);
+   check(UpdateInterlock.clear(directory));deferred.operations.allowEnable=true;
+   deferred.monitor();settle(deferred);check(deferred.autoAttempt.same(barrier)&&deferred.operations.enableCalls==1);
    System.out.println("AllOffControllerTest: "+checks+" real controller queue/persistence checks with host Android/root doubles; not device acceptance");
-  }finally{c.worker.shutdownNow();if(restarted!=null)restarted.worker.shutdownNow();}
+  }finally{c.worker.shutdownNow();if(restarted!=null)restarted.worker.shutdownNow();if(deferred!=null){deferred.worker.shutdownNow();java.io.File dir=deferred.operations.context.getFilesDir();for(java.io.File file:dir.listFiles())file.delete();dir.delete();}}
  }
 }
