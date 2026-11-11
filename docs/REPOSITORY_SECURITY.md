@@ -1,26 +1,24 @@
 # Repo 安全設定
 
-2026-11-11 以 GitHub API 設定並回讀；repo 維持私人。
+2026-11-11 依使用者授權公開 repo，程式碼採 [MIT](../LICENSE)。以下設定已透過 GitHub API 寫入並回讀確認。
 
 ## 已生效
 
-- Actions 只允許 GitHub 官方 Actions，要求完整 commit SHA；不允許其他已驗證作者或額外白名單。
-- Workflow token 預設唯讀，禁止 Actions 核准 PR。
-- 私人 fork PR workflow 停用，且不傳遞寫入 token 或 secrets。
-- Dependency graph 可匯出 SBOM；Dependabot 漏洞提醒與安全更新已啟用。
+- main 必須經 PR 與 `policy` CI，合併前須保持最新並解決 review 討論；禁止 force push／刪除，無 bypass。單人維護不強制第二人核准。
+- Secret scanning 與 Push protection 已啟用。
+- 私人漏洞回報已啟用；請使用 Security → Report a vulnerability，勿在公開 issue 貼敏感資料。
+- Actions 只允許 GitHub 官方 Actions，要求完整 commit SHA；workflow token 預設唯讀，禁止 Actions 核准 PR。
+- 所有外部貢獻者的 fork PR workflow 均須維護者核准。
+- Dependency graph、Dependabot 漏洞提醒與安全更新已啟用。
 
-Repo 包含每週子模組更新 PR 設定與安全政策。不自動合併依賴更新，也不以 Dependabot 取代原生元件人工審查。
+每週子模組更新由 PR 審查，不自動合併；依賴更新仍須人工檢查。
 
-## 公開或方案支援後再啟用
+## 公開前檢查
 
-| 項目 | 本次 API 結果／後續設定 |
-|---|---|
-| main Ruleset | 403：目前私人方案不支援。要求 PR、禁止 force push／刪除、解決 review 討論；單人維護不強制另一人核准。 |
-| Secret scanning／Push protection | 422：目前 repo 不提供。可用後啟用並回讀確認。 |
-| 私人漏洞回報 | 404：未啟用成功。公開後啟用 Report a vulnerability；SECURITY.md 本身不會啟用此功能。 |
-| 公開 fork PR workflow 核准 | 422：不接受私人 repo。公開後選擇所有外部貢獻者均須核准。 |
-| 必要 CI 檢查 | Offline policy 已跑通 native policy、實際設定 writer、JVM protocol 與契約交叉檢查；尚未設為必要 check，不代表 APK／遊戲驗收。 |
+- Gitleaks 8.30.1 掃描全部 Git refs／歷史及 GitHub PR／issue 文字，未發現秘密；工具下載雜湊已核對官方 release digest。
+- 歷史檔案清單未見 keystore、APK、遊戲二進位或原始診斷；兩層 pinned 子模組均指向公開來源。
+- 0.9.5 發布原已實測 APK，保留 SHA256 與原簽章；未重建或改寫產物。驗收限制見[驗收矩陣](DISPLAY_PORT_RESULTS.md)。
 
-公開前須另外檢查完整 Git 歷史、子模組、附件的私人資料及授權。`.gitignore` 不會清除已追蹤或歷史資料；本次設定不等於完成歷史安全稽核。專案授權尚未選定。
+掃描結果不保證不存在任何敏感資料。請持續避免提交金鑰、帳號資料與遊戲檔案；`.gitignore` 不會移除 Git 歷史內容。第三方元件保留原授權，角色與參考圖片不包含在程式碼 MIT 授權內。
 
-[Rulesets](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets) · [GitHub 安全設定](https://docs.github.com/en/code-security/getting-started/quickstart-for-securing-your-repository) · [Actions 安全](https://docs.github.com/en/actions/reference/security/secure-use)
+[安全回報政策](../SECURITY.md) · [Rulesets](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets) · [Actions 安全](https://docs.github.com/en/actions/reference/security/secure-use)
