@@ -1,5 +1,35 @@
 # 157.0原遊戲的API31／34獨立啟動驗證
 
+## 2026-11-11：Android12／157再次冷開機實測
+
+使用者要求重新驗證 Android12＋157。先核對新 index5 的同 boot／遊戲身分，
+確認0.7.0為OFF、47筆歷史保留，正常關閉 index5；只啟動既有授權的
+`SeedLens_API31_x64`，未操作原四台或台中設備。
+
+實際API31／x86_64／`libndk_translation.so`／Enforcing，boot
+`3b901604-035f-4768-a910-ca7cd9155bbe`；system_server 525/start2188的完整
+服務讀值相隔71.872788秒。官方SDK四個映像與既有私人Magisk31.1 ramdisk SHA
+均吻合原pin，沒有換bridge、模組或放寬守門。
+
+PM確認157.0/code1793360009，已安裝base與完整ARM64 split的SHA均與
+[原簽章intake](GAME157_OFFICIAL_INTAKE.md)一致。正常launcher僅啟動一次，
+遊戲PID4706／UID10149；本次`Loading.AsyncRe` TID4847在
+`libunity.so+0x59972c`遇到undefined instruction `0xd50320bf`（SEVL），
+其後SIGILL、程序結束並返回Launcher。Unity原件SHA仍為
+`534fe2d1f8cadb79e6109ba63cf8f869b32599f915911447e19e38cf34b02149`。
+本次位置與上次Preload不同，分別保留，沒有把舊crash當成本輪證據。
+
+**結果：這台API31 x64環境仍無法正常運行原遊戲157，因此透視鏡功能未通過。**
+本次未安裝／載入0.7.0，保留原0.4.1；不把來源守門檢查、安裝或Root研究算成
+0.7.0裝置資格。普通shell的`su -M`本輪回傳Permission denied；後續僅以
+研究用adb root讀取歷史及Unity雜湊，讀完恢復UID2000，不能算普通產品App Root通過。
+16筆原研究attempt逐份SHA不變，沒有新增產品載入或重送UNKNOWN。
+結束時正常關閉該AVD，host emulator／QEMU及5580／5581 listeners均消失；
+四個SDK原映像及私人ramdisk SHA再次核對不變，index5維持正常關閉。
+
+此結論只涵蓋上述x64轉譯環境；原生ARM64／API31仍未驗證，不泛化為所有
+Android12裝置失敗。原始日誌與截圖只保留ignored私人目錄。
+
 157.0/code1793360009材料取得後，不從156.x的SEVL失敗推論新版結果。完成新index5／0.5.0的兩頁分項回歸、正常OFF／adbd UID2000後先關閉該機，再依序啟動已獲准的獨立AVD；每次重核AVD名稱／boot／實際API／bridge與原簽章完整splits。沒有修改遊戲、替換bridge、跳過指令或放寬產品資格。
 
 ## API31 x64／libndk_translation
