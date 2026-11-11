@@ -20,12 +20,14 @@ final class LensController {
     final ExecutorService worker=Executors.newSingleThreadExecutor();
     final Handler main=new Handler(Looper.getMainLooper());
     final AtomicBoolean active=new AtomicBoolean();
+    final AtomicBoolean reportReading=new AtomicBoolean();
     private WeakReference<Observer> observer=new WeakReference<>(null);
     LensStatus state=LensStatus.unverified();
     String raw="尚無操作紀錄。",progress="",reason="";
     LensContext barrier;
     boolean unscopedBarrier;
     final Boolean[] groupOn=new Boolean[4];
+    Boolean gpsOn;String gpsRaw,gpsText="尚未核對";
     final String[] groupReport={"尚未核對","尚未核對","尚未核對","尚未核對"};
     LensContext reportContext;
     String reportRaw;
@@ -63,8 +65,8 @@ final class LensController {
     void detach(Observer value){if(observer.get()==value)observer.clear();}
     private void notifyView(){Observer value=observer.get();if(value!=null)value.changed();}
     boolean busy(){return active.get();}
-    boolean groupsKnown(){for(Boolean value:groupOn)if(value==null)return false;return true;}
-    boolean anyGroup(){for(Boolean value:groupOn)if(Boolean.TRUE.equals(value))return true;return false;}
+    boolean groupsKnown(){for(Boolean value:groupOn)if(value==null)return false;return gpsOn!=null;}
+    boolean anyGroup(){for(Boolean value:groupOn)if(Boolean.TRUE.equals(value))return true;return Boolean.TRUE.equals(gpsOn);}
     boolean armed(){try{return preferences.getBoolean("display-auto-arm",false);}catch(ClassCastException e){return false;}}
     boolean pendingOff(){try{return preferences.getBoolean("all-off-pending",false);}catch(ClassCastException invalid){return true;}}
     boolean arm(){if(pendingOff())return false;return preferences.edit().putBoolean("display-auto-arm",true).commit();}
@@ -78,9 +80,10 @@ final class LensController {
                 LensOperations.Reply r=operations.displayGroup(i,null);found[i]=DisplayGroups.setting(i,r.exit,r.complete,r.output);
                 if(found[i]==null){error=DisplayGroups.failure(r.exit,r.output);break;}
             }catch(Exception e){error="Root 或設定讀取失敗；點此重試。";break;}
-            final String problem=error;
+            Boolean gps=null;try{LensOperations.Reply r=operations.gpsCopy(null);gps=GpsCopy.setting(r.exit,r.complete,r.output);if(gps==null&&error.isEmpty())error="GPS 設定未確認，請重試。";}catch(Exception e){if(error.isEmpty())error="GPS 設定讀取失敗，請重試。";}
+            final Boolean savedGps=gps;final String problem=error;
             main.post(()->{
-                System.arraycopy(found,0,groupOn,0,4);reason=problem;progress="";active.set(false);notifyView();
+                System.arraycopy(found,0,groupOn,0,4);gpsOn=savedGps;reason=problem;progress="";active.set(false);notifyView();
                 if(!pendingOff()&&groupsKnown()&&anyGroup()&&armed())LensService.start(operations.context);
                 refreshReports();
             });
@@ -103,6 +106,19 @@ final class LensController {
                 if(groupsKnown()&&!anyGroup())operations.context.stopService(new android.content.Intent(operations.context,LensService.class));
                 refreshReports();
             });
+        });
+    }
+    void setGps(boolean enabled){
+        if(pendingOff()||!active.compareAndSet(false,true))return;
+        progress="保存 GPS 複製設定…";reason="";notifyView();
+        worker.execute(()->{
+            Boolean saved=null;String error="";
+            try{LensOperations.Reply r=operations.gpsCopy(enabled);saved=GpsCopy.setting(r.exit,r.complete,r.output);if(saved==null)error=DisplayGroups.failure(r.exit,r.output);}
+            catch(Exception e){error="GPS 設定保存未確認；請重試核對或關閉全部。";}
+            final Boolean value=saved;final String problem=error;
+            main.post(()->{gpsOn=value;reason=problem;gpsRaw=null;progress="";active.set(false);notifyView();
+                if(!pendingOff()&&value!=null&&anyGroup()&&armed())LensService.start(operations.context);
+                if(groupsKnown()&&!anyGroup())operations.context.stopService(new android.content.Intent(operations.context,LensService.class));refreshReports();});
         });
     }
     void allOff(){
@@ -132,12 +148,14 @@ final class LensController {
                 boolean complete=saved&&preferences.edit().putBoolean("all-off-pending",false).commit();
                 DiagnosticStore.record(operations.context,complete?"ALL_OFF_SAVED":"ALL_OFF_FAILED");
                 for(int i=0;i<4;i++)groupOn[i]=complete?Boolean.FALSE:null;
+                gpsOn=complete?Boolean.FALSE:null;gpsRaw=null;gpsText=complete?"已保存關閉":"設定未確認";
                 reason=complete?"":problem.isEmpty()?"關閉結果尚未保存，請重試關閉全部。":problem;
                 progress="";active.set(false);notifyView();refreshReports();
             });
         });
     }
     void updateReports(long now){
+        gpsText=GpsCopy.report(gpsOn,reportContext,gpsRaw,now);
         for(int i=0;i<4;i++){
             effects[i]=groupOn[i]==null?null:DisplayGroups.checkedReport(i,groupOn[i],reportContext,reportRaw,now);
             groupReport[i]=effects[i]==null?"設定未確認":effects[i].text;
@@ -146,16 +164,24 @@ final class LensController {
     boolean gameAbsent(){return contextChecked&&!reportReadFailed&&reportContext==null;}
     String overview(){
         updateReports(System.currentTimeMillis());
+        boolean display=false;for(Boolean value:groupOn)display|=Boolean.TRUE.equals(value);
+        if(!display&&Boolean.TRUE.equals(gpsOn)&&!pendingOff())return busy()?progress:"GPS 複製意願已啟用";
         return DisplayOverview.text(groupOn,effects,reportContext!=null,busy(),pendingOff(),progress,
             reportReadFailed&&reason.isEmpty()?"read-failed":reason,operations.extensionAvailability(),gameAbsent()?LensStatus.Phase.UNVERIFIED:state.phase);
     }
     void refreshReports(){
-        if(!groupsKnown()||!active.compareAndSet(false,true))return;
+        // Passive reads share the serial worker without disabling user switches.
+        // Only mutations own active; this read never changes saved intentions.
+        if(!groupsKnown()||active.get()||!reportReading.compareAndSet(false,true))return;
         worker.execute(()->{
-            LensContext current=null;String raw=null;boolean failed=false;
-            try{current=operations.readContext();if(current!=null){LensOperations.Reply r=operations.displayReports(current);if(r.exit==0&&r.complete)raw=r.output;else failed=true;}}catch(Exception ignored){failed=true;}
+            LensContext current=null;String raw=null,gps=null;boolean failed=false;
+            try{current=operations.readContext();if(current!=null){LensOperations.Reply r=operations.displayReports(current);if(r.exit==0&&r.complete){
+                String header=r.output.startsWith("LENS_SESSION\t")&&r.output.indexOf('\n')>=0?r.output.substring(0,r.output.indexOf('\n')+1):"";
+                StringBuilder display=new StringBuilder();for(String line:r.output.split("\n")){if(line.startsWith("LENS_GPS_REPORT\t")){if(gps!=null)throw new IllegalStateException("duplicate GPS report");gps=header+line.substring("LENS_GPS_REPORT\t".length())+"\n";}else display.append(line).append('\n');}raw=display.toString();
+            }else failed=true;}}catch(Exception ignored){failed=true;raw=null;gps=null;}
+            final String gpsResult=gps;
             final LensContext owner=current;final String text=raw;final boolean failure=failed;
-            main.post(()->{reportContext=owner;reportRaw=text;reportReadFailed=failure;contextChecked=true;bindUnscopedBarrier(owner);updateReports(System.currentTimeMillis());active.set(false);notifyView();});
+            main.post(()->{reportContext=owner;reportRaw=text;gpsRaw=gpsResult;reportReadFailed=failure;contextChecked=true;bindUnscopedBarrier(owner);updateReports(System.currentTimeMillis());reportReading.set(false);notifyView();});
         });
     }
     void monitor(){

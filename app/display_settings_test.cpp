@@ -53,6 +53,16 @@ int main(){
  const std::string directory=name;int parent=open(name,O_RDONLY|O_DIRECTORY);assert(parent>=0);
  {
   LoadLease lease(name);assert(lease.held());
+  assert(read_setting(parent,gps_control_leaf)==Setting::Missing);
+  assert(gps_setting(lease,parent,"read","123"));
+  assert(read_setting(parent,gps_control_leaf)==Setting::Off);
+  assert(gps_setting(lease,parent,"on","123"));
+  assert(gps_setting(lease,parent,"read","123"));
+  assert(read_setting(parent,gps_control_leaf)==Setting::On);
+  {int fd=openat(parent,gps_control_leaf,O_WRONLY|O_TRUNC);assert(fd>=0&&write(fd,"bad\n",4)==4);close(fd);}
+  assert(!gps_setting(lease,parent,"off","123"));
+  assert(!display_all_off(lease,parent,"123"));
+  assert(unlinkat(parent,gps_control_leaf,0)==0);
   for(unsigned group=0;group<4;group++){
    const auto &g=display_groups[group];
    assert(commit_control(lease,parent,display_members[g.first].control,true,getpid(),"123"));
@@ -83,12 +93,14 @@ int main(){
   // All-OFF must override every valid ON, persist across reads and recover
   // after every prefix of master/member commits (the App retains pending intent).
   for(unsigned cut=0;cut<=12;cut++){
+   assert(gps_setting(lease,parent,"on","123"));
    for(unsigned g=0;g<4;g++)assert(display_setting(lease,parent,g,"on","123"));
    for(unsigned step=0;step<cut;step++){
     std::string leaf=step<4?std::string("seed-lens-display-group-")+display_groups[step].key+".txt":display_members[step-4].control;
     assert(commit_control(lease,parent,leaf.c_str(),false,getpid(),"123"));
    }
    assert(display_all_off(lease,parent,"123"));
+   assert(read_setting(parent,gps_control_leaf)==Setting::Off);
    for(unsigned g=0;g<4;g++)assert(display_setting(lease,parent,g,"read","123"));
    for(const auto &m:display_members)assert(read_setting(parent,m.control)==Setting::Off);
   }

@@ -69,11 +69,13 @@ inline bool display_setting(const LoadLease &lease,int parent,unsigned group,std
 inline bool display_all_off(const LoadLease &lease,int parent,std::string_view ownerStart) {
  using namespace seed_lens;
  if(!lease.held())return false;
+ if(read_setting(parent,gps_control_leaf)==Setting::Invalid)return false;
  for(const auto &g:display_groups){
   auto master=std::string("seed-lens-display-group-")+g.key+".txt";
   if(read_setting(parent,master.c_str())==Setting::Invalid)return false;
  }
  for(const auto &m:display_members)if(read_setting(parent,m.control)==Setting::Invalid)return false;
+ if(!commit_control(lease,parent,gps_control_leaf,false,getpid(),ownerStart))return false;
  for(const auto &g:display_groups){
   auto master=std::string("seed-lens-display-group-")+g.key+".txt";
   if(!commit_control(lease,parent,master.c_str(),false,getpid(),ownerStart))return false;
@@ -83,6 +85,16 @@ inline bool display_all_off(const LoadLease &lease,int parent,std::string_view o
  for(unsigned i=0;i<display_groups.size();++i)
   if(!display_setting(lease,parent,i,"read",ownerStart))return false;
  puts("LENS_ALL_OFF_COMMITTED");return true;
+}
+
+inline bool gps_setting(const LoadLease& lease,int parent,std::string_view value,std::string_view ownerStart){
+ using namespace seed_lens;auto saved=read_setting(parent,gps_control_leaf);
+ if(saved==Setting::Invalid)return false;
+ if(value!="read"&&value!="on"&&value!="off")return false;
+ bool on=value=="read"?saved==Setting::On:value=="on";
+ if(value!="read"||saved==Setting::Missing){if(!commit_control(lease,parent,gps_control_leaf,on,getpid(),ownerStart))return false;}
+ if(read_setting(parent,gps_control_leaf)!=(on?Setting::On:Setting::Off))return false;
+ printf("LENS_GPS\t%s\n",on?"on":"off");return true;
 }
 
 }

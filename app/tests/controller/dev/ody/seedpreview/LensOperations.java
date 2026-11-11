@@ -6,13 +6,16 @@ final class LensOperations {
   Reply(int e,String s,boolean start,boolean c){exit=e;output=s;started=start;complete=c;}}
  static final class Result {Reply reply;String version,blocked;long code;}
  final Context context;volatile int offCalls,readCalls,enableCalls;volatile boolean fail,front,allowEnable;volatile LensContext game;
+ volatile java.util.concurrent.CountDownLatch reportEntered,reportRelease;
  LensOperations(Context c){context=c;}
  String extensionAvailability(){return null;}
+ Reply gpsCopy(Boolean enabled){return new Reply(0,"LENS_GPS\t"+(Boolean.TRUE.equals(enabled)?"on":"off")+"\n",true,true);}
+ Reply gpsReport(LensContext c){return new Reply(0,"NO_FRESH_GPS_REPORT\n",true,true);}
  Reply allOff(){offCalls++;return new Reply(fail?26:0,fail?"incomplete":
   "LENS_GROUP\t0\toff\nLENS_GROUP\t1\toff\nLENS_GROUP\t2\toff\nLENS_GROUP\t3\toff\nLENS_ALL_OFF_COMMITTED\n",true,true);}
  Reply displayGroup(int g,Boolean enabled){readCalls++;throw new AssertionError("pending OFF must not read/import ON");}
  LensContext readContext(){return game;}
- Reply displayReports(LensContext c){if(allowEnable)return new Reply(0,"",true,true);throw new AssertionError("no live game");}
+ Reply displayReports(LensContext c){if(reportEntered!=null){reportEntered.countDown();try{if(!reportRelease.await(3,java.util.concurrent.TimeUnit.SECONDS))throw new AssertionError("report release");}catch(InterruptedException e){throw new AssertionError(e);}}if(allowEnable)return new Reply(0,"",true,true);throw new AssertionError("no live game");}
  boolean gameForeground(){return front;}
  Result execute(LensStatus.Action a,LensContext c,Foreground f,Runnable p){enableCalls++;if(!allowEnable)throw new AssertionError("must not load while pending OFF");Result result=new Result();result.blocked="host test refusal";return result;}
 }

@@ -135,6 +135,12 @@ int main(int argc,char**argv){
         return 0;
     }
     bool allOff=argc==2&&!strcmp(argv[1],"--display-all-off");
+    if(argc==3&&!strcmp(argv[1],"--gps-copy")){
+        if(mkdir(base,0755)&&errno!=EEXIST)return fail(24);if(!secure(base,true))return fail(24);
+        seed_root::LoadLease lease(base);if(!lease.held())return fail(4);
+        int parent=open("/data/local/tmp",O_RDONLY|O_DIRECTORY|O_CLOEXEC|O_NOFOLLOW);if(parent<0)return fail(25);
+        bool ok=seed_root::gps_setting(lease,parent,argv[2],ticks(getpid()));close(parent);return ok?0:fail(26);
+    }
     if(allOff||(argc==4&&!strcmp(argv[1],"--display-group"))){
         if(!allOff&&(strlen(argv[2])!=1||argv[2][0]<'0'||argv[2][0]>'3'))return fail(2);
         if(mkdir(base,0755)&&errno!=EEXIST)return fail(24);
@@ -148,7 +154,8 @@ int main(int argc,char**argv){
     }
     bool contained=argc==5&&!strcmp(argv[1],"--enable-contained");
     bool on=(argc==5&&!strcmp(argv[1],"--enable"))||contained,off=argc==4&&!strcmp(argv[1],"--off"),statusOnly=argc==4&&!strcmp(argv[1],"--status");
-    bool reportsOnly=argc==4&&!strcmp(argv[1],"--display-reports");
+    bool gpsOnly=argc==4&&!strcmp(argv[1],"--gps-report");
+    bool reportsOnly=(argc==4&&!strcmp(argv[1],"--display-reports"))||gpsOnly;
     if(!on&&!off&&!statusOnly&&!reportsOnly)return fail(2);
     char* end=nullptr;long n=strtol(argv[2],&end,10);
     if(!end||*end||n<=1||n>INT_MAX||!seed_root::start_ticks(argv[3]))return fail(2);
@@ -157,12 +164,15 @@ int main(int argc,char**argv){
     const auto* profile=(on||statusOnly||reportsOnly)?game_profile(pid,start):nullptr;
     if(reportsOnly){
         if(!profile)return fail(6);
+        if(gpsOnly){if(renderer_status(pid,start,status,profile,seed_lens::gps_report_leaf))printf("%s",status.c_str());else puts("NO_FRESH_GPS_REPORT");return 0;}
         for(unsigned i=0;i<seed_lens::display_members.size();++i){
             if(!identity(pid,start))return fail(3);
             if(renderer_status(pid,start,status,profile,seed_lens::display_members[i].report))
                 printf("LENS_MEMBER\t%u\t%s",i,status.c_str());
             else printf("LENS_MEMBER_MISSING\t%u\n",i);
         }
+        if(renderer_status(pid,start,status,profile,seed_lens::gps_report_leaf))printf("LENS_GPS_REPORT\t%s",status.c_str());
+        else puts("LENS_GPS_REPORT\tNO_FRESH_GPS_REPORT");
         if(!identity(pid,start))return fail(3);
         printf("LENS_REPORTS_END\t%d\t%s\n",pid,start.c_str());return 0;
     }
