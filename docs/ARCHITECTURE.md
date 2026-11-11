@@ -2,6 +2,8 @@
 
 ## 診斷與更新
 
+伺服器沿用封閉 JSON 接收端，新增同源上傳頁與私人管理後台；報告仍為不可覆寫 JSON，SQLite 只保存處理狀態。管理 session 保留記憶體，密碼雜湊從外部環境讀取；APK 未設定端點。[後台部署與驗收界線](../server/diagnostics/README.md)。
+
 0.11.2 新增獨立診斷程序、封閉回報 schema 與同意匯出；Root 檢查只讀，不經遊戲載入器。新增 INTERNET 僅供使用者允許的版本檢查／下載及日後同意的回報，接收端目前未設定。更新安裝使用 Android PackageInstaller 與 App 私人載入 interlock；不引入核心／模組或 Root 安裝。[本輪設計與驗收界線](DIAGNOSTICS_UPDATES.md)。
 
 ## 執行狀態與關閉全部
