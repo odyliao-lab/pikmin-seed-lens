@@ -33,6 +33,8 @@
 
 main 驗證：[網站 CI](https://github.com/odyliao-lab/pikmin-seed-lens/actions/runs/43227983828)、[Offline policy](https://github.com/odyliao-lab/pikmin-seed-lens/actions/runs/43227983277)。本機 HTTP 使用 loopback、合成資料與模擬站長登入，不等同正式非站長帳號隔離驗收。
 
+驗收文件 PR #24 的 CI 通過後，合併後網站 CI 首輪在限流測試遇到整分鐘切換：第六次請求於新分鐘得到 200，而非前一分鐘額度用盡的 429。保留該失敗紀錄；後續測試在分鐘末先等待新窗口，並核對整個請求批次未跨分鐘，仍要求第六次回 429，未放寬正式限流或加入失敗重試。[首輪紀錄](https://github.com/odyliao-lab/pikmin-seed-lens/actions/runs/43235456950)。
+
 ## MuMu 安裝版 App → 正式後台
 
 | 項目 | 觀察結果 |
