@@ -1,5 +1,7 @@
 # 驗證分層
 
+0.15.1 原簽章 APK 已在隔離 MuMu 12.0（實際API32）／15.0（API35）＋精確遊戲157.0驗證待種花苗ON、背景通知狀態與通知關閉還原；API35通知拒權不阻擋功能。0.15.0另實測真實更新失敗、快取保留、5分鐘退避、App重開與連線恢復。修正通知回報讀取被monitor阻擋的問題，16項通知主機回歸及CI通過。[完整矩陣、版本差異與待驗界線](VALIDATION_0151_MUMU.md)。以下0.15.0四段為初期離線紀錄，裝置結果以上述文件為準；未發布、不擴大平台資格。
+
 0.15.0 完整 unsigned candidate 建置通過：雙ABI載入器、renderer、JVM、dex與APK封裝／digest；未安裝或執行Android native測試，沒有新增裝置資格。候選不可交付，[雜湊與界線](SETUP_NOTIFICATIONS_UPDATES.md)。
 
 0.15.0 更新：58項更新policy／封裝守門、38項實際updater主機替身案例通過；真實網路失敗、Android程序重開與安裝流程未驗。不改公開索引或既有裝置資格。[本批結果](SETUP_NOTIFICATIONS_UPDATES.md)。

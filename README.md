@@ -77,7 +77,7 @@
 
 ## 建置與文件
 
-開發分支 0.15.0 新增首次檢查、通知操作與更新重試；尚未發布，裝置驗收待完成。[開發與測試紀錄](docs/SETUP_NOTIFICATIONS_UPDATES.md)。
+開發分支 0.15.1 新增首次檢查、通知操作與更新重試；MuMu API32／35＋遊戲157.0的通知與待種花苗回歸已驗，尚未發布。[驗收與限制](docs/VALIDATION_0151_MUMU.md)。
 
 需要 PowerShell 7、JDK 17、Android SDK platform 35／build-tools 35.0.0、NDK r27d、CMake 3.21+ 與 Ninja。將下列工具路徑改為本機位置：
 
