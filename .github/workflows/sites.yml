@@ -30,3 +30,19 @@ jobs:
         run: npm run build
       - name: Check deployable Worker output
         run: test -s dist/server/index.js && test -s dist/server/wrangler.json
+      - name: Exercise local D1 upload and admin contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf 'ADMIN_EMAIL=seedy@sites.test\nRATE_KEY=ci-synthetic-only-not-production\n' > .dev.vars
+          npx --no-install wrangler d1 execute DB --local --config dist/server/wrangler.json --persist-to .wrangler/state --file drizzle/0000_lying_infant_terrible.sql
+          npx --no-install vite --host 127.0.0.1 --port 5189 --strictPort > "$RUNNER_TEMP/sites-preview.log" 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid" 2>/dev/null || true; rm -f .dev.vars' EXIT
+          ready=false
+          for attempt in {1..60}; do
+            if curl --fail --silent http://127.0.0.1:5189/ > /dev/null; then ready=true; break; fi
+            sleep 1
+          done
+          if [ "$ready" != true ]; then cat "$RUNNER_TEMP/sites-preview.log"; exit 1; fi
+          python3 tests/http_test.py
