@@ -1,5 +1,9 @@
 # 驗證分層
 
+0.15.0 完整 unsigned candidate 建置通過：雙ABI載入器、renderer、JVM、dex與APK封裝／digest；未安裝或執行Android native測試，沒有新增裝置資格。候選不可交付，[雜湊與界線](SETUP_NOTIFICATIONS_UPDATES.md)。
+
+0.15.0 更新：58項更新policy／封裝守門、38項實際updater主機替身案例通過；真實網路失敗、Android程序重開與安裝流程未驗。不改公開索引或既有裝置資格。[本批結果](SETUP_NOTIFICATIONS_UPDATES.md)。
+
 0.15.0 通知：實際service/controller的12項主機替身驗證與原80項控制器回歸通過；OS通知權限、抽屜操作、背景生命週期與遊戲OFF仍待隔離裝置實測。[詳細界線](SETUP_NOTIFICATIONS_UPDATES.md)。
 
 0.15.0 開發：首次使用檢查、Root 命名空間特定提示與原上傳契約的66項主機案例、Android Java編譯通過；尚未裝置驗收、不新增相容資格。[本批分項結果](SETUP_NOTIFICATIONS_UPDATES.md)。
