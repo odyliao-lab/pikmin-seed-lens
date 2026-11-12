@@ -82,15 +82,17 @@ if($LASTEXITCODE){throw 'Lens presentation protocol compile failed'}
 if($LASTEXITCODE){throw 'Lens presentation protocol checks failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.LensContextTest
 if($LASTEXITCODE){throw 'Lens boot/process binding checks failed'}
-& "$JavaHome/bin/javac.exe" -encoding UTF-8 -classpath "$out/tests" -d "$out/tests" "$PSScriptRoot/src/dev/ody/seedpreview/DisplayGroups.java" "$PSScriptRoot/tests/DisplayGroupsTest.java"
+& "$JavaHome/bin/javac.exe" -encoding UTF-8 -classpath "$out/tests" -d "$out/tests" "$PSScriptRoot/src/dev/ody/seedpreview/DisplayGroups.java" "$PSScriptRoot/tests/DisplayGroupsTest.java" "$PSScriptRoot/src/dev/ody/seedpreview/GpsCopy.java" "$PSScriptRoot/tests/GpsCopyTest.java"
 if($LASTEXITCODE){throw 'Display group protocol compile failed'}
+& "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.GpsCopyTest
+if($LASTEXITCODE){throw 'GPS contract tests failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.DisplayGroupsTest
 if($LASTEXITCODE){throw 'Display group protocol checks failed'}
 & "$JavaHome/bin/javac.exe" -encoding UTF-8 -classpath "$out/tests" -d "$out/tests" "$PSScriptRoot/src/dev/ody/seedpreview/DisplayOverview.java" "$PSScriptRoot/tests/DisplayOverviewTest.java"
 if($LASTEXITCODE){throw 'Display overview compile failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.DisplayOverviewTest
 if($LASTEXITCODE){throw 'Display overview checks failed'}
-$diagnosticSources=@('DiagnosticReport','DiagnosisPolicy','DiagnosticEndpoint','DiagnosticSubmission','DiagnosticUploader','LensUpdateInfo','LensUpdateClient','LensUpdateArchive','UpdateInterlock') | ForEach-Object { "$PSScriptRoot/src/dev/ody/seedpreview/$_.java" }
+$diagnosticSources=@('DiagnosticReport','RootDiagnostic','FirstUseCheck','DiagnosisPolicy','DiagnosticEndpoint','DiagnosticSubmission','DiagnosticUploader','LensUpdateInfo','UpdateCheckPolicy','LensUpdateClient','LensUpdateArchive','UpdateInterlock') | ForEach-Object { "$PSScriptRoot/src/dev/ody/seedpreview/$_.java" }
 & "$JavaHome/bin/javac.exe" -encoding UTF-8 -classpath "$out/tests" -d "$out/tests" @diagnosticSources "$PSScriptRoot/tests/DiagnosticPolicyTest.java" "$PSScriptRoot/tests/DiagnosticUploadTest.java" "$PSScriptRoot/tests/LensUpdateTest.java"
 if($LASTEXITCODE){throw 'Diagnostic/update policy compile failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.DiagnosticPolicyTest
@@ -99,11 +101,27 @@ if($LASTEXITCODE){throw 'Diagnostic privacy/advice checks failed'}
 if($LASTEXITCODE){throw 'Diagnostics upload tests failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.LensUpdateTest "$root/updates/preview.properties"
 if($LASTEXITCODE){throw 'Update policy/interlock/archive checks failed'}
+$updaterSources=@(Get-ChildItem "$PSScriptRoot/tests/updater" -Recurse -Filter '*.java' | ForEach-Object FullName)
+& "$JavaHome/bin/javac.exe" -encoding UTF-8 -classpath "$out/tests" -d "$out/updater-tests" "$PSScriptRoot/src/dev/ody/seedpreview/LensUpdater.java" @updaterSources
+if($LASTEXITCODE){throw 'Actual updater host compile failed'}
+& "$JavaHome/bin/java.exe" -cp "$out/updater-tests$([IO.Path]::PathSeparator)$out/tests" dev.ody.seedpreview.UpdateRetryTest "$root/updates/preview.properties"
+if($LASTEXITCODE){throw 'Actual updater retry/persistence checks failed'}
+$installerSources=@(Get-ChildItem "$PSScriptRoot/tests/installer" -Recurse -Filter '*.java' | ForEach-Object FullName)
+& "$JavaHome/bin/javac.exe" -encoding UTF-8 -d "$out/installer-tests" "$PSScriptRoot/src/dev/ody/seedpreview/LensUpdateInstaller.java" "$PSScriptRoot/src/dev/ody/seedpreview/LensUpdateInstallActivity.java" "$PSScriptRoot/src/dev/ody/seedpreview/UpdateInterlock.java" @installerSources
+if($LASTEXITCODE){throw 'Actual installer callback host compile failed'}
+& "$JavaHome/bin/java.exe" -cp "$out/installer-tests" dev.ody.seedpreview.InstallerCallbackTest
+if($LASTEXITCODE){throw 'Actual installer callback checks failed'}
 $controllerSources=@(Get-ChildItem "$PSScriptRoot/tests/controller" -Recurse -Filter '*.java' | ForEach-Object FullName)
 & "$JavaHome/bin/javac.exe" -encoding UTF-8 -classpath "$out/tests" -d "$out/controller-tests" "$PSScriptRoot/src/dev/ody/seedpreview/LensController.java" "$PSScriptRoot/src/dev/ody/seedpreview/UpdateInterlock.java" @controllerSources
 if($LASTEXITCODE){throw 'Controller all-OFF host test compile failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/controller-tests$([IO.Path]::PathSeparator)$out/tests" dev.ody.seedpreview.AllOffControllerTest
 if($LASTEXITCODE){throw 'Controller all-OFF queue/recovery checks failed'}
+$serviceSources=@(Get-ChildItem "$PSScriptRoot/tests/service" -Recurse -Filter '*.java' | ForEach-Object FullName)
+$serviceControllerSources=@($controllerSources | Where-Object { (Split-Path $_ -Leaf) -ne 'LensService.java' })
+& "$JavaHome/bin/javac.exe" -encoding UTF-8 -classpath "$out/tests" -d "$out/service-tests" "$PSScriptRoot/src/dev/ody/seedpreview/LensController.java" "$PSScriptRoot/src/dev/ody/seedpreview/LensService.java" "$PSScriptRoot/src/dev/ody/seedpreview/UpdateInterlock.java" @serviceControllerSources @serviceSources
+if($LASTEXITCODE){throw 'Notification service host compile failed'}
+& "$JavaHome/bin/java.exe" -cp "$out/service-tests$([IO.Path]::PathSeparator)$out/tests" dev.ody.seedpreview.NotificationServiceTest
+if($LASTEXITCODE){throw 'Notification service/OFF checks failed'}
 & "$JavaHome/bin/javac.exe" -encoding UTF-8 -d "$out/tests" "$PSScriptRoot/tests/ApkNativeLayout.java" "$PSScriptRoot/tests/ApkNativeLayoutTest.java"
 if($LASTEXITCODE){throw 'APK layout checker compile failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.ApkNativeLayoutTest

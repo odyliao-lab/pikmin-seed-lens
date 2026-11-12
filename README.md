@@ -1,16 +1,16 @@
 # 皮克敏花苗透視鏡
 
-在 Pikmin Bloom 補充花苗、皮克敏、探險與精華資訊。僅修改顯示，關閉後還原原文字與字級。
+在 Pikmin Bloom 補充花苗、皮克敏、探險與精華資訊，並可複製探險座標。顯示關閉後還原原文字與字級。
 
 <p align="center">
   <img src="docs/images/readme/illustration.jpg" width="260" alt="皮克敏拿著放大鏡觀察花苗的示意插畫">
 </p>
 
-**[下載 0.9.5 預覽版 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.9.5)** · 開發者：odyliao-lab
+**[下載 0.15.3 預覽版 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.15.3)** · 開發者：odyliao-lab
 
-0.9.5 對應遊戲 157.0；遊戲 156.1 使用[舊版 0.7.3 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.7.3)（僅花苗名稱顯示）。
+0.15.3 對應遊戲 157.0；遊戲 156.1 使用[舊版 0.7.3 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.7.3)（僅花苗名稱顯示）。
 
-## 四個功能開關
+## 功能
 
 | 功能 | 顯示內容 |
 |---|---|
@@ -18,24 +18,43 @@
 | 皮克敏資訊 | 目前花態、可收瓣／任務狀態、已取得裝飾 |
 | 探險資訊 | 一般白盒對象與裝飾、探險狀態與遊戲剩餘時間 |
 | 精華／花瓣對照 | 保留精華數量，補對應花瓣、容量與剩餘空間 |
+| 複製探險座標 | 查看探險詳情，複製目前項目的座標至本機剪貼簿 |
 
-開發分支新增[執行狀態與關閉全部](docs/STATUS_ALL_OFF.md)、[診斷與版本更新](docs/DIAGNOSTICS_UPDATES.md)，以及 [App 直接回報](docs/APP_DIRECT_UPLOAD.md)（0.12.1/code45 候選，尚未公開發布）。在診斷頁預覽、選填 Email、同意後即可直接上傳，不需登入；離線匯出仍保留。
+提供[執行狀態與關閉全部](docs/STATUS_ALL_OFF.md)、[診斷與版本更新](docs/DIAGNOSTICS_UPDATES.md)，以及 [App 直接回報](docs/APP_DIRECT_UPLOAD.md)。在診斷頁預覽、選填 Email、同意後即可直接上傳，不需登入；離線匯出仍保留。
 
-[診斷回報站](https://seed-lens-reports.ody-liao.chatgpt.site)也可上傳匯出的 JSON。Email 僅供修正通知，目前尚未接上寄信服務；管理後台僅限站長登入。[網站原始碼與限制](server/sites/README.md)。已發布的 0.9.5 不包含上述開發分支功能。
+[診斷回報站](https://seed-lens-reports.ody-liao.chatgpt.site)也可上傳匯出的 JSON。Email 僅供修正通知，目前尚未接上寄信服務；管理後台僅限站長登入。[網站原始碼與限制](server/sites/README.md)。
 
 工具頁直接開關，說明預設收合；診斷頁提供環境排除建議與檢查新版本。各項實測範圍見下表與[完整驗收矩陣](docs/DISPLAY_PORT_RESULTS.md)。
+
+0.14.2將工具頁改成五個緊湊功能列，小圖示橫排、說明按需展開，底部兩個操作固定可見。[版面比較與實測](docs/COMPACT_UI.md)。
+
+0.14.1 改為「先保存選擇，再動態套用」：遊戲未開或 Root／版本條件尚未就緒，也可先打開五個開關，App 另顯示等待原因。[操作與驗證](docs/FEATURE_INTENT.md)。
+
+座標複製預設關閉，不移動定位，座標不納入診斷或上傳。[操作與實測範圍](docs/GPS_COPY.md)。
+
+0.15.1 新增首次檢查與 Root 排除建議、通知即時狀態與「關閉全部」，更新查詢失敗後保留快取並延後重試。[發布與驗證](docs/RELEASE_0151.md)。
+
+**0.15.3 更新修正**：修正 API35 安裝確認卡住，已在隔離 MuMu 通過系統確認、取消重試與升級。[本版發布](docs/RELEASE_0153.md)。舊0.14.2／0.15.1的API35使用者首次請從發布頁手動覆蓋安裝，**不要卸載或清資料**；新版不能回溯修正舊安裝器。API32前輪結果保留於[實測紀錄](docs/UPDATE_0142_TO_0151.md)。
 
 ## 使用方式
 
 需要既有 **Root＋單一 APK**，不需其他 App、額外顯示模組或電腦注入。介面固定直式，不變更物品或執行遊戲操作。
 
 1. 安裝透視鏡並允許 Root。
-2. 依下表流程開啟所需主開關，完成首次確認。
+2. 選擇所需開關，完成首次自動套用確認；條件尚未就緒也能先保存 ON。
 3. 保持遊戲在前景等待套用；卡片未更新時重新開啟列表。
 
-MuMu 12.0 先讓遊戲到主畫面，再啟用透視鏡；MuMu 15.0 可先啟用透視鏡再開遊戲。若結果不明或升級後仍載入舊版，依提示重開遊戲，不對同一程序重送載入。
+0.14.1 已在 MuMu 12.0／15.0 驗證先選 ON、再開遊戲自行套用。ON 代表選擇，實際套用依狀態顯示；若結果不明或升級後仍載入舊版，依提示正常重開遊戲，不對同一程序重送載入。
 
 ## 已驗證環境
+
+0.15.3：MuMu15.0／API35完成0.15.2→0.15.3系統確認、取消重試、升級與設定保存；本輪未重跑遊戲或API32裝置，不擴大下列既有遊戲資格。[安裝驗收](docs/API35_INSTALLER_FIX.md)。
+
+0.15.1：MuMu 內建 12.0（實際 Android 12L／API32）及 15.0（API35）搭配精確 157.0，通過待種花苗 ON／OFF 還原、背景通知狀態與通知關閉全部；API35 另驗通知拒權不阻擋顯示。Root 檢查、版本查詢與 API32 離線退避紀錄見[本輪驗收](docs/VALIDATION_0151_MUMU.md)。
+
+0.14.1：MuMu 內建12.0（API32）及15.0（API35）搭配精確157.0，通過預選開關、等待遊戲、自行載入、水果座標複製與OFF；API35另驗取消首次確認保留ON及重開App保存。[本版驗證界線](docs/FEATURE_INTENT.md)。
+
+0.13.3 的座標複製已在 MuMu 內建 12.0（API32）及 15.0（API35）搭配遊戲 157.0 通過水果詳情 ON／OFF／再 ON；API35 另通過遊戲重啟自動重綁。[GPS 專項紀錄](docs/GPS_COPY.md)。下表保留四組資訊及舊版資格。
 
 以下均為 **MuMu x86_64＋NativeBridge**。0.9.5 已實測花苗庫存統計、成年裝飾／葉與任務副標、待派期限、精華／花瓣對照的 ON／OFF；資格限這些樣本與表列流程。
 

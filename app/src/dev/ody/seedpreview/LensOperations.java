@@ -102,6 +102,8 @@ final class LensOperations {
         return displayCommand("--display-group "+group+" "+(enabled==null?"read":enabled?"on":"off"),null);
     }
     Reply allOff()throws Exception{return displayCommand("--display-all-off",null);}
+    Reply gpsCopy(Boolean enabled)throws Exception{return displayCommand("--gps-copy "+(enabled==null?"read":enabled?"on":"off"),null);}
+    String gpsAvailability(){String blocked=extensionAvailability();if(blocked!=null)return blocked;return "x86_64".equals(Build.SUPPORTED_ABIS[0])&&(Build.VERSION.SDK_INT==32||Build.VERSION.SDK_INT==35)?null:"GPS 複製目前限定 MuMu API32／35。";}
     Reply displayReports(LensContext current)throws Exception{
         if(current==null)throw new IOException("missing game");
         return displayCommand("--display-reports \"$p\" \"$t\"",current);

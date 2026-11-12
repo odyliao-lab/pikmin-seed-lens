@@ -20,21 +20,33 @@ final class LensController {
     final ExecutorService worker=Executors.newSingleThreadExecutor();
     final Handler main=new Handler(Looper.getMainLooper());
     final AtomicBoolean active=new AtomicBoolean();
+    final AtomicBoolean reportReading=new AtomicBoolean();
     private WeakReference<Observer> observer=new WeakReference<>(null);
     LensStatus state=LensStatus.unverified();
     String raw="尚無操作紀錄。",progress="",reason="";
     LensContext barrier;
     boolean unscopedBarrier;
     final Boolean[] groupOn=new Boolean[4];
+    Boolean gpsOn;String gpsRaw,gpsText="尚未核對";
     final String[] groupReport={"尚未核對","尚未核對","尚未核對","尚未核對"};
     LensContext reportContext;
     String reportRaw;
     final DisplayGroups.Report[] effects=new DisplayGroups.Report[4];
     boolean reportReadFailed,contextChecked,closeQueued;
+    // App-owned intentions survive unavailable Root/game and are never replaced by reports.
+    final boolean[] intentPresent=new boolean[5];
+    volatile long intentRevision;
+    boolean settingsDirty=true;
+    long syncedRevision=-1,syncRetryAt;
+    String settingsError="",eligibility="";
     LensContext autoAttempt;
     LensStatus.Phase barrierPhase=LensStatus.Phase.UNKNOWN;
     private LensController(Context context){
         operations=new LensOperations(context);preferences=context.getApplicationContext().getSharedPreferences("lens-interface",Context.MODE_PRIVATE);
+        for(int i=0;i<5;i++){
+            intentPresent[i]=preferences.contains(intentKey(i));
+            if(intentPresent[i])try{wanted(i,preferences.getBoolean(intentKey(i),false));}catch(ClassCastException invalid){wanted(i,null);}
+        }
         boolean current=preferences.contains("retry-barrier-v2"),legacyUncertain=false;
         try{legacyUncertain=preferences.getBoolean("ui-uncertain",false);}catch(ClassCastException ignored){}
         barrier=LensContext.preference(storedText("retry-barrier-v2"),current?null:storedText("retry-barrier"));
@@ -63,114 +75,194 @@ final class LensController {
     void detach(Observer value){if(observer.get()==value)observer.clear();}
     private void notifyView(){Observer value=observer.get();if(value!=null)value.changed();}
     boolean busy(){return active.get();}
-    boolean groupsKnown(){for(Boolean value:groupOn)if(value==null)return false;return true;}
-    boolean anyGroup(){for(Boolean value:groupOn)if(Boolean.TRUE.equals(value))return true;return false;}
+    boolean groupsKnown(){for(Boolean value:groupOn)if(value==null)return false;return gpsOn!=null;}
+    boolean anyGroup(){for(Boolean value:groupOn)if(Boolean.TRUE.equals(value))return true;return Boolean.TRUE.equals(gpsOn);}
     boolean armed(){try{return preferences.getBoolean("display-auto-arm",false);}catch(ClassCastException e){return false;}}
     boolean pendingOff(){try{return preferences.getBoolean("all-off-pending",false);}catch(ClassCastException invalid){return true;}}
-    boolean arm(){if(pendingOff())return false;return preferences.edit().putBoolean("display-auto-arm",true).commit();}
-    void refreshGroups(){
-        if(pendingOff()){allOff();return;}
+    static String intentKey(int i){return "feature-intent-v1-"+i;}
+    Boolean wanted(int i){return i<4?groupOn[i]:gpsOn;}
+    void wanted(int i,Boolean value){if(i<4)groupOn[i]=value;else gpsOn=value;}
+    boolean hasIntent(){for(boolean value:intentPresent)if(value)return true;return false;}
+    boolean needsWatch(){return pendingOff()||anyGroup()&&armed()||settingsDirty&&hasIntent();}
+    boolean arm(){
+        if(!preferences.edit().putBoolean("display-auto-arm",true).commit())return false;
+        ++intentRevision;settingsDirty=true;syncRetryAt=0;wake();kick();return true;
+    }
+    void setGroup(int group,boolean enabled){if(group>=0&&group<4)saveIntent(group,enabled);}
+    void setGps(boolean enabled){saveIntent(4,enabled);}
+    private void saveIntent(int i,boolean enabled){
+        if(!preferences.edit().putBoolean(intentKey(i),enabled).commit()){
+            reason="選擇未保存，請重試。";notifyView();return;
+        }
+        wanted(i,enabled);intentPresent[i]=true;++intentRevision;
+        settingsDirty=true;settingsError="";syncRetryAt=0;reason="";
+        if(i==4)gpsRaw=null;
+        DiagnosticStore.record(operations.context,"GROUP_SAVED");
+        notifyView();wake();kick();
+    }
+    private void wake(){
+        if(needsWatch())LensService.start(operations.context);
+        else operations.context.stopService(new android.content.Intent(operations.context,LensService.class));
+    }
+    void tick(){
+        String current=String.valueOf(operations.extensionAvailability())+"|"+String.valueOf(operations.gpsAvailability())+"|"+armed();
+        if(!current.equals(eligibility)){eligibility=current;++intentRevision;settingsDirty=true;syncRetryAt=0;}
+        if(pendingOff()||settingsDirty){if(System.currentTimeMillis()>=syncRetryAt)kick();return;}
+        if(anyGroup()&&armed())monitor();
+    }
+    private void kick(){
+        if(active.get())return;
+        if(pendingOff()){resumeAllOff();return;}
+        if(settingsDirty&&System.currentTimeMillis()>=syncRetryAt)syncSettings();
+    }
+    void refreshGroups(){syncRetryAt=0;settingsDirty=true;kick();}
+    private void syncSettings(){
         if(!active.compareAndSet(false,true))return;
-        progress="正在核對 Root 與設定…";notifyView();
+        final long revision=intentRevision;
+        final Boolean[] intentions={groupOn[0],groupOn[1],groupOn[2],groupOn[3],gpsOn};
+        final boolean[] present=intentPresent.clone();
+        final boolean consent=armed();
+        progress="正在核對套用條件…";notifyView();
         worker.execute(()->{
-            Boolean[] found=new Boolean[4];String error="";
-            for(int i=0;i<4;i++)try{
-                LensOperations.Reply r=operations.displayGroup(i,null);found[i]=DisplayGroups.setting(i,r.exit,r.complete,r.output);
-                if(found[i]==null){error=DisplayGroups.failure(r.exit,r.output);break;}
-            }catch(Exception e){error="Root 或設定讀取失敗；點此重試。";break;}
+            Boolean[] imported=new Boolean[5];String error="";
+            String displayBlock=operations.extensionAvailability(),gpsBlock=operations.gpsAvailability();
+            for(int i=0;i<5;i++){
+                if(intentRevision!=revision)break; // Do not fan out an obsolete queued ON.
+                if(intentions[i]==null&&present[i]){error="設定無法讀取，請重新選擇開關。";continue;}
+                Boolean target=intentions[i]==null?null:intentions[i]&&consent&&(i==4?gpsBlock:displayBlock)==null;
+                try{
+                    LensOperations.Reply r=i==4?operations.gpsCopy(target):operations.displayGroup(i,target);
+                    Boolean saved=i==4?GpsCopy.setting(r.exit,r.complete,r.output):DisplayGroups.setting(i,r.exit,r.complete,r.output);
+                    if(saved==null||target!=null&&!target.equals(saved)){error="等待 Root 授權或設定同步；點此重試。";break;}
+                    if(intentions[i]==null)imported[i]=saved;
+                }catch(Exception unavailable){error="等待 Root 授權或設定同步；點此重試。";break;}
+            }
             final String problem=error;
             main.post(()->{
-                System.arraycopy(found,0,groupOn,0,4);reason=problem;progress="";active.set(false);notifyView();
-                if(!pendingOff()&&groupsKnown()&&anyGroup()&&armed())LensService.start(operations.context);
-                refreshReports();
-            });
-        });
-    }
-    void setGroup(int group,boolean enabled){
-        if(group<0||group>3||pendingOff()||!active.compareAndSet(false,true))return;
-        progress="保存整組設定…";reason="";notifyView();
-        worker.execute(()->{
-            Boolean saved=null;String error="";
-            try{LensOperations.Reply r=operations.displayGroup(group,enabled);saved=DisplayGroups.setting(group,r.exit,r.complete,r.output);
-                if(saved==null)error=DisplayGroups.failure(r.exit,r.output);
-            }catch(Exception e){error="Root 或設定保存失敗；不推定開關已改變。";}
-            final Boolean value=saved;final String problem=error;
-            main.post(()->{
-                if(value!=null)DiagnosticStore.record(operations.context,"GROUP_SAVED");
-                groupOn[group]=value;groupReport[group]=value==null?"設定未確認":value?"已啟用，等待遊戲":"等待原顯示還原";
-                reason=problem;progress="";active.set(false);notifyView();
-                if(!pendingOff()&&value!=null&&anyGroup()&&armed())LensService.start(operations.context);
-                if(groupsKnown()&&!anyGroup())operations.context.stopService(new android.content.Intent(operations.context,LensService.class));
-                refreshReports();
+                active.set(false);progress="";
+                if(revision!=intentRevision||pendingOff()){kick();return;}
+                boolean migration=false;android.content.SharedPreferences.Editor edit=preferences.edit();
+                for(int i=0;i<5;i++)if(!intentPresent[i]&&imported[i]!=null){edit.putBoolean(intentKey(i),imported[i]);migration=true;}
+                if(migration){
+                    if(edit.commit()){
+                        for(int i=0;i<5;i++)if(!intentPresent[i]&&imported[i]!=null){wanted(i,imported[i]);intentPresent[i]=true;}
+                        ++intentRevision;settingsDirty=true;
+                    }else{settingsError="舊設定尚未保存，請重試。";syncRetryAt=System.currentTimeMillis()+15000;notifyView();wake();return;}
+                }
+                settingsError=problem;settingsDirty=migration||!problem.isEmpty()||!groupsKnown();
+                if(!settingsDirty)syncedRevision=intentRevision;
+                syncRetryAt=problem.isEmpty()?0:System.currentTimeMillis()+15000;
+                updateReports(System.currentTimeMillis());notifyView();wake();
+                if(migration&&problem.isEmpty())kick();else refreshReports();
             });
         });
     }
     void allOff(){
-        if(closeQueued)return;
-        // One durable App transaction cancels auto-enable before any root write.
-        if(!preferences.edit().putBoolean("all-off-pending",true).putBoolean("display-auto-arm",false).commit()){
-            reason="關閉意願未保存，尚未關閉全部；請重試。";notifyView();return;
-        }
-        operations.context.stopService(new android.content.Intent(operations.context,LensService.class));
-        DiagnosticStore.record(operations.context,"ALL_OFF_BEGIN");
-        reportRaw=null;reason="";closeQueued=true;resumeAllOff();
+        android.content.SharedPreferences.Editor edit=preferences.edit().putBoolean("all-off-pending",true).putBoolean("display-auto-arm",false);
+        for(int i=0;i<5;i++)edit.putBoolean(intentKey(i),false);
+        if(!edit.commit()){reason="關閉意願未保存，尚未關閉全部；請重試。";notifyView();return;}
+        for(int i=0;i<5;i++){wanted(i,false);intentPresent[i]=true;}
+        ++intentRevision;settingsDirty=true;syncRetryAt=0;settingsError="";reason="";gpsRaw=null;reportRaw=null;
+        DiagnosticStore.record(operations.context,"ALL_OFF_BEGIN");notifyView();wake();kick();
     }
     private void resumeAllOff(){
-        if(!closeQueued)return;
-        if(!active.compareAndSet(false,true)){
-            progress="已保存關閉要求，等待前一操作結束…";notifyView();
-            main.postDelayed(this::resumeAllOff,250);return;
-        }
-        closeQueued=false;progress="正在關閉全部…";notifyView();
+        if(!active.compareAndSet(false,true))return;
+        closeQueued=true;progress="正在同步全部關閉…";notifyView();
         worker.execute(()->{
-            boolean committed=false;String error="";
-            try{LensOperations.Reply r=operations.allOff();committed=DisplayGroups.allOffSaved(r.exit,r.complete,r.output);
-                if(!committed)error=DisplayGroups.failure(r.exit,r.output);
-            }catch(Exception failure){error="Root 或設定保存失敗；尚未確認全部關閉。";}
-            final boolean saved=committed;final String problem=error;
+            boolean committed=false;
+            try{LensOperations.Reply r=operations.allOff();committed=DisplayGroups.allOffSaved(r.exit,r.complete,r.output);}catch(Exception ignored){}
+            final boolean saved=committed;
             main.post(()->{
                 boolean complete=saved&&preferences.edit().putBoolean("all-off-pending",false).commit();
                 DiagnosticStore.record(operations.context,complete?"ALL_OFF_SAVED":"ALL_OFF_FAILED");
-                for(int i=0;i<4;i++)groupOn[i]=complete?Boolean.FALSE:null;
-                reason=complete?"":problem.isEmpty()?"關閉結果尚未保存，請重試關閉全部。":problem;
-                progress="";active.set(false);notifyView();refreshReports();
+                // Later user selections survive this older OFF acknowledgement.
+                settingsError=complete?"":"已保存關閉，等待 Root 確認；點此重試。";
+                syncRetryAt=complete?0:System.currentTimeMillis()+15000;
+                settingsDirty=true;closeQueued=false;active.set(false);progress="";notifyView();wake();
+                if(complete)kick();
             });
         });
     }
+    private String intentStatus(int i){
+        Boolean on=wanted(i);if(on==null)return intentPresent[i]?"設定無法讀取，可重新選擇":"舊設定待核對，可直接選擇";
+        String prefix=on?"已開啟，":"已關閉，";
+        if(pendingOff())return prefix+"等待完成關閉同步";
+        if(!settingsError.isEmpty())return prefix+settingsError;
+        String unavailable=i==4?operations.gpsAvailability():operations.extensionAvailability();
+        if(on&&unavailable!=null)return prefix+"暫不套用："+unavailable;
+        if(on&&!armed())return prefix+"等待首次套用確認";
+        if(on&&reportReadFailed)return prefix+"等待 Root 或遊戲狀態核對";
+        if(settingsDirty||syncedRevision!=intentRevision)return prefix+"等待同步";
+        if(on&&blockedFor(reportContext)&&!gameAbsent())return prefix+"需要正常重開遊戲";
+        if(on&&gameAbsent())return prefix+"等待遊戲";
+        return null;
+    }
     void updateReports(long now){
+        gpsText=intentStatus(4);if(gpsText==null)gpsText=GpsCopy.report(gpsOn,reportContext,gpsRaw,now);
         for(int i=0;i<4;i++){
             effects[i]=groupOn[i]==null?null:DisplayGroups.checkedReport(i,groupOn[i],reportContext,reportRaw,now);
-            groupReport[i]=effects[i]==null?"設定未確認":effects[i].text;
+            String waiting=intentStatus(i);groupReport[i]=waiting!=null?waiting:effects[i]==null?"設定未確認":effects[i].text;
         }
     }
     boolean gameAbsent(){return contextChecked&&!reportReadFailed&&reportContext==null;}
+    String notificationText(){
+        // Never expose raw loader output, paths, coordinates or historical success in a notification.
+        if(reason.startsWith("關閉意願未保存"))return "關閉未保存；請回透視鏡重試";
+        if(pendingOff())return "關閉意願已保存，等待同步；尚未確認還原";
+        if(!settingsError.isEmpty()||reportReadFailed)return "等待 Root／設定核對；可開啟透視鏡查看";
+        if(anyGroup()&&!armed())return "選擇已保存，等待首次套用確認";
+        if(anyGroup()&&(operations.extensionAvailability()!=null
+                ||Boolean.TRUE.equals(gpsOn)&&operations.gpsAvailability()!=null))return "目前環境不符；請開啟診斷查看";
+        if(!reason.isEmpty())return "核對未通過；請開啟透視鏡查看";
+        return overview();
+    }
     String overview(){
         updateReports(System.currentTimeMillis());
-        return DisplayOverview.text(groupOn,effects,reportContext!=null,busy(),pendingOff(),progress,
-            reportReadFailed&&reason.isEmpty()?"read-failed":reason,operations.extensionAvailability(),gameAbsent()?LensStatus.Phase.UNVERIFIED:state.phase);
+        if(pendingOff())return "關閉意願已保存，等待同步";
+        if(!settingsError.isEmpty())return "選擇已保存，等待 Root／設定同步";
+        if(anyGroup()){
+            if(reportReadFailed)return "已開啟，等待 Root／遊戲核對";
+            if(operations.extensionAvailability()!=null)return "已開啟，等待相容環境";
+            if(!armed())return "已開啟，等待首次確認";
+            if(blockedFor(reportContext)&&!gameAbsent())return "已開啟，需要正常重開遊戲";
+            if(settingsDirty)return "選擇已保存，等待套用";
+            if(gameAbsent())return "已開啟，等待遊戲";
+            boolean display=false;for(Boolean value:groupOn)display|=Boolean.TRUE.equals(value);
+            if(!display&&Boolean.TRUE.equals(gpsOn))return gpsText;
+        }
+        return DisplayOverview.text(groupOn,effects,reportContext!=null,false,false,"",reportReadFailed?"read-failed":"",null,gameAbsent()?LensStatus.Phase.UNVERIFIED:state.phase);
     }
-    void refreshReports(){
-        if(!groupsKnown()||!active.compareAndSet(false,true))return;
+    void refreshReports(){refreshReports(null);}
+    void refreshReports(Runnable completed){
+        // Passive reads share the serial worker without disabling user switches.
+        // Only mutations own active; this read never changes saved intentions.
+        if(settingsDirty||!groupsKnown()||operations.extensionAvailability()!=null||active.get()||!reportReading.compareAndSet(false,true))return;
         worker.execute(()->{
-            LensContext current=null;String raw=null;boolean failed=false;
-            try{current=operations.readContext();if(current!=null){LensOperations.Reply r=operations.displayReports(current);if(r.exit==0&&r.complete)raw=r.output;else failed=true;}}catch(Exception ignored){failed=true;}
+            LensContext current=null;String raw=null,gps=null;boolean failed=false;
+            try{current=operations.readContext();if(current!=null){LensOperations.Reply r=operations.displayReports(current);if(r.exit==0&&r.complete){
+                String header=r.output.startsWith("LENS_SESSION\t")&&r.output.indexOf('\n')>=0?r.output.substring(0,r.output.indexOf('\n')+1):"";
+                StringBuilder display=new StringBuilder();for(String line:r.output.split("\n")){if(line.startsWith("LENS_GPS_REPORT\t")){if(gps!=null)throw new IllegalStateException("duplicate GPS report");gps=header+line.substring("LENS_GPS_REPORT\t".length())+"\n";}else display.append(line).append('\n');}raw=display.toString();
+            }else failed=true;}}catch(Exception ignored){failed=true;raw=null;gps=null;}
+            final String gpsResult=gps;
             final LensContext owner=current;final String text=raw;final boolean failure=failed;
-            main.post(()->{reportContext=owner;reportRaw=text;reportReadFailed=failure;contextChecked=true;bindUnscopedBarrier(owner);updateReports(System.currentTimeMillis());active.set(false);notifyView();});
+            main.post(()->{reportContext=owner;reportRaw=text;gpsRaw=gpsResult;reportReadFailed=failure;contextChecked=true;bindUnscopedBarrier(owner);updateReports(System.currentTimeMillis());reportReading.set(false);notifyView();if(completed!=null)completed.run();});
         });
     }
     void monitor(){
-        if(pendingOff()||!armed()||!groupsKnown()||!anyGroup()||!active.compareAndSet(false,true))return;
+        if(pendingOff()||settingsDirty||!armed()||!groupsKnown()||!anyGroup()||!active.compareAndSet(false,true))return;
         worker.execute(()->{
             LensContext found=null;boolean front=false;String unsupported=operations.extensionAvailability();String error="";
-            try{if(unsupported==null){found=operations.readContext();front=found!=null&&operations.gameForeground();}}catch(Exception denied){error="Root 或程序核對失敗，已停止等待；請回 App 重新核對。";}
+            try{if(unsupported==null){found=operations.readContext();front=found!=null&&operations.gameForeground();}}catch(Exception denied){error="等待 Root 或遊戲程序核對；將自動重試。";}
             final String failure=error;
             final LensContext current=found;final boolean foreground=front;
             main.post(()->{
                 active.set(false);
-                if(!failure.isEmpty()){reason=failure;operations.context.stopService(new android.content.Intent(operations.context,LensService.class));notifyView();return;}
+                if(pendingOff()||settingsDirty||!armed()||!anyGroup()){kick();return;}
+                if(!failure.isEmpty()){reason=failure;reportReadFailed=true;contextChecked=false;notifyView();return;}
                 if(unsupported!=null){reason=unsupported;notifyView();return;}
+                if(reason.startsWith("等待 Root 或遊戲程序核對"))reason="";
                 if(current==null){
-                    reportContext=null;reportRaw=null;
+                    reportContext=null;reportRaw=null;gpsRaw=null;contextChecked=true;reportReadFailed=false;
                     // Do not erase the last load failure when that game exits.
                     if(state.phase!=LensStatus.Phase.REFUSED&&state.phase!=LensStatus.Phase.UNVERIFIED)
                         reason="";
@@ -179,7 +271,10 @@ final class LensController {
                 }
                 bindUnscopedBarrier(current);
                 if(blockedFor(current)){reason="結果不明，請正常重開遊戲；不重送載入。";notifyView();return;}
-                if(!foreground||autoAttempt!=null&&autoAttempt.same(current)){notifyView();return;}
+                reportContext=current;contextChecked=true;reportReadFailed=false;
+                boolean runnable=false;for(Boolean on:groupOn)runnable|=Boolean.TRUE.equals(on);
+                runnable|=Boolean.TRUE.equals(gpsOn)&&operations.gpsAvailability()==null;
+                if(!runnable||!foreground||autoAttempt!=null&&autoAttempt.same(current)){notifyView();return;}
                 reportContext=current;reportRaw=null;reason="";
                 execute(LensStatus.Action.ENABLE,current,true,()->operations.gameForeground());
             });
@@ -201,7 +296,7 @@ final class LensController {
         });
     }
     void execute(LensStatus.Action action,LensContext consent,boolean failStop,LensOperations.Foreground foreground){
-        if(action==LensStatus.Action.ENABLE&&(pendingOff()||consent==null||!failStop||blockedFor(consent))){
+        if(action==LensStatus.Action.ENABLE&&(pendingOff()||settingsDirty||!anyGroup()||!armed()||consent==null||!failStop||blockedFor(consent))){
             reason="尚未取得本次啟用所需的確認。";notifyView();return;
         }
         if(!active.compareAndSet(false,true)){reason="前一操作尚未結束，請等候。";notifyView();return;}
@@ -235,7 +330,7 @@ final class LensController {
                     DiagnosticStore.record(operations.context,"ENABLE_"+state.phase.name());
                     if(result.reply!=null)DiagnosticStore.record(operations.context,result.reply.exit<0?"LOADER_QUERY_FAILED":"LOADER_EXIT_"+result.reply.exit);
                 }
-                progress="";active.set(false);notifyView();refreshReports();
+                progress="";active.set(false);notifyView();kick();refreshReports();
             });
         });
     }

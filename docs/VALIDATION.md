@@ -1,5 +1,27 @@
 # 驗證分層
 
+2026-11-12：0.15.3原簽章已測APK已發布，匿名SHA與原件一致；裝置驗收界線不變。[發布紀錄](RELEASE_0153.md)。
+
+安裝修正：原簽章0.15.2→0.15.3在MuMu API35通過系統確認、取消、重開重試、完成升級與設定／歷史保存；安裝後SHA256吻合。使用明確標示的App私有測試快取，沒有把尚未發布包當成公開下載成功；公開索引仍0.15.1。[47項主機回歸與實測](API35_INSTALLER_FIX.md)。
+
+發布後追加：官方0.14.2→0.15.1的 App 內更新在 MuMu API32 通過；API35 能查詢／下載／核對，但 Android 15 阻擋安裝回呼，未出現確認視窗，已取消並保留原設定。0.15.1仍沿用同一安裝回呼實作，尚需修正。[實測流程與界線](UPDATE_0142_TO_0151.md)。
+
+0.15.1 原簽章 APK 已在隔離 MuMu 12.0（實際API32）／15.0（API35）＋精確遊戲157.0驗證待種花苗ON、背景通知狀態與通知關閉還原；API35通知拒權不阻擋功能。0.15.0另實測真實更新失敗、快取保留、5分鐘退避、App重開與連線恢復。修正通知回報讀取被monitor阻擋的問題，16項通知主機回歸及CI通過。[完整矩陣、版本差異與待驗界線](VALIDATION_0151_MUMU.md)。以下0.15.0四段為初期離線紀錄，裝置結果以上述文件為準；未發布、不擴大平台資格。
+
+0.15.0 完整 unsigned candidate 建置通過：雙ABI載入器、renderer、JVM、dex與APK封裝／digest；未安裝或執行Android native測試，沒有新增裝置資格。候選不可交付，[雜湊與界線](SETUP_NOTIFICATIONS_UPDATES.md)。
+
+0.15.0 更新：58項更新policy／封裝守門、38項實際updater主機替身案例通過；真實網路失敗、Android程序重開與安裝流程未驗。不改公開索引或既有裝置資格。[本批結果](SETUP_NOTIFICATIONS_UPDATES.md)。
+
+0.15.0 通知：實際service/controller的12項主機替身驗證與原80項控制器回歸通過；OS通知權限、抽屜操作、背景生命週期與遊戲OFF仍待隔離裝置實測。[詳細界線](SETUP_NOTIFICATIONS_UPDATES.md)。
+
+0.15.0 開發：首次使用檢查、Root 命名空間特定提示與原上傳契約的66項主機案例、Android Java編譯通過；尚未裝置驗收、不新增相容資格。[本批分項結果](SETUP_NOTIFICATIONS_UPDATES.md)。
+
+0.14.2排版：隔離MuMu API35的360×640dp視窗、原始視窗、深淺色與1.3倍字體比較，確認五個開關及固定底部操作可見；說明展開／捲動及基本開關亦驗證。沒有重跑遊戲或手機功能，[比較與限制](COMPACT_UI.md)。
+
+0.14.1 可預先選擇的五開關：80項真實 controller host 檢查涵蓋意願／有效值、遷移、快速修改與 OFF 排程；產品實測另見 [FEATURE_INTENT](FEATURE_INTENT.md)，不以編譯／測試擴大資格。
+
+0.13.3 GPS 候選：隔離剪貼簿能力、策略／交易、App 設定與實際遊戲分開記錄於 [GPS_COPY](GPS_COPY.md)。只有實際成功的表列組合取得該功能資格，不以舊四組結果或來源 carousel 測試代替。
+
 0.12.1 直接回報：49 項診斷 policy、37 項上傳檢查與 4 組 Sites policy；原簽章建置後，既有隔離 MuMu API35 實際完成 Email 驗證、改值重設同意，以及 App → 正式 Sites → 精確收據。一般 JVM 另驗 Email 空白／填寫。沒有重跑遊戲功能、不擴大平台資格；[候選產物與證據](APP_DIRECT_UPLOAD.md)。
 
 Sites 選填 Email：3 組 Node policy、4 組本機 Miniflare／D1 HTTP 測試與 TypeScript 檢查通過；瀏覽器完成選檔、同意、Email 提報及私人明細。公開入口另以無 cookie HTTPS 實測頁面 200、合成匿名提報 201，以及後台／偽造身分 401、缺同意／非法格式 400、跨站 403。正式已登入非站長帳號仍待驗。保留 [Sites 專項限制](../server/sites/README.md)。

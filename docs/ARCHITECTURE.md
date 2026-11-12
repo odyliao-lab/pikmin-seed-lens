@@ -1,5 +1,25 @@
 # 架構
 
+0.15.2／0.15.3 修正 API35 更新安裝回呼：只對明確 session 的非匯出 Activity PendingIntent 加上 creator BAL opt-in，保留 Android 使用者確認與 APK／session／載入互斥守門。確認 Intent 缺失或不能開啟時取消並提示重試；不靜默 Root 安裝。[裝置驗收與版本界線](API35_INSTALLER_FIX.md)。
+
+0.15.0 開發：首次使用入口與本機診斷使用獨立 RootDiagnostic 嚴格解析器，不改載入命令或遠端回報 schema。基本檢查與即時遊戲資格分開；[設計與驗證界線](SETUP_NOTIFICATIONS_UPDATES.md)。
+
+通知沿既有 LensService／LensController，定期更新固定狀態，關閉按鈕走原持久 pending-OFF。新增通知權限僅供系統呈現，不是載入前提；不產生第二個控制器或使用活動頁的 observer 槽。
+
+0.15.1 先提交唯讀回報再啟動 monitor，避免 monitor 的 active gate 讓背景回報永遠被跳過。回報完成於主執行緒更新通知，仍核對原程序與5秒時效；服務銷毀後不發布回呼。[MuMu 回歸](VALIDATION_0151_MUMU.md)。
+
+UpdateCheckPolicy只決定開App時的metadata檢查；失敗次數／嘗試及成功時間持久化，手動檢查可略過等待但不能略過安裝互斥／版本與來源核對。快取不表示剛取得新回覆。
+
+0.14.2工具頁分為固定橫排標題／頁籤、可捲動的緊湊功能列表，以及固定底部操作／版本。僅MainActivity與LensTabs呈現層調整，診斷內容、意願控制器及原生邏輯不變；共通錯誤集中顯示，完整文字仍可換行。[版面驗證](COMPACT_UI.md)。
+
+## 可預先選擇的功能意願
+
+0.14.1 將五個開關意願保存於 App 私有偏好；原生控制／遊戲效果分別確認。單一 worker 背景同步，修訂號拒絕舊回報覆蓋新選擇；只有取得首次套用同意且資格成立，才同步有效 ON。pending-OFF 仍先取得原生關閉確認，再套用之後的新意願。Root／原生載入 gate 不再控制 UI 是否可點選。[行為、遷移與驗證](FEATURE_INTENT.md)。
+
+## 獨立 GPS 複製
+
+0.13.3 在四組下方新增預設 OFF 的第五開關，沿用自包含載入、lease、精確 Game157／PID／build 守門與重綁服務。Canvas UI-thread tick 只處理單一 focused／active 詳情頁，session 與項目穩定 400ms 後，以 APK 內 JNI ClipboardManager 寫入並讀回確認；弱參考上限八頁、失敗每項三次。自有控制／回報只有意願與計數，不含座標。所有開關可排隊寫入，背景報告查詢不占用操作 gate；仍用同一 serial worker。詳細行為及資格見 [GPS_COPY](GPS_COPY.md)。
+
 ## 診斷與更新
 
 0.12.1/code45 候選以 APK 自有 HTTPS 直傳固定 Sites `/api/submit`，同意後才產生 `{report,email}` 信封，原報告／匯出不含 Email。原生 client header 選擇無瀏覽器 Origin 的公開協定，不提供管理權限；不得放寬錯誤 Origin／讀取授權。無重導向或自動重送，精確收據後才確認成功。[行為、Android 實測與限制](APP_DIRECT_UPLOAD.md)。

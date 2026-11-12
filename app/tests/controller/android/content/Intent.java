@@ -1,2 +1,2 @@
 package android.content;
-public class Intent {public Intent(Context c,Class<?> cls){}}
+public class Intent {public final Class<?> target;private String action;public Intent(Context c,Class<?> cls){target=cls;}public Intent setAction(String a){action=a;return this;}public String getAction(){return action;}}

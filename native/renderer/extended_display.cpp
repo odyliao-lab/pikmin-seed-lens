@@ -36,6 +36,8 @@
 #include <fstream>
 #include <sstream>
 #include "session_identity.h"
+#include "gps_copy_policy.h"
+#include "gps_clipboard.h"
 
 namespace seed_extended { namespace {
 using pikmin::GcHandle;
@@ -219,6 +221,7 @@ struct Binding {void *title{},*type{},*provider{},*nectar_item{},*adult_item{},*
 #include "gift_display_adapter.inc"
 #include "planter_display_adapter.inc"
 #include "expedition_display_adapter.inc"
+#include "gps_copy_adapter.inc"
 Binding binding(void *card) {
     Binding b;
     if(!card||!read<void*>(card,0x10))return b;
@@ -572,6 +575,7 @@ void expedition_hook(void *self,IndexedData data,void *method) {
 }
 void detail_hook(void *self,void *data,void *method) {
     UpdateScope scope(self,data);original_detail.load()(self,data,method);
+    if(hooks_ready.load()&&gettid()==ui_tid.load()&&metadata_ok)gps_adapter::track(self);
 }
 void adult_hook(void *self,void *item,void *method) {
     UpdateScope scope(self,item);original_adult.load()(self,item,method);
@@ -588,6 +592,7 @@ void *extract_hook(void *self,void *data,void *method) {
 void canvas_hook(void *self,void *method) {
     canvas_calls.fetch_add(1);canvas_tid.store(gettid());
     if(hooks_ready.load()&&gettid()==ui_tid.load()&&metadata_ok){
+        gps_adapter::tick();
         const bool enabled=wanted.load();
         const auto footer_now=std::chrono::steady_clock::now();
         for(auto &r:records)if(r.weak&&!r.footer&&footer_now-r.footer_scan>=std::chrono::seconds(2)){
@@ -663,6 +668,7 @@ void worker(std::string directory) {
         RESOLVE(object_class,"il2cpp_object_get_class");RESOLVE(assignable,"il2cpp_class_is_assignable_from");
         RESOLVE(value_type,"il2cpp_class_is_valuetype");
         RESOLVE(method_named,"il2cpp_class_get_method_from_name");RESOLVE(invoke,"il2cpp_runtime_invoke");RESOLVE(unbox,"il2cpp_object_unbox");
+        gps_adapter::value_size=reinterpret_cast<decltype(gps_adapter::value_size)>(xdl_sym(lib,"il2cpp_class_value_size",nullptr));
     }
 #undef RESOLVE
     if(valid){expedition_display_adapter::configure(lib);valid=standalone_context::configure(lib,base);}
@@ -686,7 +692,14 @@ void worker(std::string directory) {
         gift_wanted.store(valid&&display_game.adult.rva&&control_on("/data/local/tmp/seed-lens-gift-preview.txt"));
         planter_display_wanted.store(valid&&display_game.planted_detail.rva&&control_on("/data/local/tmp/seed-lens-planter-display.txt"));
         expedition_display_wanted.store(valid&&display_game.adult.rva&&control_on("/data/local/tmp/seed-lens-expedition-display.txt"));
+        gps_adapter::enabled.store(valid&&control_on(seed_lens::gps_control));
         auto now=std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        const auto gps_path=directory+"/files/"+seed_lens::gps_report_leaf,gps_tmp=gps_path+".tmp";
+        if(FILE *out=fopen(gps_tmp.c_str(),"w")){
+            bool ok=fprintf(out,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t%u\t%u\t0\t%s\t%s\n",static_cast<long long>(now),getpid(),display_game.version,
+                valid&&gps_adapter::metadata_ready.load()?"ready":"waiting-cards",gps_adapter::ack.load()?1:0,gps_adapter::copies.load(),gps_adapter::failures.load(),gps_adapter::state.load(),start.c_str(),seed_lens::display_build)>0;
+            if(fclose(out))ok=false;if(ok){chmod(gps_tmp.c_str(),0644);rename(gps_tmp.c_str(),gps_path.c_str());}
+        }
         FILE *f=fopen(tmp.c_str(),"w");if(f){bool ok=fprintf(f,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t%u\t%u\t%u\t%s\t%s\n",
             static_cast<long long>(now),getpid(),display_game.version,phase.load(),(!strcmp(phase.load(),"ready")?rendered_enabled.load():wanted.load())?1:0,bound_count.load(),decorated_mask.load(),applied.load(),restored.load(),start.c_str(),seed_lens::display_build)>0;
             if(fclose(f))ok=false;if(ok){chmod(tmp.c_str(),0644);rename(tmp.c_str(),path.c_str());}}

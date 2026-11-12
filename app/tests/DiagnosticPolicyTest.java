@@ -11,6 +11,29 @@ public final class DiagnosticPolicyTest {
   Map<String,String> f=sample();DiagnosticReport report=new DiagnosticReport("11111111-1111-4111-8111-111111111111",f,Arrays.asList("ENABLE_BEGIN","ENABLE_ON"),"cannot_enable");
   check(!report.json.contains("account"));check(report.json.contains("\"root\":\"granted\""));
   check(!advice(f).contains("未精確配對"));check(!advice(f).contains("Android／API 尚未支援"));
+  String success="LENS_DIAG_ROOT\t0\nLENS_DIAG_BRIDGE\tlibnb.so\nLENS_DIAG_SELINUX\tEnforcing\n";
+  RootDiagnostic parsed=RootDiagnostic.parse(0,true,success,true);
+  check(parsed.root.equals("granted")&&parsed.bridge.equals("libnb.so")&&parsed.selinux.equals("enforcing")&&!parsed.namespaceMismatch);
+  RootDiagnostic mismatch=RootDiagnostic.parse(6,true,"ROOT_NAMESPACE_MISMATCH\n",true);
+  check(mismatch.namespaceMismatch&&mismatch.root.equals("denied_or_incompatible"));
+  check(!RootDiagnostic.parse(6,true,"",true).namespaceMismatch);
+  check(!RootDiagnostic.parse(6,true,"ROOT_NAMESPACE_MISMATCH\n",false).namespaceMismatch);
+  check(!RootDiagnostic.parse(6,false,"ROOT_NAMESPACE_MISMATCH\n",true).namespaceMismatch);
+  check(!RootDiagnostic.parse(1,true,"ROOT_NAMESPACE_MISMATCH\n",true).namespaceMismatch);
+  check(!RootDiagnostic.parse(6,true,"extra\nROOT_NAMESPACE_MISMATCH\n",true).namespaceMismatch);
+  check(RootDiagnostic.parse(0,false,success,true).root.equals("error"));
+  check(RootDiagnostic.parse(0,true,success+success,true).root.equals("error"));
+  check(RootDiagnostic.parse(1,true,success,true).root.equals("denied_or_incompatible"));
+  check(RootDiagnostic.parse(0,true,success.replace("ROOT\t0","ROOT\t2000"),true).root.equals("error"));
+  Map<String,String> mismatchFacts=sample();mismatchFacts.put("root",mismatch.root);
+  String specific=String.join("\n",DiagnosisPolicy.advice(mismatchFacts,true));
+  check(specific.contains("Global Namespace")&&!specific.contains("未取得 Root："));
+  check(!advice(mismatchFacts).contains("Global Namespace"));
+  DiagnosticReport compatibleReport=new DiagnosticReport(mismatchFacts,Collections.emptyList(),"root_problem");
+  check(!compatibleReport.json.contains("namespace")&&!compatibleReport.json.contains("ROOT_NAMESPACE"));
+  String checklist=FirstUseCheck.summary(f,true);check(checklist.contains("命名空間不符"));
+  f.put("last_phase","ON");check(FirstUseCheck.summary(f,false).contains("依即時狀態確認"));
+  Map<String,String> fresh=DiagnosticReport.emptyFacts();check(FirstUseCheck.summary(fresh,false).contains("檢查 Root"));
   for(String api:new String[]{"31","34","30"}){Map<String,String> next=sample();next.put("android_api",api);check(advice(next).contains("Android／API 尚未支援"));}
   Map<String,String> phone=sample();phone.put("abi","arm64-v8a");check(advice(phone).contains("不能保證此手機可用"));
   for(String root:new String[]{"unavailable","denied_or_incompatible","timeout","not_checked","error"}){Map<String,String> next=sample();next.put("root",root);check(!advice(next).equals(advice(f)));check(!advice(next).contains("系統未 Root"));}

@@ -7,7 +7,8 @@ Do not operate any device without current task authorization and fresh identity.
 Never infer a supported Android/game version from compilation or APK installation.
 Preserve exact game version/code/digest/prologue/runtime metadata guards.
 Unknown versions keep original display. Do not bypass NativeBridge refusal.
-Keep this display-only: no inventory writes, gameplay RPC, GPS or scanner management.
+Keep game data read-only: no inventory writes, gameplay RPC, location-provider writes or scanner management.
+User-authorized GPS Copy only reads the selected expedition's coordinates and writes the local clipboard; never include coordinates in diagnostics or uploads.
 Do not overwrite a delivered APK/version. Current imported baseline is 0.1.4/code5;
 repository extraction/build tooling alone does not bump the product. New delivered
 bytes require a higher version/code and retained existing signing identity.
