@@ -40,19 +40,15 @@ final class DiagnosticCollector {
    }return "none";
   }catch(Exception ignored){return "unavailable";}
  }
- static Map<String,String> root(Map<String,String> previous){
-  Map<String,String> f=new LinkedHashMap<>(previous);Process p=null;ByteArrayOutputStream bytes=new ByteArrayOutputStream();final boolean[] complete={true};
+ static RootDiagnostic root(){
+  Process p=null;ByteArrayOutputStream bytes=new ByteArrayOutputStream();final boolean[] complete={true};
   try{
    String script=RootCommand.prefix(Build.VERSION.SDK_INT,abi())+"[ $(id -u) = 0 ] || exit 1\nprintf 'LENS_DIAG_ROOT\\t0\\n'\nprintf 'LENS_DIAG_BRIDGE\\t'; getprop ro.dalvik.vm.native.bridge\nprintf 'LENS_DIAG_SELINUX\\t'; getenforce\n";
    p=new ProcessBuilder(RootCommand.arguments(Build.VERSION.SDK_INT,abi(),script)).redirectErrorStream(true).start();p.getOutputStream().close();final Process child=p;
    Thread reader=new Thread(()->{try(InputStream in=child.getInputStream()){byte[] b=new byte[256];int n;while((n=in.read(b))!=-1)synchronized(bytes){if(bytes.size()+n>2048){complete[0]=false;}else bytes.write(b,0,n);}}catch(Exception e){complete[0]=false;}},"LensDiagnosticRoot");reader.setDaemon(true);reader.start();
-   if(!p.waitFor(20,TimeUnit.SECONDS)){p.destroyForcibly();f.put("root","timeout");return f;}
+   if(!p.waitFor(20,TimeUnit.SECONDS)){p.destroyForcibly();return RootDiagnostic.failure("timeout");}
    reader.join(1000);String text;synchronized(bytes){text=bytes.toString("UTF-8");}
-   String[] lines=text.split("\n",-1);
-   if(p.exitValue()!=0){f.put("root","denied_or_incompatible");return f;}
-   if(reader.isAlive()||!complete[0]||lines.length!=4||!lines[0].equals("LENS_DIAG_ROOT\t0")||!lines[1].startsWith("LENS_DIAG_BRIDGE\t")||!lines[2].startsWith("LENS_DIAG_SELINUX\t")||!lines[3].isEmpty()){f.put("root","error");return f;}
-   String bridge=lines[1].substring(17),selinux=lines[2].substring(18).toLowerCase(Locale.US);
-   f.put("root","granted");f.put("bridge",bridge.isEmpty()?"none":DiagnosticReport.oneOf(bridge,"libnb.so","libndk_translation.so")?bridge:"other");f.put("selinux",publicValue("selinux",selinux));return f;
-  }catch(IOException e){f.put("root",p==null?"unavailable":"error");return f;}catch(Exception e){f.put("root","error");return f;}finally{if(p!=null&&p.isAlive())p.destroyForcibly();}
+   return RootDiagnostic.parse(p.exitValue(),!reader.isAlive()&&complete[0],text,RootCommand.nativeApi32(Build.VERSION.SDK_INT,abi()));
+  }catch(IOException e){return RootDiagnostic.failure(p==null?"unavailable":"error");}catch(Exception e){return RootDiagnostic.failure("error");}finally{if(p!=null&&p.isAlive())p.destroyForcibly();}
  }
 }

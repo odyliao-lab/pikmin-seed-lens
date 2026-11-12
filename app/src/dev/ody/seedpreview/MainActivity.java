@@ -17,7 +17,7 @@ public final class MainActivity extends Activity implements LensController.Obser
     final TextView[] reports=new TextView[4];
     Switch gpsSwitch;TextView gpsReport;
     boolean suppress;
-    @Override public void onCreate(Bundle saved){super.onCreate(saved);controller=LensController.get(this);build();}
+    @Override public void onCreate(Bundle saved){super.onCreate(saved);controller=LensController.get(this);build();if(saved==null)offerFirstCheck();}
     @Override protected void onResume(){super.onResume();controller.attach(this);try{startService(new Intent(this,LensUpdateCheckService.class));}catch(RuntimeException ignored){}controller.refreshGroups();updates.postDelayed(poll,3000);}
     @Override protected void onPause(){updates.removeCallbacks(poll);controller.detach(this);super.onPause();}
     void build(){
@@ -67,6 +67,15 @@ public final class MainActivity extends Activity implements LensController.Obser
         String version="未知";try{version=getPackageManager().getPackageInfo(getPackageName(),0).versionName;}catch(Exception ignored){}
         TextView versionLabel=style.text("v"+version+"  ·  開發者 odyliao-lab",11,style.muted,false);versionLabel.setGravity(Gravity.CENTER);style.add(footer,versionLabel,0);
         setContentView(root);root.requestApplyInsets();changed();
+    }
+    void offerFirstCheck(){
+        android.content.SharedPreferences p=getSharedPreferences("lens-first-use",0);
+        if(p.contains("offered"))return;
+        if(!p.edit().putBoolean("offered",true).commit())return;
+        if(controller.hasIntent()||controller.armed())return; // Existing users keep their normal entry.
+        new AlertDialog.Builder(this).setTitle("第一次使用透視鏡")
+            .setMessage("建議先檢查 Root 與遊戲版本，再選擇功能並開啟遊戲。檢查不會安裝套件或修改系統；也可稍後從「診斷」頁進入。")
+            .setNegativeButton("稍後再說",null).setPositiveButton("檢查環境",(d,w)->startActivity(new Intent(this,DiagnosticsActivity.class))).show();
     }
     Button action(String text,boolean primary){Button button=style.button(text,primary);button.setMinHeight(style.dp(48));button.setMinimumHeight(style.dp(48));button.setPadding(style.dp(12),style.dp(6),style.dp(12),style.dp(6));return button;}
     String rowStatus(Boolean on,String report,String unavailable){
