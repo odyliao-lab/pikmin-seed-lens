@@ -6,9 +6,9 @@
   <img src="docs/images/readme/illustration.jpg" width="260" alt="皮克敏拿著放大鏡觀察花苗的示意插畫">
 </p>
 
-**[下載 0.15.1 預覽版 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.15.1)** · 開發者：odyliao-lab
+**[下載 0.15.3 預覽版 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.15.3)** · 開發者：odyliao-lab
 
-0.15.1 對應遊戲 157.0；遊戲 156.1 使用[舊版 0.7.3 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.7.3)（僅花苗名稱顯示）。
+0.15.3 對應遊戲 157.0；遊戲 156.1 使用[舊版 0.7.3 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.7.3)（僅花苗名稱顯示）。
 
 ## 功能
 
@@ -34,7 +34,7 @@
 
 0.15.1 新增首次檢查與 Root 排除建議、通知即時狀態與「關閉全部」，更新查詢失敗後保留快取並延後重試。[發布與驗證](docs/RELEASE_0151.md)。
 
-**更新已知問題**：已發布的0.14.2／0.15.1在API35可能停在等待安裝確認；開發版0.15.3已修正，並在隔離MuMu通過系統確認、取消重試與升級，尚未發布。[修正驗收](docs/API35_INSTALLER_FIX.md)。舊版API35首次取得修正版需手動覆蓋安裝，不能由下載檔回溯修正舊安裝器；API32前輪更新結果保留於[實測紀錄](docs/UPDATE_0142_TO_0151.md)。
+**0.15.3 更新修正**：修正 API35 安裝確認卡住，已在隔離 MuMu 通過系統確認、取消重試與升級。[本版發布](docs/RELEASE_0153.md)。舊0.14.2／0.15.1的API35使用者首次請從發布頁手動覆蓋安裝，**不要卸載或清資料**；新版不能回溯修正舊安裝器。API32前輪結果保留於[實測紀錄](docs/UPDATE_0142_TO_0151.md)。
 
 ## 使用方式
 
@@ -47,6 +47,8 @@
 0.14.1 已在 MuMu 12.0／15.0 驗證先選 ON、再開遊戲自行套用。ON 代表選擇，實際套用依狀態顯示；若結果不明或升級後仍載入舊版，依提示正常重開遊戲，不對同一程序重送載入。
 
 ## 已驗證環境
+
+0.15.3：MuMu15.0／API35完成0.15.2→0.15.3系統確認、取消重試、升級與設定保存；本輪未重跑遊戲或API32裝置，不擴大下列既有遊戲資格。[安裝驗收](docs/API35_INSTALLER_FIX.md)。
 
 0.15.1：MuMu 內建 12.0（實際 Android 12L／API32）及 15.0（API35）搭配精確 157.0，通過待種花苗 ON／OFF 還原、背景通知狀態與通知關閉全部；API35 另驗通知拒權不阻擋顯示。Root 檢查、版本查詢與 API32 離線退避紀錄見[本輪驗收](docs/VALIDATION_0151_MUMU.md)。
 

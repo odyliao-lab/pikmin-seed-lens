@@ -1,5 +1,7 @@
 # Android 15 安裝確認修正
 
+2026-11-12：0.15.3原簽章已測APK已發布，匿名SHA與原件一致；裝置驗收界線不變。[發布紀錄](RELEASE_0153.md)。
+
 ## 問題與修正
 
 [發布後實測](UPDATE_0142_TO_0151.md)發現 0.14.2 在 API35 可下載新版，但建立的 Activity PendingIntent 未明確授予 creator 啟動能力，系統以 BAL_BLOCK 阻擋安裝回呼。0.15.1 沿用同一實作。
