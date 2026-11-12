@@ -1,4 +1,4 @@
-import http.client,json,uuid,unittest
+import http.client,json,uuid,unittest,time
 HOST='127.0.0.1:5189';ORIGIN='http://'+HOST; RUN=str(uuid.uuid4())
 FACTS='app_version app_code app_signer android_api android_release abi manufacturer game_version game_code root bridge selinux native_files last_phase last_exit'.split()
 def report():return dict(schema=1,report_id=str(uuid.uuid4()),issue='root_problem',facts=dict.fromkeys(FACTS,'unknown'),events=['ENABLE_REFUSED'])
@@ -26,10 +26,17 @@ class Live(unittest.TestCase):
   self.assertEqual(self.request('/admin/api/reports',headers={'oai-authenticated-user-id':'other','oai-authenticated-user-email':'other@example.invalid'})[0],401)
   self.assertEqual(self.request('/admin/api/reports')[0],401)
  def test_03_rate_and_native(self):
+  # The public limit uses calendar-minute buckets. Start with enough time for
+  # this sequential burst; a minute rollover legitimately grants a new quota.
+  remaining=60-time.time()%60
+  if remaining<10:time.sleep(remaining+0.1)
+  window=int(time.time()//60)
   self.ip=23;p=report();h={'X-Seed-Lens-Consent':'preview-v1'}
   self.assertEqual(self.request('/v1/reports',p,h)[0],201)
   for _ in range(4):self.assertEqual(self.request('/v1/reports',p,h)[0],200)
-  self.assertEqual(self.request('/v1/reports',p,h)[0],429)
+  last=self.request('/v1/reports',p,h)[0]
+  self.assertEqual(int(time.time()//60),window,'Burst crossed minute boundary; rate assertion would be ambiguous')
+  self.assertEqual(last,429)
  def test_04_status_and_filters(self):
   self.ip=24;p=report();p['facts']['app_version']='0.11.2'
   self.request('/api/submit',{'report':p,'email':''},{'X-Seed-Lens-Consent':'preview-v1'})
