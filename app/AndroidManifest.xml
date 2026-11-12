@@ -1,8 +1,9 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="dev.ody.seedpreview" android:versionCode="53" android:versionName="0.14.2">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="dev.ody.seedpreview" android:versionCode="55" android:versionName="0.15.1">
   <uses-permission android:name="android.permission.ACCESS_SUPERUSER" />
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
   <uses-sdk android:minSdkVersion="28" android:targetSdkVersion="35" />
   <queries><package android:name="com.nianticlabs.pikmin"/><package android:name="dev.ody.pikmincontrol"/><package android:name="dev.ody.pikmincontrol.mumu"/></queries>

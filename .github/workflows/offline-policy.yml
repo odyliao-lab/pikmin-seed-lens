@@ -38,12 +38,18 @@ jobs:
         run: |
           javac -encoding UTF-8 -cp "$RUNNER_TEMP/java" -d "$RUNNER_TEMP/controller" app/src/dev/ody/seedpreview/{LensController,UpdateInterlock}.java $(find app/tests/controller -name '*.java')
           java -cp "$RUNNER_TEMP/controller:$RUNNER_TEMP/java" dev.ody.seedpreview.AllOffControllerTest
+      - name: Check notification action uses durable all-OFF
+        run: |
+          javac -encoding UTF-8 -cp "$RUNNER_TEMP/java" -d "$RUNNER_TEMP/service" app/src/dev/ody/seedpreview/{LensController,LensService,UpdateInterlock}.java $(find app/tests/controller -name '*.java' ! -name LensService.java) $(find app/tests/service -name '*.java')
+          java -cp "$RUNNER_TEMP/service:$RUNNER_TEMP/java" dev.ody.seedpreview.NotificationServiceTest
       - name: Check diagnostics privacy and update safety
         run: |
-          javac -encoding UTF-8 -cp "$RUNNER_TEMP/java" -d "$RUNNER_TEMP/java" app/src/dev/ody/seedpreview/{DiagnosticReport,DiagnosisPolicy,DiagnosticEndpoint,DiagnosticSubmission,DiagnosticUploader,LensUpdateInfo,LensUpdateClient,LensUpdateArchive,UpdateInterlock,InstalledNative}.java app/tests/{DiagnosticPolicyTest,DiagnosticUploadTest,LensUpdateTest}.java
+          javac -encoding UTF-8 -cp "$RUNNER_TEMP/java" -d "$RUNNER_TEMP/java" app/src/dev/ody/seedpreview/{DiagnosticReport,RootDiagnostic,FirstUseCheck,DiagnosisPolicy,DiagnosticEndpoint,DiagnosticSubmission,DiagnosticUploader,LensUpdateInfo,UpdateCheckPolicy,LensUpdateClient,LensUpdateArchive,UpdateInterlock,InstalledNative}.java app/tests/{DiagnosticPolicyTest,DiagnosticUploadTest,LensUpdateTest}.java
           java -cp "$RUNNER_TEMP/java" dev.ody.seedpreview.DiagnosticPolicyTest "$RUNNER_TEMP/synthetic-report.json"
           java -cp "$RUNNER_TEMP/java" dev.ody.seedpreview.DiagnosticUploadTest
           java -cp "$RUNNER_TEMP/java" dev.ody.seedpreview.LensUpdateTest updates/preview.properties
+          javac -encoding UTF-8 -cp "$RUNNER_TEMP/java" -d "$RUNNER_TEMP/updater" app/src/dev/ody/seedpreview/LensUpdater.java $(find app/tests/updater -name '*.java')
+          java -cp "$RUNNER_TEMP/updater:$RUNNER_TEMP/java" dev.ody.seedpreview.UpdateRetryTest updates/preview.properties
           python3 server/diagnostics/test_receiver.py --fixture "$RUNNER_TEMP/synthetic-report.json"
           python3 server/diagnostics/test_web.py
           node --test server/sites/tests/policy.test.mjs

@@ -6,9 +6,9 @@
   <img src="docs/images/readme/illustration.jpg" width="260" alt="皮克敏拿著放大鏡觀察花苗的示意插畫">
 </p>
 
-**[下載 0.14.2 預覽版 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.14.2)** · 開發者：odyliao-lab
+**[下載 0.15.1 預覽版 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.15.1)** · 開發者：odyliao-lab
 
-0.14.2 對應遊戲 157.0；遊戲 156.1 使用[舊版 0.7.3 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.7.3)（僅花苗名稱顯示）。
+0.15.1 對應遊戲 157.0；遊戲 156.1 使用[舊版 0.7.3 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.7.3)（僅花苗名稱顯示）。
 
 ## 功能
 
@@ -20,7 +20,7 @@
 | 精華／花瓣對照 | 保留精華數量，補對應花瓣、容量與剩餘空間 |
 | 複製探險座標 | 查看探險詳情，複製目前項目的座標至本機剪貼簿 |
 
-0.14.2 包含[執行狀態與關閉全部](docs/STATUS_ALL_OFF.md)、[診斷與版本更新](docs/DIAGNOSTICS_UPDATES.md)，以及 [App 直接回報](docs/APP_DIRECT_UPLOAD.md)。在診斷頁預覽、選填 Email、同意後即可直接上傳，不需登入；離線匯出仍保留。
+提供[執行狀態與關閉全部](docs/STATUS_ALL_OFF.md)、[診斷與版本更新](docs/DIAGNOSTICS_UPDATES.md)，以及 [App 直接回報](docs/APP_DIRECT_UPLOAD.md)。在診斷頁預覽、選填 Email、同意後即可直接上傳，不需登入；離線匯出仍保留。
 
 [診斷回報站](https://seed-lens-reports.ody-liao.chatgpt.site)也可上傳匯出的 JSON。Email 僅供修正通知，目前尚未接上寄信服務；管理後台僅限站長登入。[網站原始碼與限制](server/sites/README.md)。
 
@@ -32,7 +32,7 @@
 
 座標複製預設關閉，不移動定位，座標不納入診斷或上傳。[操作與實測範圍](docs/GPS_COPY.md)。
 
-[0.14.2 發布與驗證](docs/RELEASE_0142.md)。
+0.15.1 新增首次檢查與 Root 排除建議、通知即時狀態與「關閉全部」，更新查詢失敗後保留快取並延後重試。[發布與驗證](docs/RELEASE_0151.md)。
 
 ## 使用方式
 
@@ -45,6 +45,8 @@
 0.14.1 已在 MuMu 12.0／15.0 驗證先選 ON、再開遊戲自行套用。ON 代表選擇，實際套用依狀態顯示；若結果不明或升級後仍載入舊版，依提示正常重開遊戲，不對同一程序重送載入。
 
 ## 已驗證環境
+
+0.15.1：MuMu 內建 12.0（實際 Android 12L／API32）及 15.0（API35）搭配精確 157.0，通過待種花苗 ON／OFF 還原、背景通知狀態與通知關閉全部；API35 另驗通知拒權不阻擋顯示。Root 檢查、版本查詢與 API32 離線退避紀錄見[本輪驗收](docs/VALIDATION_0151_MUMU.md)。
 
 0.14.1：MuMu 內建12.0（API32）及15.0（API35）搭配精確157.0，通過預選開關、等待遊戲、自行載入、水果座標複製與OFF；API35另驗取消首次確認保留ON及重開App保存。[本版驗證界線](docs/FEATURE_INTENT.md)。
 

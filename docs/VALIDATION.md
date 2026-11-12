@@ -1,5 +1,15 @@
 # 驗證分層
 
+0.15.1 原簽章 APK 已在隔離 MuMu 12.0（實際API32）／15.0（API35）＋精確遊戲157.0驗證待種花苗ON、背景通知狀態與通知關閉還原；API35通知拒權不阻擋功能。0.15.0另實測真實更新失敗、快取保留、5分鐘退避、App重開與連線恢復。修正通知回報讀取被monitor阻擋的問題，16項通知主機回歸及CI通過。[完整矩陣、版本差異與待驗界線](VALIDATION_0151_MUMU.md)。以下0.15.0四段為初期離線紀錄，裝置結果以上述文件為準；未發布、不擴大平台資格。
+
+0.15.0 完整 unsigned candidate 建置通過：雙ABI載入器、renderer、JVM、dex與APK封裝／digest；未安裝或執行Android native測試，沒有新增裝置資格。候選不可交付，[雜湊與界線](SETUP_NOTIFICATIONS_UPDATES.md)。
+
+0.15.0 更新：58項更新policy／封裝守門、38項實際updater主機替身案例通過；真實網路失敗、Android程序重開與安裝流程未驗。不改公開索引或既有裝置資格。[本批結果](SETUP_NOTIFICATIONS_UPDATES.md)。
+
+0.15.0 通知：實際service/controller的12項主機替身驗證與原80項控制器回歸通過；OS通知權限、抽屜操作、背景生命週期與遊戲OFF仍待隔離裝置實測。[詳細界線](SETUP_NOTIFICATIONS_UPDATES.md)。
+
+0.15.0 開發：首次使用檢查、Root 命名空間特定提示與原上傳契約的66項主機案例、Android Java編譯通過；尚未裝置驗收、不新增相容資格。[本批分項結果](SETUP_NOTIFICATIONS_UPDATES.md)。
+
 0.14.2排版：隔離MuMu API35的360×640dp視窗、原始視窗、深淺色與1.3倍字體比較，確認五個開關及固定底部操作可見；說明展開／捲動及基本開關亦驗證。沒有重跑遊戲或手機功能，[比較與限制](COMPACT_UI.md)。
 
 0.14.1 可預先選擇的五開關：80項真實 controller host 檢查涵蓋意願／有效值、遷移、快速修改與 OFF 排程；產品實測另見 [FEATURE_INTENT](FEATURE_INTENT.md)，不以編譯／測試擴大資格。

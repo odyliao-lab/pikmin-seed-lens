@@ -10,7 +10,7 @@ import java.util.zip.*;
 /** Diagnostic-process updater, separate from root/game operations. */
 final class LensUpdater {
  static final ExecutorService worker=Executors.newSingleThreadExecutor();
- static volatile boolean checking,downloading,cancel;static volatile String transfer="";
+ static volatile boolean checking,downloading,cancel;static volatile String transfer="",checkProblem="";
  static SharedPreferences prefs(Context c){return c.getSharedPreferences("lens-updates",0);}
  static String installedVersion(Context c){try{return c.getPackageManager().getPackageInfo(c.getPackageName(),0).versionName;}catch(Exception e){return "未知";}}
  static long installed(Context c){try{return c.getPackageManager().getPackageInfo(c.getPackageName(),0).getLongVersionCode();}catch(Exception e){return -1;}}
@@ -21,18 +21,25 @@ final class LensUpdater {
  static String status(Context c){
   if(checking)return "正在檢查更新…";if(downloading)return transfer;if(LensUpdateInstaller.preparing)return "正在核對並準備安裝…";
   if(LensUpdateInstaller.pending(c))return "等待 Android 安裝確認；可取消本次更新。";
+  if(!checkProblem.isEmpty())return checkProblem;
   return prefs(c).getString("status","尚未檢查更新");
  }
+ static long checkTime(Context c,String key){try{return Math.max(0,prefs(c).getLong(key,0));}catch(ClassCastException invalid){return 0;}}
+ static int failures(Context c){try{return Math.min(3,Math.max(0,prefs(c).getInt("check_failures",0)));}catch(ClassCastException invalid){return 0;}}
+ static String checkedAt(Context c){long at=checkTime(c,"last_success");return at==0?"尚無成功檢查時間":new java.text.SimpleDateFormat("MM-dd HH:mm",Locale.TAIWAN).format(new Date(at));}
  static synchronized boolean check(Context input,boolean manual,Runnable done){
   Context c=input.getApplicationContext();long now=System.currentTimeMillis();
   if(busy()||LensUpdateInstaller.pending(c))return false;
-  if(!manual&&!LensUpdateInfo.autoDue(automatic(c),now,prefs(c).getLong("last_attempt",0)))return false;
-  checking=true;prefs(c).edit().putLong("last_attempt",now).apply();
+  if(!manual&&!UpdateCheckPolicy.due(automatic(c),now,checkTime(c,"last_attempt"),checkTime(c,"last_success"),failures(c)))return false;
+  if(!prefs(c).edit().putLong("last_attempt",now).commit()){checkProblem="檢查時間無法保存，尚未連線；請稍後重試。";return false;}
+  checking=true;checkProblem="";
   worker.execute(()->{try{String raw=LensUpdateClient.manifest();LensUpdateInfo info=new LensUpdateInfo(raw),previous=latest(c);
     if(previous!=null&&(info.code<previous.code||info.code==previous.code&&!info.sha256.equals(previous.sha256)))throw new IOException("rollback");
-    String state=info.minSdk>Build.VERSION.SDK_INT?"新版需要較新的 Android":info.newerThan(installed(c))?"發現新版 "+info.version:info.code==installed(c)?"目前沒有較新的發布版":"目前使用開發版；已發布版本為 "+info.version;
-    if(!prefs(c).edit().putString("manifest",raw).putString("status",state).commit())throw new IOException("save");
-   }catch(Exception e){prefs(c).edit().putString("status","檢查更新未完成，請檢查連線或稍後重試；保留原版本。").commit();}
+    String state=UpdateCheckPolicy.status(info.code,installed(c),info.minSdk,Build.VERSION.SDK_INT,info.version);
+    if(!prefs(c).edit().putString("manifest",raw).putString("status",state).putLong("last_success",System.currentTimeMillis()).putInt("check_failures",0).commit())throw new IOException("save");
+   }catch(Exception e){int count=UpdateCheckPolicy.failed(failures(c));
+    String state="檢查未完成，保留原版本與快取。"+(automatic(c)?"自動檢查將在 "+UpdateCheckPolicy.retry(count)+"後下次開啟 App 時重試；":"自動檢查已關閉；")+"仍可手動檢查。";
+    if(!prefs(c).edit().putString("status",state).putInt("check_failures",count).commit())checkProblem="檢查結果無法保存，請稍後重試；原版本保留。";}
    finally{checking=false;if(done!=null)done.run();}});return true;
  }
  static synchronized void download(Context input){

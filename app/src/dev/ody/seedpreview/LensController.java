@@ -205,6 +205,17 @@ final class LensController {
         }
     }
     boolean gameAbsent(){return contextChecked&&!reportReadFailed&&reportContext==null;}
+    String notificationText(){
+        // Never expose raw loader output, paths, coordinates or historical success in a notification.
+        if(reason.startsWith("關閉意願未保存"))return "關閉未保存；請回透視鏡重試";
+        if(pendingOff())return "關閉意願已保存，等待同步；尚未確認還原";
+        if(!settingsError.isEmpty()||reportReadFailed)return "等待 Root／設定核對；可開啟透視鏡查看";
+        if(anyGroup()&&!armed())return "選擇已保存，等待首次套用確認";
+        if(anyGroup()&&(operations.extensionAvailability()!=null
+                ||Boolean.TRUE.equals(gpsOn)&&operations.gpsAvailability()!=null))return "目前環境不符；請開啟診斷查看";
+        if(!reason.isEmpty())return "核對未通過；請開啟透視鏡查看";
+        return overview();
+    }
     String overview(){
         updateReports(System.currentTimeMillis());
         if(pendingOff())return "關閉意願已保存，等待同步";
@@ -221,7 +232,8 @@ final class LensController {
         }
         return DisplayOverview.text(groupOn,effects,reportContext!=null,false,false,"",reportReadFailed?"read-failed":"",null,gameAbsent()?LensStatus.Phase.UNVERIFIED:state.phase);
     }
-    void refreshReports(){
+    void refreshReports(){refreshReports(null);}
+    void refreshReports(Runnable completed){
         // Passive reads share the serial worker without disabling user switches.
         // Only mutations own active; this read never changes saved intentions.
         if(settingsDirty||!groupsKnown()||operations.extensionAvailability()!=null||active.get()||!reportReading.compareAndSet(false,true))return;
@@ -233,7 +245,7 @@ final class LensController {
             }else failed=true;}}catch(Exception ignored){failed=true;raw=null;gps=null;}
             final String gpsResult=gps;
             final LensContext owner=current;final String text=raw;final boolean failure=failed;
-            main.post(()->{reportContext=owner;reportRaw=text;gpsRaw=gpsResult;reportReadFailed=failure;contextChecked=true;bindUnscopedBarrier(owner);updateReports(System.currentTimeMillis());reportReading.set(false);notifyView();});
+            main.post(()->{reportContext=owner;reportRaw=text;gpsRaw=gpsResult;reportReadFailed=failure;contextChecked=true;bindUnscopedBarrier(owner);updateReports(System.currentTimeMillis());reportReading.set(false);notifyView();if(completed!=null)completed.run();});
         });
     }
     void monitor(){
