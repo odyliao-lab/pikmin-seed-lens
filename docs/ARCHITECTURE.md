@@ -1,5 +1,7 @@
 # 架構
 
+0.15.2／0.15.3 修正 API35 更新安裝回呼：只對明確 session 的非匯出 Activity PendingIntent 加上 creator BAL opt-in，保留 Android 使用者確認與 APK／session／載入互斥守門。確認 Intent 缺失或不能開啟時取消並提示重試；不靜默 Root 安裝。[裝置驗收與版本界線](API35_INSTALLER_FIX.md)。
+
 0.15.0 開發：首次使用入口與本機診斷使用獨立 RootDiagnostic 嚴格解析器，不改載入命令或遠端回報 schema。基本檢查與即時遊戲資格分開；[設計與驗證界線](SETUP_NOTIFICATIONS_UPDATES.md)。
 
 通知沿既有 LensService／LensController，定期更新固定狀態，關閉按鈕走原持久 pending-OFF。新增通知權限僅供系統呈現，不是載入前提；不產生第二個控制器或使用活動頁的 observer 槽。

@@ -1,8 +1,10 @@
 package dev.ody.seedpreview;
 import android.app.PendingIntent;
+import android.app.ActivityOptions;
 import android.content.*;
 import android.content.pm.PackageInstaller;
 import android.os.Build;
+import android.os.Bundle;
 import java.io.*;
 /** User-confirmed Android installer only; no root pm install or module operations. */
 final class LensUpdateInstaller {
@@ -20,6 +22,14 @@ final class LensUpdateInstaller {
   if(!LensUpdater.prefs(c).edit().remove("session").remove("install_code").putString("status",result).commit())throw new IOException("save");
  }
  static void cancel(Context c)throws Exception{int id=session(c);if(id>=0)c.getPackageManager().getPackageInstaller().abandonSession(id);clear(c,"已取消更新，原版本與設定保留。");}
+ static PendingIntent callback(Context c,int id){
+  Intent intent=new Intent(c,LensUpdateInstallActivity.class).setAction("dev.ody.seedpreview.INSTALL_RESULT."+id).putExtra("expected_session",id).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+  // Only this explicit, session-bound system installer callback receives the opt-in.
+  // target35 no longer delegates the creator's visible-Activity privilege by default.
+  Bundle options=null;
+  if(Build.VERSION.SDK_INT>=34)options=ActivityOptions.makeBasic().setPendingIntentCreatorBackgroundActivityStartMode(ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED).toBundle();
+  return PendingIntent.getActivity(c,id,intent,PendingIntent.FLAG_UPDATE_CURRENT|(Build.VERSION.SDK_INT>=31?PendingIntent.FLAG_MUTABLE:0),options);
+ }
  static void begin(Context input){Context c=input.getApplicationContext();synchronized(LensUpdater.class){if(LensUpdater.busy()||pending(c))return;preparing=true;}
   LensUpdater.worker.execute(()->{int id=-1;boolean frozen=false;try{
     if(!c.getPackageManager().canRequestPackageInstalls())throw new IOException("permission");
@@ -30,8 +40,7 @@ final class LensUpdateInstaller {
     id=installer.createSession(params);if(!LensUpdater.prefs(c).edit().putInt("session",id).putLong("install_code",info.code).commit())throw new IOException("save");
     try(PackageInstaller.Session session=installer.openSession(id)){
      try(InputStream in=new FileInputStream(LensUpdater.apk(c));OutputStream out=session.openWrite("base.apk",0,info.size)){byte[] b=new byte[32768];int n;while((n=in.read(b))!=-1)out.write(b,0,n);session.fsync(out);}
-     Intent callback=new Intent(c,LensUpdateInstallActivity.class).setAction("dev.ody.seedpreview.INSTALL_RESULT."+id).putExtra("expected_session",id).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
-     PendingIntent result=PendingIntent.getActivity(c,id,callback,PendingIntent.FLAG_UPDATE_CURRENT|(Build.VERSION.SDK_INT>=31?PendingIntent.FLAG_MUTABLE:0));session.commit(result.getIntentSender());
+     session.commit(callback(c,id).getIntentSender());
     }
    }catch(Exception e){if(id>=0)try{c.getPackageManager().getPackageInstaller().abandonSession(id);}catch(Exception ignored){}
     try{if(frozen)clear(c,"安裝未完成；請確認沒有顯示操作進行中、並允許此來源安裝 App 後重試。原版本保留。");else LensUpdater.prefs(c).edit().putString("status","暫時無法準備安裝，原版本保留；請稍後重試。").commit();}catch(Exception ignored){}
