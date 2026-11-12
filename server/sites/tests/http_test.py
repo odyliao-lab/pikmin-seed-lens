@@ -37,4 +37,15 @@ class Live(unittest.TestCase):
   self.assertEqual(self.request(path,{'state':'resolved'},h)[0],200)
   a=self.request('/admin/api/reports?state=resolved&app=0.11.2',headers=h);self.assertEqual(a[0],200,a[2]);self.assertTrue(any(r['report_id']==p['report_id'] for r in json.loads(a[2])['reports']))
   self.assertEqual(self.request(path,{'state':'new'},{**h,'Origin':'https://evil.invalid'})[0],403)
+ def test_05_app_upload_without_browser_origin(self):
+  p=report();body={'report':p,'email':''}
+  def native(path,data,extra=None):
+   h={'Content-Type':'application/json','X-Seed-Lens-Consent':'preview-v1','CF-Connecting-IP':'synthetic-'+RUN+'-25'};h.update(extra or {})
+   c=http.client.HTTPConnection(HOST,timeout=10);c.request('POST',path,json.dumps(data),h);r=c.getresponse();result=(r.status,r.read());c.close();return result
+  self.assertEqual(native('/api/submit',body)[0],403)
+  a=native('/api/submit',body,{'X-Seed-Lens-Client':'android-v1'})
+  self.assertEqual(a[0],201,a[1]);self.assertEqual(json.loads(a[1])['report_id'],p['report_id'])
+  self.assertEqual(native('/api/submit',body,{'X-Seed-Lens-Client':'android-v1'})[0],200)
+  self.assertEqual(native('/api/submit',body,{'X-Seed-Lens-Client':'android-v1','Origin':'https://evil.invalid'})[0],403)
+  self.assertEqual(native('/admin/api/reports/'+p['report_id'],{'state':'resolved'},{'X-Seed-Lens-Client':'android-v1'})[0],401)
 if __name__=='__main__':unittest.main()
