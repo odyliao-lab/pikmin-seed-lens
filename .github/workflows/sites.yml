@@ -1,0 +1,32 @@
+name: Sites website
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  website:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: server/sites
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: server/sites/package-lock.json
+      - name: Install locked website dependencies
+        run: npm run install:ci
+      - name: Check website policies
+        run: node --test tests/policy.test.mjs
+      - name: Check TypeScript
+        run: npx --no-install tsc --noEmit
+      - name: Build Worker and client
+        run: npm run build
+      - name: Check deployable Worker output
+        run: test -s dist/server/index.js && test -s dist/server/wrangler.json
