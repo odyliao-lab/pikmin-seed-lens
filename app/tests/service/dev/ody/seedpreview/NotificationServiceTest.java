@@ -14,6 +14,19 @@ public final class NotificationServiceTest {
    check(off.title.equals("關閉全部")&&off.intent.service&&off.intent.intent.target==LensService.class);
    check((off.intent.flags&PendingIntent.FLAG_IMMUTABLE)!=0);
    int posts=service.manager.posts;service.publish(c.notificationText());check(posts==service.manager.posts);
+   // No Activity: a real async report must be read and published after tick's
+   // monitor starts. The former tick-before-read order starved this forever.
+   c.setGroup(0,true);AllOffControllerTest.settle(c);
+   c.operations.game=LensContext.parse("123\t456\t"+DisplayGroupsTest.BOOT+"\n");
+   c.operations.reportOutput=DisplayGroupsTest.rows(System.currentTimeMillis());
+   int reads=c.operations.reportCalls;service.poll.run();AllOffControllerTest.settle(c);
+   check(c.operations.reportCalls==reads+1);
+   check(service.manager.last.text.equals("已套用至已回報畫面"));
+   c.operations.reportOutput=DisplayGroupsTest.rows(System.currentTimeMillis()-10000);
+   service.poll.run();AllOffControllerTest.settle(c);
+   check(service.manager.last.text.equals("等待遊戲畫面回報"));
+   c.operations.game=null;service.poll.run();AllOffControllerTest.settle(c);
+   check(service.manager.last.text.contains("等待遊戲"));
    c.reason="private coordinate or raw exception";service.publish(c.notificationText());check(!service.manager.last.text.contains("private"));c.reason="";
    c.operations.fail=true;service.onStartCommand(off.intent.intent,0,2);
    check(c.pendingOff()&&!c.anyGroup()&&!c.armed());

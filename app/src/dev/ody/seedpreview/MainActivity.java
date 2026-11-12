@@ -12,7 +12,7 @@ import android.widget.*;
 public final class MainActivity extends Activity implements LensController.Observer {
     LensController controller;ForestStyle style;TextView message,status,closeAll;
     final Handler updates=new Handler(Looper.getMainLooper());
-    final Runnable poll=new Runnable(){public void run(){changed();controller.tick();controller.refreshReports();updates.postDelayed(this,3000);}};
+    final Runnable poll=new Runnable(){public void run(){changed();controller.refreshReports();controller.tick();updates.postDelayed(this,3000);}};
     final Switch[] switches=new Switch[4];
     final TextView[] reports=new TextView[4];
     Switch gpsSwitch;TextView gpsReport;

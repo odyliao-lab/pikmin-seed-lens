@@ -8,12 +8,15 @@ import android.os.*;
 /** APK-owned foreground watcher; never starts from boot or uses another package. */
 public final class LensService extends Service {
     static final String CLOSE_ALL="dev.ody.seedpreview.CLOSE_ALL";
-    NotificationManager manager;String lastText;
+    NotificationManager manager;String lastText;boolean destroyed;
     final Handler handler=new Handler(Looper.getMainLooper());
     final Runnable poll=new Runnable(){public void run(){
         LensController c=LensController.get(LensService.this);
         if(!c.needsWatch()){stopSelf();return;}
-        c.tick();c.refreshReports();publish(c.notificationText());handler.postDelayed(this,4000);
+        // tick() starts a monitor transaction; admit the passive read first so
+        // an Activity-free watcher cannot starve reports behind active=true.
+        c.refreshReports(()->{if(!destroyed)publish(c.notificationText());});
+        c.tick();publish(c.notificationText());handler.postDelayed(this,4000);
     }};
     static void start(Context context){try{context.startForegroundService(new Intent(context,LensService.class));}
         catch(RuntimeException failure){LensController.get(context).reason="顯示等待服務無法啟動；請回 App 重新核對。";}}
@@ -41,6 +44,6 @@ public final class LensService extends Service {
         if(intent!=null&&CLOSE_ALL.equals(intent.getAction()))c.allOff();
         publish(c.notificationText());handler.removeCallbacks(poll);handler.post(poll);return START_NOT_STICKY;
     }
-    @Override public void onDestroy(){handler.removeCallbacks(poll);stopForeground(STOP_FOREGROUND_REMOVE);super.onDestroy();}
+    @Override public void onDestroy(){destroyed=true;handler.removeCallbacks(poll);stopForeground(STOP_FOREGROUND_REMOVE);super.onDestroy();}
     @Override public IBinder onBind(Intent intent){return null;}
 }

@@ -232,7 +232,8 @@ final class LensController {
         }
         return DisplayOverview.text(groupOn,effects,reportContext!=null,false,false,"",reportReadFailed?"read-failed":"",null,gameAbsent()?LensStatus.Phase.UNVERIFIED:state.phase);
     }
-    void refreshReports(){
+    void refreshReports(){refreshReports(null);}
+    void refreshReports(Runnable completed){
         // Passive reads share the serial worker without disabling user switches.
         // Only mutations own active; this read never changes saved intentions.
         if(settingsDirty||!groupsKnown()||operations.extensionAvailability()!=null||active.get()||!reportReading.compareAndSet(false,true))return;
@@ -244,7 +245,7 @@ final class LensController {
             }else failed=true;}}catch(Exception ignored){failed=true;raw=null;gps=null;}
             final String gpsResult=gps;
             final LensContext owner=current;final String text=raw;final boolean failure=failed;
-            main.post(()->{reportContext=owner;reportRaw=text;gpsRaw=gpsResult;reportReadFailed=failure;contextChecked=true;bindUnscopedBarrier(owner);updateReports(System.currentTimeMillis());reportReading.set(false);notifyView();});
+            main.post(()->{reportContext=owner;reportRaw=text;gpsRaw=gpsResult;reportReadFailed=failure;contextChecked=true;bindUnscopedBarrier(owner);updateReports(System.currentTimeMillis());reportReading.set(false);notifyView();if(completed!=null)completed.run();});
         });
     }
     void monitor(){
