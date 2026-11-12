@@ -106,6 +106,11 @@ $updaterSources=@(Get-ChildItem "$PSScriptRoot/tests/updater" -Recurse -Filter '
 if($LASTEXITCODE){throw 'Actual updater host compile failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/updater-tests$([IO.Path]::PathSeparator)$out/tests" dev.ody.seedpreview.UpdateRetryTest "$root/updates/preview.properties"
 if($LASTEXITCODE){throw 'Actual updater retry/persistence checks failed'}
+$installerSources=@(Get-ChildItem "$PSScriptRoot/tests/installer" -Recurse -Filter '*.java' | ForEach-Object FullName)
+& "$JavaHome/bin/javac.exe" -encoding UTF-8 -d "$out/installer-tests" "$PSScriptRoot/src/dev/ody/seedpreview/LensUpdateInstaller.java" "$PSScriptRoot/src/dev/ody/seedpreview/LensUpdateInstallActivity.java" "$PSScriptRoot/src/dev/ody/seedpreview/UpdateInterlock.java" @installerSources
+if($LASTEXITCODE){throw 'Actual installer callback host compile failed'}
+& "$JavaHome/bin/java.exe" -cp "$out/installer-tests" dev.ody.seedpreview.InstallerCallbackTest
+if($LASTEXITCODE){throw 'Actual installer callback checks failed'}
 $controllerSources=@(Get-ChildItem "$PSScriptRoot/tests/controller" -Recurse -Filter '*.java' | ForEach-Object FullName)
 & "$JavaHome/bin/javac.exe" -encoding UTF-8 -classpath "$out/tests" -d "$out/controller-tests" "$PSScriptRoot/src/dev/ody/seedpreview/LensController.java" "$PSScriptRoot/src/dev/ody/seedpreview/UpdateInterlock.java" @controllerSources
 if($LASTEXITCODE){throw 'Controller all-OFF host test compile failed'}
