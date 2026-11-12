@@ -47,5 +47,6 @@ class Live(unittest.TestCase):
   self.assertEqual(a[0],201,a[1]);self.assertEqual(json.loads(a[1])['report_id'],p['report_id'])
   self.assertEqual(native('/api/submit',body,{'X-Seed-Lens-Client':'android-v1'})[0],200)
   self.assertEqual(native('/api/submit',body,{'X-Seed-Lens-Client':'android-v1','Origin':'https://evil.invalid'})[0],403)
-  self.assertEqual(native('/admin/api/reports/'+p['report_id'],{'state':'resolved'},{'X-Seed-Lens-Client':'android-v1'})[0],401)
+  self.assertEqual(native('/admin/api/reports/'+p['report_id'],{'state':'resolved'},{'X-Seed-Lens-Client':'android-v1'})[0],403)
+  self.assertEqual(self.request('/admin/api/reports/'+p['report_id'],headers={'X-Seed-Lens-Client':'android-v1'})[0],401)
 if __name__=='__main__':unittest.main()
