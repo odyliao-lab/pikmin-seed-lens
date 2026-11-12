@@ -205,6 +205,17 @@ final class LensController {
         }
     }
     boolean gameAbsent(){return contextChecked&&!reportReadFailed&&reportContext==null;}
+    String notificationText(){
+        // Never expose raw loader output, paths, coordinates or historical success in a notification.
+        if(reason.startsWith("關閉意願未保存"))return "關閉未保存；請回透視鏡重試";
+        if(pendingOff())return "關閉意願已保存，等待同步；尚未確認還原";
+        if(!settingsError.isEmpty()||reportReadFailed)return "等待 Root／設定核對；可開啟透視鏡查看";
+        if(anyGroup()&&!armed())return "選擇已保存，等待首次套用確認";
+        if(anyGroup()&&(operations.extensionAvailability()!=null
+                ||Boolean.TRUE.equals(gpsOn)&&operations.gpsAvailability()!=null))return "目前環境不符；請開啟診斷查看";
+        if(!reason.isEmpty())return "核對未通過；請開啟透視鏡查看";
+        return overview();
+    }
     String overview(){
         updateReports(System.currentTimeMillis());
         if(pendingOff())return "關閉意願已保存，等待同步";

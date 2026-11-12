@@ -11,3 +11,11 @@ API32 仍沿原 su-c／PID1 mount namespace 守門；只有 exit6、完整且唯
 Root 結果只代表本次檢查；回到診斷或重新檢查環境會清除舊 Root 結果，須明確重新檢查。歷史 last_phase 不當目前已載入證據。命名空間細節僅本機顯示，上傳仍用原封閉 schema 的 denied_or_incompatible，不增加原始路徑／指令輸出，與現行服務相容。
 
 驗證：DiagnosticPolicyTest 66項包含實際解析器正負例、精準提示、原上傳格式及舊ON不得當即時狀態；Android35 SDK 全Java編譯通過。尚未在 MuMu 實測 Magisk 各命名空間模式、首次畫面或拒權；不是新增 Root／遊戲資格。
+
+## 4 通知列狀態與關閉全部
+
+沿用 LensService，每四秒核對既有控制器與有時效的回報，通知文字相同不重送。只呈現固定狀態，不包含原始錯誤／座標／帳號；鎖屏仍隱藏。通知提供開啟 App 與關閉全部，後者呼叫原 LensController.allOff 持久意願／原生確認流程，Root 失敗保留 pending-OFF，不以停止服務冒充還原。無開機啟動、額外服務或外掛。
+
+Android13以上首次啟用時可授予通知權限；拒絕不影響主頁開關或關閉全部，也不反覆要求。允許或拒絕後原開啟遊戲操作皆可繼續，通知由系統權限控制。
+
+驗證：NotificationServiceTest 12項執行實際 service＋controller、替身 Android/Root，驗證 action、去重、敏感字串排除、Root失敗時保存OFF、通知拒絕與成功後服務退出；原控制器80項回歸通過。尚未實測 Android 通知抽屜、OS授權、背景點擊與遊戲還原；主機替身不能取代裝置驗收。

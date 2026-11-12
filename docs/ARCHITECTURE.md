@@ -2,6 +2,8 @@
 
 0.15.0 開發：首次使用入口與本機診斷使用獨立 RootDiagnostic 嚴格解析器，不改載入命令或遠端回報 schema。基本檢查與即時遊戲資格分開；[設計與驗證界線](SETUP_NOTIFICATIONS_UPDATES.md)。
 
+通知沿既有 LensService／LensController，定期更新固定狀態，關閉按鈕走原持久 pending-OFF。新增通知權限僅供系統呈現，不是載入前提；不產生第二個控制器或使用活動頁的 observer 槽。
+
 0.14.2工具頁分為固定橫排標題／頁籤、可捲動的緊湊功能列表，以及固定底部操作／版本。僅MainActivity與LensTabs呈現層調整，診斷內容、意願控制器及原生邏輯不變；共通錯誤集中顯示，完整文字仍可換行。[版面驗證](COMPACT_UI.md)。
 
 ## 可預先選擇的功能意願

@@ -106,6 +106,12 @@ $controllerSources=@(Get-ChildItem "$PSScriptRoot/tests/controller" -Recurse -Fi
 if($LASTEXITCODE){throw 'Controller all-OFF host test compile failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/controller-tests$([IO.Path]::PathSeparator)$out/tests" dev.ody.seedpreview.AllOffControllerTest
 if($LASTEXITCODE){throw 'Controller all-OFF queue/recovery checks failed'}
+$serviceSources=@(Get-ChildItem "$PSScriptRoot/tests/service" -Recurse -Filter '*.java' | ForEach-Object FullName)
+$serviceControllerSources=@($controllerSources | Where-Object { (Split-Path $_ -Leaf) -ne 'LensService.java' })
+& "$JavaHome/bin/javac.exe" -encoding UTF-8 -classpath "$out/tests" -d "$out/service-tests" "$PSScriptRoot/src/dev/ody/seedpreview/LensController.java" "$PSScriptRoot/src/dev/ody/seedpreview/LensService.java" "$PSScriptRoot/src/dev/ody/seedpreview/UpdateInterlock.java" @serviceControllerSources @serviceSources
+if($LASTEXITCODE){throw 'Notification service host compile failed'}
+& "$JavaHome/bin/java.exe" -cp "$out/service-tests$([IO.Path]::PathSeparator)$out/tests" dev.ody.seedpreview.NotificationServiceTest
+if($LASTEXITCODE){throw 'Notification service/OFF checks failed'}
 & "$JavaHome/bin/javac.exe" -encoding UTF-8 -d "$out/tests" "$PSScriptRoot/tests/ApkNativeLayout.java" "$PSScriptRoot/tests/ApkNativeLayoutTest.java"
 if($LASTEXITCODE){throw 'APK layout checker compile failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.ApkNativeLayoutTest

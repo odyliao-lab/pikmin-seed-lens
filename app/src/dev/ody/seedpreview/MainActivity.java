@@ -17,8 +17,9 @@ public final class MainActivity extends Activity implements LensController.Obser
     final TextView[] reports=new TextView[4];
     Switch gpsSwitch;TextView gpsReport;
     boolean suppress;
+    Runnable afterNotification;
     @Override public void onCreate(Bundle saved){super.onCreate(saved);controller=LensController.get(this);build();if(saved==null)offerFirstCheck();}
-    @Override protected void onResume(){super.onResume();controller.attach(this);try{startService(new Intent(this,LensUpdateCheckService.class));}catch(RuntimeException ignored){}controller.refreshGroups();updates.postDelayed(poll,3000);}
+    @Override protected void onResume(){super.onResume();controller.attach(this);try{startService(new Intent(this,LensUpdateCheckService.class));}catch(RuntimeException ignored){}controller.refreshGroups();updates.postDelayed(poll,3000);if(controller.armed()&&controller.needsWatch())offerNotifications();}
     @Override protected void onPause(){updates.removeCallbacks(poll);controller.detach(this);super.onPause();}
     void build(){
         boolean dark=(getResources().getConfiguration().uiMode&Configuration.UI_MODE_NIGHT_MASK)==Configuration.UI_MODE_NIGHT_YES;
@@ -77,6 +78,16 @@ public final class MainActivity extends Activity implements LensController.Obser
             .setMessage("建議先檢查 Root 與遊戲版本，再選擇功能並開啟遊戲。檢查不會安裝套件或修改系統；也可稍後從「診斷」頁進入。")
             .setNegativeButton("稍後再說",null).setPositiveButton("檢查環境",(d,w)->startActivity(new Intent(this,DiagnosticsActivity.class))).show();
     }
+    boolean offerNotifications(){
+        if(Build.VERSION.SDK_INT<33||checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)==android.content.pm.PackageManager.PERMISSION_GRANTED)return false;
+        android.content.SharedPreferences p=getSharedPreferences("lens-first-use",0);
+        if(p.contains("notification-requested")||!p.edit().putBoolean("notification-requested",true).commit())return false;
+        requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS},72);return true;
+    }
+    @Override public void onRequestPermissionsResult(int request,String[] permissions,int[] grants){
+        super.onRequestPermissionsResult(request,permissions,grants);
+        if(request==72){Runnable next=afterNotification;afterNotification=null;if(next!=null)next.run();}
+    }
     Button action(String text,boolean primary){Button button=style.button(text,primary);button.setMinHeight(style.dp(48));button.setMinimumHeight(style.dp(48));button.setPadding(style.dp(12),style.dp(6),style.dp(12),style.dp(6));return button;}
     String rowStatus(Boolean on,String report,String unavailable){
         if(on==null)return report;
@@ -88,7 +99,7 @@ public final class MainActivity extends Activity implements LensController.Obser
         new AlertDialog.Builder(this).setTitle("允許自動套用")
             .setMessage("開關選擇已保存。條件符合後會自動套用資訊或複製探險座標，不移動定位。載入結果不明或逾時時，允許停止當次遊戲並保留紀錄，不自動重送；下次正常開啟的新程序會重新核對。")
             .setNegativeButton("取消",(d,w)->changed()).setPositiveButton("允許",(d,w)->{
-                if(controller.arm())after.run();else{controller.reason="啟用意願未保存，請重試。";changed();}
+                if(controller.arm()){if(offerNotifications())afterNotification=after;else after.run();}else{controller.reason="啟用意願未保存，請重試。";changed();}
             }).show();
     }
     @Override public void changed(){
