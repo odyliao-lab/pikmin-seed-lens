@@ -112,4 +112,6 @@ pwsh -NoProfile -File app/build.ps1 `
 
 提交變更請勿包含金鑰、帳號資料或遊戲檔案；[repo 安全設定](docs/REPOSITORY_SECURITY.md)。
 
+網站相依套件已加入每週更新及 CI 安全檢查；[2026-11-13 修復與正式站驗證](docs/SITES_SECURITY_20261113.md)。
+
 程式碼採 [MIT License](LICENSE)；第三方元件保留各自授權，角色與圖片不包含在程式碼授權範圍內。
