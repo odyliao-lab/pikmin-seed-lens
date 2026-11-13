@@ -22,8 +22,8 @@ jobs:
           cache-dependency-path: server/sites/package-lock.json
       - name: Install locked website dependencies
         run: npm run install:ci
-      - name: Check website policies
-        run: node --test tests/policy.test.mjs
+      - name: Check website policies and connector protocol
+        run: node --test tests/*.test.mjs
       - name: Check TypeScript
         run: npx --no-install tsc --noEmit
       - name: Build Worker and client

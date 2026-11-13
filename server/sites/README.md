@@ -29,7 +29,7 @@
 依 Sites skill 執行 install-dependencies／build-site／site-workflow，使用 Node 22.13+。`.openai/hosting.json` 宣告 D1=`DB`、R2=null。`npm run db:generate` 產生的 migration／snapshot 不可改寫，後續需新增 migration。
 
 ```sh
-node --test tests/policy.test.mjs
+node --test tests/*.test.mjs
 npx tsc --noEmit
 ```
 
