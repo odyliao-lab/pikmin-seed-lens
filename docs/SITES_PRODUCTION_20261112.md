@@ -81,6 +81,8 @@ main 驗證：[網站 CI](https://github.com/odyliao-lab/pikmin-seed-lens/action
 
 ## 驗收界線
 
+2026-11-13 網站依賴安全修復與 Sites 版本 4 的正式合成上傳／後台回歸另見 [安全修復驗收](SITES_SECURITY_20261113.md)。該輪未操作 Android 裝置，不併入本文件的 MuMu 實裝 App 驗收。
+
 - 已完成 API35＋0.15.3／57、API32＋0.15.1／55 及升級後 API32＋0.15.3／57 安裝版 App 的實際診斷上傳與正式後台查看，不代表遊戲顯示、Root 載入或其他 Android／遊戲版本新增資格。
 - 手機、Android 真實離線／TLS 失敗、跨 Activity／程序重建的收據保留仍未驗；本輪也未重跑 App 內更新流程。
 - 正式已登入非站長帳號隔離仍待驗；未登入與偽造身分被拒絕不能替代此項。
