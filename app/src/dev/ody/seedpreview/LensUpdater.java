@@ -4,6 +4,8 @@ import android.content.pm.*;
 import android.os.Build;
 import java.io.*;
 import java.security.MessageDigest;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.zip.*;
@@ -20,7 +22,7 @@ final class LensUpdater {
  static boolean automatic(Context c){try{return prefs(c).getBoolean("automatic",false);}catch(Exception e){return false;}}
  static String status(Context c){
   if(checking)return "正在檢查更新…";if(downloading)return transfer;if(LensUpdateInstaller.preparing)return "正在核對並準備安裝…";
-  if(LensUpdateInstaller.pending(c))return "等待 Android 安裝確認；可取消本次更新。";
+  if(LensUpdateInstaller.pending(c))return LensUpdateInstaller.pendingStatus(c);
   if(!checkProblem.isEmpty())return checkProblem;
   return prefs(c).getString("status","尚未檢查更新");
  }
@@ -42,17 +44,57 @@ final class LensUpdater {
     if(!prefs(c).edit().putString("status",state).putInt("check_failures",count).commit())checkProblem="檢查結果無法保存，請稍後重試；原版本保留。";}
    finally{checking=false;if(done!=null)done.run();}});return true;
  }
- static synchronized void download(Context input){
-  Context c=input.getApplicationContext();LensUpdateInfo info=latest(c);if(busy()||LensUpdateInstaller.pending(c)||info==null||!info.newerThan(installed(c))||info.minSdk>Build.VERSION.SDK_INT)return;
+ private static File partial(Context c){return new File(c.getFilesDir(),"lens-update.apk.part");}
+ private static String identity(LensUpdateInfo info){return info.code+":"+info.size+":"+info.sha256;}
+ static long retainedBytes(Context c,LensUpdateInfo info){
+  if(info==null||!identity(info).equals(prefs(c).getString("partial_identity","")))return 0;
+  long size=partial(c).length();
+  return size>0&&size<info.size?size:0;
+ }
+ private static void bindPartial(Context c,LensUpdateInfo info)throws IOException{
+  String binding=identity(info);
+  if(binding.equals(prefs(c).getString("partial_identity","")))return;
+  LensUpdateClient.removePartial(partial(c));
+  if(!prefs(c).edit().putString("partial_identity",binding).commit())
+   throw new IOException("無法保存下載片段的版本");
+ }
+ private static void discardPartial(Context c)throws IOException{
+  boolean cleared=prefs(c).edit().remove("partial_identity").commit();
+  LensUpdateClient.removePartial(partial(c));
+  if(!cleared)throw new IOException("無法清除下載片段的版本");
+ }
+ static synchronized void download(Context input,LensUpdateInfo expected){
+  Context c=input.getApplicationContext();LensUpdateInfo info=latest(c);
+  if(busy()||LensUpdateInstaller.pending(c)||info==null||!info.newerThan(installed(c))||info.minSdk>Build.VERSION.SDK_INT)return;
+  if(expected==null||!info.url.equals(expected.url)||!identity(info).equals(identity(expected))){
+   prefs(c).edit().putString("status","更新目標已變更，請重新確認版本。").commit();return;
+  }
   downloading=true;cancel=false;transfer="下載準備中…";
-  worker.execute(()->{File part=new File(c.getFilesDir(),"lens-update.apk.part");try{
-    LensUpdateClient.download(info,part,new LensUpdateClient.Observer(){public boolean cancelled(){return cancel;}public void progress(long n,long total){transfer="下載中 · "+(n*100/total)+"%";}});
-    verify(c,part,info);if(cancel)throw new InterruptedIOException();
-    if(apk(c).exists()&&!apk(c).delete())throw new IOException("replace");
-    if(!part.renameTo(apk(c)))throw new IOException("save");
-    if(!prefs(c).edit().putString("download_sha",info.sha256).putString("status","已下載並核對；等待你確認安裝。").commit())throw new IOException("save");
-   }catch(Exception e){part.delete();prefs(c).edit().putString("status",cancel?"已取消下載，原版本保留。":"下載或 APK 核對未完成，原版本保留；請重試或從官方發布頁取得 APK。").commit();}
-   finally{downloading=false;transfer="";}});
+  worker.execute(()->{
+   File part=partial(c);
+   boolean complete=false;
+   try{
+    bindPartial(c,info);
+    LensUpdateClient.downloadResuming(info,part,new LensUpdateClient.Observer(){
+     public boolean cancelled(){return cancel;}
+     public void progress(long n,long total){transfer="下載中 · "+(n*100/total)+"%";}
+    });
+    complete=true;
+    verify(c,part,info);
+    if(cancel)throw new InterruptedIOException();
+    Files.move(part.toPath(),apk(c).toPath(),StandardCopyOption.REPLACE_EXISTING,StandardCopyOption.ATOMIC_MOVE);
+    if(!prefs(c).edit().remove("partial_identity").putString("download_sha",info.sha256)
+        .putString("status","已下載並核對，等待你確認安裝。").commit())throw new IOException("save");
+   }catch(Exception e){
+    String result=cancel?"已取消下載，原版本保留。":
+      !complete&&retainedBytes(c,info)>0?"下載中斷，已保留同版進度。":
+      "下載或 APK 核對未完成，原版本保留。";
+    if(cancel||complete){
+     try{discardPartial(c);}catch(IOException cleanup){result="無法清空下載片段，請稍後重試。";}
+    }
+    prefs(c).edit().putString("status",result).commit();
+   }finally{downloading=false;transfer="";}
+  });
  }
  static boolean ready(Context c){LensUpdateInfo i=latest(c);return i!=null&&i.newerThan(installed(c))&&apk(c).isFile()&&i.sha256.equals(prefs(c).getString("download_sha",""));}
  static void verify(Context c,File file,LensUpdateInfo i)throws Exception{

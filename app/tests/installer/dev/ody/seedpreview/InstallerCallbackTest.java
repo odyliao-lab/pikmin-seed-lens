@@ -1,5 +1,5 @@
 package dev.ody.seedpreview;
-import android.app.*;import android.content.*;import android.content.pm.*;import android.os.Build;import java.nio.file.*;import java.util.concurrent.*;
+import android.app.*;import android.content.*;import android.content.pm.*;import android.os.Build;import android.os.SystemClock;import java.nio.file.*;import java.util.concurrent.*;
 public final class InstallerCallbackTest {
  static int checks;static void check(boolean ok){checks++;if(!ok)throw new AssertionError("installer case "+checks);}
  static void settle()throws Exception{LensUpdater.worker.submit(()->{}).get(3,TimeUnit.SECONDS);check(!LensUpdateInstaller.preparing);}
@@ -28,6 +28,26 @@ public final class InstallerCallbackTest {
    check(LensUpdater.values.map.get("status").toString().contains("無法開啟 Android"));
    LensUpdateInstaller.begin(c);settle();id=LensUpdateInstaller.session(c);LensUpdateInstallActivity blocked=new LensUpdateInstallActivity();blocked.reject=system;blocked.handle(result(id,id,-1).putExtra(Intent.EXTRA_INTENT,system));check(!LensUpdateInstaller.pending(c)&&pm.abandoned==2);
    LensUpdateInstaller.begin(c);settle();id=LensUpdateInstaller.session(c);pm.abandonFails=true;new LensUpdateInstallActivity().handle(result(id,id,-1));check(LensUpdateInstaller.pending(c)&&Files.exists(dir.resolve("update-freeze")));pm.abandonFails=false;LensUpdateInstaller.cancel(c);check(!LensUpdateInstaller.pending(c));
+   LensUpdateInstaller.begin(c);settle();id=LensUpdateInstaller.session(c);
+   check(LensUpdateInstaller.pendingStatus(c).contains("正在處理"));
+   pm.sessions.remove(id);check(LensUpdateInstaller.pending(c));
+   SystemClock.now+=7999;
+   check(LensUpdateInstaller.pending(c)&&Files.exists(dir.resolve("update-freeze")));
+   new LensUpdateInstallActivity().handle(result(id,id,PackageInstaller.STATUS_FAILURE_STORAGE));
+   check(!LensUpdateInstaller.pending(c)&&!Files.exists(dir.resolve("update-freeze")));
+   check(LensUpdater.values.map.get("status").toString().contains("儲存空間"));
+   check(Files.exists(LensUpdater.apk(c).toPath()));
+   int previous=id;
+   LensUpdateInstaller.begin(c);settle();id=LensUpdateInstaller.session(c);
+   new LensUpdateInstallActivity().handle(result(previous,previous,PackageInstaller.STATUS_SUCCESS));
+   check(LensUpdateInstaller.session(c)==id&&LensUpdateInstaller.pending(c));
+   pm.sessions.remove(id);check(LensUpdateInstaller.pending(c));SystemClock.now+=8000;
+   check(!LensUpdateInstaller.pending(c)&&LensUpdater.values.map.get("status").toString().contains("未收到具體原因"));
+   pm.commitFails=true;pm.abandonFails=true;
+   LensUpdateInstaller.begin(c);settle();
+   check(LensUpdateInstaller.pending(c)&&Files.exists(dir.resolve("update-freeze")));
+   pm.commitFails=false;pm.abandonFails=false;LensUpdateInstaller.cancel(c);
+   check(!LensUpdateInstaller.pending(c));
    created=pm.created;LensUpdater.reject=true;LensUpdateInstaller.begin(c);settle();check(pm.created==created&&!Files.exists(dir.resolve("update-freeze")));LensUpdater.reject=false;
    Context.pm.allowed=false;LensUpdateInstaller.begin(c);settle();check(pm.created==created);Context.pm.allowed=true;
    try(UpdateInterlock.Lease lease=UpdateInterlock.beginLoad(dir.toFile(),56)){check(lease!=null);LensUpdateInstaller.begin(c);settle();check(pm.created==created);}

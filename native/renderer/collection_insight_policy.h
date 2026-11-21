@@ -33,12 +33,14 @@ struct CollectionEvidence {
     bool waiting_complete{};
     int waiting{-1};
     CollectionReason reason{CollectionReason::waiting};
+    int decorated{-1};
 };
 struct CollectionInsight {
     CollectionStatus status{CollectionStatus::unknown};
     int owned{-1}, growing{-1};
     int waiting{-1};
     CollectionReason reason{CollectionReason::waiting};
+    int decorated{-1};
 };
 struct DecorationIdentity {int asset{-1},texture{-1};};
 // Mirror the reviewed game catalog rule: an already decorated type uses its
@@ -49,6 +51,13 @@ inline DecorationIdentity seed_decoration(int current_asset,int current_texture,
     if(current_asset==1&&future_asset>=2&&future_texture>=0)return {future_asset,future_texture};
     return {};
 }
+struct OwnedDecorationCounts {
+    int decorated{},owned{};
+    void observe(bool acquired) {
+        ++owned;
+        if(acquired)++decorated;
+    }
+};
 // Match the confirmed future identity, never the seed's current plain appearance.
 // Missing, duplicate or incomplete book rows cannot establish an unseen result.
 struct ExactBookLookup {
@@ -70,26 +79,35 @@ inline CollectionInsight collection(const CollectionEvidence &e) {
     // Null/missing entries never mean unseen. Counters never imply Seen either:
     // an undecorated owned Pikmin may not have registered the future decoration.
     if (e.seen_known) out.status=e.seen?CollectionStatus::seen:CollectionStatus::unseen;
-    if (e.owned_complete && e.owned>=0) out.owned=e.owned;
+    if (e.owned_complete && e.owned>=0) {
+        out.owned=e.owned;
+        if(e.decorated>=0&&e.decorated<=e.owned)out.decorated=e.decorated;
+    }
     if (e.growing_complete && e.growing>=0) out.growing=e.growing;
     if (e.waiting_complete && e.waiting>=0) out.waiting=e.waiting;
     return out;
 }
+inline const char16_t *collection_status_label(CollectionStatus status) {
+    switch(status) {
+    case CollectionStatus::seen:return u"已開圖";
+    case CollectionStatus::unseen:return u"未開圖";
+    default:return u"待確認";
+    }
+}
 inline std::u16string collection_label(const CollectionInsight &value) {
     auto count=[](int n){if(n<0)return std::u16string(u"未知");
         auto ascii=std::to_string(n);return std::u16string(ascii.begin(),ascii.end());};
-    const auto status=value.status==CollectionStatus::seen?u"已收集":
-        value.status==CollectionStatus::unseen?u"未收集":u"收集未知";
-    auto text=std::u16string(status)+u" · 持有 "+count(value.owned)+u" · 育苗 "+count(value.growing)+u" · 待種 "+count(value.waiting);
+    const auto status=collection_status_label(value.status);
+    auto text=std::u16string(status)+u" · 已有飾品 "+count(value.decorated)+u" · 持有 "+count(value.owned)+u" · 育苗 "+count(value.growing)+u" · 待種 "+count(value.waiting);
     if(value.status==CollectionStatus::unknown)text+=u"（"+std::u16string(collection_reason(value.reason))+u"）";
-    if(value.owned<0||value.growing<0||value.waiting<0)text+=u" · 數量資料未完整";
+    if(value.decorated<0||value.owned<0||value.growing<0||value.waiting<0)text+=u" · 數量資料未完整";
     return text;
 }
 inline std::u16string collection_card_label(const CollectionInsight &value) {
     auto count=[](int n){if(n<0)return std::u16string(u"？");
         auto ascii=std::to_string(n);return std::u16string(ascii.begin(),ascii.end());};
-    const auto status=value.status==CollectionStatus::seen?u"已收":
-        value.status==CollectionStatus::unseen?u"未收":u"未知";
-    return std::u16string(value.status==CollectionStatus::unknown?collection_reason(value.reason):status)+u"·持"+count(value.owned)+u"·育"+count(value.growing)+u"·待"+count(value.waiting);
+    const auto status=value.status==CollectionStatus::unknown&&value.reason!=CollectionReason::waiting
+        ?collection_reason(value.reason):collection_status_label(value.status);
+    return std::u16string(status)+u"·飾"+count(value.decorated)+u"持"+count(value.owned)+u"育"+count(value.growing)+u"待"+count(value.waiting);
 }
 } // namespace display_insights

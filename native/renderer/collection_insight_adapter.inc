@@ -11,7 +11,8 @@ std::string cached_session;
 void *cached_manager{};
 int64_t cached_revision{};
 std::chrono::steady_clock::time_point captured{};
-std::map<Key,int> owned,growing,waiting;
+std::map<Key,display_insights::OwnedDecorationCounts> owned;
+std::map<Key,int> growing,waiting;
 std::set<std::u16string> growing_ids;
 std::map<Key,display_insights::CollectionInsight> insights;
 bool owned_complete{},growing_complete{},waiting_complete{};
@@ -100,14 +101,17 @@ bool key(void *type,Key &out) {
     if(colour<1||colour>8||asset<=0||texture<0)return false;
     out={colour,asset,texture};return true;
 }
-void *confirmed(void *manager,void *item) {
+void *confirmed(void *manager,void *item,std::u16string *confirmed_id=nullptr) {
     Root item_root(item,strong_new,release);if(!item_root.handle)return nullptr;
     auto id=get(item,"get_Id");Root id_root(id,strong_new,release);
-    if(!id_root.handle||string_value(id).empty())return nullptr;
+    auto text=id_root.handle?string_value(id):std::u16string{};
+    if(text.empty())return nullptr;
     auto dict=read<void*>(manager,display_game.inventory_items);Root dict_root(dict,strong_new,release);
     void *args[]{id};auto predicted=get(dict,"get_Item",1,args);Root pred_root(predicted,strong_new,release);
     int has=-1;if(!pred_root.handle||!boolean(get(predicted,"get_HasPredictors"),has)||has!=0)return nullptr;
-    return get(predicted,"get_ConfirmedValue");
+    auto value=get(predicted,"get_ConfirmedValue");
+    if(value&&confirmed_id)*confirmed_id=std::move(text);
+    return value;
 }
 template<class Each> bool list(void *object,int limit,Each each) {
     Root root(object,strong_new,release);int n=-1;
@@ -129,14 +133,26 @@ void capture(const InsightContext &context) {
     // dictionary too, rather than only checking the rows left in a visible list.
     const bool adults_stable=unpredicted(manager,{adult_item_class});
     const bool seeds_stable=unpredicted(manager,{planter_item_class,item_class});
-    std::map<Key,int> adults,seeds;
+    std::map<Key,display_insights::OwnedDecorationCounts> adults;
+    std::map<Key,int> seeds;
+    std::set<std::u16string> adult_ids;
     bool adults_ok=adults_stable&&list(get(manager,"GetPikminList"),8192,[&](void *item){
-        auto value=confirmed(manager,item);Root value_root(value,strong_new,release);
+        std::u16string id;
+        auto value=confirmed(manager,item,&id);Root value_root(value,strong_new,release);
         if(!is(value,adult_item_class))return false;
         auto proto=get(value,"get_Proto");Root proto_root(proto,strong_new,release);
         if(!is(proto,adult_proto_class))return false;
-        Key k;if(!key(read<void*>(proto,0x18),k))return false;
-        ++adults[k];return true;
+        auto type=read<void*>(proto,0x18);Root type_root(type,strong_new,release);
+        Key current;
+        if(!type_root.handle||!key(type,current)||!adult_ids.insert(std::move(id)).second)return false;
+        const auto [colour,asset,texture]=current;
+        // Only include adults whose actual or explicitly assigned future
+        // appearance matches the colour and exact variant shown on the card.
+        const int future_asset=read<int>(type,0x2c),future_texture=read<int>(type,0x30);
+        if(asset==1&&future_asset>=2&&future_texture<0)return false;
+        const auto decoration=display_insights::seed_decoration(asset,texture,future_asset,future_texture);
+        if(decoration.asset>=2)adults[{colour,decoration.asset,decoration.texture}].observe(asset>=2);
+        return true;
     });
     std::set<std::u16string> ids;
     bool seeds_ok=seeds_stable&&list(get(manager,"GetPlanterList"),8,[&](void *item){
@@ -218,7 +234,12 @@ display_insights::CollectionInsight observe(const Binding &b) {
         evidence.current_session=true;evidence.exact_entry=true;
         evidence.owned_complete=owned_complete&&cached_session==context.session;
         evidence.growing_complete=growing_complete&&cached_session==context.session;
-        evidence.owned=evidence.owned_complete?(owned.count(expected)?owned.at(expected):0):-1;
+        if(evidence.owned_complete) {
+            const auto found=owned.find(expected);
+            const auto counts=found==owned.end()?OwnedDecorationCounts{}:found->second;
+            evidence.owned=counts.owned;
+            evidence.decorated=counts.decorated;
+        }
         evidence.growing=evidence.growing_complete?(growing.count(expected)?growing.at(expected):0):-1;
         evidence.waiting_complete=waiting_complete&&cached_session==context.session;
         evidence.waiting=evidence.waiting_complete?(waiting.count(expected)?waiting.at(expected):0):-1;

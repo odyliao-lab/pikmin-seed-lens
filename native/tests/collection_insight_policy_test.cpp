@@ -37,12 +37,21 @@ int main() {
     assert(collection(e).status==CollectionStatus::unknown); // not inferred from stock
     e.current_session=false;
     assert(collection(e).owned==-1); // logout invalidates all display evidence
-    assert(collection_label(collection(e))==u"收集未知 · 持有 未知 · 育苗 未知 · 待種 未知（等待資料） · 數量資料未完整");
-    assert(collection_label({CollectionStatus::unseen,0,0,0})==u"未收集 · 持有 0 · 育苗 0 · 待種 0");
+    assert(collection_label(collection(e))==u"待確認 · 已有飾品 未知 · 持有 未知 · 育苗 未知 · 待種 未知（等待資料） · 數量資料未完整");
+    assert(collection_label({CollectionStatus::unseen,0,0,0,CollectionReason::waiting,0})==u"未開圖 · 已有飾品 0 · 持有 0 · 育苗 0 · 待種 0");
     assert(collection_label({CollectionStatus::seen,3,-1}).find(u"數量資料未完整")!=std::u16string::npos);
-    assert(collection_card_label({CollectionStatus::unknown,-1,-1})==u"等待資料·持？·育？·待？");
-    assert(collection_card_label({CollectionStatus::unseen,0,0,0})==u"未收·持0·育0·待0");
-    assert(collection_card_label({CollectionStatus::seen,3,-1})==u"已收·持3·育？·待？");
+    assert(collection_card_label({CollectionStatus::unknown,-1,-1})==u"待確認·飾？持？育？待？");
+    assert(collection_card_label({CollectionStatus::unseen,0,0,0,CollectionReason::waiting,0})==u"未開圖·飾0持0育0待0");
+    OwnedDecorationCounts adults;
+    adults.observe(true);adults.observe(true);adults.observe(false);
+    CollectionEvidence mixed{true,true,true,true,true,adults.owned,true,0,true,1,CollectionReason::waiting,adults.decorated};
+    assert(collection_card_label(collection(mixed))==u"已開圖·飾2持3育0待1");
+    mixed.seen_known=false;
+    assert(collection_card_label(collection(mixed))==u"待確認·飾2持3育0待1");
+    mixed.decorated=4;
+    assert(collection_card_label(collection(mixed))==u"待確認·飾？持3育0待1");
+    mixed.owned_complete=false;
+    assert(collection_card_label(collection(mixed))==u"待確認·飾？持？育0待1");
     for(bool session:{false,true})for(bool exact:{false,true})
     for(bool complete:{false,true})for(int count:{-1,0,6}) {
         CollectionEvidence sample{session,exact,false,false,true,2,true,1,complete,count,CollectionReason::book_missing};
@@ -55,7 +64,9 @@ int main() {
         CollectionEvidence sample{true,true,false,false,true,2,true,1,true,6,reason};
         const auto result=collection(sample);
         assert(result.waiting==6&&result.reason==reason);
-        assert(collection_card_label(result).find(collection_reason(reason))==0);
+        const auto label=collection_card_label(result);
+        assert(label.find(reason==CollectionReason::waiting?u"待確認":collection_reason(reason))==0);
+        assert(label.find(u"未開圖")==std::u16string::npos);
     }
     assert(seed_decoration(1,0,42,3).asset==42);
     assert(seed_decoration(42,3,99,8).asset==42); // explicit assigned decoration, no rare prediction

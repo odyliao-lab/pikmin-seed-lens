@@ -48,6 +48,17 @@ class DisplayContracts(unittest.TestCase):
         self.assertEqual(renderer.count('seed_lens::display_build'),9)
         self.assertIn('SEED_DISPLAY_BUILD_ID=$displayBuildId',(ROOT/'app/build.ps1').read_text())
 
+    def test_decoration_counts_and_future_lookup_use_confirmed_identity(self):
+        adapter = (ROOT/'native/renderer/collection_insight_adapter.inc').read_text()
+        for guard in ['confirmed(manager,item,&id)', '!adult_ids.insert(std::move(id)).second',
+                      'adults[{colour,decoration.asset,decoration.texture}].observe(asset>=2)',
+                      'evidence.decorated=counts.decorated;', 'cached_session==context.session']:
+            self.assertIn(guard, adapter)
+        adult = (ROOT/'native/renderer/decoration_display_adapter.inc').read_text()
+        for guard in ['seed_extended::name_getter', 'seed_extended::treasure_getter',
+                      'future_compatible&&provider_matches', 'asset==1', 'collection_adapter::confirmed(manager,b.adult_item)!=item']:
+            self.assertIn(guard, adult)
+
     def test_standalone_gps_contract_is_separate(self):
         contract=(ROOT/'native/renderer/display_contract.h').read_text()
         self.assertIn('gps_control_leaf[]="seed-lens-gps-copy.txt"',contract)

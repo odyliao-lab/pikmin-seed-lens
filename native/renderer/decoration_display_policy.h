@@ -6,6 +6,7 @@ struct AdultDecoration {
     bool current{};
     int asset{-1};
     std::u16string name;
+    std::u16string future_name;
 };
 inline std::u16string compact_adult_text(std::u16string_view source,std::size_t limit) {
     if(!limit)return {};
@@ -18,7 +19,10 @@ inline std::u16string compact_adult_text(std::u16string_view source,std::size_t 
 }
 inline std::u16string decoration_label(const AdultDecoration &decoration) {
     if(!decoration.current||decoration.asset<1)return u"裝飾未知";
-    if(decoration.asset==1)return u"未裝飾";
+    if(decoration.asset==1) {
+        auto future=seed_preview::plain_name(decoration.future_name);
+        return future.empty()?u"待確認":u"待"+future;
+    }
     auto name=seed_preview::plain_name(decoration.name);
     return name.empty()?u"裝飾未知":name;
 }
@@ -50,8 +54,8 @@ inline std::u16string adult_decoration_card(std::u16string_view source,
     auto subtitle=decoration_label(decoration);
     if(state) {
         if(subtitle==u"裝飾未知")subtitle=u"？";
-        else if(decoration.current&&decoration.asset==1)subtitle=u"無飾";
         auto status=adult_short_state(*state);
+        if(subtitle.size()==3&&status.size()==4)status=u"收任";
         subtitle=compact_adult_text(subtitle,7-1-status.size())+u"·"+status;
     } else subtitle=compact_adult_text(subtitle,6);
     return title+u"\n"+subtitle;

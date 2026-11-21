@@ -1,3 +1,3 @@
 package dev.ody.seedpreview;
 import android.content.Context;
-final class LensUpdateInstaller{static boolean preparing,pending;static boolean pending(Context c){return pending;}}
+final class LensUpdateInstaller{static boolean preparing,pending;static boolean pending(Context c){return pending;}static String pendingStatus(Context c){return "pending";}}

@@ -3,13 +3,28 @@
 #include <iostream>
 using namespace display_insights;
 int main() {
-    assert(decoration_label({false,500,u"已知名字"})==u"裝飾未知");
-    assert(decoration_label({true,-1,u"已知名字"})==u"裝飾未知");
-    assert(decoration_label({true,1,u"未來餐廳"})==u"未裝飾");
-    assert(decoration_label({true,2,{}})==u"裝飾未知");
-    assert(decoration_label({true,2,u"<b>餐廳</b>"})==u"餐廳");
-    assert(decoration_label({true,2,u"<b餐廳"})==u"裝飾未知");
-    assert(decoration_label({true,2,u"餐廳"})==u"餐廳");
+    assert(decoration_label({false,500,u"已知名字",{}})==u"裝飾未知");
+    assert(decoration_label({true,-1,u"已知名字",{}})==u"裝飾未知");
+    assert(decoration_label({true,1,u"餐廳",{}})==u"待確認");
+    assert(decoration_label({true,2,{},{}})==u"裝飾未知");
+    assert(decoration_label({true,2,u"<b>餐廳</b>",{}})==u"餐廳");
+    assert(decoration_label({true,2,u"<b餐廳",{}})==u"裝飾未知");
+    assert(decoration_label({true,2,u"餐廳",{}})==u"餐廳");
+    AdultState flowering{true,4,-1,1}, busy{true,5,99,2};
+    for(auto fortune:{u"大吉",u"吉",u"中吉",u"小吉",u"末吉"}) {
+        AdultDecoration pending{true,1,{},fortune};
+        AdultDecoration acquired{true,2,fortune,{}};
+        assert(adult_decoration_card(u"暱稱",pending,nullptr)==u"暱稱\n待"+std::u16string(fortune));
+        assert(adult_decoration_card(u"暱稱",pending,&flowering)==u"暱稱\n待"+std::u16string(fortune)+u"·花");
+        const auto busy_label=adult_decoration_card(u"暱稱",pending,&busy);
+        assert(busy_label.starts_with(u"暱稱\n待"+std::u16string(fortune)+u"·收")&&busy_label.ends_with(u"任"));
+        assert(adult_decoration_card(u"暱稱",acquired,&flowering)==u"暱稱\n"+std::u16string(fortune)+u"·花");
+    }
+    assert(adult_decoration_card(u"下一張",{true,1,{},{}},&flowering)==u"下一張\n待確認·花");
+    assert(decoration_label({true,1,{},u"<b>貼紙</b>"})==u"待貼紙");
+    assert(decoration_label({true,1,{},u"<b貼紙"})==u"待確認");
+    assert(decoration_label({true,2,u"貼紙",u"末吉"})==u"貼紙");
+    assert(decoration_label({false,1,{},u"末吉"})==u"裝飾未知");
     assert(adult_short_state({true,5,0,1})==u"收0");
     assert(adult_short_state({true,5,-1,1})==u"收");
     assert(adult_short_state({true,5,99,2})==u"收99任");
@@ -18,7 +33,7 @@ int main() {
     for(bool current:{false,true})for(int asset:{-1,0,1,2,500})
     for(auto name:{u"",u"餐廳",u"餐\n廳\t",u"日本寺廟與神社",u"\U0001f33b\U0001f338\U0001f331裝飾"})
     for(int flower:{-1,0,1,3,4,5,6,99})for(int petals:{-1,0,2,99,1000000})for(int status:{-1,1,2}) {
-        AdultDecoration decoration{current,asset,name};AdultState state{current,flower,petals,status};
+        AdultDecoration decoration{current,asset,name,name};AdultState state{current,flower,petals,status};
         std::u16string original=u"很長的自訂皮克敏名稱",before=original;
         for(bool both:{false,true}) {
             auto label=adult_decoration_card(original,decoration,both?&state:nullptr);
@@ -31,5 +46,5 @@ int main() {
             ++cases;
         }
     }
-    std::cout<<"PASS acquired decoration/unknown/non-decorated and combined D03 layout "<<cases<<" cases; no future outcome\n";
+    std::cout<<"PASS acquired/pending/unknown decoration and combined adult card layout "<<cases<<" cases and five fortune variants\n";
 }

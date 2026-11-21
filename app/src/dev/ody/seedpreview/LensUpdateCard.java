@@ -13,7 +13,13 @@ final class LensUpdateCard {
   style.add(card,style.text("成功後每日檢查；失敗依 5 分鐘／30 分鐘／24 小時退避。不自動下載或傳送診斷。",12,style.muted,false),8);
   check=style.button("檢查新版本",false);check.setOnClickListener(v->{LensUpdater.check(a,true,null);render();});style.add(card,check,8);
   summary=style.text("",13,style.muted,false);style.add(card,summary,8);
-  download=style.button("下載新版",true);download.setOnClickListener(v->new AlertDialog.Builder(a).setTitle("下載新版透視鏡？").setMessage("只下載官方透視鏡 APK，核對 SHA256、套件、版本、原簽章及內建載入檔；不使用 Root 安裝。下載後仍需你確認。").setNegativeButton("取消",null).setPositiveButton("下載",(d,w)->{LensUpdater.download(a);render();}).show());style.add(card,download,8);
+  download=style.button("下載新版",true);download.setOnClickListener(v->{
+   LensUpdateInfo target=LensUpdater.latest(a);if(target==null)return;
+   boolean resume=LensUpdater.retainedBytes(a,target)>0;
+   new AlertDialog.Builder(a).setTitle((resume?"繼續下載 ":"下載透視鏡 ")+target.version+"？")
+    .setMessage("下載完成後核對 SHA-256、套件、版本、原簽章與內建載入檔，再由 Android 確認安裝。")
+    .setNegativeButton("取消",null).setPositiveButton(resume?"繼續下載":"下載",(d,w)->{LensUpdater.download(a,target);render();}).show();
+  });style.add(card,download,8);
   install=style.button("確認安裝",true);install.setOnClickListener(v->{
    if(!a.getPackageManager().canRequestPackageInstalls()){a.startActivity(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,Uri.parse("package:"+a.getPackageName())));return;}
    new AlertDialog.Builder(a).setTitle("安裝新版透視鏡？").setMessage("保留原簽章與設定。請先結束目前操作；準備安裝時會阻擋新的載入。接著由 Android 要求確認，更新後請正常重開遊戲。").setNegativeButton("取消",null).setPositiveButton("交給 Android 安裝",(d,w)->LensUpdateInstaller.begin(a)).show();});style.add(card,install,8);
@@ -22,6 +28,7 @@ final class LensUpdateCard {
  void render(){
   status.setText("目前 "+LensUpdater.installedVersion(activity)+"（"+LensUpdater.installed(activity)+"）"+"\n"+LensUpdater.status(activity));boolean busy=LensUpdater.busy(),pending=LensUpdateInstaller.pending(activity);LensUpdateInfo info=LensUpdater.latest(activity);
   check.setEnabled(!busy&&!pending);download.setEnabled(!busy&&!pending&&info!=null&&info.newerThan(LensUpdater.installed(activity))&&info.minSdk<=android.os.Build.VERSION.SDK_INT);install.setEnabled(!busy&&!pending&&LensUpdater.ready(activity));cancel.setEnabled(LensUpdater.downloading||pending);
+  download.setText(LensUpdater.retainedBytes(activity,info)>0?"繼續下載":"下載新版");
   for(Button b:new Button[]{check,download,install,cancel})b.setAlpha(b.isEnabled()?1f:0.45f);
   summary.setText("上次成功檢查："+LensUpdater.checkedAt(activity)+"\n"+(info==null?"尚無快取；更新來源僅限透視鏡官方索引。":"上次成功取得的版本資料（快取）："+info.version+"\n"+info.summary+"\n"+info.compatibility));
  }
