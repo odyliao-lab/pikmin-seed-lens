@@ -9,10 +9,12 @@ final class LensUpdater {
  static class Prefs {
   final Map<String,Object> map=new HashMap<>();boolean fail;
   int getInt(String k,int f){return (Integer)map.getOrDefault(k,f);}long getLong(String k,long f){return (Long)map.getOrDefault(k,f);}
+  boolean getBoolean(String k,boolean f){return (Boolean)map.getOrDefault(k,f);}
   Editor edit(){return new Editor();}
   class Editor {
    final Map<String,Object> put=new HashMap<>();final Set<String> remove=new HashSet<>();
    Editor putInt(String k,int v){put.put(k,v);return this;}Editor putLong(String k,long v){put.put(k,v);return this;}Editor putString(String k,String v){put.put(k,v);return this;}
+   Editor putBoolean(String k,boolean v){put.put(k,v);return this;}
    Editor remove(String k){remove.add(k);return this;}boolean commit(){if(fail)return false;remove.forEach(map::remove);map.putAll(put);return true;}
   }
  }

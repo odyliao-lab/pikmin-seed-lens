@@ -20,6 +20,12 @@ UpdateCheckPolicy只決定開App時的metadata檢查；失敗次數／嘗試及�
 
 0.13.3 在四組下方新增預設 OFF 的第五開關，沿用自包含載入、lease、精確 Game157／PID／build 守門與重綁服務。Canvas UI-thread tick 只處理單一 focused／active 詳情頁，session 與項目穩定 400ms 後，以 APK 內 JNI ClipboardManager 寫入並讀回確認；弱參考上限八頁、失敗每項三次。自有控制／回報只有意願與計數，不含座標。所有開關可排隊寫入，背景報告查詢不占用操作 gate；仍用同一 serial worker。詳細行為及資格見 [GPS_COPY](GPS_COPY.md)。
 
+## 0.16.0 顯示與更新
+
+花苗以明確同色同款的圖鑑結果與已確認成年庫存，分別顯示開圖狀態，以及已取得飾品／持有／育苗／待種數。成年皮克敏僅顯示遊戲已記錄的待取得款式，並保留現有花態及任務副標。沿用獨立渲染器、同 APK 程序綁定、相容性守門、五個主開關與 OFF 還原。
+
+更新片段綁定安裝序號、大小及 SHA-256。續傳只接受同一位置及總長度的有效 HTTP 206，遇完整回覆、範圍無效或 416，會在同一截止時間內從頭下載。APK 安裝失敗、取消或回呼較晚時，保留原版本與已驗證的 APK。每次明確重試前重新驗證整份檔案。原生載入互斥持續到當次 Android 安裝工作完成、成功取消或短期限內確認工作已消失。
+
 ## 診斷與更新
 
 0.12.1/code45 候選以 APK 自有 HTTPS 直傳固定 Sites `/api/submit`，同意後才產生 `{report,email}` 信封，原報告／匯出不含 Email。原生 client header 選擇無瀏覽器 Origin 的公開協定，不提供管理權限；不得放寬錯誤 Origin／讀取授權。無重導向或自動重送，精確收據後才確認成功。[行為、Android 實測與限制](APP_DIRECT_UPLOAD.md)。

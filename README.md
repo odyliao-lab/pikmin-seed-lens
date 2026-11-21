@@ -6,16 +6,16 @@
   <img src="docs/images/readme/illustration.jpg" width="260" alt="皮克敏拿著放大鏡觀察花苗的示意插畫">
 </p>
 
-**[下載 0.15.3 預覽版 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.15.3)** · 開發者：odyliao-lab
+**[下載 0.16.0 預覽版 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.16.0)** · 開發者：odyliao-lab
 
-0.15.3 對應遊戲 157.0；遊戲 156.1 使用[舊版 0.7.3 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.7.3)（僅花苗名稱顯示）。
+0.16.0 對應遊戲 157.0；遊戲 156.1 使用[舊版 0.7.3 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.7.3)（僅花苗名稱顯示）。
 
 ## 功能
 
 | 功能 | 顯示內容 |
 |---|---|
-| 花苗資訊 | 顏色、裝飾、收集與持有／育苗／待種統計、育苗詳細資訊 |
-| 皮克敏資訊 | 目前花態、可收瓣／任務狀態、已取得裝飾 |
+| 花苗資訊 | 顏色、裝飾、開圖狀態及已取得飾品／持有／育苗／待種統計、育苗詳細資訊 |
+| 皮克敏資訊 | 目前花態、可收瓣／任務狀態、已取得與待取得裝飾 |
 | 探險資訊 | 一般白盒對象與裝飾、探險狀態與遊戲剩餘時間 |
 | 精華／花瓣對照 | 保留精華數量，補對應花瓣、容量與剩餘空間 |
 | 複製探險座標 | 查看探險詳情，複製目前項目的座標至本機剪貼簿 |
@@ -33,6 +33,8 @@
 座標複製預設關閉，不移動定位，座標不納入診斷或上傳。[操作與實測範圍](docs/GPS_COPY.md)。
 
 0.15.1 新增首次檢查與 Root 排除建議、通知即時狀態與「關閉全部」，更新查詢失敗後保留快取並延後重試。[發布與驗證](docs/RELEASE_0151.md)。
+
+0.16.0 支援同版 APK 斷線續傳、安裝結果辨識與重試。實際裝置畫面與安裝回歸待補驗。[本版說明](docs/RELEASE_0160.md)
 
 **0.15.3 更新修正**：修正 API35 安裝確認卡住，已在隔離 MuMu 通過系統確認、取消重試與升級。[本版發布](docs/RELEASE_0153.md)。舊0.14.2／0.15.1的API35使用者首次請從發布頁手動覆蓋安裝，**不要卸載或清資料**；新版不能回溯修正舊安裝器。API32前輪結果保留於[實測紀錄](docs/UPDATE_0142_TO_0151.md)。
 

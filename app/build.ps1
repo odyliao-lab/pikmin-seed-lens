@@ -93,7 +93,7 @@ if($LASTEXITCODE){throw 'Display overview compile failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.DisplayOverviewTest
 if($LASTEXITCODE){throw 'Display overview checks failed'}
 $diagnosticSources=@('DiagnosticReport','RootDiagnostic','FirstUseCheck','DiagnosisPolicy','DiagnosticEndpoint','DiagnosticSubmission','DiagnosticUploader','LensUpdateInfo','UpdateCheckPolicy','LensUpdateClient','LensUpdateArchive','UpdateInterlock') | ForEach-Object { "$PSScriptRoot/src/dev/ody/seedpreview/$_.java" }
-& "$JavaHome/bin/javac.exe" -encoding UTF-8 -classpath "$out/tests" -d "$out/tests" @diagnosticSources "$PSScriptRoot/tests/DiagnosticPolicyTest.java" "$PSScriptRoot/tests/DiagnosticUploadTest.java" "$PSScriptRoot/tests/LensUpdateTest.java"
+& "$JavaHome/bin/javac.exe" -encoding UTF-8 -classpath "$out/tests" -d "$out/tests" @diagnosticSources "$PSScriptRoot/tests/DiagnosticPolicyTest.java" "$PSScriptRoot/tests/DiagnosticUploadTest.java" "$PSScriptRoot/tests/LensUpdateTest.java" "$PSScriptRoot/tests/LensUpdateResumeTest.java"
 if($LASTEXITCODE){throw 'Diagnostic/update policy compile failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.DiagnosticPolicyTest
 if($LASTEXITCODE){throw 'Diagnostic privacy/advice checks failed'}
@@ -101,6 +101,8 @@ if($LASTEXITCODE){throw 'Diagnostic privacy/advice checks failed'}
 if($LASTEXITCODE){throw 'Diagnostics upload tests failed'}
 & "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.LensUpdateTest "$root/updates/preview.properties"
 if($LASTEXITCODE){throw 'Update policy/interlock/archive checks failed'}
+& "$JavaHome/bin/java.exe" -cp "$out/tests" dev.ody.seedpreview.LensUpdateResumeTest
+if($LASTEXITCODE){throw 'Update resume checks failed'}
 $updaterSources=@(Get-ChildItem "$PSScriptRoot/tests/updater" -Recurse -Filter '*.java' | ForEach-Object FullName)
 & "$JavaHome/bin/javac.exe" -encoding UTF-8 -classpath "$out/tests" -d "$out/updater-tests" "$PSScriptRoot/src/dev/ody/seedpreview/LensUpdater.java" @updaterSources
 if($LASTEXITCODE){throw 'Actual updater host compile failed'}

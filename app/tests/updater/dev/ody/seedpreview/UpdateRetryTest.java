@@ -6,9 +6,10 @@ public final class UpdateRetryTest {
   final Map<String,Object> data=new HashMap<>();boolean fail;
   public String getString(String k,String f){return (String)data.getOrDefault(k,f);}public long getLong(String k,long f){return (Long)data.getOrDefault(k,f);}
   public int getInt(String k,int f){return (Integer)data.getOrDefault(k,f);}public boolean getBoolean(String k,boolean f){return (Boolean)data.getOrDefault(k,f);}
-  public Editor edit(){return new Editor(){final Map<String,Object> next=new HashMap<>();
+  public Editor edit(){return new Editor(){final Map<String,Object> next=new HashMap<>();final Set<String> removed=new HashSet<>();
    public Editor putString(String k,String v){next.put(k,v);return this;}public Editor putLong(String k,long v){next.put(k,v);return this;}public Editor putInt(String k,int v){next.put(k,v);return this;}public Editor putBoolean(String k,boolean v){next.put(k,v);return this;}
-   public boolean commit(){if(fail)return false;data.putAll(next);return true;}public void apply(){commit();}};}
+   public Editor remove(String k){removed.add(k);return this;}
+   public boolean commit(){if(fail)return false;removed.forEach(data::remove);data.putAll(next);return true;}public void apply(){commit();}};}
  }
  static Context context(Prefs p){return new Context(){public SharedPreferences getSharedPreferences(String n,int m){return p;}};}
  static void settle()throws Exception{LensUpdater.worker.submit(()->{}).get(3,TimeUnit.SECONDS);check(!LensUpdater.checking);}
@@ -36,6 +37,28 @@ public final class UpdateRetryTest {
    LensUpdateClient.entered=null;LensUpdateClient.release=null;p.data.put("automatic",false);requests=LensUpdateClient.calls;
    check(!LensUpdater.check(c,false,null)&&requests==LensUpdateClient.calls);check(LensUpdater.check(c,true,null));settle();check(LensUpdater.failures(c)==0&&LensUpdater.checkProblem.isEmpty());
    LensUpdateInstaller.pending=true;check(!LensUpdater.check(c,true,null));LensUpdateInstaller.pending=false;
+   check(LensUpdateClient.downloads==0); // Checking metadata never downloads.
+   Path files=Files.createTempDirectory("lens-update-resume");
+   Path part=files.resolve("lens-update.apk.part");
+   Context storage=new Context(){public SharedPreferences getSharedPreferences(String n,int mode){return p;}
+    public java.io.File getFilesDir(){return files.toFile();}};
+   try{
+    LensUpdateInfo target=LensUpdater.latest(storage);check(target!=null);
+    Files.write(part,new byte[]{9}); // old unbound bytes must be discarded
+    LensUpdater.download(storage,target);settle();
+    check(LensUpdateClient.offset==0&&LensUpdater.retainedBytes(storage,target)==3);
+    check(LensUpdater.status(storage).contains("保留同版進度"));
+    LensUpdater.download(storage,target);settle();
+    check(LensUpdateClient.offset==3&&LensUpdater.retainedBytes(storage,target)==6);
+    String newer=valid.replaceFirst("(?m)^versionCode="+target.code+"\\r?$","versionCode="+(target.code+1));
+    p.data.put("manifest",newer);
+    int downloads=LensUpdateClient.downloads;
+    LensUpdater.download(storage,target);settle();check(LensUpdateClient.downloads==downloads);
+    check(LensUpdater.status(storage).contains("目標已變更"));
+    LensUpdateInfo next=LensUpdater.latest(storage);check(next!=null&&next.code>target.code);
+    LensUpdateClient.cancelDownload=true;LensUpdater.download(storage,next);settle();
+    check(LensUpdateClient.offset==0&&!Files.exists(part)&&LensUpdater.retainedBytes(storage,next)==0);
+   }finally{Files.deleteIfExists(part);Files.deleteIfExists(files);}
    System.out.println("UpdateRetryTest: "+checks+" actual updater/persistent preference checks; HTTP is a test double");
   }finally{LensUpdater.worker.shutdownNow();}
  }
