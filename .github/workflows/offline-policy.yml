@@ -56,6 +56,10 @@ jobs:
           node --test server/sites/tests/policy.test.mjs
       - name: Cross-check eight original gateway contracts
         run: python3 research/test_display_contracts.py
+      - name: Check screenshot inventory recognition
+        run: |
+          javac -encoding UTF-8 -d "$RUNNER_TEMP/inventory" app/src/dev/ody/seedpreview/InventoryGrid.java app/tests/InventoryGridTest.java
+          java -cp "$RUNNER_TEMP/inventory" dev.ody.seedpreview.InventoryGridTest app/assets/inventory158-digits.tsv
       - name: Check actual installer callback and cancellation
         run: |
           javac -encoding UTF-8 -d "$RUNNER_TEMP/installer" app/src/dev/ody/seedpreview/{LensUpdateInstaller,LensUpdateInstallActivity,UpdateInterlock}.java $(find app/tests/installer -name '*.java')

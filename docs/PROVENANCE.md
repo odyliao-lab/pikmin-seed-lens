@@ -35,3 +35,5 @@ Game157 四組顯示另依固定來源 `a02b58f35295948cbd29e467ce5ccd7ffe33161a
 獨立 GPS 複製選擇性參考同一私人來源 repo 的 `8abb7ee` carousel policy／adapter，使用自有控制、回報、JNI helper 及既有 APK 載入器，不移植核心或定位寫入。來源只讀，未修改；[整合與驗證](GPS_COPY.md)。
 
 診斷 schema、接收端、同意／匯出與私人更新 interlock 為本 repo 實作。`LensUpdateInfo`／`LensUpdateClient` 選擇性改寫自使用者授權唯讀來源的 `UpdateInfo.java`／`UpdateClient.java`（來源 HEAD `89569e047ee3ad590d4092e6d44eea3a9f5c04cb`）；安裝流程只參考 Android PackageInstaller 使用者確認方式，不移植核心、GPS、排程或自動化流程，也未修改來源 repo。
+
+158.0 截圖庫存從同作者的 MIT 授權來源 `odyliao-lab/pikmin-control-center` commit `662b9015dc96e45e3ebe7db9337d3e1681eee676` 移植 `targets/inventory158` 的純 Java 辨識器、數字比對資料和回歸測試。原來源版權為 Copyright (c) 2026 Ody Liao，隨本 repo 的 MIT 授權保留。透視鏡的選圖、分享與呈現使用自己的 Activity。範例用戶截圖未納入 repo。

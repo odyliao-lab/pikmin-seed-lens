@@ -167,6 +167,7 @@ Copy-Item -LiteralPath "$root/third_party/RENDERER_NOTICES.md" -Destination "$ou
 # Windows aapt2 writes nested asset separators as literal backslashes. Keep
 # this asset flat; the raw ZIP checker rejects backslash entries before signing.
 Copy-Item -LiteralPath "$PSScriptRoot/assets/art/forest-lens-mascot-v1.png" -Destination "$out/assets/forest-lens-mascot-v1.png"
+Copy-Item -LiteralPath "$PSScriptRoot/assets/inventory158-digits.tsv" -Destination "$out/assets/inventory158-digits.tsv"
 $bt="$SdkPath/build-tools/35.0.0";$jar="$SdkPath/platforms/android-35/android.jar";$env:JAVA_HOME=$JavaHome
 & "$bt/aapt2.exe" compile --dir "$PSScriptRoot/res" -o "$out/resources.zip"
 if($LASTEXITCODE){throw 'Launcher resource compilation failed'}
