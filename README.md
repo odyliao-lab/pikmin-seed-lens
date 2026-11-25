@@ -10,8 +10,6 @@
 
 0.16.0 對應遊戲 157.0；遊戲 156.1 使用[舊版 0.7.3 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.7.3)（僅花苗名稱顯示）。
 
-0.17.0 開發版加入 158.0 的「截圖庫存」。選取或分享精華清單截圖，即可在 App 內對照畫面上的精華與花瓣數量。此頁可直接使用，不需要 Root。遊戲內即時顯示仍按既有版本配對。[操作與驗收](docs/SCREENSHOT_INVENTORY_158.md)
-
 ## 功能
 
 | 功能 | 顯示內容 |

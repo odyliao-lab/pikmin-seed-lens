@@ -75,7 +75,7 @@ public final class MainActivity extends Activity implements LensController.Obser
         if(!p.edit().putBoolean("offered",true).commit())return;
         if(controller.hasIntent()||controller.armed())return; // Existing users keep their normal entry.
         new AlertDialog.Builder(this).setTitle("第一次使用透視鏡")
-            .setMessage("只想從遊戲 158.0 截圖查看精華與花瓣，可直接使用「截圖庫存」。遊戲內顯示功能請先在「診斷」核對 Root 與遊戲版本。")
+            .setMessage("建議先檢查 Root 與遊戲版本，再選擇功能並開啟遊戲。檢查不會安裝套件或修改系統；也可稍後從「診斷」頁進入。")
             .setNegativeButton("稍後再說",null).setPositiveButton("檢查環境",(d,w)->startActivity(new Intent(this,DiagnosticsActivity.class))).show();
     }
     boolean offerNotifications(){
