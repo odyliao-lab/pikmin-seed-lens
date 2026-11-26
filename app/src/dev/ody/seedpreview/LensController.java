@@ -30,7 +30,7 @@ final class LensController {
     Boolean gpsOn;String gpsRaw,gpsText="尚未核對";
     final String[] groupReport={"尚未核對","尚未核對","尚未核對","尚未核對"};
     LensContext reportContext;
-    String reportRaw;
+    String reportRaw,reportVersion;
     final DisplayGroups.Report[] effects=new DisplayGroups.Report[4];
     boolean reportReadFailed,contextChecked,closeQueued;
     // App-owned intentions survive unavailable Root/game and are never replaced by reports.
@@ -198,9 +198,9 @@ final class LensController {
         return null;
     }
     void updateReports(long now){
-        gpsText=intentStatus(4);if(gpsText==null)gpsText=GpsCopy.report(gpsOn,reportContext,gpsRaw,now);
+        gpsText=intentStatus(4);if(gpsText==null)gpsText=GpsCopy.report(gpsOn,reportContext,reportVersion,gpsRaw,now);
         for(int i=0;i<4;i++){
-            effects[i]=groupOn[i]==null?null:DisplayGroups.checkedReport(i,groupOn[i],reportContext,reportRaw,now);
+            effects[i]=groupOn[i]==null?null:DisplayGroups.checkedReport(i,groupOn[i],reportContext,reportVersion,reportRaw,now);
             String waiting=intentStatus(i);groupReport[i]=waiting!=null?waiting:effects[i]==null?"設定未確認":effects[i].text;
         }
     }
@@ -238,14 +238,14 @@ final class LensController {
         // Only mutations own active; this read never changes saved intentions.
         if(settingsDirty||!groupsKnown()||operations.extensionAvailability()!=null||active.get()||!reportReading.compareAndSet(false,true))return;
         worker.execute(()->{
-            LensContext current=null;String raw=null,gps=null;boolean failed=false;
-            try{current=operations.readContext();if(current!=null){LensOperations.Reply r=operations.displayReports(current);if(r.exit==0&&r.complete){
+            LensContext current=null;String raw=null,gps=null,version=null;boolean failed=false;
+            try{current=operations.readContext();if(current!=null){LensOperations.Result result=operations.displayReports(current);LensOperations.Reply r=result.reply;if(r.exit==0&&r.complete){
                 String header=r.output.startsWith("LENS_SESSION\t")&&r.output.indexOf('\n')>=0?r.output.substring(0,r.output.indexOf('\n')+1):"";
-                StringBuilder display=new StringBuilder();for(String line:r.output.split("\n")){if(line.startsWith("LENS_GPS_REPORT\t")){if(gps!=null)throw new IllegalStateException("duplicate GPS report");gps=header+line.substring("LENS_GPS_REPORT\t".length())+"\n";}else display.append(line).append('\n');}raw=display.toString();
+                StringBuilder display=new StringBuilder();for(String line:r.output.split("\n")){if(line.startsWith("LENS_GPS_REPORT\t")){if(gps!=null)throw new IllegalStateException("duplicate GPS report");gps=header+line.substring("LENS_GPS_REPORT\t".length())+"\n";}else display.append(line).append('\n');}raw=display.toString();version=result.version;
             }else failed=true;}}catch(Exception ignored){failed=true;raw=null;gps=null;}
-            final String gpsResult=gps;
+            final String gpsResult=gps,gameVersion=version;
             final LensContext owner=current;final String text=raw;final boolean failure=failed;
-            main.post(()->{reportContext=owner;reportRaw=text;gpsRaw=gpsResult;reportReadFailed=failure;contextChecked=true;bindUnscopedBarrier(owner);updateReports(System.currentTimeMillis());reportReading.set(false);notifyView();if(completed!=null)completed.run();});
+            main.post(()->{reportContext=owner;reportRaw=text;reportVersion=gameVersion;gpsRaw=gpsResult;reportReadFailed=failure;contextChecked=true;bindUnscopedBarrier(owner);updateReports(System.currentTimeMillis());reportReading.set(false);notifyView();if(completed!=null)completed.run();});
         });
     }
     void monitor(){

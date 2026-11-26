@@ -37,7 +37,7 @@ bool ready(void *manager) {
 }
 bool unpredicted(void *manager,std::initializer_list<void*> relevant) {
     read_phase.store("dictionary-values");
-    auto dict=read<void*>(manager,display_game.inventory_items);Root dict_root(dict,strong_new,release);
+    auto dict=read<void*>(manager,display_game->inventory_items);Root dict_root(dict,strong_new,release);
     auto values=get(dict,"get_Values");Root values_root(values,strong_new,release);int count=-1;
     if(!values_root.handle||!number(get(values,"get_Count"),count)||count<0||count>32768)return false;
     read_phase.store("dictionary-enumerator");
@@ -85,8 +85,8 @@ bool setup() {
     auto asset=wrapper?field(wrapper,"FullAssetIdEnum"):nullptr;
     auto texture=wrapper?field(wrapper,"TextureId"):nullptr;
     compatible=field_is(provider_class,"inventoryManager",0x18)
-        &&field_is(manager_class,"latestServerSideTimestamp",display_game.inventory_revision)
-        &&field_is(manager_class,"itemsById",display_game.inventory_items)
+        &&field_is(manager_class,"latestServerSideTimestamp",display_game->inventory_revision)
+        &&field_is(manager_class,"itemsById",display_game->inventory_items)
         &&field_is(adult_proto_class,"pikminType_",0x18)
         &&field_is(planter_proto_class,"slot_",0x20)
         &&future_entry&&value_class&&adult_item_class&&planter_item_class
@@ -106,7 +106,7 @@ void *confirmed(void *manager,void *item,std::u16string *confirmed_id=nullptr) {
     auto id=get(item,"get_Id");Root id_root(id,strong_new,release);
     auto text=id_root.handle?string_value(id):std::u16string{};
     if(text.empty())return nullptr;
-    auto dict=read<void*>(manager,display_game.inventory_items);Root dict_root(dict,strong_new,release);
+    auto dict=read<void*>(manager,display_game->inventory_items);Root dict_root(dict,strong_new,release);
     void *args[]{id};auto predicted=get(dict,"get_Item",1,args);Root pred_root(predicted,strong_new,release);
     int has=-1;if(!pred_root.handle||!boolean(get(predicted,"get_HasPredictors"),has)||has!=0)return nullptr;
     auto value=get(predicted,"get_ConfirmedValue");
@@ -123,7 +123,7 @@ template<class Each> bool list(void *object,int limit,Each each) {
 }
 void capture(const InsightContext &context) {
     auto manager=context.inventory;
-    const int64_t revision=read<int64_t>(manager,display_game.inventory_revision);
+    const int64_t revision=read<int64_t>(manager,display_game->inventory_revision);
     const auto now=std::chrono::steady_clock::now();
     if(context.session==cached_session&&manager==cached_manager&&revision==cached_revision
             &&now-captured<std::chrono::seconds(2))return;
@@ -206,7 +206,7 @@ void capture(const InsightContext &context) {
     });
     for(const auto &id:ids)if(!all_seed_ids.count(id))pending_ok=false;
     auto reader=context_reader.load();auto after=reader?reader():InsightContext{};
-    if(after.session!=context.session||after.inventory!=manager||read<int64_t>(manager,display_game.inventory_revision)!=revision)return;
+    if(after.session!=context.session||after.inventory!=manager||read<int64_t>(manager,display_game->inventory_revision)!=revision)return;
     owned=std::move(adults);growing=std::move(seeds);owned_complete=adults_ok&&unpredicted(manager,{adult_item_class});growing_complete=seeds_ok&&unpredicted(manager,{planter_item_class,item_class});owned_published.store(owned_complete?1:0);growing_published.store(growing_complete?1:0);
     if(growing_complete)growing_ids=ids;
     waiting=std::move(pending);waiting_complete=pending_ok&&growing_complete;
@@ -228,7 +228,7 @@ display_insights::CollectionInsight observe(const Binding &b) {
     auto finish=[&]() {
         auto after=reader();
         if(after.session!=context.session||after.inventory!=context.inventory
-                ||cached_revision!=read<int64_t>(context.inventory,display_game.inventory_revision))return collection(CollectionEvidence{.reason=CollectionReason::changed});
+                ||cached_revision!=read<int64_t>(context.inventory,display_game->inventory_revision))return collection(CollectionEvidence{.reason=CollectionReason::changed});
         // Exact future identity belongs to the seed itself. Picture-book
         // availability controls Seen only; it must not hide confirmed counts.
         evidence.current_session=true;evidence.exact_entry=true;

@@ -13,7 +13,7 @@ final class DiagnosisPolicy {
   else out.add("CPU 架構尚未支援或無法辨識，請提供這份診斷；不要改裝其他架構的 SO。");
   try{int n=Integer.parseInt(api);if(n<28||n>35)out.add("Android 版本超出目前載入範圍，保持原顯示；請先檢查是否有新版透視鏡。");}catch(Exception ignored){out.add("無法確認 Android API，不能推定相容。");}
   if("missing".equals(f.get("game_version")))out.add("未找到 Pikmin Bloom：請先安裝遊戲本體；工作設定檔／分身中的遊戲也可能無法被此 App 讀取。登入由你本人完成。");
-  else if(!"157.0".equals(f.get("game_version"))||!"1793360009".equals(f.get("game_code")))out.add("遊戲版本未精確配對：四組資訊目前對應 157.0／1793360009。請先檢查新版透視鏡；不要為此清除遊戲資料或略過版本檢查。");
+  else if(!Compatibility.extendedProfile(f.get("game_version"),f.get("game_code")))out.add("遊戲版本未精確配對。四組資訊需要 157.0（1793360009）或 158.0（1794902053）。請先檢查新版透視鏡；不要為此清除遊戲資料或略過版本檢查。");
   if(namespaceMismatch)out.add("已取得 Root，但掛載命名空間不符：若使用 Magisk，開啟設定 → 超級使用者 → 掛載命名空間模式 → 全域命名空間（Global Namespace），再重新啟動 MuMu 並重試。僅適用既有 Magisk，不需另外安裝，也不會自動修改設定。若使用 MuMu 內建 Root，請提供診斷，不套用 Magisk 步驟。");
   else if("not_checked".equals(root))out.add("Root 尚未檢查：按「檢查 Root」後，於你既有的 Root 管理器授權透視鏡。檢查只讀取環境，不載入遊戲。");
   else if("unavailable".equals(root))out.add("找不到可用的 Root 指令：可能尚未 Root，或 Root 管理器對 App 隱藏了指令。一般 Android 不會因安裝本 APK 就自動取得 Root；若已 Root，請核對管理器設定。");

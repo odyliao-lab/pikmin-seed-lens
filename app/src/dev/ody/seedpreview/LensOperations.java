@@ -41,7 +41,7 @@ final class LensOperations {
     }
     String extensionAvailability(){
         String blocked=availability();if(blocked!=null)return blocked;
-        try{PackageInfo game=gameInfo();return "157.0".equals(game.versionName)&&game.getLongVersionCode()==1793360009L?null:"四組資訊目前只接受已核對的遊戲 157.0。";}
+        try{PackageInfo game=gameInfo();return Compatibility.extendedProfile(game.versionName,game.getLongVersionCode())?null:"四組資訊需要精確配對的遊戲 157.0 或 158.0。";}
         catch(Exception e){return "尚未找到遊戲。";}
     }
     Result execute(LensStatus.Action action,LensContext consent,Foreground foreground,Runnable pending){
@@ -104,9 +104,13 @@ final class LensOperations {
     Reply allOff()throws Exception{return displayCommand("--display-all-off",null);}
     Reply gpsCopy(Boolean enabled)throws Exception{return displayCommand("--gps-copy "+(enabled==null?"read":enabled?"on":"off"),null);}
     String gpsAvailability(){String blocked=extensionAvailability();if(blocked!=null)return blocked;return "x86_64".equals(Build.SUPPORTED_ABIS[0])&&(Build.VERSION.SDK_INT==32||Build.VERSION.SDK_INT==35)?null:"GPS 複製目前限定 MuMu API32／35。";}
-    Reply displayReports(LensContext current)throws Exception{
+    Result displayReports(LensContext current)throws Exception{
         if(current==null)throw new IOException("missing game");
-        return displayCommand("--display-reports \"$p\" \"$t\"",current);
+        PackageInfo game=gameInfo();
+        String version=game.versionName;
+        long code=game.getLongVersionCode();
+        if(!Compatibility.extendedProfile(version,code))throw new IOException("game version changed");
+        return new Result(displayCommand("--display-reports \"$p\" \"$t\"",current),version,code,null);
     }
     private Reply displayCommand(String arguments,LensContext current)throws Exception{
         String abi=Build.SUPPORTED_ABIS[0];

@@ -30,7 +30,7 @@ display_insights::AdultState observe(const Binding &b) {
     }
     if(session!=context.session){rows.clear();session=context.session;}
     auto manager=context.inventory;
-    const int64_t revision=read<int64_t>(manager,display_game.inventory_revision);
+    const int64_t revision=read<int64_t>(manager,display_game->inventory_revision);
     if(revision<=0||!collection_adapter::ready(manager))return unknown;
     // Even a cache hit rechecks this exact item's prediction and membership.
     auto item=collection_adapter::confirmed(manager,b.adult_item);Root item_root(item,strong_new,release);
@@ -50,7 +50,7 @@ display_insights::AdultState observe(const Binding &b) {
     }
     auto after=reader?reader():InsightContext{};
     if(after.session!=context.session||after.inventory!=manager
-            ||read<int64_t>(manager,display_game.inventory_revision)!=revision
+            ||read<int64_t>(manager,display_game->inventory_revision)!=revision
             ||collection_adapter::confirmed(manager,b.adult_item)!=item)return unknown;
     if(rows.size()>=max_cards&&old==rows.end())rows.clear();
     rows[b.id]={state,observed_at,manager,revision};return state;

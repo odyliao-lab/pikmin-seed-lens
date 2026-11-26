@@ -56,7 +56,7 @@ display_insights::GiftPreview observe(const Binding &b) {
         rows.clear();session.clear();return unknown;
     }
     if(session!=context.session){rows.clear();session=context.session;}
-    auto manager=context.inventory;auto revision=read<int64_t>(manager,display_game.inventory_revision);
+    auto manager=context.inventory;auto revision=read<int64_t>(manager,display_game->inventory_revision);
     if(revision<=0||!collection_adapter::ready(manager))return unknown;
     auto item=read<void*>(b.expedition_data,0x78);
     auto confirmed=collection_adapter::confirmed(manager,item);Root item_root(confirmed,strong_new,release);
@@ -133,7 +133,7 @@ display_insights::GiftPreview observe(const Binding &b) {
     }
     auto after=reader?reader():InsightContext{};
     if(after.session!=context.session||after.inventory!=manager
-            ||read<int64_t>(manager,display_game.inventory_revision)!=revision
+            ||read<int64_t>(manager,display_game->inventory_revision)!=revision
             ||read<void*>(b.expedition_data,0x78)!=item
             ||collection_adapter::confirmed(manager,item)!=confirmed
             ||(!recipient_id.empty()&&recipient(manager,recipient_id)!=adult))return unknown;

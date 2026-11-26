@@ -38,31 +38,31 @@ def sha(path):
     with Path(path).open('rb') as f:
         return hashlib.file_digest(f, 'sha256').hexdigest()
 
-def parse_dump(path):
-    namespace = name = ''; pending = None; selected = {}; hooks = {k: [] for k in HOOKS}
+def parse_dump(path, signatures=HOOKS, classes=CLASSES):
+    namespace = name = ''; pending = None; selected = {}; hooks = {k: [] for k in signatures}
     with Path(path).open(encoding='utf-8-sig', errors='strict') as f:
         for line_number, line in enumerate(f, 1):
             if line.startswith('// Namespace:'):
                 namespace = line.partition(':')[2].strip(); name = ''; pending = None
             elif '// TypeDefIndex:' in line and not line.startswith((' ', '\t')):
                 match = TYPE.search(line); name = match[1] if match else ''; pending = None
-                if (namespace, name) in CLASSES:
+                if (namespace, name) in classes:
                     key = namespace + '.' + name
                     if key in selected: raise ValueError('duplicate class: ' + key)
                     selected[key] = {'line': line_number, 'fields': []}
             match = RVA.match(line)
             if match:
                 pending = int(match[1], 16); continue
-            if (namespace, name) in CLASSES:
+            if (namespace, name) in classes:
                 field = FIELD.match(line)
                 if field:
                     selected[namespace + '.' + name]['fields'].append({'declaration': field[1], 'offset': int(field[2], 16)})
                 if pending is not None:
-                    for key, (ns, cls, signature) in HOOKS.items():
+                    for key, (ns, cls, signature) in signatures.items():
                         if (namespace, name, line.strip()) == (ns, cls, signature):
                             hooks[key].append({'rva': pending, 'line': line_number, 'signature': signature})
             if line.strip() and not line.lstrip().startswith('['): pending = None
-    if set(selected) != {ns + '.' + cls for ns, cls in CLASSES}: raise ValueError('required classes missing')
+    if set(selected) != {ns + '.' + cls for ns, cls in classes}: raise ValueError('required classes missing')
     if any(len(entries) != 1 for entries in hooks.values()): raise ValueError('missing/ambiguous exact hook signature')
     return {k: v[0] for k, v in hooks.items()}, selected
 
@@ -88,8 +88,8 @@ def prefix(path, rva, length=24):
         if len(data) != length: raise ValueError('short prefix')
         return matches[0], data
 
-def evidence(dump, elf, metadata):
-    hooks, fields = parse_dump(dump)
+def evidence(dump, elf, metadata, signatures=HOOKS, classes=CLASSES):
+    hooks, fields = parse_dump(dump, signatures, classes)
     for value in hooks.values():
         offset, raw = prefix(elf, value['rva'])
         value['file_offset'] = offset

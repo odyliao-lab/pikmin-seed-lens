@@ -26,7 +26,8 @@ final class LensOperations {
   "LENS_GROUP\t0\toff\nLENS_GROUP\t1\toff\nLENS_GROUP\t2\toff\nLENS_GROUP\t3\toff\nLENS_ALL_OFF_COMMITTED\n",true,true);}
  Reply displayGroup(int g,Boolean enabled){return setting(g,enabled);}
  LensContext readContext(){if(fail||contextFail)throw new IllegalStateException("Root denied");return game;}
- Reply displayReports(LensContext c){reportCalls++;if(reportEntered!=null){reportEntered.countDown();await(reportRelease);}return new Reply(0,reportOutput,true,true);}
+ Result displayReports(LensContext c){reportCalls++;if(reportEntered!=null){reportEntered.countDown();await(reportRelease);}
+  Result result=new Result();result.reply=new Reply(0,reportOutput,true,true);result.version="157.0";result.code=1793360009L;return result;}
  boolean gameForeground(){return front;}
  Result execute(LensStatus.Action a,LensContext c,Foreground f,Runnable p){enableCalls++;if(!allowEnable)throw new AssertionError("load forbidden");Result result=new Result();result.blocked="host test refusal";return result;}
 }

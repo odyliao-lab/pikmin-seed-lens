@@ -10,6 +10,8 @@
 
 0.16.0 對應遊戲 157.0；遊戲 156.1 使用[舊版 0.7.3 APK](https://github.com/odyliao-lab/pikmin-control-center-releases/releases/tag/seed-lens-v0.7.3)（僅花苗名稱顯示）。
 
+0.18.1 開發版已在 MuMu Android 15 驗證 158.0（1794902053）的花苗、成年皮克敏、精華／花瓣和遊戲重開後自動套用。探險詳情與 GPS 複製待未派出探險樣本。157.0 仍有獨立設定。[驗證進度](docs/VALIDATION.md)
+
 ## 功能
 
 | 功能 | 顯示內容 |

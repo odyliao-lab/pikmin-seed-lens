@@ -2,7 +2,6 @@
 #include "extended_display_profile.h"
 #include "display_contract.h"
 #include "display_groups.h"
-#include "standalone_context_profile.h"
 #include <mutex>
 #include "extended_display_policy.h"
 #include "seed_preview_sha256.h"
@@ -57,6 +56,7 @@ std::atomic<Binary> original_planted_detail{};
 std::atomic<IndexedUpdate> original_inventory{},original_expedition{};
 std::atomic<Unary> original_canvas{};
 std::atomic<bool> started{},wanted{},hooks_ready{},rendered_enabled{};
+const DisplayGameProfile *display_game{};
 std::atomic<bool> collection_wanted{},collection_rendered{};
 std::atomic<const char*> collection_phase{"waiting-cards"};
 std::atomic<bool> stock_wanted{},stock_rendered{};
@@ -174,12 +174,11 @@ bool metadata() {
         &&field_is(honey_data_class,"IsMoreBall",0x10)&&field_is(honey_data_class,"EntryData",0x18)
         &&honey_item_class&&honey_proto_class;
     adult_card_class=find("Niantic.Ichigo.Game.PikminManagementV2.Entries","PikminListEntry");
-    adult_card_metadata=display_game.adult.rva&&assignable
+    adult_card_metadata=assignable
         &&field_is(adult_card_class,"NameText",0x48)
         &&field_is(adult_card_class,"PikminVariationCatalog",0x98);
     planted_detail_class=find("Niantic.Ichigo.Game.PikminOrSeedDetailsView","PikminOrSeedDetailsViewTitle");
-    planted_detail_metadata=display_game.planted_detail.rva
-        &&field_is(planted_detail_class,"title",0x50)&&field_is(planted_detail_class,"seedSteps",0x60)
+    planted_detail_metadata=field_is(planted_detail_class,"title",0x50)&&field_is(planted_detail_class,"seedSteps",0x60)
         &&field_is(planted_detail_class,"pikminVariationCatalog",0x80)
         &&field_is(planted_detail_class,"inventoryManager",0x98)&&field_is(planted_detail_class,"pikminOrSeed",0xa8);
     auto ui_text=find("UnityEngine.UI","Text");
@@ -471,8 +470,11 @@ void apply(Record &r,const Binding &b,const std::u16string &source,void *method,
             r.font.capture(read<bool>(b.title,0x148),read<int>(b.title,0x14c),read<int>(b.title,0x150),size);
         }
         if(r.font.saved) {
-            const bool fixed=b.expedition_footer||display.find(u'\n')!=std::u16string::npos;
-            const int display_size=std::min((b.nectar||b.adult||b.expedition_footer)?14:20,r.font.size);
+            const bool multiline=display.find(u'\n')!=std::u16string::npos;
+            const bool fixed=b.expedition_footer||multiline;
+            int display_size=std::min((b.nectar||b.adult||b.expedition_footer)?14:20,r.font.size);
+            if(multiline&&b.type&&b.seed_type>0&&!b.planted_detail&&!b.adult&&std::string_view(display_game->version)=="158.0")
+                display_size=seed_summary_font_size(display,r.font.size);
             write_ui(b.title,0x148,!fixed);
             write_ui(b.title,0x14c,fixed?display_size:minimum_font_size(r.font.size));
             write_ui(b.title,0x150,fixed?display_size:r.font.size);
@@ -644,19 +646,20 @@ bool control_on(const char *path=control) {
     close(fd);return n>0&&enabled_control({b,static_cast<size_t>(n)});
 }
 #include "standalone_context.inc"
-void worker(std::string directory) {
+void worker(std::string directory,const seed_preview::GameProfile *game) {
     std::ifstream proc("/proc/self/stat");std::string line,start;std::getline(proc,line);auto end=line.rfind(')');if(end==line.npos)return;std::istringstream fields(line.substr(end+2));for(int i=3;i<=22;++i)if(!(fields>>start))return;
     void *lib=nullptr;for(int i=0;i<180&&!lib;++i){lib=xdl_open("libil2cpp.so",XDL_DEFAULT);if(!lib)sleep(1);}
     xdl_info_t info{};struct stat st{};
+    const auto& display=*display_game;
     bool valid=lib&&xdl_info(lib,XDL_DI_DLINFO,&info)==0&&info.dli_fbase&&info.dli_fname
-        &&!stat(info.dli_fname,&st)&&st.st_size==static_cast<off_t>(display_game.elf_size)
-        &&static_cast<Elf64_Ehdr*>(info.dli_fbase)->e_machine==EM_AARCH64&&seed_preview::verified_game_profile(info.dli_fname) == &seed_preview::game_profiles[2];
+        &&!stat(info.dli_fname,&st)&&st.st_size==static_cast<off_t>(game->elfSize)
+        &&static_cast<Elf64_Ehdr*>(info.dli_fbase)->e_machine==EM_AARCH64&&seed_preview::verified_game_profile(info.dli_fname)==game;
     auto base=static_cast<unsigned char*>(info.dli_fbase);
-    for(const auto *entry:{&display_game.inventory,&display_game.text,&display_game.canvas,
-            &display_game.expedition,&display_game.detail,&display_game.honey,&display_game.extract})
-        valid=valid&&!memcmp(base+entry->rva,entry->prefix.data(),sizeof(uint32_t)*entry->prefix.size());
-    if(display_game.adult.rva)valid=valid&&!memcmp(base+display_game.adult.rva,display_game.adult.prefix.data(),sizeof(uint32_t)*display_game.adult.prefix.size());
-    if(display_game.planted_detail.rva)valid=valid&&!memcmp(base+display_game.planted_detail.rva,display_game.planted_detail.prefix.data(),sizeof(uint32_t)*display_game.planted_detail.prefix.size());
+    for(const auto *entry:{&game->inventory,&game->text,&game->canvas,&game->expedition,&game->detail,
+            &display.honey,&display.extract,&display.adult,&display.planted_detail,&display.login,&display.logout})
+        valid=valid&&entry->rva&&!memcmp(base+entry->rva,entry->prefix.data(),sizeof(entry->prefix));
+    constexpr uint32_t text_veneer=0x14000001;
+    valid=valid&&!memcmp(base+game->text.rva-4,&text_veneer,sizeof text_veneer);
 #define RESOLVE(var,name) var=reinterpret_cast<decltype(var)>(xdl_sym(lib,name,nullptr));valid=valid&&var
     if(valid){
         RESOLVE(domain_get,"il2cpp_domain_get");RESOLVE(assemblies,"il2cpp_domain_get_assemblies");
@@ -671,16 +674,16 @@ void worker(std::string directory) {
         gps_adapter::value_size=reinterpret_cast<decltype(gps_adapter::value_size)>(xdl_sym(lib,"il2cpp_class_value_size",nullptr));
     }
 #undef RESOLVE
-    if(valid){expedition_display_adapter::configure(lib);valid=standalone_context::configure(lib,base);}
-    if(valid){valid=hook(base,display_game.text.rva,reinterpret_cast<void*>(text_hook),original_text)
-        &&hook(base,display_game.canvas.rva,reinterpret_cast<void*>(canvas_hook),original_canvas)
-        &&hook(base,display_game.inventory.rva,reinterpret_cast<void*>(inventory_hook),original_inventory)
-        &&hook(base,display_game.expedition.rva,reinterpret_cast<void*>(expedition_hook),original_expedition)
-        &&hook(base,display_game.detail.rva,reinterpret_cast<void*>(detail_hook),original_detail)
-        &&hook(base,display_game.honey.rva,reinterpret_cast<void*>(honey_hook),original_honey)
-        &&hook(base,display_game.extract.rva,reinterpret_cast<void*>(extract_hook),original_extract);
-        if(valid&&display_game.adult.rva)valid=hook(base,display_game.adult.rva,reinterpret_cast<void*>(adult_hook),original_adult);
-        if(valid&&display_game.planted_detail.rva)valid=hook(base,display_game.planted_detail.rva,reinterpret_cast<void*>(planted_detail_hook),original_planted_detail);}
+    if(valid){expedition_display_adapter::configure(lib);valid=standalone_context::configure(lib,base,display);}
+    if(valid){valid=hook(base,game->text.rva,reinterpret_cast<void*>(text_hook),original_text)
+        &&hook(base,game->canvas.rva,reinterpret_cast<void*>(canvas_hook),original_canvas)
+        &&hook(base,game->inventory.rva,reinterpret_cast<void*>(inventory_hook),original_inventory)
+        &&hook(base,game->expedition.rva,reinterpret_cast<void*>(expedition_hook),original_expedition)
+        &&hook(base,game->detail.rva,reinterpret_cast<void*>(detail_hook),original_detail)
+        &&hook(base,display.honey.rva,reinterpret_cast<void*>(honey_hook),original_honey)
+        &&hook(base,display.extract.rva,reinterpret_cast<void*>(extract_hook),original_extract)
+        &&hook(base,display.adult.rva,reinterpret_cast<void*>(adult_hook),original_adult)
+        &&hook(base,display.planted_detail.rva,reinterpret_cast<void*>(planted_detail_hook),original_planted_detail);}
     phase.store(valid?"waiting-cards":"incompatible");hooks_ready.store(valid);
     const auto path=directory+"/files/seed_lens_seed_preview_status.tsv",tmp=path+".tmp";
     for(;;){
@@ -688,69 +691,69 @@ void worker(std::string directory) {
         collection_wanted.store(valid&&control_on("/data/local/tmp/seed-lens-seed-collection.txt"));
         stock_wanted.store(valid&&control_on("/data/local/tmp/seed-lens-nectar-stock-preview.txt"));
         adult_wanted.store(valid&&control_on("/data/local/tmp/seed-lens-adult-state-preview.txt"));
-        decoration_wanted.store(valid&&display_game.adult.rva&&control_on("/data/local/tmp/seed-lens-adult-decoration-preview.txt"));
-        gift_wanted.store(valid&&display_game.adult.rva&&control_on("/data/local/tmp/seed-lens-gift-preview.txt"));
-        planter_display_wanted.store(valid&&display_game.planted_detail.rva&&control_on("/data/local/tmp/seed-lens-planter-display.txt"));
-        expedition_display_wanted.store(valid&&display_game.adult.rva&&control_on("/data/local/tmp/seed-lens-expedition-display.txt"));
+        decoration_wanted.store(valid&&control_on("/data/local/tmp/seed-lens-adult-decoration-preview.txt"));
+        gift_wanted.store(valid&&control_on("/data/local/tmp/seed-lens-gift-preview.txt"));
+        planter_display_wanted.store(valid&&control_on("/data/local/tmp/seed-lens-planter-display.txt"));
+        expedition_display_wanted.store(valid&&control_on("/data/local/tmp/seed-lens-expedition-display.txt"));
         gps_adapter::enabled.store(valid&&control_on(seed_lens::gps_control));
         auto now=std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         const auto gps_path=directory+"/files/"+seed_lens::gps_report_leaf,gps_tmp=gps_path+".tmp";
         if(FILE *out=fopen(gps_tmp.c_str(),"w")){
-            bool ok=fprintf(out,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t%u\t%u\t0\t%s\t%s\n",static_cast<long long>(now),getpid(),display_game.version,
+            bool ok=fprintf(out,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t%u\t%u\t0\t%s\t%s\n",static_cast<long long>(now),getpid(),game->version,
                 valid&&gps_adapter::metadata_ready.load()?"ready":"waiting-cards",gps_adapter::ack.load()?1:0,gps_adapter::copies.load(),gps_adapter::failures.load(),gps_adapter::state.load(),start.c_str(),seed_lens::display_build)>0;
             if(fclose(out))ok=false;if(ok){chmod(gps_tmp.c_str(),0644);rename(gps_tmp.c_str(),gps_path.c_str());}
         }
         FILE *f=fopen(tmp.c_str(),"w");if(f){bool ok=fprintf(f,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t%u\t%u\t%u\t%s\t%s\n",
-            static_cast<long long>(now),getpid(),display_game.version,phase.load(),(!strcmp(phase.load(),"ready")?rendered_enabled.load():wanted.load())?1:0,bound_count.load(),decorated_mask.load(),applied.load(),restored.load(),start.c_str(),seed_lens::display_build)>0;
+            static_cast<long long>(now),getpid(),game->version,phase.load(),(!strcmp(phase.load(),"ready")?rendered_enabled.load():wanted.load())?1:0,bound_count.load(),decorated_mask.load(),applied.load(),restored.load(),start.c_str(),seed_lens::display_build)>0;
             if(fclose(f))ok=false;if(ok){chmod(tmp.c_str(),0644);rename(tmp.c_str(),path.c_str());}}
         FILE *diag=fopen((directory+"/files/seed_lens_seed_preview_diagnostic.tsv").c_str(),"w");
         if(diag){fprintf(diag,"%u\t%u\t%u\t%u\t%u\t%d\t%d\t%d\n",seed_calls.load(),text_calls.load(),canvas_calls.load(),tracked.load(),text_matches.load(),ui_tid.load(),text_tid.load(),canvas_tid.load());fclose(diag);}
         const auto collection_path=directory+"/files/seed_lens_seed_collection_status.tsv",collection_tmp=collection_path+".tmp";
         if(FILE *out=fopen(collection_tmp.c_str(),"w")) {
             bool ok=fprintf(out,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t0\t0\t0\t%s\t%s\n",
-                static_cast<long long>(now),getpid(),display_game.version,valid?collection_phase.load():"incompatible",
+                static_cast<long long>(now),getpid(),game->version,valid?collection_phase.load():"incompatible",
                 collection_rendered.load()?1:0,bound_count.load(),start.c_str(),seed_lens::display_build)>0;
             if(fclose(out))ok=false;if(ok){chmod(collection_tmp.c_str(),0644);rename(collection_tmp.c_str(),collection_path.c_str());}
         }
         const auto stock_path=directory+"/files/seed_lens_nectar_stock_preview_status.tsv",stock_tmp=stock_path+".tmp";
         if(FILE *out=fopen(stock_tmp.c_str(),"w")) {
             bool ok=fprintf(out,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t0\t0\t0\t%s\t%s\n",
-                static_cast<long long>(now),getpid(),display_game.version,valid?stock_phase.load():"incompatible",
+                static_cast<long long>(now),getpid(),game->version,valid?stock_phase.load():"incompatible",
                 stock_rendered.load()?1:0,bound_count.load(),start.c_str(),seed_lens::display_build)>0;
             if(fclose(out))ok=false;if(ok){chmod(stock_tmp.c_str(),0644);rename(stock_tmp.c_str(),stock_path.c_str());}
         }
         const auto adult_path=directory+"/files/seed_lens_adult_state_preview_status.tsv",adult_tmp=adult_path+".tmp";
         if(FILE *out=fopen(adult_tmp.c_str(),"w")) {
             bool ok=fprintf(out,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t0\t0\t0\t%s\t%s\n",
-                static_cast<long long>(now),getpid(),display_game.version,valid?adult_phase.load():"incompatible",
+                static_cast<long long>(now),getpid(),game->version,valid?adult_phase.load():"incompatible",
                 adult_rendered.load()?1:0,bound_count.load(),start.c_str(),seed_lens::display_build)>0;
             if(fclose(out))ok=false;if(ok){chmod(adult_tmp.c_str(),0644);rename(adult_tmp.c_str(),adult_path.c_str());}
         }
         const auto decoration_path=directory+"/files/seed_lens_adult_decoration_preview_status.tsv",decoration_tmp=decoration_path+".tmp";
         if(FILE *out=fopen(decoration_tmp.c_str(),"w")) {
             bool ok=fprintf(out,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t0\t0\t0\t%s\t%s\n",
-                static_cast<long long>(now),getpid(),display_game.version,valid&&display_game.adult.rva?decoration_phase.load():"incompatible",
+                static_cast<long long>(now),getpid(),game->version,valid?decoration_phase.load():"incompatible",
                 decoration_rendered.load()?1:0,bound_count.load(),start.c_str(),seed_lens::display_build)>0;
             if(fclose(out))ok=false;if(ok){chmod(decoration_tmp.c_str(),0644);rename(decoration_tmp.c_str(),decoration_path.c_str());}
         }
         const auto gift_path=directory+"/files/seed_lens_gift_preview_status.tsv",gift_tmp=gift_path+".tmp";
         if(FILE *out=fopen(gift_tmp.c_str(),"w")) {
             bool ok=fprintf(out,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t0\t0\t0\t%s\t%s\n",
-                static_cast<long long>(now),getpid(),display_game.version,valid&&display_game.adult.rva?gift_phase.load():"incompatible",
+                static_cast<long long>(now),getpid(),game->version,valid?gift_phase.load():"incompatible",
                 gift_rendered.load()?1:0,bound_count.load(),start.c_str(),seed_lens::display_build)>0;
             if(fclose(out))ok=false;if(ok){chmod(gift_tmp.c_str(),0644);rename(gift_tmp.c_str(),gift_path.c_str());}
         }
         const auto planter_path=directory+"/files/seed_lens_planter_display_status.tsv",planter_tmp=planter_path+".tmp";
         if(FILE *out=fopen(planter_tmp.c_str(),"w")) {
             bool ok=fprintf(out,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t0\t0\t0\t%s\t%s\n",
-                static_cast<long long>(now),getpid(),display_game.version,valid&&display_game.planted_detail.rva?planter_display_phase.load():"incompatible",
+                static_cast<long long>(now),getpid(),game->version,valid?planter_display_phase.load():"incompatible",
                 planter_display_rendered.load()?1:0,bound_count.load(),start.c_str(),seed_lens::display_build)>0;
             if(fclose(out))ok=false;if(ok){chmod(planter_tmp.c_str(),0644);rename(planter_tmp.c_str(),planter_path.c_str());}
         }
         const auto expedition_path=directory+"/files/seed_lens_expedition_display_status.tsv",expedition_tmp=expedition_path+".tmp";
         if(FILE *out=fopen(expedition_tmp.c_str(),"w")) {
             bool ok=fprintf(out,"v1\t%lld\t%d\t%s\t%s\t%d\t%u\t0\t0\t0\t%s\t%s\n",
-                static_cast<long long>(now),getpid(),display_game.version,valid&&display_game.adult.rva?expedition_display_phase.load():"incompatible",
+                static_cast<long long>(now),getpid(),game->version,valid?expedition_display_phase.load():"incompatible",
                 expedition_display_rendered.load()?1:0,bound_count.load(),start.c_str(),seed_lens::display_build)>0;
             if(fclose(out))ok=false;if(ok){chmod(expedition_tmp.c_str(),0644);rename(expedition_tmp.c_str(),expedition_path.c_str());}
         }
@@ -765,11 +768,13 @@ void worker(std::string directory) {
     }
 }
 } // namespace
-void start(const char *directory,ContextReader reader) {
-    context_reader.store(reader?reader:standalone_context::read_context);
-    if(!directory||started.exchange(true))return;
+void start(const char *directory,const seed_preview::GameProfile& game) {
+    const auto* display=display_profile_for_version(game.version);
+    if(!directory||!display||started.exchange(true))return;
     struct stat st{};
     if(getuid()/100000!=0||lstat(directory,&st)||!S_ISDIR(st.st_mode)||st.st_uid!=getuid())return;
-    std::thread(worker,std::string(directory)).detach();
+    display_game=display;
+    context_reader.store(standalone_context::read_context);
+    std::thread(worker,std::string(directory),&game).detach();
 }
 } // namespace seed_extended

@@ -39,8 +39,8 @@ final class DisplayGroups {
         final Effect effect;final String text;
         Report(Effect effect,String text){this.effect=effect;this.text=text;}
     }
-    static Report checkedReport(int group,boolean enabled,LensContext context,String raw,long now){
-        String text=report(group,enabled,context,raw,now);
+    static Report checkedReport(int group,boolean enabled,LensContext context,String version,String raw,long now){
+        String text=report(group,enabled,context,version,raw,now);
         Effect effect=text.equals("已關閉")?Effect.RESTORED:Effect.WAITING;
         // A group can include pages never opened (e.g. planter detail). Report
         // only acknowledged pages, without pretending the entire group was seen.
@@ -56,7 +56,7 @@ final class DisplayGroups {
         }
         return new Report(effect,effect==Effect.RESTORED?"已確認關閉":text.equals("已啟用")?"等待可用遊戲畫面":text);
     }
-    static String report(int group,boolean enabled,LensContext context,String raw,long now){
+    static String report(int group,boolean enabled,LensContext context,String version,String raw,long now){
         if(group<0||group>3)return "回報契約不符";
         if(context==null||raw==null||raw.indexOf('\r')>=0||raw.length()>8192||!raw.endsWith("\n"))return "等待遊戲資料";
         String[] lines=raw.split("\n");
@@ -69,7 +69,7 @@ final class DisplayGroups {
             String prefix="LENS_MEMBER\t"+i+"\t";
             if(!lines[i+1].startsWith(prefix))return "回報契約不符";
             String[] f=lines[i+1].substring(prefix.length()).split("\t",-1);
-            if(f.length!=11||!f[0].equals("v1")||!f[2].equals(""+context.game.pid)||!f[3].equals("157.0")||!f[10].equals(""+context.game.start))return "回報版本或程序不符";
+            if(f.length!=11||!f[0].equals("v1")||!f[2].equals(""+context.game.pid)||!f[3].equals(version)||!f[10].equals(""+context.game.start))return "回報版本或程序不符";
             try{long stamp=Long.parseLong(f[1]);if(!f[1].matches("[0-9]{1,19}")||stamp<0||stamp<now-5000||stamp>now+2000)return "等待新鮮回報";
                 for(int n=5;n<=9;n++)if(!f[n].matches("[0-9]{1,10}")||Long.parseLong(f[n])>(n==5?1L:4294967295L))return "回報欄位無效";
             }catch(NumberFormatException e){return "回報數值無效";}

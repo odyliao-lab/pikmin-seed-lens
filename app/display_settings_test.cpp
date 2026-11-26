@@ -43,6 +43,16 @@ int main(){
  const auto paired=row.substr(0,row.size()-1)+"\t"+seed_lens::display_build+"\n";
  assert(seed_root::fresh_display_status(paired,123,"456",10000,"157.0"));
  assert(!seed_root::fresh_display_status(row.substr(0,row.size()-1)+"\tother-build\n",123,"456",10000,"157.0"));
+ const std::string row158="v1\t10000\t123\t158.0\tready\t1\t3\t0\t0\t0\t456";
+ const auto paired158=row158+"\t"+seed_lens::display_build+"\n";
+ assert(seed_root::fresh_display_status(paired158,123,"456",10000,"158.0"));
+ assert(!seed_root::fresh_display_status(row158+"\n",123,"456",10000,"158.0"));
+ assert(!seed_root::fresh_display_status(row158+"\tother-build\n",123,"456",10000,"158.0"));
+ assert(!seed_root::fresh_display_status(paired158,123,"456",10000,"157.0"));
+ const auto* game158=seed_preview::profile_for_version("158.0",1794902053);
+ assert(game158&&seed_preview::profile_for_digest(game158->elfSize,game158->elfSha)==game158);
+ assert(!seed_preview::profile_for_version("158.0",1794902054));
+ assert(!seed_preview::profile_for_digest(game158->elfSize+4,game158->elfSha));
 #if defined(__ANDROID__)
  char name[]="/data/local/tmp/seed-lens-settings-XXXXXX";
 #else

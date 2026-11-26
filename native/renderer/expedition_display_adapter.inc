@@ -63,7 +63,7 @@ display_insights::ExpeditionDisplay observe(const Binding &b){
     if(context.session.empty()||!is(manager,collection_adapter::manager_class)){clear();session.clear();return unknown;}
     if(session!=context.session){clear();session=context.session;}
     if(!is(b.provider,provider_class)||read<void*>(b.provider,0x18)!=manager||!collection_adapter::ready(manager))return unknown;
-    const auto revision=read<int64_t>(manager,display_game.inventory_revision);if(revision<=0)return unknown;
+    const auto revision=read<int64_t>(manager,display_game->inventory_revision);if(revision<=0)return unknown;
     auto item=read<void*>(b.expedition_data,0x78);Root item_root(item,strong_new,release);
     if(!is(item,gift_adapter::task_class)||collection_adapter::confirmed(manager,item)!=item
             ||string_value(collection_adapter::get(item,"get_Id"))!=b.id)return unknown;
@@ -85,7 +85,7 @@ display_insights::ExpeditionDisplay observe(const Binding &b){
         result.current=true;
     }
     auto after=reader?reader():InsightContext{};
-    if(after.session!=context.session||after.inventory!=manager||read<int64_t>(manager,display_game.inventory_revision)!=revision
+    if(after.session!=context.session||after.inventory!=manager||read<int64_t>(manager,display_game->inventory_revision)!=revision
             ||read<void*>(b.expedition_data,0x78)!=item||collection_adapter::confirmed(manager,item)!=item)return unknown;
     if(rows.size()>=max_cards&&old==rows.end()){clear();old=rows.end();}
     auto weak=old!=rows.end()?old->second.data:0;

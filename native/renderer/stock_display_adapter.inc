@@ -24,8 +24,8 @@ bool setup() {
     auto conversion=find("Niantic.Ichigo.Utils.Proto","HoneyBallProtoExtensions");
     kind_to_text=mapping?method_named(mapping,"KindToObsoleteString",1):nullptr;
     flower_to_honey=conversion?method_named(conversion,"ToHoneyType",1):nullptr;
-    compatible=honey_metadata&&field_is(manager_class,"latestServerSideTimestamp",display_game.inventory_revision)
-        &&field_is(manager_class,"itemsById",display_game.inventory_items)&&petal_class&&petal_item_class&&capacity_item_class&&kind_to_text&&flower_to_honey;
+    compatible=honey_metadata&&field_is(manager_class,"latestServerSideTimestamp",display_game->inventory_revision)
+        &&field_is(manager_class,"itemsById",display_game->inventory_items)&&petal_class&&petal_item_class&&capacity_item_class&&kind_to_text&&flower_to_honey;
     return compatible;
 }
 void *static_call(void *method,void **args) {
@@ -41,7 +41,7 @@ std::string family(void *proto,bool nectar) {
     return feeding_catalogue::family(legacy,ascii);
 }
 void capture(const InsightContext &ctx) {
-    auto inv=ctx.inventory;auto rev=read<int64_t>(inv,display_game.inventory_revision);auto now=std::chrono::steady_clock::now();
+    auto inv=ctx.inventory;auto rev=read<int64_t>(inv,display_game->inventory_revision);auto now=std::chrono::steady_clock::now();
     if(ctx.session==session&&inv==manager&&revision==rev&&now-captured<std::chrono::seconds(2))return;
     session.clear();petals.clear();complete=false;capacity=-1;
     if(rev<=0)return;
@@ -72,7 +72,7 @@ void capture(const InsightContext &ctx) {
         return rows.emplace(std::make_pair(kind,colour),count).second;
     });
     auto reader=context_reader.load();auto after=reader?reader():InsightContext{};
-    if(after.session!=ctx.session||after.inventory!=inv||rev!=read<int64_t>(inv,display_game.inventory_revision)||!collection_adapter::unpredicted(inv,{petal_item_class,capacity_item_class}))return;
+    if(after.session!=ctx.session||after.inventory!=inv||rev!=read<int64_t>(inv,display_game->inventory_revision)||!collection_adapter::unpredicted(inv,{petal_item_class,capacity_item_class}))return;
     petals=std::move(rows);complete=rows_ok;capacity=caps_ok?cap:-1;
     read_phase.store(caps_ok?(rows_ok?"complete":"petal-incomplete"):(rows_ok?"capacity-incomplete":"both-incomplete"));
     session=ctx.session;manager=inv;revision=rev;captured=now;
@@ -81,7 +81,7 @@ display_insights::StockDisplay observe(const Binding &b) {
     display_insights::StockDisplay out;
     auto reader=context_reader.load();auto ctx=reader?reader():InsightContext{};
     if(ctx.session.empty()||!setup()||!is(ctx.inventory,manager_class)||!collection_adapter::ready(ctx.inventory))return out;
-    const auto before=read<int64_t>(ctx.inventory,display_game.inventory_revision);
+    const auto before=read<int64_t>(ctx.inventory,display_game->inventory_revision);
     auto item=confirmed(ctx.inventory,b.nectar_item);Root item_root(item,strong_new,release);
     if(!is(item,honey_item_class))return out;
     auto proto=get(item,"get_Proto");Root proto_root(proto,strong_new,release);
@@ -96,7 +96,7 @@ display_insights::StockDisplay observe(const Binding &b) {
         if(complete){auto found=petals.find({kind,colour});out.petals=found==petals.end()?0:found->second;}
     }
     auto after=reader();if(after.session!=ctx.session||after.inventory!=ctx.inventory
-            ||before<=0||before!=read<int64_t>(ctx.inventory,display_game.inventory_revision)||revision!=before)return {};
+            ||before<=0||before!=read<int64_t>(ctx.inventory,display_game->inventory_revision)||revision!=before)return {};
     return out;
 }
 } // namespace stock_adapter

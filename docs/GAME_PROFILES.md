@@ -18,6 +18,12 @@
 4. 重新抽取並審查完整hook簽名、可執行segment／前綴／veneer、所有用到的類別欄位與runtime metadata契約。布局改變須獨立實作，不只追加digest；檢查工具不得靜默忽略新profile。保留錯code／SHA／RVA／指令／布局等拒絕測試及歷史UNKNOWN。
 5. 新profile與功能整合使交付bytes改變，分配更高產品version/code並保留原簽章；舊APK不可覆寫。先隔離平台／失敗收容，再以正常App及同一新APK逐組驗[九組必要項目](ANDROID12_15_GAME156_GOAL.md)。研究或安裝成功不算功能通過。
 
+## 158.0 新增精確設定檔（0.18.0／code60）
+
+158.0／1794902053 使用獨立設定。已保存的原簽章 base APK 和 ARM64 split 均經簽章核對，兩份 APK、原生程式庫及 metadata 的 SHA-256 均與控制中心的 MuMu 158 來源證據吻合。基礎渲染設定保留 156.0、156.1 和 157.0。157.0 與 158.0 的擴充設定各自記錄庫存欄位和顯示／登入入口，仍使用相同的即時欄位驗證。
+
+候選版會先核對對應的原生程式庫摘要、入口指令及文字入口，再套用該版本的顯示程式。App 以套件管理員核對的版本讀取回報，兩版均要求目前 APK build 和同程序的原生回報。首次裝置驗收須覆蓋四組顯示、GPS 剪貼簿、關閉還原、重開後重新套用，以及同一新版對 157.0 的回歸。
+
 ## 兩個獨立相容層
 
 - 平台層：Android API、ABI、Root mount view與載入後端。ARM64與NativeBridge不同，
@@ -25,7 +31,7 @@
 - 遊戲層：versionName/code、完整ELF大小／SHA、五個hook完整簽名／入口指令、文字入口
   veneer及實際metadata守門。任一不符便保留原顯示，不猜偏移或採用「最接近版本」。
 
-`native/renderer/game_profiles.h`是本次三組完整設定的來源；loader、x64 host及ARM renderer
+`native/renderer/game_profiles.h` 保存基礎設定，`extended_display_profile.h` 保存 157.0 和 158.0 的擴充設定。loader、x64 host及ARM renderer
 都重新驗證所見的實際ELF。狀態回報必須屬於被選中的版本、同PID/start及新鮮時間。
 OFF不必取得新版本的載入資格；不能以新程序替舊UNKNOWN載入補成成功。
 
@@ -61,7 +67,7 @@ OFF不必取得新版本的載入資格；不能以新程序替舊UNKNOWN載入�
 
 ```powershell
 python -m unittest discover -s research -p test_profile_evidence.py
-python research/check_profile_sources.py --game1560 <private-1560-folder> --game1561 <private-1561-folder> --game1570 <private-1570-folder> --output <new-private-report.json>
+python research/check_profile_sources.py --game1560 <private-1560-folder> --game1561 <private-1561-folder> --game1570 <private-1570-folder> --game1580 <private-1580-folder> --output <new-private-report.json>
 ```
 
 輸出必須是新檔，拒絕覆寫；工具不連裝置、不改來源、不自動核准設定檔。

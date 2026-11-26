@@ -10,9 +10,10 @@ final class FirstUseCheck {
         String rootText=namespaceMismatch?"已取得 UID0，但掛載命名空間不符"
                 :"granted".equals(root)?"本次 Root 檢查通過"
                 :"not_checked".equals(root)?"請按「檢查 Root」":"Root 尚未確認可用";
-        boolean game="157.0".equals(f.get("game_version"))&&"1793360009".equals(f.get("game_code"));
+        String version=f.get("game_version");
+        boolean game=Compatibility.extendedProfile(version,f.get("game_code"));
         return "① Root："+rootText+"\n② 環境："+platform
-                +"\n③ 遊戲版本："+(game?"157.0／版本代碼符合，載入時另核完整身分":"未找到或尚未精確配對")
+                +"\n③ 遊戲版本："+(game?version+"／版本代碼符合，載入時另核完整身分":"未找到或尚未精確配對")
                 +"\n④ 內建檔案："+("match".equals(f.get("native_files"))?"核對通過":"尚未確認完整")
                 +"\n⑤ 實際套用：回工具頁選擇功能、完成同意，再開遊戲；依即時狀態確認。";
     }
