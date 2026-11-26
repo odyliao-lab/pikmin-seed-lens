@@ -36,6 +36,12 @@ public final class CompatibilityTest {
         for(String version:new String[]{"157","157.1","158.0"})expect(Compatibility.blockReason(35,"arm64-v8a",version,1793360009L)!=null);
         for(long code:new long[]{1793360008L,1793360010L,1793076318L})expect(Compatibility.blockReason(35,"arm64-v8a","157.0",code)!=null);
         expect(Compatibility.blockReason(35,"x86_64","156.1",1793360009L)!=null);
+        expect(Compatibility.extendedProfile("158.0",1794902053L));
+        expect(Compatibility.blockReason(35,"x86_64","158.0",1794902053L)==null);
+        expect(Compatibility.blockReason(32,"x86_64","158.0",1794902053L)==null);
+        expect(Compatibility.blockReason(33,"x86_64","158.0",1794902053L)!=null);
+        for(long code:new long[]{1793360009L,1794902052L,1794902054L})expect(Compatibility.blockReason(35,"x86_64","158.0",code)!=null);
+        for(String version:new String[]{"157.0","158","158.1","159.0"})expect(Compatibility.blockReason(35,"x86_64",version,1794902053L)!=null);
         System.out.println("CompatibilityTest: "+checks+" passed; API31 candidate="+Compatibility.API31_CANDIDATE+"; API34 candidate="+Compatibility.API34_CANDIDATE+"; no device certification");
     }
 }

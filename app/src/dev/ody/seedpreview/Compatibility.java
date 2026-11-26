@@ -9,7 +9,20 @@ public final class Compatibility {
     private Compatibility() {}
     static boolean exactProfile(String version,long code){
         return ("156.1".equals(version)&&code==1793076318L)||("156.0".equals(version)&&code==1792142832L)
-            ||("157.0".equals(version)&&code==1793360009L);
+            ||extendedProfile(version,code);
+    }
+    private static long extendedVersionCode(String version){
+        if("157.0".equals(version))return 1793360009L;
+        if("158.0".equals(version))return 1794902053L;
+        return 0;
+    }
+    static boolean extendedProfile(String version,long code){
+        long expected=extendedVersionCode(version);
+        return expected!=0&&expected==code;
+    }
+    static boolean extendedProfile(String version,String code){
+        long expected=extendedVersionCode(version);
+        return expected!=0&&Long.toString(expected).equals(code);
     }
     public static String blockReason(int api,String abi,String version,long code) {
         if(!exactProfile(version,code))

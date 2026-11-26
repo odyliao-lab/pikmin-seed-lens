@@ -107,7 +107,7 @@ static bool renderer_status(int pid,const std::string& start,std::string& status
     close(fd);if(n<=0||n>512)return false;status.assign(bytes,static_cast<size_t>(n));
     auto now=std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     if(!identity(pid,start)||!seed_root::fresh_display_status(status,pid,start,now,profile->version))return false;
-    if(std::string_view(profile->version)=="157.0")status=status.substr(0,status.rfind('\t'))+"\n";
+    if(seed_extended::display_profile_for_version(profile->version))status=status.substr(0,status.rfind('\t'))+"\n";
     return true;
 }
 static bool completed_attempt(const seed_root::LoadLease& lease,int pid,const std::string& start){

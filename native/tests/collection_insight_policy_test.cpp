@@ -1,4 +1,5 @@
 #include "../renderer/collection_insight_policy.h"
+#include "../renderer/extended_display_policy.h"
 #undef NDEBUG
 #include <cassert>
 #include <initializer_list>
@@ -42,6 +43,9 @@ int main() {
     assert(collection_label({CollectionStatus::seen,3,-1}).find(u"數量資料未完整")!=std::u16string::npos);
     assert(collection_card_label({CollectionStatus::unknown,-1,-1})==u"待確認·飾？持？育？待？");
     assert(collection_card_label({CollectionStatus::unseen,0,0,0,CollectionReason::waiting,0})==u"未開圖·飾0持0育0待0");
+    assert(seed_extended::seed_summary_font_size(u"白色咖啡杯金苗\n未開圖·飾0持0育0待45",20)==17);
+    assert(seed_extended::seed_summary_font_size(u"岩石咖啡杯金苗\n未開圖·飾101持135育103待235",20)==13);
+    assert(seed_extended::seed_summary_font_size(u"白色咖啡杯金苗\n未開圖·飾0持0育0待45",14)==14);
     OwnedDecorationCounts adults;
     adults.observe(true);adults.observe(true);adults.observe(false);
     CollectionEvidence mixed{true,true,true,true,true,adults.owned,true,0,true,1,CollectionReason::waiting,adults.decorated};

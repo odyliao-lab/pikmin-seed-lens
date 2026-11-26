@@ -38,6 +38,9 @@ public final class DiagnosticPolicyTest {
   Map<String,String> phone=sample();phone.put("abi","arm64-v8a");check(advice(phone).contains("不能保證此手機可用"));
   for(String root:new String[]{"unavailable","denied_or_incompatible","timeout","not_checked","error"}){Map<String,String> next=sample();next.put("root",root);check(!advice(next).equals(advice(f)));check(!advice(next).contains("系統未 Root"));}
   Map<String,String> game=sample();game.put("game_code","1793360008");check(advice(game).contains("未精確配對"));
+  game.put("game_version","158.0");game.put("game_code","1794902053");
+  check(!advice(game).contains("未精確配對"));check(FirstUseCheck.summary(game,false).contains("158.0／版本代碼符合"));
+  game.put("game_code","01794902053");check(advice(game).contains("未精確配對"));
   Map<String,String> missing=sample();missing.put("game_version","missing");check(advice(missing).contains("未找到 Pikmin Bloom"));
   Map<String,String> unknown=sample();unknown.put("last_phase","UNKNOWN");check(advice(unknown).contains("不要刪除紀錄"));
   Map<String,String> leak=sample();leak.put("account","private@example.invalid");rejected(()->new DiagnosticReport(leak,Collections.emptyList(),"other"));

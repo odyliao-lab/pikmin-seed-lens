@@ -38,14 +38,12 @@ void login(void *self,void *server,void *player,void *token,void *method) {
  std::lock_guard<std::mutex> lock(account_mutex);
  if(epoch.load()==current){expected_account=digest;suspended.store(digest.empty());}
 }
-bool configure(void *lib,unsigned char *base) {
+bool configure(void *lib,unsigned char *base,const DisplayGameProfile& display) {
  class_type=reinterpret_cast<decltype(class_type)>(xdl_sym(lib,"il2cpp_class_get_type",nullptr));
  type_object=reinterpret_cast<decltype(type_object)>(xdl_sym(lib,"il2cpp_type_get_object",nullptr));
- if(!class_type||!type_object
-   ||memcmp(base+seed_lens::login_rva,seed_lens::login_prefix.data(),24)
-   ||memcmp(base+seed_lens::logout_rva,seed_lens::logout_prefix.data(),24))return false;
- return hook(base,seed_lens::logout_rva,reinterpret_cast<void*>(logout),original_logout)
-     &&hook(base,seed_lens::login_rva,reinterpret_cast<void*>(login),original_login);
+ if(!class_type||!type_object)return false;
+ return hook(base,display.logout.rva,reinterpret_cast<void*>(logout),original_logout)
+     &&hook(base,display.login.rva,reinterpret_cast<void*>(login),original_login);
 }
 bool setup() {
  if(checked)return compatible;checked=true;
@@ -78,8 +76,8 @@ bool setup() {
  get_info=player_class?method_named(player_class,"get_PlayerInfo",0):nullptr;
  compatible=lookup&&array_get&&array_length&&array_rank&&get_info
    &&field_is(player_class,"inventoryManager",0x28)&&field_is(info_class,"PlayerId",0x10)
-   &&field_is(inventory_class,"latestServerSideTimestamp",display_game.inventory_revision)
-   &&field_is(inventory_class,"itemsById",display_game.inventory_items);
+   &&field_is(inventory_class,"latestServerSideTimestamp",display_game->inventory_revision)
+   &&field_is(inventory_class,"itemsById",display_game->inventory_items);
  return compatible;
 }
 void *player(uint64_t current) {
@@ -106,13 +104,13 @@ InsightContext read_context() {
  if(!owner_root.handle)return {};
  auto inventory=read<void*>(owner,0x28);Root inventory_root(inventory,strong_new,release);
  if(!is(inventory,inventory_class)||!collection_adapter::ready(inventory))return {};
- const auto revision=read<int64_t>(inventory,display_game.inventory_revision);if(revision<=0)return {};
+ const auto revision=read<int64_t>(inventory,display_game->inventory_revision);if(revision<=0)return {};
  auto info=call(get_info,owner);Root info_root(info,strong_new,release);if(!is(info,info_class))return {};
  const auto account=digest_id(read<void*>(info,0x10));if(account.empty())return {};
  {std::lock_guard<std::mutex> lock(account_mutex);if(!expected_account.empty()&&account!=expected_account)return {};}
  auto after=call(get_info,owner);Root after_root(after,strong_new,release);
  if(!is(after,info_class)||account!=digest_id(read<void*>(after,0x10))||epoch.load()!=current||suspended.load()
-    ||read<void*>(owner,0x28)!=inventory||read<int64_t>(inventory,display_game.inventory_revision)!=revision)return {};
+    ||read<void*>(owner,0x28)!=inventory||read<int64_t>(inventory,display_game->inventory_revision)!=revision)return {};
  return {std::to_string(getpid())+":"+std::to_string(current)+":"+account,inventory};
 }
 }

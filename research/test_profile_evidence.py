@@ -54,11 +54,11 @@ class ProfileHeaderTests(unittest.TestCase):
         records=['{"'+v+'",'+str(code)+',512,"'+'0'*64+'",1,'+','.join([hook]*5)+'}' for v,code in versions]
         return 'inline constexpr GameProfile game_profiles[]{\n'+',\n'.join(records)+',\n};'
     def test_complete_reviewed_set(self):
-        self.assertEqual(set(c.native_profiles(self.header())),{'156.0','156.1','157.0'})
+        self.assertEqual(set(c.native_profiles(self.header())),{'156.0','156.1','157.0','158.0'})
     def test_missing_reviewed_version(self):
         with self.assertRaises(ValueError):c.native_profiles(self.header(list(c.REVIEWED_CODES.items())[:2]))
     def test_wrong_exact_code(self):
-        values=list(c.REVIEWED_CODES.items());values[-1]=('157.0',1793360010)
+        values=list(c.REVIEWED_CODES.items());values[-1]=('158.0',1794902054)
         with self.assertRaises(ValueError):c.native_profiles(self.header(values))
     def test_duplicate_version(self):
         with self.assertRaises(ValueError):c.native_profiles(self.header(list(c.REVIEWED_CODES.items())+[('157.0',1793360009)]))

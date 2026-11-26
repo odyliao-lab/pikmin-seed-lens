@@ -25,15 +25,19 @@ public final class DisplayGroupsTest {
         }
         LensContext owner=LensContext.parse("123\t456\t"+BOOT+"\n");long now=10000;
         for(int g=0;g<4;g++){
-            check(DisplayGroups.report(g,true,owner,rows(now),now).equals("已啟用"));
-            check(!DisplayGroups.report(g,true,owner,rows(now-5001),now).equals("已啟用"));
-            check(!DisplayGroups.report(g,true,owner,rows(now).replace("\t456","\t457"),now).equals("已啟用"));
-            check(!DisplayGroups.report(g,true,owner,rows(now).replace("157.0","156.1"),now).equals("已啟用"));
-            check(!DisplayGroups.report(g,true,owner,rows(now).replace("\t3\t0","\t-1\t0"),now).equals("已啟用"));
-            check(DisplayGroups.report(g,false,owner,rows(now),now).equals("等待原顯示還原"));
+            check(DisplayGroups.report(g,true,owner,"157.0",rows(now),now).equals("已啟用"));
+            check(!DisplayGroups.report(g,true,owner,"157.0",rows(now-5001),now).equals("已啟用"));
+            check(!DisplayGroups.report(g,true,owner,"157.0",rows(now).replace("\t456","\t457"),now).equals("已啟用"));
+            check(!DisplayGroups.report(g,true,owner,"157.0",rows(now).replace("157.0","156.1"),now).equals("已啟用"));
+            check(!DisplayGroups.report(g,true,owner,"157.0",rows(now).replace("\t3\t0","\t-1\t0"),now).equals("已啟用"));
+            check(DisplayGroups.report(g,false,owner,"157.0",rows(now),now).equals("等待原顯示還原"));
         }
-        check(!DisplayGroups.report(0,true,owner,rows(now).replace("LENS_MEMBER\t2\t","LENS_MEMBER\t1\t"),now).equals("已啟用"));
-        check(DisplayGroups.report(3,true,owner,rows(now).replace("ready","waiting-cards"),now).contains("等待"));
+        check(!DisplayGroups.report(0,true,owner,"157.0",rows(now).replace("LENS_MEMBER\t2\t","LENS_MEMBER\t1\t"),now).equals("已啟用"));
+        check(DisplayGroups.report(3,true,owner,"157.0",rows(now).replace("ready","waiting-cards"),now).contains("等待"));
+        String currentRows=rows(now).replace("157.0","158.0");
+        check(DisplayGroups.report(0,true,owner,"158.0",currentRows,now).equals("已啟用"));
+        check(DisplayGroups.report(0,true,owner,"158.0",rows(now),now).equals("回報版本或程序不符"));
+        check(DisplayGroups.report(0,true,owner,"157.0",currentRows,now).equals("回報版本或程序不符"));
         System.out.println("DisplayGroupsTest: "+checks+" host protocol checks; not game acceptance");
     }
 }

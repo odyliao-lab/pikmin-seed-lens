@@ -60,6 +60,17 @@ inline std::u16string compact_card_title(std::u16string_view text) {
     return prefix+u"…"+suffix;
 }
 inline int minimum_font_size(int original) { return std::max(12,(original*3+3)/4); }
+inline int seed_summary_font_size(std::u16string_view display,int original) {
+    // Estimate the width of the widest line in the three-column seed card.
+    // Keep the title and counts between the game's steps and location labels.
+    int widest=1,line=0;
+    for(char16_t c:display) {
+        if(c==u'\n') {widest=std::max(widest,line);line=0;}
+        else line+=(c<=0x7f||c==u'·')?1:2;
+    }
+    widest=std::max(widest,line);
+    return std::min({original,17,std::max(12,360/widest)});
+}
 struct TextLayoutState {
     bool saved{};
     int overflow{},alignment{};
